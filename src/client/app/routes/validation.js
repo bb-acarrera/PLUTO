@@ -16,7 +16,7 @@ export default Ember.Route.extend({
     }
     else {
         // TODO: Display an error? (No params so can't make a request of the server.)
-        return { file : null, ruleset : null, log : null };
+        return { file : null, ruleset : null, log : null, error: "Bad request." };  // TODO: Improve this error response.
       }
   }
 });
