@@ -1,0 +1,27 @@
+{
+	"RuleSet" : {
+		"RulesDirectory" : "/Users/ptokarchuk/git/mapvalidator/src/examples/",
+		"SourceFileName" : "simplemaps-worldcities-basic.csv",
+		"ResultsFileName" : "results.csv",
+		"Name" : "Example RuleSet",
+		"Rules" : [
+			{
+				"FileName" : "RuleExampleUsingMethod",
+				"Config" : "RuleExampleUsingMethodConfig"
+			},
+			{
+				"FileName" : "RuleExampleUsingFiles",
+				"Config" : {}
+			},
+			{
+				"FileName" : "RuleExampleUsingStreams",
+				"Config" : {}
+			},
+			{
+				"FileName" : "RuleExampleUsingCat",
+				"Name" : "/bin/cat",
+				"Config" : {}
+			}
+		]
+	}
+}

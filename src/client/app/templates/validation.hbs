@@ -1,0 +1,25 @@
+<div>
+  <div></div>
+  <h2>Welcome to validation.hbs!</h2>
+  Data File: <i>{{model.file}}</i><br/>
+  Ruleset: <i>{{model.ruleset.name}}</i><br/>
+  <ul>
+    {{#each model.ruleset.rules as |rule|}}
+      <li>
+        {{rule.name}} - {{rule.filename}}
+      </li>
+    {{/each}}
+  </ul>
+  Log File: <i>{{model.logFile}}</i><br/>
+  <ul>
+    {{#each model.log.reports as |report|}}
+      <li>
+        {{log-icon type=report.logType}} {{report.description}}
+      </li>
+    {{/each}}
+  </ul>
+  {{#if model.error}}
+    Error:<br/>{{model.error}}
+  {{/if}}
+</div>
+
