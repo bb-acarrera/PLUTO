@@ -9,23 +9,23 @@ const DataAPI = require("../../../api/DataAPI");
 
 QUnit.test( "Run Validator Test", function( assert ) {
 	const validatorConfig = {
-		"RootDirectory" : "/Users/ptokarchuk/git/mapvalidator",
+		"RootDirectory" : "/Users/ptokarchuk/git/PLUTO",
 		"PluginsDirectory" : "src/default",
 		"RulesetDirectory" : "src/examples",						// Where to find the ruleset files.
 		"TempDirectory" : "/var/tmp",
 		"Plugins" : {
-			"Data" : {
+			"DataAPI" : {
 				"FileName" : "DefaultData",	// Name of the DataAPI plug-in to use.
 				"Config" : {				// This config is plug-in specific and not defined by the MapValidator.
-					"RootDirectory" : "/Users/ptokarchuk/git/mapvalidator",	// Overrides the RootDirectory from validatorConfig.
-					"InputDirectory" : "data",								// Relative to RootDirectory.
+					"RootDirectory" : "/Users/ptokarchuk/git/PLUTO",	// Overrides the RootDirectory from validatorConfig.
+					"InputDirectory" : "src/examples/data",					// Relative to RootDirectory.
 					"OutputDirectory" : "results",							// Relative to RootDirectory.
 					"LogDirectory" : "results/logs"							// Relative to RootDirectory.
 				}
 			}
 		},
 		"RuleSet" : {
-			"RulesDirectory" : "/Users/ptokarchuk/git/mapvalidator/src/examples/",	// Where the ruleset's rules are.
+			"RulesDirectory" : "/Users/ptokarchuk/git/PLUTO/src/examples/",	// Where the ruleset's rules are.
 			"SourceFileName" : "simplemaps-worldcities-basic.csv",	// Overridden by command line arguments.
 			"Encoding" : "utf8",									// Overridden by command line arguments.
 			"ResultsFileName" : "results.csv",						// Overridden by command line arguments.

@@ -109,8 +109,8 @@ class Validator {
 				if (pluginName) {
 					try {
 						// Don't check that the plugin script exists before trying to load it. Instead just throw if it doesn't exist.
-						let loggerScript = require(path.resolve(this.config.PluginsDirectory, pluginName));
-						plugin = new loggerScript.instance(pluginLocalConfig);
+						let script = require(path.resolve(this.config.PluginsDirectory, pluginName));
+						plugin = new script.instance(pluginLocalConfig);
 					}
 					catch (e) {
 						this.error("Failed to load \"" + pluginName + ". Using the default plugin \"" + defaultClass + "\".\n" + e);
@@ -120,7 +120,7 @@ class Validator {
 		}
 
 		if (!plugin) {
-			let defaultPlugin = require("../api/" + defaultClass);
+			let defaultPlugin = require("../default/" + defaultClass);
 
 			if (defaultPlugin) {
 				plugin = new defaultPlugin.instance();

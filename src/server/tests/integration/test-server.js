@@ -6,19 +6,19 @@ const DataAPI = require("../../../api/DataAPI");
 
 QUnit.test( "Create Server Test", function( assert ) {
 	const serverConfig = {
-		"RootDirectory" : "/Users/ptokarchuk/git/mapvalidator",
+		"RootDirectory" : "/Users/ptokarchuk/git/PLUTO",
 		"TempDirectory" : "/var/tmp",
 		"Port" : "8000"
 	};
 
 	const validatorConfig = {
-		"RootDirectory" : "/Users/ptokarchuk/git/mapvalidator",
+		"RootDirectory" : "/Users/ptokarchuk/git/PLUTO",
 		"PluginsDirectory" : "src/default",
 		"RulesetDirectory" : "src/examples",
 		"RulesDirectory" : "src/examples",
 		"TempDirectory" : "/var/tmp",
 		"Plugins" : {
-			"Data" : {
+			"DataAPI" : {
 				"FileName" : "DefaultData",
 					"Config" : {
 					"InputDirectory" : "data",
