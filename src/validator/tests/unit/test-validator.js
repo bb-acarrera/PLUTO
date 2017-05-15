@@ -6,7 +6,7 @@ const DataAPI = require("../../../api/DataAPI");
 
 QUnit.test( "Create Validator Test", function( assert ) {
 	const validatorConfig = {
-		"RootDirectory" : "/Users/ptokarchuk/git/PLUTO",
+		"RootDirectory" : ".",
 		"PluginsDirectory" : "src/default",
 		"RulesetDirectory" : "src/examples",
 		"RulesDirectory" : "src/examples",
