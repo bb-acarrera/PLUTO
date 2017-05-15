@@ -1,0 +1,23 @@
+{
+  "name": "pluto",
+  "version": "0.0.1",
+  "description": "A data validation framework.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unchartedsoftware/PLUTO.git"
+  },
+  "author": "Uncharted Software",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/unchartedsoftware/PLUTO/issues"
+  },
+  "homepage": "https://github.com/unchartedsoftware/PLUTO#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "express": "^4.15.2"
+  }
+}

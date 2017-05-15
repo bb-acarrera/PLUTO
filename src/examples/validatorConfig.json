@@ -1,0 +1,18 @@
+{
+	"RootDirectory" : "/Users/ptokarchuk/git/mapvalidator",
+	"PluginsDirectory" : "src/default",
+	"RulesetDirectory" : "src/examples",
+	"RulesDirectory" : "src/examples",
+	"TempDirectory" : "/var/tmp",
+	"Plugins" : {
+		"DataAPI" : {
+			"FileName" : "DefaultData",
+			"Config" : {
+				"InputDirectory" : "data",
+				"OutputDirectory" : "results",
+				"LogDirectory" : "results/logs"
+			}
+		}
+	},
+	"RuleSet" : "exampleRuleSetConfig.json"
+}
