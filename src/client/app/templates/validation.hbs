@@ -2,11 +2,11 @@
   <div></div>
   <h2>PLUTO</h2>
   <div style="border:1px solid black;width:33%">
-    Filename<br/>
-    <div style="border:1px solid black;">{{model.file}}</div><br/>
-    Process Template<br/>
-    <div style="border:1px solid black;">{{model.ruleset.name}}</div><br/>
-    Sequence<br/>
+    <div style="padding: 3px 3px 0px 3px;">Filename</div>
+    <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.file}}</div>
+    <div style="padding: 3px 3px 0px 3px;">Process Template</div>
+    <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.ruleset.name}}</div>
+    <div style="padding: 3px 3px 0px 3px;">Sequence</div>
     <table>
       {{#each model.ruleset.rules as |rule|}}
         <tr>
