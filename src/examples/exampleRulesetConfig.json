@@ -1,6 +1,6 @@
 {
 	"RuleSet" : {
-		"RulesDirectory" : "/Users/ptokarchuk/git/mapvalidator/src/examples/",
+		"RulesDirectory" : "/Users/ptokarchuk/git/PLUTO/src/examples/",
 		"SourceFileName" : "simplemaps-worldcities-basic.csv",
 		"ResultsFileName" : "results.csv",
 		"Name" : "Example RuleSet",

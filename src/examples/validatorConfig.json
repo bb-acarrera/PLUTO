@@ -8,7 +8,7 @@
 		"DataAPI" : {
 			"FileName" : "DefaultData",
 			"Config" : {
-				"InputDirectory" : "data",
+				"InputDirectory" : "src/examples/data",
 				"OutputDirectory" : "results",
 				"LogDirectory" : "results/logs"
 			}
