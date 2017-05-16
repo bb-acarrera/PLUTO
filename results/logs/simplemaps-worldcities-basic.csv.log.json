@@ -1,1 +1,1 @@
-[]
+[{"type":"Info","when":"5/16/2017, 12:23:03 PM","problemFile":"/Users/ptokarchuk/git/PLUTO/src/validator/validator.js","description":"Using ErrorLogger for error and warning reports."},{"type":"Error","when":"5/16/2017, 12:23:03 PM","problemFile":"/Users/ptokarchuk/git/PLUTO/src/api/RuleAPI.js","description":"Hello World! I'm an error."}]
