@@ -556,7 +556,7 @@ class Validator {
 	 * @private
 	 */
 	error(problemDescription) {
-		this.log(RuleAPI.ERROR, __filename, problemDescription);
+		this.log(RuleAPI.ERROR, this.constructor.name, problemDescription);
 	}
 
 	/**
@@ -565,7 +565,7 @@ class Validator {
 	 * @private
 	 */
 	warning(problemDescription) {
-		this.log(RuleAPI.WARNING, __filename, problemDescription);
+		this.log(RuleAPI.WARNING, this.constructor.name, problemDescription);
 	}
 
 	/**
@@ -574,7 +574,7 @@ class Validator {
 	 * @private
 	 */
 	info(problemDescription) {
-		this.log(RuleAPI.INFO, __filename, problemDescription);
+		this.log(RuleAPI.INFO, this.constructor.name, problemDescription);
 	}
 }
 
@@ -613,7 +613,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 
 	// TODO: Remove this log message once there are more reasonable log messages.
 	if (validator.logger)
-		validator.log(RuleAPI.INFO, scriptName, "Using " + validator.logger.constructor.name + " for error and warning reports.");
+		validator.info("Using " + validator.logger.constructor.name + " for error and warning reports.");
 	else {
 		console.error("Failed to initialize any reporting plug-in.");
 		process.exit(1);

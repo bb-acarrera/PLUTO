@@ -1,25 +1,17 @@
 <div>
   <div></div>
-  <h2>Welcome to validation.hbs!</h2>
+  <h2>PLUTO</h2>
   Data File: <i>{{model.file}}</i><br/>
   Ruleset: <i>{{model.ruleset.name}}</i><br/>
-  <ul>
+  <table>
     {{#each model.ruleset.rules as |rule|}}
-      <li>
-        {{rule-log-icons rule=rule log=model.log}} {{rule.name}} - {{rule.filename}}
-      </li>
+      <tr>
+       {{rule-log-icons rule=rule log=model.log}}<td>{{rule.name}}</td>
+      </tr>
     {{/each}}
-  </ul>
-  Log File: <i>{{model.logFile}}</i><br/>
-  <ul>
-    {{#each model.log.reports as |report|}}
-      <li>
-        {{log-icon type=report.logType}} {{report.description}}
-      </li>
-    {{/each}}
-  </ul>
-  {{#if model.error}}
-    Error:<br/>{{model.error}}
-  {{/if}}
+    <tr>
+      {{rule-log-icons rule="Validator" log=model.log}}<td>Global Errors</td>
+    </tr>
+  </table>
 </div>
 

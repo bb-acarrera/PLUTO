@@ -3,7 +3,7 @@ import Ember from 'ember';
 export function ruleLogIcons(params, {rule, log, tagName}) {
   let tag = tagName === undefined ? 'i' : tagName;
 
-  const ruleFileName = rule.get('filename');
+  const ruleFileName = typeof rule === 'string' ? rule : rule.get('filename');
   let hasInfo = false, hasWarnings = false, hasErrors = false;
 
   log.get('reports').forEach((report) => {
@@ -24,7 +24,7 @@ export function ruleLogIcons(params, {rule, log, tagName}) {
     }
   });
 
-  var result = "";
+  var result = "<td>";
   if (hasErrors) {
     // {{#fa-stack as |s|}}
     // {{s.stack-1x "square" size="lg" style="color:firebrick"}}
@@ -32,14 +32,17 @@ export function ruleLogIcons(params, {rule, log, tagName}) {
     // {{/fa-stack}}
     result += `<span class="fa-stack"><${tag} class="fa fa-square fa-lg fa-stack-1x" style="color:firebrick"></${tag}><${tag} class="fa fa-exclamation fa-stack-1x fa-inverse"></${tag}></span>`;
   }
-  else if (hasWarnings) {
+  result += "</td><td>"
+  if (hasWarnings) {
     // {{fa-icon "exclamation-triangle" size="lg" style="color:gold"}}
     result += `<${tag} class="fa fa-exclamation-triangle fa-lg" style="color:gold"></${tag}>`;
   }
-  else if (hasInfo) {
+  result += "</td><td>"
+  if (hasInfo) {
     // {{fa-icon "info-circle" size="lg" style="color:deepskyblue"}}
     result += `<${tag} class="fa fa-info-circle fa-lg" style="color:deepskyblue"></${tag}>`;
   }
+  result += "</td>"
 
   return Ember.String.htmlSafe(result);
 }
