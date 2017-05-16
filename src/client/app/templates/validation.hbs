@@ -6,7 +6,7 @@
   <ul>
     {{#each model.ruleset.rules as |rule|}}
       <li>
-        {{rule.name}} - {{rule.filename}}
+        {{rule-log-icons rule=rule log=model.log}} {{rule.name}} - {{rule.filename}}
       </li>
     {{/each}}
   </ul>

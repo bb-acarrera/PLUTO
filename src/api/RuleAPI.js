@@ -167,7 +167,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	error(problemDescription) {
-		this.log(RuleAPI.ERROR, __filename, problemDescription);
+		this.log(RuleAPI.ERROR, this.constructor.name, problemDescription);
 	}
 
 	/**
@@ -175,7 +175,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	warning(problemDescription) {
-		this.log(RuleAPI.WARNING, __filename, problemDescription);
+		this.log(RuleAPI.WARNING, this.constructor.name, problemDescription);
 	}
 
 	/**
@@ -183,7 +183,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	info(problemDescription) {
-		this.log(RuleAPI.INFO, __filename, problemDescription);
+		this.log(RuleAPI.INFO, this.constructor.name, problemDescription);
 	}
 }
 
