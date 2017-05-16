@@ -1,17 +1,25 @@
 <div>
   <div></div>
   <h2>PLUTO</h2>
-  Data File: <i>{{model.file}}</i><br/>
-  Ruleset: <i>{{model.ruleset.name}}</i><br/>
-  <table>
-    {{#each model.ruleset.rules as |rule|}}
+  <div style="border:1px solid black;width:33%">
+    Filename<br/>
+    <div style="border:1px solid black;">{{model.file}}</div><br/>
+    Process Template<br/>
+    <div style="border:1px solid black;">{{model.ruleset.name}}</div><br/>
+    Sequence<br/>
+    <table>
+      {{#each model.ruleset.rules as |rule|}}
+        <tr>
+          {{rule-log-icons rule=rule log=model.log}}
+          <td><input type="checkbox" width="20"/></td>
+          <td>{{rule.name}}</td>
+        </tr>
+      {{/each}}
       <tr>
-       {{rule-log-icons rule=rule log=model.log}}<td>{{rule.name}}</td>
+        {{rule-log-icons rule="Validator" log=model.log}}
+        <td><input type="checkbox" width="20"/></td>
+        <td>Global Errors</td>
       </tr>
-    {{/each}}
-    <tr>
-      {{rule-log-icons rule="Validator" log=model.log}}<td>Global Errors</td>
-    </tr>
-  </table>
+    </table>
+  </div>
 </div>
-
