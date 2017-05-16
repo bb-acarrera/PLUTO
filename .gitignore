@@ -1,3 +1,6 @@
 src/client/.idea
 .idea
 node_modules
+*.swp
+src/client/public
+public
