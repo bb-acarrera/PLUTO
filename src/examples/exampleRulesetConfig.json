@@ -6,6 +6,10 @@
 		"Name" : "Example RuleSet",
 		"Rules" : [
 			{
+				"FileName" : "../api/CSVRuleAPI",
+				"Config" : {}
+			},
+			{
 				"FileName" : "RuleExampleUsingMethod",
 				"Config" : "RuleExampleUsingMethodConfig"
 			},
