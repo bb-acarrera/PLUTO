@@ -10,8 +10,6 @@ class RuleExampleUsingMethod extends RuleAPI {
 	}
 
 	useMethod(data) {
-		this.error("Hello World! I'm an error.");
-
 		setImmediate(() => {
 			this.emit(RuleAPI.NEXT, data);
 		});
