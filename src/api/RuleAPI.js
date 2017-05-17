@@ -81,7 +81,7 @@ class RuleAPI extends EventEmitter {
 		this.error("canUseStreams() returned true but useStreams() not implemented.");
 
 		setImmediate(() => {
-			this.emit(RuleAPI.NEXT);
+			this.emit(RuleAPI.NEXT, outputStream);
 		});
 	}
 
