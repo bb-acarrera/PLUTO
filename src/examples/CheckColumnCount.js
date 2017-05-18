@@ -9,7 +9,7 @@ class CheckColumnCount extends CSVRuleAPI {
 		this.columns = undefined;
 		if (!this.config)
 			this.error(`${this.constructor.name} has no configuration.`);
-		else if (!this.config.Columns)
+		else if (this.config.Columns === undefined)
 			this.error(`${this.constructor.name} configured without a Columns property.`);
 		else if (isNaN(this.config.Columns))
 			this.error(`${this.constructor.name} configured with a non-number Columns. Got '${config.Columns}'.`);
