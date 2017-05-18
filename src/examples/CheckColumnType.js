@@ -60,9 +60,9 @@ class CheckColumnType extends CSVRuleAPI {
 		if (this.config.Column === undefined)
 			this.error(`${this.constructor.name} configured without a 'Column' property.`);
 		else if (isNaN(this.config.Column))
-			this.error(`${this.constructor.name} configured with a non-number Column. Got '${config.Column}'.`);
+			this.error(`${this.constructor.name} configured with a non-number Column. Got '${this.config.Column}'.`);
 		else if (this.config.Column < 0)
-			this.error(`${this.constructor.name} configured with a negative Column. Got '${config.Column}'.`);
+			this.error(`${this.constructor.name} configured with a negative Column. Got '${this.config.Column}'.`);
 		else {
 			this.column = Math.floor(parseFloat(this.config.Column));
 			if (!Number.isInteger(parseFloat(this.config.Column)))

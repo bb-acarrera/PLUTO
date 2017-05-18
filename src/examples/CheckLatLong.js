@@ -4,42 +4,63 @@ class CheckLatLong extends CSVRuleAPI {
 	constructor(config) {
 		super(config);
 
-		this.numHeaderRows = this.config.NumberOfHeaderRows || 0;
-		if (isNaN(this.numHeaderRows)) {
-			this.error(`${this.constructor.name} configured with a non-number NumberOfHeaderRows. Got '${config.NumberOfHeaderRows}', using 0.`);
-			this.numHeaderRows = 0;
+		if (!config) {
+			this.error(`${this.constructor.name} has no configuration.`);	// At the moment this does nothing since a config is required for reporting errors.
+			return;	// Might as well give up...
 		}
-		else if (this.numHeaderRows < 0) {
-			this.error(`${this.constructor.name} configured with a negative NumberOfHeaderRows. Got '${config.NumberOfHeaderRows}', using 0.`);
-			this.numHeaderRows = 0;
+
+		this.numHeaderRows = 0;
+		if (this.config.NumberOfHeaderRows === undefined)
+			this.warning(`${this.constructor.name} configured without a 'NumberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
+		else if (isNaN(this.config.NumberOfHeaderRows))
+			this.warning(`${this.constructor.name} configured with a non-number NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+		else if (this.config.NumberOfHeaderRows < 0)
+			this.warning(`${this.constructor.name} configured with a negative NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+		else {
+			this.numHeaderRows = Math.floor(parseFloat(this.config.NumberOfHeaderRows));
+			if (!Number.isInteger(parseFloat(this.config.NumberOfHeaderRows)))
+				this.warning(`${this.constructor.name} configured with a non-integer NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		}
 
 		this.latitudeColumn = undefined;
-		if (!this.config.LatitudeColumn)
-			this.error(`${this.constructor.name} configured without a LatitudeColumn property.`);
-		else if (isNaN(this.config.LongitudeCLatitudeColumnolumn))
-			this.error(`${this.constructor.name} configured with a non-number LatitudeColumn. Got '${config.LatitudeColumn}'.`);
-		else
-			this.latitudeColumn = this.config.LatitudeColumn;
+		if (this.config.LatitudeColumn === undefined)
+			this.error(`${this.constructor.name} configured without a 'LatitudeColumn' property.`);
+		else if (isNaN(this.config.LatitudeColumn))
+			this.error(`${this.constructor.name} configured with a non-number LatitudeColumn. Got '${this.config.LatitudeColumn}'.`);
+		else if (this.config.LatitudeColumn < 0)
+			this.error(`${this.constructor.name} configured with a negative LatitudeColumn. Got '${this.config.LatitudeColumn}'.`);
+		else {
+			this.latitudeColumn = Math.floor(parseFloat(this.config.LatitudeColumn));
+			if (!Number.isInteger(parseFloat(this.config.LatitudeColumn)))
+				this.warning(`${this.constructor.name} configured with a non-integer LatitudeColumn. Got '${this.config.LatitudeColumn}', using ${this.latitudeColumn}.`);
+		}
 
 		this.longitudeColumn = undefined;
-		if (!this.config.LongitudeColumn)
-			this.error(`${this.constructor.name} configured without a LongitudeColumn property.`);
+		if (this.config.LongitudeColumn === undefined)
+			this.error(`${this.constructor.name} configured without a 'LongitudeColumn' property.`);
 		else if (isNaN(this.config.LongitudeColumn))
-			this.error(`${this.constructor.name} configured with a non-number LongitudeColumn. Got '${config.LongitudeColumn}'.`);
-		else
-			this.longitudeColumn = this.config.LongitudeColumn;
+			this.error(`${this.constructor.name} configured with a non-number LongitudeColumn. Got '${this.config.LongitudeColumn}'.`);
+		else if (this.config.LongitudeColumn < 0)
+			this.error(`${this.constructor.name} configured with a negative LongitudeColumn. Got '${this.config.LongitudeColumn}'.`);
+		else {
+			this.longitudeColumn = Math.floor(parseFloat(this.config.LongitudeColumn));
+			if (!Number.isInteger(parseFloat(this.config.LongitudeColumn)))
+				this.warning(`${this.constructor.name} configured with a non-integer LongitudeColumn. Got '${this.config.LongitudeColumn}', using ${this.longitudeColumn}.`);
+		}
 
-		this.nullEpsilon = 0;
-		if (!this.config.NullIslandEpsilon) {
+		if (this.latitudeColumn === this.longitudeColumn)
+			this.error(`${this.constructor.name} configured with identical LatitudeColumn and LongitudeColumn property values.`);
+
+		this.nullEpsilon = 0.01;
+		if (this.config.NullIslandEpsilon === undefined) {
 			this.warning(`${this.constructor.name} configured without a NullIslandEpsilon property. Using ${this.nullEpsilon}.`);
 			this.nullEpsilon = 0;
 		}
 		else if (isNaN(this.config.NullIslandEpsilon))
-			this.error(`${this.constructor.name} configured with a non-number NullIslandEpsilon. Got '${config.NullIslandEpsilon}'.`);
+			this.error(`${this.constructor.name} configured with a non-number NullIslandEpsilon. Got '${this.config.NullIslandEpsilon}'.`);
 		else if (this.config.NullIslandEpsilon < 0) {
 			this.nullEpsilon = -this.config.NullIslandEpsilon;
-			this.warning(`${this.constructor.name} configured with a negative NullIslandEpsilon. Got '${config.NullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
+			this.warning(`${this.constructor.name} configured with a negative NullIslandEpsilon. Got '${this.config.NullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
 		}
 		else
 			this.nullEpsilon = this.config.NullIslandEpsilon;
@@ -50,28 +71,28 @@ class CheckLatLong extends CSVRuleAPI {
 	}
 
 	processRecord(record) {
-		if (this.latitudeColumn && this.longitudeColumn && this.rowNumber >= this.numHeaderRows) {
-			if (this.column >= record.length) {
+		if (this.latitudeColumn !== undefined && this.longitudeColumn !== undefined && this.rowNumber >= this.numHeaderRows) {
+			if (this.latitudeColumn >= record.length || this.longitudeColumn >= record.length) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`${this.constructor.name} row ${this.rowNumber} has insufficient columns.`);
+					this.error(`${this.constructor.name}: Row ${this.rowNumber} has insufficient columns.`);
 					this.badColumnCountReported = true;
 				}
 			}
 			else {
 				const lat = record[this.latitudeColumn];
 				const long = record[this.longitudeColumn];
-				if (isNan(lat))
-					this.error(`${this.constructor.name} latitude is not a number in row ${this.rowNumber}. Got '${lat}'.`);
-				else if (lat < 0 || lat > 90)
-					this.error(`${this.constructor.name} latitude is out of range in row ${this.rowNumber}. Got '${lat}'.`);
+				if (isNaN(lat))
+					this.error(`Latitude is not a number in row ${this.rowNumber}. Got '${lat}'.`);
+				else if (lat < -90 || lat > 90)
+					this.error(`Latitude is out of range in row ${this.rowNumber}. Got '${lat}'.`);
 
-				if (isNan(long))
-					this.error(`${this.constructor.name} longitude is not a number in row ${this.rowNumber}. Got '${long}'.`);
+				if (isNaN(long))
+					this.error(`Longitude is not a number in row ${this.rowNumber}. Got '${long}'.`);
 				else if (long < -180 || long > 180)
-					this.error(`${this.constructor.name} longitude is out of range in row ${this.rowNumber}. Got '${long}'.`);
+					this.error(`Longitude is out of range in row ${this.rowNumber}. Got '${long}'.`);
 
 				if (Math.abs(lat) <= this.nullEpsilon && Math.abs(long) <= this.nullEpsilon)
-					this.warning(`${this.constructor.name} found null island in row ${this.rowNumber}.`);	// Should this be enabled conditionally?
+					this.warning(`Found null island in row ${this.rowNumber}.`);	// Should this be enabled conditionally?
 
 				// TODO: Any other tests?
 			}
