@@ -123,7 +123,7 @@ class RuleAPI extends EventEmitter {
 	 * @returns {boolean} <code>false</code> by default. Derived classes should choose whether an entire ruleset run should
 	 * fail if they fail.
 	 */
-	shouldRulesetFailOnError() { return false; }
+	shouldRulesetFailOnError() { return true; }
 
 	/**
 	 * Use this with {@link Validator#log} to log significant errors.
