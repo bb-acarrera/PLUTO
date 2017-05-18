@@ -7,9 +7,46 @@ const parse = require('csv-parse');
 const stringify = require('csv-stringify');
 const transform = require('stream-transform');
 
+/**
+ *  <p>This base class describes an API derived classes implement to add Javascript based CSV rules. The only method that
+ *  must be implemented is {@link CSVRuleAPI#processRecord CSVRuleAPI.processRecord()} which is called by the validator
+ *  once for each record in the CSV file and is used to examine a record for problems or
+ *  to modify it. If problems are detected in a record then {@link RuleAPI#error RuleAPI.error()},
+ *  {@link RuleAPI#warning RuleAPI.warning()}, or
+ *  {@link RuleAPI#info RuleAPI.info()} should be called with a description of the problem.</p>
+ *  <p>Derived classes can also implement {@link CSVRuleAPI#start CSVRuleAPI.start()} which is called once by the validator before reading any
+ *  records. A derived class could implement this to initialize any resources. Similarly derived classes could
+ *  implement {@link CSVRuleAPI#finish CSVRuleAPI.finish()} which is called once by the validator after the last call to
+ *  {@link CSVRuleAPI#processRecord CSVRuleAPI.processRecord()}. A derived class could implement this to finalize any resources.</p>
+ *  <p>This class supports several properties on the configuration object that affect the parsing of CSV files.</p>
+ *  <ul>
+ *      <li>Delimiter - the delimiter character separating fields in a record. Defaults to a commma.</li>
+ *      <li>Comment - the comment character. Any text following this character is ignored. Ignored by default.</li>
+ *      <li>Escape - the single character used to allow the delimiter character to be used in a field. Defaults to a double quote.</li>
+ *      <li>Quote - the single character surrounding fields. Defaults to a double quote.</li>
+ *  </ul>
+ *  <p>These properties are shared when reading and writing records but if a rule wants to write rules differently than
+ *  they were read, for example changing the delimiter, prefixing any of these property names with "Output"
+ *  (ex. "OutputDelimiter") will set the property on output only.</p>
+ */
 class CSVRuleAPI extends RuleAPI {
+	/**
+	 * Derived classes must call this from their constructor.
+	 * @constructor
+	 * @param config {object} the config object passed into the derived class's constructor.
+	 */
 	constructor(config) {
 		super(config)
+
+		this.delimiter = this.config.Delimiter || ',';
+		this.comment = this.config.Comment || '';
+		this.escape = this.config.Escape || '"';
+		this.quote = this.config.Quote || '"';
+
+		this.post_delimiter = this.config.OutputDelimiter || ',';
+		this.post_comment = this.config.OutputComment || '';
+		this.post_escape = this.config.OutputEscape || '"';
+		this.post_quote = this.config.OutputQuote || '"';
 	}
 
 	/**
@@ -28,8 +65,8 @@ class CSVRuleAPI extends RuleAPI {
 
 	/**
 	 * Derived classes should implement this method to process individual records.
-	 * @param record one record from the csv file.
-	 * @returns {*} a record, either the original one if no modifications were carried out or a new one.
+	 * @param record {array} one record from the csv file. Headers are not skipped.
+	 * @returns {array} a record, either the original one if no modifications were carried out or a new one.
 	 */
 	processRecord(record) {
 		// Process the record and return the new record.
@@ -43,8 +80,15 @@ class CSVRuleAPI extends RuleAPI {
 	 * @private
 	 */
 	processCSV(inputStream, outputStream) {
-		// Need "relax_column_count" otherwise the parser throws an exception. I'd rather detect it.
-		const parser = parse({delimiter: ',', relax_column_count: true});			// TODO: Need to get options from the config file.
+		const parser = parse(
+			{
+				delimiter: this.delimiter,
+				comment: this.comment,
+				escape: this.escape,
+				quote: this.quote,
+				relax_column_count: true		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
+												// I'd rather detect it.
+			});
 
 		// This CSV Transformer is used to call the processRecord() method above.
 		const transformer = transform(record => {
@@ -58,7 +102,14 @@ class CSVRuleAPI extends RuleAPI {
 
 		if (outputStream) {
 			// Only need to stringify if actually outputting anything.
-			const stringifier = stringify({delimiter: ',', relax_column_count: true});		// TODO: Ditto.
+			const stringifier = stringify({
+				delimiter: this.post_delimiter,
+				comment: this.post_comment,
+				escape: this.post_escape,
+				quote: this.post_quote,
+				relax_column_count: true		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
+				// I'd rather detect it.
+			});
 			inputStream.pipe(parser).pipe(transformer).pipe(stringifier).pipe(outputStream);
 		}
 		else

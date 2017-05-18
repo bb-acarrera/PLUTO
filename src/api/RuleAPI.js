@@ -166,7 +166,8 @@ class RuleAPI extends EventEmitter {
 	}
 
 	/**
-	 * Add an error to the log.
+	 * Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
+	 * <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	error(problemDescription) {
