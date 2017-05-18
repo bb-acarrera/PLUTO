@@ -159,7 +159,10 @@ class RuleAPI extends EventEmitter {
 	 * @private
 	 */
 	log(level, problemFileName, problemDescription) {
-		this.config.validator.log(level, problemFileName, problemDescription);
+		if (this.config && this.config.validator)
+			this.config.validator.log(level, problemFileName, problemDescription);
+		else if (this.config && this.config._debugLogger)
+			this.config._debugLogger.log(level, problemFileName, problemDescription);
 	}
 
 	/**

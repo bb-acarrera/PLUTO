@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 class ErrorLogger {
-	constructor(localConfig) {
+	constructor() {
 		this.reports = [];
 	}
 

@@ -7,26 +7,28 @@ class CheckColumnCount extends CSVRuleAPI {
 		this.rowNumber = 0;
 
 		this.columns = undefined;
-		if (!this.config.Columns)
-			this.error(`${constructor.name} configured without a Columns property.`);
+		if (!this.config)
+			this.error(`${this.constructor.name} has no configuration.`);
+		else if (!this.config.Columns)
+			this.error(`${this.constructor.name} configured without a Columns property.`);
 		else if (isNaN(this.config.Columns))
-			this.error(`${constructor.name} configured with a non-number Columns. Got '${config.Columns}'.`);
+			this.error(`${this.constructor.name} configured with a non-number Columns. Got '${config.Columns}'.`);
 		else if (this.config.Columns < 0)
-			this.error(`${constructor.name} configured with a negative Columns. Got '${config.Columns}'.`);
-		else if (!Number.isInteger(this.config.Columns))
-			this.error(`${constructor.name} configured with a non-integer Columns. Got '${config.Columns}'.`);
+			this.error(`${this.constructor.name} configured with a negative Columns. Got '${config.Columns}'.`);
+		else if (!Number.isInteger(parseFloat(this.config.Columns)))
+			this.error(`${this.constructor.name} configured with a non-integer Columns. Got '${config.Columns}'.`);
 		else
-			this.columns = this.config.Columns;
+			this.columns = parseFloat(this.config.Columns);
 
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
-		this.reportAlways = this.config.ReportAlways || false;	// Should every occurrence be reported?
+		this.reportAlways = this.config && this.config.ReportAlways ? this.config.ReportAlways : false;	// Should every occurrence be reported?
 	}
 
 	processRecord(record) {
 		if (this.columns) {
 			if (record.length !== this.columns) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`${constructor.name} row ${this.rowNumber} has insufficient columns.`);
+					this.error(`${this.constructor.name}: Row ${this.rowNumber} has wrong number of columns.`);
 					this.badColumnCountReported = true;
 				}
 			}

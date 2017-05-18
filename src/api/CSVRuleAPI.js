@@ -1,3 +1,5 @@
+const MemoryReaderStream = require("../validator/MemoryReaderStream");
+const MemoryWriterStream = require("../validator/MemoryWriterStream");
 const RuleAPI = require("./RuleAPI");
 
 const fs = require("fs");
@@ -41,7 +43,8 @@ class CSVRuleAPI extends RuleAPI {
 	 * @private
 	 */
 	processCSV(inputStream, outputStream) {
-		const parser = parse({delimiter: ','});			// TODO: Need to get options from the config file.
+		// Need "relax_column_count" otherwise the parser throws an exception. I'd rather detect it.
+		const parser = parse({delimiter: ',', relax_column_count: true});			// TODO: Need to get options from the config file.
 
 		// This CSV Transformer is used to call the processRecord() method above.
 		const transformer = transform(record => {
@@ -55,7 +58,7 @@ class CSVRuleAPI extends RuleAPI {
 
 		if (outputStream) {
 			// Only need to stringify if actually outputting anything.
-			const stringifier = stringify({delimiter: ','});		// TODO: Ditto.
+			const stringifier = stringify({delimiter: ',', relax_column_count: true});		// TODO: Ditto.
 			inputStream.pipe(parser).pipe(transformer).pipe(stringifier).pipe(outputStream);
 		}
 		else
@@ -108,7 +111,7 @@ class CSVRuleAPI extends RuleAPI {
 		writer.once("finish", () => {
 			this.emit(RuleAPI.NEXT, writer.getData(this.encoding));
 		});
-		const reader = new MemoryReaderStream(lastResult.data);
+		const reader = new MemoryReaderStream(data);
 		this.processCSV(reader, writer);
 	}
 }
