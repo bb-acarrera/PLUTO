@@ -209,7 +209,7 @@ class Validator {
 	}
 
 	runRule(rulesDirectory, ruleDescriptor, lastResult) {
-		if (!ruleDescriptor) {
+		if (!ruleDescriptor || this.shouldAbort) {	// "shouldAbort" is set in the "log" method.
 			// No more rules, so done.
 			this.saveResults(lastResult);
 			this.cleanup();
@@ -218,8 +218,6 @@ class Validator {
 		}
 
 		let ruleFilename = ruleDescriptor.FileName;
-		// ruleDescriptor.Name = ruleDescriptor.Name || path.basename(ruleFilename);	// Make sure rules have a name.
-
 		if (!ruleFilename)
 			throw("Rule has no 'FileName'.");
 
@@ -536,9 +534,11 @@ class Validator {
 	 * then {@link Validator.INFO} is assumed.
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
 	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param shouldAbort should the running of rules stop at the end of the current rule,
 	 * @private
 	 */
-	log(level, problemFileName, problemDescription) {
+	log(level, problemFileName, problemDescription, shouldAbort) {
+		this.shouldAbort = shouldAbort || false;
 		if (this.logger)
 			this.logger.log(level, problemFileName, problemDescription);
 		else {

@@ -158,9 +158,9 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 * @private
 	 */
-	log(level, problemFileName, problemDescription) {
+	log(level, problemFileName, problemDescription, shouldAbort) {
 		if (this.config && this.config.validator)
-			this.config.validator.log(level, problemFileName, problemDescription);
+			this.config.validator.log(level, problemFileName, problemDescription, shouldAbort || false);
 		else if (this.config && this.config._debugLogger)
 			this.config._debugLogger.log(level, problemFileName, problemDescription);
 	}
@@ -170,7 +170,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	error(problemDescription) {
-		this.log(RuleAPI.ERROR, this.constructor.name, problemDescription);
+		this.log(RuleAPI.ERROR, this.constructor.name, problemDescription, this.shouldRulesetFailOnError());
 	}
 
 	/**
