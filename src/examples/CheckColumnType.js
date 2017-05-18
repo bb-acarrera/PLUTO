@@ -5,11 +5,11 @@ class CheckColumnType extends CSVRuleAPI {
 		super(config);
 
 		if (!config) {
-			this.error(`${this.constructor.name} has no configuration.`);	// At the moment this does nothing since a config is required for reporting errors.
+			this.error('No configuration specified.');			// At the moment this does nothing since a config is required for reporting errors.
 			return;	// Might as well give up...
 		}
 		else if (!config.Type) {
-			this.error(`${this.constructor.name} configured without a 'Type' property.`);
+			this.error(`Configured without a 'Type' property.`);
 			return; // Ditto
 		}
 		else {
@@ -27,7 +27,7 @@ class CheckColumnType extends CSVRuleAPI {
 					break;
 				case 'regex': {
 					if (!this.config.RegEx)
-						this.error(`${this.constructor.name}: Type is 'regex' but no 'RegEx' property defined'.`);
+						this.error(`Type is 'regex' but no 'RegEx' property defined'.`);
 					else {
 						const regex = new RegExp(this.config.RegEx);
 						this.test = function (datum) {
@@ -37,7 +37,7 @@ class CheckColumnType extends CSVRuleAPI {
 					break;
 				}
 				default:
-					this.error(`${this.constructor.name} configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got '${config.Type}'.`);
+					this.error(`Configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got '${config.Type}'.`);
 					break;
 			}
 		}
@@ -45,28 +45,28 @@ class CheckColumnType extends CSVRuleAPI {
 		this.rowNumber = 0;
 		this.numHeaderRows = 0;
 		if (!this.config.NumberOfHeaderRows)
-			this.warning(`${this.constructor.name} configured without a 'NumberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
+			this.warning(`Configured without a 'NumberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
 		else if (isNaN(this.config.NumberOfHeaderRows))
-			this.warning(`${this.constructor.name} configured with a non-number NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+			this.warning(`Configured with a non-number NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		else if (this.config.NumberOfHeaderRows < 0)
-			this.warning(`${this.constructor.name} configured with a negative NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+			this.warning(`Configured with a negative NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		else {
 			this.numHeaderRows = Math.floor(parseFloat(this.config.NumberOfHeaderRows));
 			if (!Number.isInteger(parseFloat(this.config.NumberOfHeaderRows)))
-				this.warning(`${this.constructor.name} configured with a non-integer NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+				this.warning(`Configured with a non-integer NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		}
 
 		this.column = undefined;
 		if (this.config.Column === undefined)
-			this.error(`${this.constructor.name} configured without a 'Column' property.`);
+			this.error(`Configured without a 'Column' property.`);
 		else if (isNaN(this.config.Column))
-			this.error(`${this.constructor.name} configured with a non-number Column. Got '${this.config.Column}'.`);
+			this.error(`Configured with a non-number Column. Got '${this.config.Column}'.`);
 		else if (this.config.Column < 0)
-			this.error(`${this.constructor.name} configured with a negative Column. Got '${this.config.Column}'.`);
+			this.error(`Configured with a negative Column. Got '${this.config.Column}'.`);
 		else {
 			this.column = Math.floor(parseFloat(this.config.Column));
 			if (!Number.isInteger(parseFloat(this.config.Column)))
-				this.warning(`${this.constructor.name} configured with a non-integer Column. Got '${this.config.Column}', using ${this.column}.`);
+				this.warning(`Configured with a non-integer Column. Got '${this.config.Column}', using ${this.column}.`);
 		}
 
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
@@ -77,12 +77,12 @@ class CheckColumnType extends CSVRuleAPI {
 		if (this.column !== undefined && this.rowNumber >= this.numHeaderRows) {
 			if (this.column >= record.length) {	// Does the record have the correct number of columns?
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`${this.constructor.name}: Row ${this.rowNumber} has insufficient columns.`);
+					this.error(`Row ${this.rowNumber} has insufficient columns.`);
 					this.badColumnCountReported = true;
 				}
 			}
 			else if (this.test && !this.test(record[this.column]))	// Is the cell in the column valid?
-				this.error(`${this.constructor.name}: Row ${this.rowNumber}, Column ${this.column}: Expected a ${this.config.Type} but got ${record[this.column]}.`);
+				this.error(`Row ${this.rowNumber}, Column ${this.column}: Expected a ${this.config.Type} but got ${record[this.column]}.`);
 		}
 
 		this.rowNumber++;

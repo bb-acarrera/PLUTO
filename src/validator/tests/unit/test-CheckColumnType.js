@@ -19,7 +19,7 @@ QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logResults = logger.getLog();
 	assert.equal(logResults.length, 1, "Expect single result.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured without a 'Type' property.");
+	assert.equal(logResults[0].description, "Configured without a 'Type' property.");
 });
 
 QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( assert ) {
@@ -35,7 +35,7 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 	assert.equal(logResults[0].description,
-		"CheckColumnType configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got 'foo'.");
+		"Configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got 'foo'.");
 });
 
 QUnit.test( "CheckColumnType: Check Incomplete RegEx Type Property Test", function( assert ) {
@@ -50,7 +50,7 @@ QUnit.test( "CheckColumnType: Check Incomplete RegEx Type Property Test", functi
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckColumnType: Type is 'regex' but no 'RegEx' property defined'.");
+	assert.equal(logResults[0].description, "Type is 'regex' but no 'RegEx' property defined'.");
 });
 
 QUnit.test( "CheckColumnType: Check For Absent NumberOfHeaderRows property", function( assert ) {
@@ -65,7 +65,7 @@ QUnit.test( "CheckColumnType: Check For Absent NumberOfHeaderRows property", fun
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured without a 'NumberOfHeaderRows' property. Using 0.");
+	assert.equal(logResults[0].description, "Configured without a 'NumberOfHeaderRows' property. Using 0.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Number NumberOfHeaderRows", function( assert ) {
@@ -81,7 +81,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number NumberOfHeaderRows", function
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured with a non-number NumberOfHeaderRows. Got 'foo', using 0.");
+	assert.equal(logResults[0].description, "Configured with a non-number NumberOfHeaderRows. Got 'foo', using 0.");
 });
 
 QUnit.test( "CheckColumnType: Check For Negative NumberOfHeaderRows", function( assert ) {
@@ -97,7 +97,7 @@ QUnit.test( "CheckColumnType: Check For Negative NumberOfHeaderRows", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured with a negative NumberOfHeaderRows. Got '-1', using 0.");
+	assert.equal(logResults[0].description, "Configured with a negative NumberOfHeaderRows. Got '-1', using 0.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
@@ -113,7 +113,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer NumberOfHeaderRows", functio
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured with a non-integer NumberOfHeaderRows. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer NumberOfHeaderRows. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckColumnType: Check For Absent Column Property", function( assert ) {
@@ -129,7 +129,7 @@ QUnit.test( "CheckColumnType: Check For Absent Column Property", function( asser
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured without a 'Column' property.");
+	assert.equal(logResults[0].description, "Configured without a 'Column' property.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Number Column Property", function( assert ) {
@@ -146,7 +146,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Property", function( a
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured with a non-number Column. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number Column. Got 'foo'.");
 });
 
 QUnit.test( "CheckColumnType: Check For Negative Column Property", function( assert ) {
@@ -163,7 +163,7 @@ QUnit.test( "CheckColumnType: Check For Negative Column Property", function( ass
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured with a negative Column. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative Column. Got '-1'.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer Column Property", function( assert ) {
@@ -180,7 +180,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Property", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "CheckColumnType configured with a non-integer Column. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer Column. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
@@ -200,7 +200,7 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "CheckColumnType: Row 1 has insufficient columns.");
+			assert.equal(logResults[0].description, "Row 1 has insufficient columns.");
 		}
 		done();
 	});
@@ -226,7 +226,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "CheckColumnType: Row 1, Column 0: Expected a number but got foo.");
+			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a number but got foo.");
 		}
 		done();
 	});
@@ -275,7 +275,7 @@ QUnit.test( "CheckColumnType: Check For Failing RegEx Column Value", function( a
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "CheckColumnType: Row 1, Column 0: Expected a regex but got bbbb.");
+			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a regex but got bbbb.");
 		}
 		done();
 	});

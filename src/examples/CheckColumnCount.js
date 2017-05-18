@@ -8,15 +8,15 @@ class CheckColumnCount extends CSVRuleAPI {
 
 		this.columns = undefined;
 		if (!this.config)
-			this.error(`${this.constructor.name} has no configuration.`);
+			this.error('No configuration specified.');
 		else if (this.config.Columns === undefined)
-			this.error(`${this.constructor.name} configured without a Columns property.`);
+			this.error("Configured without a Columns property.");
 		else if (isNaN(this.config.Columns))
-			this.error(`${this.constructor.name} configured with a non-number Columns. Got '${config.Columns}'.`);
+			this.error(`Configured with a non-number Columns. Got '${config.Columns}'.`);
 		else if (this.config.Columns < 0)
-			this.error(`${this.constructor.name} configured with a negative Columns. Got '${config.Columns}'.`);
+			this.error(`Configured with a negative Columns. Got '${config.Columns}'.`);
 		else if (!Number.isInteger(parseFloat(this.config.Columns)))
-			this.error(`${this.constructor.name} configured with a non-integer Columns. Got '${config.Columns}'.`);
+			this.error(`Configured with a non-integer Columns. Got '${config.Columns}'.`);
 		else
 			this.columns = parseFloat(this.config.Columns);
 
@@ -28,7 +28,7 @@ class CheckColumnCount extends CSVRuleAPI {
 		if (this.columns) {
 			if (record.length !== this.columns) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`${this.constructor.name}: Row ${this.rowNumber} has wrong number of columns.`);
+					this.error(`Row ${this.rowNumber} has wrong number of columns.`);
 					this.badColumnCountReported = true;
 				}
 			}

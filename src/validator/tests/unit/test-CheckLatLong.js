@@ -29,7 +29,7 @@ QUnit.test( "CheckLatLong: Check For Absent NumberOfHeaderRows property", functi
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured without a 'NumberOfHeaderRows' property. Using 0.");
+	assert.equal(logResults[0].description, "Configured without a 'NumberOfHeaderRows' property. Using 0.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number NumberOfHeaderRows", function( assert ) {
@@ -45,7 +45,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number NumberOfHeaderRows", function( a
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-number NumberOfHeaderRows. Got 'foo', using 0.");
+	assert.equal(logResults[0].description, "Configured with a non-number NumberOfHeaderRows. Got 'foo', using 0.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative NumberOfHeaderRows", function( assert ) {
@@ -60,7 +60,7 @@ QUnit.test( "CheckLatLong: Check For Negative NumberOfHeaderRows", function( ass
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a negative NumberOfHeaderRows. Got '-1', using 0.");
+	assert.equal(logResults[0].description, "Configured with a negative NumberOfHeaderRows. Got '-1', using 0.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
@@ -75,7 +75,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer NumberOfHeaderRows", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-integer NumberOfHeaderRows. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer NumberOfHeaderRows. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckLatLong: Check For Absent LatitudeColumn Property", function( assert ) {
@@ -90,7 +90,7 @@ QUnit.test( "CheckLatLong: Check For Absent LatitudeColumn Property", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured without a 'LatitudeColumn' property.");
+	assert.equal(logResults[0].description, "Configured without a 'LatitudeColumn' property.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number LatitudeColumn Property", function( assert ) {
@@ -106,7 +106,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number LatitudeColumn Property", functi
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-number LatitudeColumn. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number LatitudeColumn. Got 'foo'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function( assert ) {
@@ -122,7 +122,7 @@ QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a negative LatitudeColumn. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative LatitudeColumn. Got '-1'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", function( assert ) {
@@ -138,7 +138,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", funct
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-integer LatitudeColumn. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer LatitudeColumn. Got '1.1', using 1.");
 });
 
 
@@ -155,7 +155,7 @@ QUnit.test( "CheckLatLong: Check For Absent LongitudeColumn Property", function(
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured without a 'LongitudeColumn' property.");
+	assert.equal(logResults[0].description, "Configured without a 'LongitudeColumn' property.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", function( assert ) {
@@ -172,7 +172,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", funct
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-number LongitudeColumn. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number LongitudeColumn. Got 'foo'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", function( assert ) {
@@ -189,7 +189,7 @@ QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", functio
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a negative LongitudeColumn. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative LongitudeColumn. Got '-1'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", function( assert ) {
@@ -206,7 +206,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", func
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-integer LongitudeColumn. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer LongitudeColumn. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Property Values", function( assert ) {
@@ -223,7 +223,7 @@ QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Prop
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with identical LatitudeColumn and LongitudeColumn property values.");
+	assert.equal(logResults[0].description, "Configured with identical LatitudeColumn and LongitudeColumn property values.");
 });
 
 QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", function( assert ) {
@@ -240,7 +240,7 @@ QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", functio
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured without a NullIslandEpsilon property. Using 0.01.");
+	assert.equal(logResults[0].description, "Configured without a NullIslandEpsilon property. Using 0.01.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", function( assert ) {
@@ -258,7 +258,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", fun
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a non-number NullIslandEpsilon. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number NullIslandEpsilon. Got 'foo'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", function( assert ) {
@@ -276,7 +276,7 @@ QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", funct
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "CheckLatLong configured with a negative NullIslandEpsilon. Got '-0.1'. Using 0.1.");
+	assert.equal(logResults[0].description, "Configured with a negative NullIslandEpsilon. Got '-0.1'. Using 0.1.");
 });
 
 QUnit.test( "CheckLatLong: Check For Bad Column Count", function( assert ) {
@@ -296,7 +296,7 @@ QUnit.test( "CheckLatLong: Check For Bad Column Count", function( assert ) {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "CheckLatLong: Row 1 has insufficient columns.");
+		assert.equal(logResults[0].description, "Row 1 has insufficient columns.");
 		done();
 	});
 
