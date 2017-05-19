@@ -7,9 +7,7 @@ export default Ember.Controller.extend({
   log: null,
   actions: {
     showErrors(rule) {
-      console.log(`Show ${rule}.`);
-      this.set('showErrors', true);
-      this.set('theRule', rule);
+      this.set('showErrors', rule);
     }
   }
 });
