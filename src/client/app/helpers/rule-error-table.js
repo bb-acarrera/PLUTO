@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-export function ruleLogRow(params, {rule, log}) {
+export function ruleErrorTable(params, {rule, log}) {
   const ruleFileName = typeof rule === 'string' ? rule : rule.get('filename');
 
   var result = '';
@@ -9,8 +9,10 @@ export function ruleLogRow(params, {rule, log}) {
     if (reportFile == ruleFileName)
       result += `<tr><td>${report.get('logType')}</td><td>${report.get('description')}</td></tr>`;
   });
+  if (result.length > 0)
+    result = `<table border="1">${result}</table>`;
 
   return Ember.String.htmlSafe(result);
 }
 
-export default Ember.Helper.helper(ruleLogRow);
+export default Ember.Helper.helper(ruleErrorTable);
