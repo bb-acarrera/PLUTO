@@ -6,6 +6,8 @@ const path = require("path");
 const program = require("commander");
 const stream = require('stream');
 
+const rimraf = require('rimraf');
+
 const DataAPI = require("../api/DataAPI");
 const RuleAPI = require("../api/RuleAPI");
 
@@ -228,7 +230,7 @@ class Validator {
 			ruleClass = require(ruleFilename);
 		}
 		catch (e) {
-			throw("Failed to load rule.\n\tCause: " + e);
+			throw("Failed to load rule " + ruleFilename + ".\n\tCause: " + e);
 		}
 
 		// Get the rule's config.
@@ -376,21 +378,16 @@ class Validator {
 
 	cleanup() {
 		// Remove the temp directory and contents.
-		var deleteFolderRecursive = function(dir) {
-			if( fs.existsSync(dir) ) {
-				fs.readdirSync(dir).forEach(function(file, index){
-					var curPath = dir + path.sep + file;
-					if(fs.lstatSync(curPath).isDirectory()) {
-						deleteFolderRecursive(curPath);
-					} else { // delete file
-						fs.unlinkSync(curPath);
-					}
-				});
-				fs.rmdirSync(dir);
-			}
-		};
 
-		deleteFolderRecursive(this.tempDir);
+		try {
+			rimraf.sync(this.tempDir, null, (e) => {
+				this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
+			});
+		} catch (e) {
+			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
+		}
+
+
 	}
 
 	// Add some useful things to a config object.

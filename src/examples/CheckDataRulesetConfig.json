@@ -1,6 +1,6 @@
 {
 	"RuleSet" : {
-		"RulesDirectory" : "/Users/ptokarchuk/git/PLUTO/src/examples/",
+		"RulesDirectory" : "../examples/",
 		"SourceFileName" : "simplemaps-worldcities-basic.csv",
 		"ResultsFileName" : "vaidatedResults.csv",
 		"Name" : "Check Data RuleSet",

@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const util = require('util');
 
 class ErrorLogger {
 	constructor() {
@@ -26,6 +27,8 @@ class ErrorLogger {
 
 		const report = { type : level, when : dateStr, problemFile : problemFileName, description : problemDescription };
 		this.reports.push(report);
+
+		console.log(util.inspect(report, {showHidden: false, depth: null}))
 	}
 
 	/*

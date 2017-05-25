@@ -1,0 +1,18 @@
+{
+	"RootDirectory" : "C:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO",
+	"PluginsDirectory" : "src/default",
+	"RulesetDirectory" : "src/examples",
+	"RulesDirectory" : "src/examples",
+	"TempDirectory" : "C:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO\\tmp",
+	"Plugins" : {
+		"DataAPI" : {
+			"FileName" : "DefaultData",
+			"Config" : {
+				"InputDirectory" : "src/examples/data",
+				"OutputDirectory" : "results",
+				"LogDirectory" : "results/logs"
+			}
+		}
+	},
+	"RuleSet" : "CheckDataRuleSetConfig.json"
+}
