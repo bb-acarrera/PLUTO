@@ -4,7 +4,8 @@
   "description": "A data validation framework.",
   "main": "server.js",
   "scripts": {
-    "test": "sh build/bin/runUnitTests.sh"
+    "test": "sh build/bin/runUnitTests.sh",
+    "postinstall": "sh build/bin/setup.sh"
   },
   "repository": {
     "type": "git",
