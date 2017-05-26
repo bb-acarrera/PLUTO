@@ -66,7 +66,7 @@ class Validator {
 		// Get the root directory for everything.
 		let rootDir = path.dirname(this.config.scriptName);	// Default is the directory this script lives in.
 		if (this.config.RootDirectory) {
-			rootDir = this.config.RootDirectory;	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
+			rootDir = path.resolve(this.config.RootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
 			if (!rootDir.endsWith(path.sep))
 				rootDir = rootDir + path.sep;
 		}
@@ -140,7 +140,7 @@ class Validator {
 
 		var ruleset;
 		try {
-			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.config.RootDirectory, this.config.RuleSet);
+			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.rootDir, this.config.RuleSet);
 		}
 		catch (e) {
 			this.error(e);

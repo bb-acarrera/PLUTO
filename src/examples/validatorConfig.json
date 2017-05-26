@@ -1,9 +1,9 @@
 {
-	"RootDirectory" : "/Users/ptokarchuk/git/PLUTO",
+	"RootDirectory" : ".",
 	"PluginsDirectory" : "src/default",
 	"RulesetDirectory" : "src/examples",
 	"RulesDirectory" : "src/examples",
-	"TempDirectory" : "/var/tmp",
+	"TempDirectory" : "./tmp",
 	"Plugins" : {
 		"DataAPI" : {
 			"FileName" : "DefaultData",

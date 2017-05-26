@@ -1,9 +1,9 @@
 {
-	"RootDirectory" : "C:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO",
+	"RootDirectory" : ".",
 	"PluginsDirectory" : "src/default",
 	"RulesetDirectory" : "src/examples",
 	"RulesDirectory" : "src/examples",
-	"TempDirectory" : "C:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO\\tmp",
+	"TempDirectory" : "./tmp",
 	"Plugins" : {
 		"DataAPI" : {
 			"FileName" : "DefaultData",

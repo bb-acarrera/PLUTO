@@ -15,7 +15,7 @@ class Server {
 		this.config.validator = new Validator(validatorConfig);
 
 		this.port = this.config.Port || 8000;
-		this.rootDir = this.config.RootDirectory || this.config.Validator.RootDirectory || ".";
+		this.rootDir = path.resolve(this.config.RootDirectory || this.config.Validator.RootDirectory || ".");
 		this.router = new Router(config);
 
 		// Set up the routing.
