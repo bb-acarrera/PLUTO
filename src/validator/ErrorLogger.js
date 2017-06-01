@@ -28,7 +28,7 @@ class ErrorLogger {
 		const report = { type : level, when : dateStr, problemFile : problemFileName, description : problemDescription };
 		this.reports.push(report);
 
-		console.log(util.inspect(report, {showHidden: false, depth: null}))
+		//console.log(util.inspect(report, {showHidden: false, depth: null}))
 	}
 
 	/*

@@ -230,7 +230,7 @@ class Validator {
 			ruleClass = require(ruleFilename);
 		}
 		catch (e) {
-			throw("Failed to load rule " + ruleFilename + ".\n\tCause: " + e);
+			throw("Failed to load rule " + ruleFilename + ".\n\tCause: " + e + "\n\tRoot folder: " + this.rootDir);
 		}
 
 		// Get the rule's config.
