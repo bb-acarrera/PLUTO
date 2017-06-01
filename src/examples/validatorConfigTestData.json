@@ -14,5 +14,5 @@
 			}
 		}
 	},
-	"RuleSet" : "exampleRuleSetConfig.json"
+	"RuleSet" : "CheckDataRuleSetConfig.json"
 }

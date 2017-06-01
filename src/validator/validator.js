@@ -6,6 +6,8 @@ const path = require("path");
 const program = require("commander");
 const stream = require('stream');
 
+const rimraf = require('rimraf');
+
 const DataAPI = require("../api/DataAPI");
 const RuleAPI = require("../api/RuleAPI");
 
@@ -64,7 +66,7 @@ class Validator {
 		// Get the root directory for everything.
 		let rootDir = path.dirname(this.config.scriptName);	// Default is the directory this script lives in.
 		if (this.config.RootDirectory) {
-			rootDir = this.config.RootDirectory;	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
+			rootDir = path.resolve(this.config.RootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
 			if (!rootDir.endsWith(path.sep))
 				rootDir = rootDir + path.sep;
 		}
@@ -138,7 +140,7 @@ class Validator {
 
 		var ruleset;
 		try {
-			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.config.RootDirectory, this.config.RuleSet);
+			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.rootDir, this.config.RuleSet);
 		}
 		catch (e) {
 			this.error(e);
@@ -228,7 +230,7 @@ class Validator {
 			ruleClass = require(ruleFilename);
 		}
 		catch (e) {
-			throw("Failed to load rule.\n\tCause: " + e);
+			throw("Failed to load rule " + ruleFilename + ".\n\tCause: " + e + "\n\tRoot folder: " + this.rootDir);
 		}
 
 		// Get the rule's config.
@@ -376,21 +378,16 @@ class Validator {
 
 	cleanup() {
 		// Remove the temp directory and contents.
-		var deleteFolderRecursive = function(dir) {
-			if( fs.existsSync(dir) ) {
-				fs.readdirSync(dir).forEach(function(file, index){
-					var curPath = dir + path.sep + file;
-					if(fs.lstatSync(curPath).isDirectory()) {
-						deleteFolderRecursive(curPath);
-					} else { // delete file
-						fs.unlinkSync(curPath);
-					}
-				});
-				fs.rmdirSync(dir);
-			}
-		};
 
-		deleteFolderRecursive(this.tempDir);
+		try {
+			rimraf.sync(this.tempDir, null, (e) => {
+				this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
+			});
+		} catch (e) {
+			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
+		}
+
+
 	}
 
 	// Add some useful things to a config object.
