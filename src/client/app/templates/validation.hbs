@@ -12,14 +12,19 @@
         <tr>
           {{rule-log-icons rule=rule log=model.log}}
           <td><input type="checkbox" width="20"/></td>
-          <td>{{rule.name}}</td>
+          <td><button {{action "showErrors" rule}}>{{rule.name}}</button></td>
         </tr>
       {{/each}}
       <tr>
         {{rule-log-icons rule="Validator" log=model.log}}
         <td><input type="checkbox" width="20"/></td>
-        <td>Global Errors</td>
+        <td><button {{action "showErrors" "Validator"}}>Global Errors</button></td>
       </tr>
     </table>
+  </div>
+  <div style="width:33%">Errors:
+    {{#if showErrors}}
+      {{show-errors rule=this.showErrors log=model.log}}
+    {{/if}}
   </div>
 </div>
