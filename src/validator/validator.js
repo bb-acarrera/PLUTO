@@ -74,22 +74,40 @@ class Validator {
 	}
 
 	getTempDirectory() {
-		let tmpDir = path.resolve(this.getRootDirectory(), "tmp");
-		if (this.config.TempDirectory) {
-			let basename = path.basename(this.config.scriptName, ".js");
-			tmpDir = path.resolve(this.config.TempDirectory, basename + this.createGUID());
-		}
+		let tmpDir;
+		if (this.config.TempDirectory)
+			tmpDir = this.config.TempDirectory;
+		else
+			tmpDir = path.resolve(this.getRootDirectory(), "tmp");
 
-		for (;;) {
+		// Make absolute.
+		tmpDir = path.resolve(tmpDir)
+
+		// Make sure the parent diretory exists.
+		try {
+			fs.accessSync(tmpDir, fs.constants.R_OK | fs.constants.W_OK | fs.constants.F_OK);
+		}
+		catch (e) {
 			try {
 				fs.mkdirSync(tmpDir);
-				break;
 			}
 			catch (e) {
-				// Already exists so add something to make it more unique.
-				tmpDir = tmpDir + '-' + 'a';
+				throw "Failed to create \"" + tmpDir + ".\n" + e;
 			}
 		}
+
+		// Create a temporary child directory.
+		let basename = path.basename(this.config.scriptName, ".js");
+		tmpDir = path.resolve(tmpDir, basename + this.createGUID());
+
+		try {
+			fs.mkdirSync(tmpDir);
+		}
+		catch (e) {
+			// Can't create the tmpdir so give up.
+			throw "Failed to create \"" + tmpDir + ".\n" + e;
+		}
+
 		return tmpDir;
 	}
 
@@ -136,10 +154,10 @@ class Validator {
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
 	 */
 	runRuleset(inputFile, outputFile, inputEncoding) {
-		this.tempDir = this.getTempDirectory();
-
 		var ruleset;
 		try {
+			this.tempDir = this.getTempDirectory();
+
 			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.rootDir, this.config.RuleSet);
 		}
 		catch (e) {
