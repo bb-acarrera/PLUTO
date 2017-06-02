@@ -83,7 +83,7 @@ class Validator {
 		// Make absolute.
 		tmpDir = path.resolve(tmpDir)
 
-		// Make sure the parent diretory exists.
+		// Make sure the parent directory exists.
 		try {
 			fs.accessSync(tmpDir, fs.constants.R_OK | fs.constants.W_OK | fs.constants.F_OK);
 		}
@@ -619,7 +619,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		});
 
 	// If the input or output are not set they'll be grabbed from the ruleset file.
-	let inputFile = program.input;
+	let inputFile = program.input ? path.resolve(program.input) : undefined;
 	let outputFile = program.output;
 	let inputEncoding = program.encoding;
 

@@ -1,5 +1,6 @@
 import luigi
 import json
+import os
 
 from pydoc import locate
 from subprocess import (run, STDOUT)
@@ -11,8 +12,8 @@ class PlutoTask(luigi.Task):
 
 	def requires(self):
 		'''
-		TODO: How is the dependency on the download task done? Does it require this script to be
-		modified or can it be done dynamically?
+		Use reflection to allow this task to be dynamically dependent on a previous
+		task, such as a download task.
 		'''
 		dependentClass = locate(self.previousTaskModule + '.' + self.previousTaskClass)
 		return dependentClass()
@@ -31,15 +32,30 @@ class PlutoTask(luigi.Task):
 
 	def run(self):
 		'''
-		TODO: From the name of the input generate a name for the output and then
-		exec() the validator given values from within the PlutoTask.json config. file.
+		Load the JSON config file and use values set in it to run the NodeJS validator.
 		'''
 		f = open(self.configFile, "r", encoding="utf-8")	# Assume utf-8 for the config file. Could make this a class parameter if it is an issue.
 		config = json.load(f)
 
-		result = run([config['NodeExecutable'], config['ValidatorExecutable'], "-c", config['ValidatorConfig'], "-i", self.input().path, "-o", self.getOutputName()], stderr=STDOUT)
+		nodeExe = os.path.abspath(config['NodeExecutable'])
+		cwd = os.path.abspath(config['WorkingDirectory'])
+		validatorExe = os.path.normpath(os.path.join(cwd, config['ValidatorExecutable']))
+		configFile = os.path.normpath(os.path.join(cwd, config['ValidatorConfig']))
+		rulesetFile = os.path.normpath(os.path.join(cwd, config['RuleSet']))
 
-		print("**** " + config['NodeExecutable'] + " " + config['ValidatorExecutable'] + " -c "+ config['ValidatorConfig'] + " -i " + self.input().path + " -o " + self.getOutputName())
+		print("**** Node: " + nodeExe)
+		print("**** CWD: " + cwd)
+		print("**** Validator: " + validatorExe)
+		print("**** ConfigFile: " + configFile)
+		print("**** RulesetFile: " + rulesetFile)
+		print("**** Command: " + nodeExe + " " + validatorExe + " -c " + configFile + " -r " + rulesetFile + " -i " + self.input().path + " -o " + self.getOutputName())
+
+		result = run([nodeExe, validatorExe, \
+				"-c", configFile, \
+				"-r", rulesetFile, \
+				"-i", self.input().path, \
+				"-o", self.getOutputName()], \
+				stderr=STDOUT, cwd=cwd)
 
 
 if __name__ == "__main__":
