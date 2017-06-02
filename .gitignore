@@ -6,3 +6,5 @@ public
 results
 /tmp/
 src/python/virtualEnvironment
+src/python/Luigi/tasks/__pycache__
+src/python/Luigi/tests/__pycache__

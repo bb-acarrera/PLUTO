@@ -1,0 +1,5 @@
+{
+	"NodeExecutable" : "/usr/local/bin/node",
+	"ValidatorExecutable" : "../../../validator/validator.js",
+	"ValidatorConfig" : "../examples/validatorConfig.json"
+}
