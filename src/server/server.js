@@ -1,3 +1,4 @@
+const fs = require("fs");
 const program = require("commander");
 const path = require("path");
 const express = require('express');
@@ -72,10 +73,20 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 			return "A server configuration file must be specified.\n" + text;
 		});
 
+	if (!fs.existsSync(program.serverConfig)) {
+		console.log("Failed to find server configuration file \"" + program.serverConfig + "\".\n");
+		process.exit(1);
+	}
+
 	if (!program.validatorConfig)
 		program.help((text) => {
 			return "A validator configuration file must be specified.\n" + text;
 		});
+
+	if (!fs.existsSync(program.validatorConfig)) {
+		console.log("Failed to find validator configuration file \"" + program.validatorConfig + "\".\n");
+		process.exit(1);
+	}
 
 	let serverConfig = require(program.serverConfig);
 	let validatorConfig = require(program.validatorConfig);

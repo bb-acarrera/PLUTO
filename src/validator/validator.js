@@ -32,21 +32,33 @@ class Validator {
 		this.config = config || {};
 		this.rootDir = this.getRootDirectory();
 
+		if (!fs.existsSync(this.rootDir))
+			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
+
 		// Make a few relative paths absolute for ease of use.
 		if (this.config.PluginsDirectory)
 			this.config.PluginsDirectory = path.resolve(this.rootDir, this.config.PluginsDirectory);
 		else
 			this.config.PluginsDirectory = this.rootDir;
 
+		if (!fs.existsSync(this.config.PluginsDirectory))
+			throw "Failed to find PluginsDirectory \"" + this.config.PluginsDirectory + "\".\n";
+
 		if (this.config.RulesetDirectory)
 			this.config.RulesetDirectory = path.resolve(this.rootDir, this.config.RulesetDirectory);
 		else
 			this.config.RulesetDirectory = this.rootDir;
 
+		if (!fs.existsSync(this.config.RulesetDirectory))
+			throw "Failed to find RulesetDirectory \"" + this.config.RulesetDirectory + "\".\n";
+
 		if (this.config.RulesDirectory)
 			this.config.RulesDirectory = path.resolve(this.rootDir, this.config.RulesDirectory);
 		else
 			this.config.RulesDirectory = this.config.RulesetDirectory;	// By default rules live with the rulesets.
+
+		if (!fs.existsSync(this.config.RulesDirectory))
+			throw "Failed to find RulesDirectory \"" + this.config.RulesDirectory + "\".\n";
 
 		this.logger = new ErrorLogger(config);
 		this.dataAccessor = this.createDataAccessor();
@@ -136,16 +148,19 @@ class Validator {
 						this.error("Failed to load \"" + pluginName + ". Using the default plugin \"" + defaultClass + "\".\n" + e);
 					}
 				}
+
+				if (!plugin) {
+					let defaultPlugin = require("../default/" + defaultClass);
+
+					if (defaultPlugin) {
+						plugin = new defaultPlugin.instance(pluginLocalConfig);
+					}
+				}
 			}
 		}
 
-		if (!plugin) {
-			let defaultPlugin = require("../default/" + defaultClass);
-
-			if (defaultPlugin) {
-				plugin = new defaultPlugin.instance();
-			}
-		}
+		if (!plugin)
+			throw "Failed to load a DataAPI plugin.";
 
 		return plugin;
 	}
@@ -612,6 +627,11 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		program.help((text) => {
 			return "A configuration file must be specified.\n" + text;
 		});
+
+	if (!fs.existsSync(program.config)) {
+		console.log("Failed to find configuration file \"" + program.config + "\".\n");
+		process.exit(1);
+	}
 
 	let config = require(path.resolve(__dirname, program.config));
 	config.RuleSet = program.ruleset || config.RuleSet;
