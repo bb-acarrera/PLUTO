@@ -651,15 +651,23 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		// Log the error and then give up. Do not attempt to write the output file because we have no idea
 		// how many rules have been run on it or what state it is in.
 		if (err) {
-			if (typeof err == 'string')
+			if (typeof err == 'string') {
 				validator.error(err);	// Record the uncaught exception.
-			else if (err.message)
+				console.log("Exiting with uncaught exception: " + err);
+			}
+			else if (err.message) {
 				validator.error(err.message);
-			else
+				console.log("Exiting with uncaught exception: " + err.message);
+			}
+			else {
 				validator.error(JSON.stringify(err));	// No idea what this is but try to represent it as best we can.
+				console.log("Exiting with uncaught exception: " + JSON.stringify(err));
+			}
 		}
-		else
+		else {
 			validator.error(`Unspecified error. Last rule attempted was ${validator.RuleName} in ruleset ${validator.RuleSetName}.`)
+			console.log("Exiting with unspecified error.");
+		}
 
 		validator.saveLog(validator.inputFileName);	// Write the log.
 		process.exit(1);	// Quit.
