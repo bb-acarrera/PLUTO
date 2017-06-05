@@ -37,7 +37,7 @@ class PlutoTask(luigi.Task):
 		f = open(self.configFile, "r", encoding="utf-8")	# Assume utf-8 for the config file. Could make this a class parameter if it is an issue.
 		config = json.load(f)
 
-		nodeExe = os.path.abspath(config['NodeExecutable'])
+		nodeExe = "node"
 		cwd = os.path.abspath(config['WorkingDirectory'])
 		validatorExe = os.path.normpath(os.path.join(cwd, config['ValidatorExecutable']))
 		configFile = os.path.normpath(os.path.join(cwd, config['ValidatorConfig']))

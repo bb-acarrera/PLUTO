@@ -1,5 +1,4 @@
 {
-	"NodeExecutable" : "/usr/local/bin/node",
 	"WorkingDirectory" : "../../../..",
 	"ValidatorExecutable" : "src/validator/validator.js",
 	"RuleSet" : "src/examples/exampleRulesetConfig.json",
