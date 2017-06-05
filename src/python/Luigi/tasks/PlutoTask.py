@@ -43,13 +43,6 @@ class PlutoTask(luigi.Task):
 		configFile = os.path.normpath(os.path.join(cwd, config['ValidatorConfig']))
 		rulesetFile = os.path.normpath(os.path.join(cwd, config['RuleSet']))
 
-		print("**** Node: " + nodeExe)
-		print("**** CWD: " + cwd)
-		print("**** Validator: " + validatorExe)
-		print("**** ConfigFile: " + configFile)
-		print("**** RulesetFile: " + rulesetFile)
-		print("**** Command: " + nodeExe + " " + validatorExe + " -c " + configFile + " -r " + rulesetFile + " -i " + self.input().path + " -o " + self.getOutputName())
-
 		result = run([nodeExe, validatorExe, \
 				"-c", configFile, \
 				"-r", rulesetFile, \
