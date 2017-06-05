@@ -178,6 +178,8 @@ class Validator {
 
 		if (!this.inputFileName)
 			throw "No input file specified.";
+		if (!fs.existsSync(this.inputFileName))
+			throw "Input file \"" + this.inputFileName + "\" does not exist.";
 		if (!this.outputFileName)
 			this.warning("No output file specified.");
 
