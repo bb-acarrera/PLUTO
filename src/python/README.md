@@ -18,7 +18,7 @@ for the instructions I used to set things up on a Mac. Modify appropriately for 
 2. Run **source virtualEnvironment/bin/activate**.
 3. Run **pip install -r requirements.txt** to install Luigi and it's dependencies into the virtual environment.
 
-<sub><sup>For future reference to create the **requirements.txt** file simply run **pip freeze >requirements.txt**.</sup></sub> 
+<sub><sup>For future reference, to create the **requirements.txt** file simply run **pip freeze >requirements.txt**.</sup></sub> 
 
 To run the example Luigi workflow in the virtual environment (run Step #2 above if it's not already running)
 1. cd into **Luigi/tests**
