@@ -1,30 +1,33 @@
 <div>
-  <div></div>
   <h2>PLUTO</h2>
-  <div style="border:1px solid black;width:33%">
-    <div style="padding: 3px 3px 0px 3px;">Filename</div>
-    <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.file}}</div>
-    <div style="padding: 3px 3px 0px 3px;">Process Template</div>
-    <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.ruleset.name}}</div>
-    <div style="padding: 3px 3px 0px 3px;">Sequence</div>
-    <table>
-      {{#each model.ruleset.rules as |rule|}}
+  <div>
+    <div style="border:1px solid black;float: left;width:33%">
+      <div style="padding: 3px 3px 0px 3px;">Filename</div>
+      <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.file}}</div>
+      <div style="padding: 3px 3px 0px 3px;">Process Template</div>
+      <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.ruleset.name}}</div>
+      <div style="padding: 3px 3px 0px 3px;">Sequence</div>
+      <table>
+        {{#each model.ruleset.rules as |rule|}}
+          <tr>
+            {{rule-log-icons rule=rule log=model.log}}
+            <td><input type="checkbox" width="20"/></td>
+            <td><button {{action "showErrors" rule}}>{{rule.name}}</button></td>
+          </tr>
+        {{/each}}
         <tr>
-          {{rule-log-icons rule=rule log=model.log}}
+          {{rule-log-icons rule="Validator" log=model.log}}
           <td><input type="checkbox" width="20"/></td>
-          <td><button {{action "showErrors" rule}}>{{rule.name}}</button></td>
+          <td><button {{action "showErrors" "Validator"}}>Global Errors</button></td>
         </tr>
-      {{/each}}
-      <tr>
-        {{rule-log-icons rule="Validator" log=model.log}}
-        <td><input type="checkbox" width="20"/></td>
-        <td><button {{action "showErrors" "Validator"}}>Global Errors</button></td>
-      </tr>
-    </table>
-  </div>
-  <div style="width:33%">Errors:
-    {{#if showErrors}}
-      {{show-errors rule=this.showErrors log=model.log}}
-    {{/if}}
+      </table>
+    </div>
+    <div style="border:1px solid black;float: left;width:33%">
+      <div>Errors:
+        {{#if showErrors}}
+          {{show-errors rule=this.showErrors log=model.log}}
+        {{/if}}
+      </div>
+    </div>
   </div>
 </div>
