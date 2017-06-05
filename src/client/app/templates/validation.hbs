@@ -2,11 +2,11 @@
   <h2>PLUTO</h2>
   <div>
     <div class="column">
-      <div style="padding: 3px 3px 0px 3px;">Filename</div>
-      <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.file}}</div>
-      <div style="padding: 3px 3px 0px 3px;">Process Template</div>
-      <div style="border:1px solid black;margin:5px 5px 5px 5px;padding: 3px 3px 3px 3px;">{{model.ruleset.name}}</div>
-      <div style="padding: 3px 3px 0px 3px;">Sequence</div>
+      <div class="section-header">Filename</div>
+      <div class="section-content">{{model.file}}</div>
+      <div class="section-header">Process Template</div>
+      <div class="section-content">{{model.ruleset.name}}</div>
+      <div class="section-header">Sequence</div>
       <table>
         {{#each model.ruleset.rules as |rule|}}
           <tr>
@@ -23,11 +23,10 @@
       </table>
     </div>
     <div class="column">
-      <div>Errors:
+      <div class="section-header">Errors:</div>
         {{#if showErrors}}
           {{show-errors rule=this.showErrors log=model.log}}
         {{/if}}
-      </div>
     </div>
   </div>
 </div>

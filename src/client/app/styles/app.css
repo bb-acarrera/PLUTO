@@ -3,3 +3,13 @@ div.column {
   float: left;
   width:33%
 }
+
+div.section-header {
+  padding: 3px 3px 0px 3px;
+}
+
+div.section-content {
+  border:1px solid black;
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
+}
