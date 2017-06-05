@@ -24,4 +24,5 @@ To run the example Luigi workflow in the virtual environment (run Step #2 above 
 1. cd into **Luigi/tests**
 2. Run **sh ./runTests.sh**
 
-This should run without errors and generate results in the **src/examples/data** directory by default.  
+This should run without errors and generate results in the **src/examples/data** directory by default. (This
+script assumes that **_node_** - the NodeJS executable - is in the current path.)  
