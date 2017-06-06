@@ -1,7 +1,9 @@
 div.column {
   border:1px solid black;
   float: left;
-  width:33%
+  width:33%;
+  margin:2px 2px 2px 2px;
+  background: #F8F8F8;
 }
 
 div.section-header {
@@ -12,4 +14,8 @@ div.section-content {
   border:1px solid black;
   margin:5px 5px 5px 5px;
   padding: 3px 3px 3px 3px;
+}
+
+input.text-input {
+  width:  98%;
 }

@@ -5,7 +5,7 @@
       <div class="section-header">Filename</div>
       <div class="section-content">{{model.file}}</div>
       <div class="section-header">Process Template</div>
-      <div class="section-content">{{model.ruleset.name}}</div>
+      <div class="section-content"><input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
       <div class="section-header">Sequence</div>
       <table>
         {{#each model.ruleset.rules as |rule|}}
