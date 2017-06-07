@@ -25,3 +25,17 @@ input.text-input {
   width:  98%;
 }
 
+table.error-table {
+  border: 1px solid black;
+  width:  auto;
+}
+
+td.error-cell {
+  /* border: 1px solid black; */
+  /* width:  auto; */
+}
+
+tr.error-row {
+  border: 1px solid black;
+  /* width:  auto; */
+}

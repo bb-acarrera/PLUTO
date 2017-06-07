@@ -7,10 +7,10 @@ export function ruleErrorTable(params, {rule, log}) {
   log.get('reports').forEach((report) => {
     const reportFile = report.get('problemFile');
     if (reportFile == ruleFileName)
-      result += `<tr><td>${report.get('logType')}</td><td>${report.get('description')}</td></tr>`;
+      result += `<tr class="error-row"><td class="error-cell">${report.get('logType')}</td><td>${report.get('description')}</td></tr>`;
   });
   if (result.length > 0)
-    result = `<table border="1">${result}</table>`;
+    result = `<table class="error-table">${result}</table>`;
 
   return Ember.String.htmlSafe(result);
 }
