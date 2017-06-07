@@ -15,20 +15,15 @@ class RulesetRouter extends BaseRouter {
 		if (!ruleset)
 			return next(new Error("Unable to find ruleset."));
 
-		var relationshipRules = [];
 		var includedRules = [];
 		for (var i = 0; i < ruleset.Rules.length; i++) {
 			const rule = ruleset.Rules[i];
 			const ruleFilename = rule.FileName;
 			const rulename = Util.getRuleName(rule);
-			relationshipRules.push({type: 'rule', id: ruleFilename});
 			includedRules.push(
 				{
-					type: 'rule', id: ruleFilename,
-					attributes: {
-						filename: ruleFilename,
-						name: rulename
-					}
+					filename: ruleFilename,
+					name: rulename
 				});
 		}
 
@@ -38,15 +33,10 @@ class RulesetRouter extends BaseRouter {
 				id: req.params.id,	// The filename is used for the id.
 				attributes: {
 					name: ruleset.Name,		// The ruleset's name is used here. This will be displayed in the UI.
-					"rules-directory": ruleset.RulesDirectory
-				},
-				relationships: {
-					rules: {
-						data: relationshipRules
-					}
+					"rules-directory": ruleset.RulesDirectory,
+					rules : includedRules
 				}
-			},
-			included: includedRules
+			}
 		});
 	}
 
