@@ -2,6 +2,8 @@ const fs = require("fs");
 const program = require("commander");
 const path = require("path");
 const express = require('express');
+const bodyParser = require('body-parser');
+
 const app = express();
 
 const Validator = require("../validator/validator");
@@ -18,6 +20,9 @@ class Server {
 		this.port = this.config.Port || 8000;
 		this.rootDir = path.resolve(this.config.RootDirectory || this.config.Validator.RootDirectory || ".");
 		this.router = new Router(config);
+
+		// app.use(bodyParser.json()); // for parsing application/json
+		app.use(bodyParser.json({ type: 'application/*+json' }));
 
 		// Set up the routing.
 		app.use(this.router.router);
