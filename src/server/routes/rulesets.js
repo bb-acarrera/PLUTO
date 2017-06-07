@@ -42,6 +42,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 		console.log(req.body);
+		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
 }
 
