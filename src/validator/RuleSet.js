@@ -7,11 +7,31 @@ class RuleSet {
 	}
 
 	constructor(ruleset) {
-		this.name = ruleset.Name;
-		this.id = ruleset.id || this.name;
-		this._filename = ruleset.FileName;
-		this.rules = ruleset.Rules;
-		this.rulesDirectory = ruleset.RulesDirectory;
+		if (ruleset.data) {
+			this.name = ruleset.data.attributes.name;
+			this.id = ruleset.data.id || this.name;
+			this._filename = ruleset.FileName;
+			this.rulesDirectory = ruleset.data.attributes["rules-directory"];
+			this.addRules(ruleset.data.attributes.rules);
+		}
+		else {
+			this.name = ruleset.Name;
+			this.id = ruleset.id || this.name;
+			this._filename = ruleset.FileName;
+			this.rulesDirectory = ruleset.RulesDirectory;
+			this.addRules(ruleset.Rules);
+		}
+	}
+
+	addRules(rules) {
+		this.rules = [];
+		for (var i = 0; i < rules.length; i++) {
+			const srcRule = rules[i];
+			const dstRule = {};
+			dstRule.config = srcRule.Config || srcRule.config;
+			dstRule.filename = srcRule.FileName || srcRule.filename;
+			this.rules.push(dstRule);
+		}
 	}
 }
 

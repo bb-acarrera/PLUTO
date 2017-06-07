@@ -261,7 +261,7 @@ class Validator {
 			return;
 		}
 
-		let ruleFilename = ruleDescriptor.FileName;
+		let ruleFilename = ruleDescriptor.filename;
 		if (!ruleFilename)
 			throw("Rule has no 'FileName'.");
 
@@ -276,7 +276,7 @@ class Validator {
 		}
 
 		// Get the rule's config.
-		let config = ruleDescriptor.Config || {};
+		let config = ruleDescriptor.config || {};
 		if (typeof config === 'string') {
 			try {
 				config = path.resolve(rulesDirectory, config);

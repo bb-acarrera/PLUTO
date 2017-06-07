@@ -1,4 +1,5 @@
 const BaseRouter = require('./baseRouter');
+const RuleSet = require('../../validator/RuleSet');
 const Util = require('../../utilities/Util');
 
 class RulesetRouter extends BaseRouter {
@@ -23,7 +24,8 @@ class RulesetRouter extends BaseRouter {
 			includedRules.push(
 				{
 					filename: ruleFilename,
-					name: rulename
+					name: rulename,
+					config: rule.Config
 				});
 		}
 
@@ -41,7 +43,8 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	patch(req, res, next) {
-		console.log(req.body);
+		const ruleset = new RuleSet(req.body);
+
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
 }
