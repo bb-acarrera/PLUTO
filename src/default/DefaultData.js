@@ -44,7 +44,8 @@ class DefaultData extends DataAPI {
 			throw e;
 		}
 
-		fs.writeFileSync(path.resolve(this.logDirectory, filename + ".log.json"), JSON.stringify(logContents), 'utf8');
+		const basename = path.basename(filename, path.extname(filename));
+		fs.writeFileSync(path.resolve(this.logDirectory, basename + ".log.json"), JSON.stringify(logContents), 'utf8');
 	}
 
 	/**

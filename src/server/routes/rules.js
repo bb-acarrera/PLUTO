@@ -28,10 +28,10 @@ class RulesRouter extends BaseRouter {
 		const index = Number.parseInt(id.substring(dash+1));
 		if (!index || rulesetName.length < 1)
 			return next(new Error(`Improperly formatted rule ID. Index portion is not a number in ${id}.`));
-		else if (index >= ruleset.Rules.length)
+		else if (index >= ruleset.rules.length)
 			return next(new Error(`Improperly formatted rule ID. Index is out of range in ${id}.`));
 
-		const ruleName = ruleset.Rules[index].FileName;
+		const ruleName = ruleset.rules[index].FileName;
 
 		res.json({
 			data : {

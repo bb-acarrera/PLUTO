@@ -1,5 +1,5 @@
 const path = require("path");
-
+const RuleSet = require("../validator/RuleSet");
 class Util {
 	/*
 	 * Retrieve a ruleset description.
@@ -22,10 +22,12 @@ class Util {
 			if (!contents.RuleSet) {
 				throw("Ruleset file \"" + rulesetFile + "\" does not contains a RuleSet member.");
 			}
+
+			contents.RuleSet.FileName = ruleset;
 			ruleset = contents.RuleSet;
 		}
 
-		return ruleset;
+		return new RuleSet(ruleset);
 	}
 
 	/*

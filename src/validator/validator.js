@@ -90,10 +90,10 @@ class Validator {
 		if (this.config.TempDirectory)
 			tmpDir = this.config.TempDirectory;
 		else
-			tmpDir = path.resolve(this.getRootDirectory(), "tmp");
+			tmpDir = "tmp";
 
 		// Make absolute.
-		tmpDir = path.resolve(tmpDir)
+		tmpDir = path.resolve(this.getRootDirectory(), tmpDir);
 
 		// Make sure the parent directory exists.
 		try {
@@ -150,7 +150,13 @@ class Validator {
 				}
 
 				if (!plugin) {
-					let defaultPlugin = require("../default/" + defaultClass);
+					let defaultPlugin;
+					try {
+						defaultPlugin = require("../default/" + defaultClass);
+					}
+					catch (e) {
+						throw "Failed to load the default DataAPI ('DefaultData') plugin.";
+					}
 
 					if (defaultPlugin) {
 						plugin = new defaultPlugin.instance(pluginLocalConfig);
@@ -177,19 +183,19 @@ class Validator {
 		}
 		catch (e) {
 			this.error(e);
-			return;
+			throw e;
 		}
 
 		let rulesDirectory;
-		if (ruleset.RulesDirectory)
-			rulesDirectory = path.resolve(this.config.RulesetDirectory, ruleset.RulesDirectory);
+		if (ruleset.rulesDirectory)
+			rulesDirectory = path.resolve(this.config.RulesetDirectory, ruleset.rulesDirectory);
 		else
-			rulesDirectory = this.config.RulesetDirectory;
+			rulesDirectory = this.config.RulesDirectory || this.config.RulesetDirectory;
 
-		this.RuleSetName = ruleset.Name || "Unnamed";
-		this.inputFileName = inputFile || ruleset.SourceFileName;	// A commandline filename will override one specified in the config file.
-		this.outputFileName = outputFile || ruleset.ResultsFileName;
-		this.encoding = inputEncoding || ruleset.Encoding || 'utf8';	// The initial encoding for the input file. Rules may change this.
+		this.RuleSetName = ruleset.name || "Unnamed";
+		this.inputFileName = inputFile;
+		this.outputFileName = outputFile;
+		this.encoding = inputEncoding || 'utf8';
 
 		if (!this.inputFileName)
 			throw "No input file specified.";
@@ -198,7 +204,7 @@ class Validator {
 		if (!this.outputFileName)
 			this.warning("No output file specified.");
 
-		const rules = ruleset.Rules;
+		const rules = ruleset.rules;
 		if (!rules) {
 			this.warning("Ruleset \"" + this.RuleSetName + "\" contains no rules.");
 			return;
@@ -214,6 +220,7 @@ class Validator {
 		}
 		catch (e) {
 			this.error("Ruleset \"" + this.RuleSetName + "\" failed.\n\t" + e);
+			throw e;
 		}
 	}
 
@@ -633,7 +640,15 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		process.exit(1);
 	}
 
-	let config = require(path.resolve(__dirname, program.config));
+	let config;
+	try {
+		config = require(path.resolve(__dirname, program.config));
+	}
+	catch (e) {
+		console.log("The configuration file cannot be loaded.\n" + e);
+		process.exit(1);
+	}
+
 	config.RuleSet = program.ruleset || config.RuleSet;
 	if (!config.RuleSet)
 		program.help((text) => {

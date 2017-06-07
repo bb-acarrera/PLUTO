@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export function ruleErrorTable(params, {rule, log}) {
-  const ruleFileName = typeof rule === 'string' ? rule : rule.get('filename');
+  const ruleFileName = typeof rule === 'string' ? rule : rule.filename;
 
   var result = '';
   log.get('reports').forEach((report) => {
