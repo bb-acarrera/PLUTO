@@ -5,7 +5,7 @@ class ValidationRouter extends BaseRouter {
 		super(config);
 	}
 
-	route(req, res) {
+	get(req, res) {
 		// The user has done a refresh of other operation that's caused the Ember routers to be skipped.
 		var queryStr = "?";
 		for (var key in req.query) {

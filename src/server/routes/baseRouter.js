@@ -8,11 +8,18 @@
 	}
 
 	/*
-	 * Implement the Ember.Router callback used by router.get() et al.
+	 * Implement the Ember.Router callback used by router.get().
 	 */
-	route(req, res) {
- 		throw(this.constructor.name + " does not implement the route() method.");
+	get(req, res, next) {
+ 		throw(this.constructor.name + " does not implement the get() method.");
 	}
+
+	 /*
+	  * Implement the Ember.Router callback used by router.patch().
+	  */
+	 patch(req, res, next) {
+		 throw(this.constructor.name + " does not implement the patch() method.");
+	 }
  }
 
 module.exports = BaseRouter;	// Export this so derived classes can extend it.

@@ -17,10 +17,12 @@ class Router {
 		this.logsRouter = new LogsRouter(config);
 		// this.rulesRouter = new RulesRouter(config);
 
-		this._router.get('/validation', (req, res) => this.validationRouter.route(req, res) );
-		this._router.get('/rulesets/:id', (req, res) => this.rulesetRouter.route(req, res) );
-		this._router.get('/logs/:id', (req, res) => this.logsRouter.route(req, res) );
-		// this._router.get('/rules/:id', (req, res) => this.rulesRouter.route(req, res) );
+		this._router.get('/validation', (req, res) => this.validationRouter.get(req, res) );
+		this._router.get('/rulesets/:id', (req, res) => this.rulesetRouter.get(req, res) );
+		this._router.get('/logs/:id', (req, res) => this.logsRouter.get(req, res) );
+		// this._router.get('/rules/:id', (req, res) => this.rulesRouter.get(req, res) );
+
+		this._router.patch('/rulesets/:id', (req, res) => this.rulesetRouter.patch(req, res) );
 	}
 
 	get router() {

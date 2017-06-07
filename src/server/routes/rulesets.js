@@ -6,7 +6,7 @@ class RulesetRouter extends BaseRouter {
 		super(config);
 	}
 
-	route(req, res, next) {
+	get(req, res, next) {
 		// Note that in general the server and validator can have different root directories.
 		// The server's root directory points to the client code while the validator's root
 		// directory points to rulesets, rule plugins and such. It can be configured such
@@ -37,7 +37,8 @@ class RulesetRouter extends BaseRouter {
 				type: "ruleset",
 				id: req.params.id,	// The filename is used for the id.
 				attributes: {
-					name: ruleset.Name		// The ruleset's name is used here. This will be displayed in the UI.
+					name: ruleset.Name,		// The ruleset's name is used here. This will be displayed in the UI.
+					"rules-directory": ruleset.RulesDirectory
 				},
 				relationships: {
 					rules: {
@@ -47,6 +48,10 @@ class RulesetRouter extends BaseRouter {
 			},
 			included: includedRules
 		});
+	}
+
+	patch(req, res, next) {
+		console.log(req.body);
 	}
 }
 

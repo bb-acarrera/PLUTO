@@ -10,7 +10,7 @@ class RulesRouter extends BaseRouter {
 		super(config);
 	}
 
-	route(req, res, next) {
+	get(req, res, next) {
 		const id = req.params.id;
 		if (!id)
 			return next(new Error("No rule ID specified."));
