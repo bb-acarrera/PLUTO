@@ -1,14 +1,13 @@
 /**
  * @private
  */
-const fs = require("fs");
+const fs = require('fs-extra');
 const path = require("path");
 const program = require("commander");
 const stream = require('stream');
 
 const rimraf = require('rimraf');
 
-const DataAPI = require("../api/DataAPI");
 const RuleAPI = require("../api/RuleAPI");
 
 const Util = require("../utilities/Util");
@@ -60,8 +59,11 @@ class Validator {
 		if (!fs.existsSync(this.config.RulesDirectory))
 			throw "Failed to find RulesDirectory \"" + this.config.RulesDirectory + "\".\n";
 
+		this.inputDirectory  = path.resolve(this.config.RootDirectory, this.config.InputDirectory);
+		this.outputDirectory = path.resolve(this.config.RootDirectory, this.config.OutputDirectory);
+		this.logDirectory = path.resolve(this.config.RootDirectory, this.config.LogDirectory);
+
 		this.logger = new ErrorLogger(config);
-		this.dataAccessor = this.createDataAccessor();
 		this.ruleIterator = null;
 
 		// Remember the name of the current ruleset and rule for error reporting.
@@ -121,54 +123,6 @@ class Validator {
 		}
 
 		return tmpDir;
-	}
-
-	createDataAccessor() {
-		return this.createPlugin("DataAPI", "DefaultData");
-	}
-
-	createPlugin(pluginType, defaultClass) {
-		let plugin;
-		let pluginsConfig = this.config.Plugins;
-		if (pluginsConfig) {
-			let pluginConfig = pluginsConfig[pluginType];
-			if (pluginConfig) {
-				let pluginName = pluginConfig.FileName;
-				let pluginLocalConfig = pluginConfig.Config || {};
-
-				// Share the root directory with the plugin.
-				this.updateConfig(pluginLocalConfig);
-				if (pluginName) {
-					try {
-						// Don't check that the plugin script exists before trying to load it. Instead just throw if it doesn't exist.
-						let script = require(path.resolve(this.config.PluginsDirectory, pluginName));
-						plugin = new script.instance(pluginLocalConfig);
-					}
-					catch (e) {
-						this.error("Failed to load \"" + pluginName + ". Using the default plugin \"" + defaultClass + "\".\n" + e);
-					}
-				}
-
-				if (!plugin) {
-					let defaultPlugin;
-					try {
-						defaultPlugin = require("../default/" + defaultClass);
-					}
-					catch (e) {
-						throw "Failed to load the default DataAPI ('DefaultData') plugin.";
-					}
-
-					if (defaultPlugin) {
-						plugin = new defaultPlugin.instance(pluginLocalConfig);
-					}
-				}
-			}
-		}
-
-		if (!plugin)
-			throw "Failed to load a DataAPI plugin.";
-
-		return plugin;
 	}
 
 	/*
@@ -464,10 +418,7 @@ class Validator {
 	 * @private
 	 */
 	loadFile(filename, encoding) {
-		if (this.dataAccessor)
-			return this.dataAccessor.loadFile(filename, encoding || 'utf8');
-		else
-			throw(this.constructor.name + " does not load files.");
+		return fs.readFileSync(path.resolve(this.inputDirectory, filename), encoding || 'utf8');
 	}
 
 	/**
@@ -477,10 +428,17 @@ class Validator {
 	 * @private
 	 */
 	saveLog(filename) {
-		if (this.dataAccessor && this.logger)
-			this.dataAccessor.saveLog(this.logger.getLog(), filename);
-		else
-			throw(this.constructor.name + " does not save log files.");
+		try {
+			if (!fs.existsSync(this.logDirectory))
+				fs.mkdirSync(this.logDirectory);	// Make sure the logDirectory exists.
+		}
+		catch (e) {
+			console.error(this.constructor.name + " failed to create \"" + this.logDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
+			throw e;
+		}
+
+		const basename = path.basename(filename, path.extname(filename));
+		fs.writeFileSync(path.resolve(this.logDirectory, basename + ".log.json"), JSON.stringify(this.logger.getLog()), 'utf8');
 	}
 
 	/**
@@ -492,10 +450,16 @@ class Validator {
 	 * @private
 	 */
 	saveFile(fileContents, filename, encoding) {
-		if (this.dataAccessor)
-			this.dataAccessor.saveFile(fileContents, filename, encoding || 'utf8');
-		else
-			throw(this.constructor.name + " does not save files.");
+		try {
+			if (!fs.existsSync(this.outputDirectory))
+				fs.mkdirSync(this.outputDirectory);	// Make sure the inputDirectory exists.
+		}
+		catch (e) {
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to.
+			throw e;
+		}
+
+		fs.writeFileSync(path.resolve(this.outputDirectory, filename), fileContents, encoding || 'utf8');
 	}
 
 	/**
@@ -508,13 +472,9 @@ class Validator {
 	 * @private
 	 */
 	saveLocalTempFile(fileContents, encoding) {
-		if (this.dataAccessor) {
-			const fullname = this.getTempName();
-			fs.writeFileSync(fullname, fileContents, encoding);
-			return fullname;
-		}
-		else
-			throw(this.constructor.name + " does not save files.");
+		const fullname = this.getTempName();
+		fs.writeFileSync(fullname, fileContents, encoding);
+		return fullname;
 	}
 
 	/**
@@ -528,10 +488,22 @@ class Validator {
 	 * @private
 	 */
 	putFile(fileNameOrStream, remoteFileName) {
-		if (this.dataAccessor)
-			this.dataAccessor.putFile(fileNameOrStream, remoteFileName);
-		else
-			throw(this.constructor.name + " does not put files.");
+		try {
+			if (!fs.existsSync(this.outputDirectory))
+				fs.mkdirSync(this.outputDirectory);	// Make sure the inputDirectory exists.
+		}
+		catch (e) {
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the inputDirectory to write to, so can't use this logger.
+			throw e;
+		}
+
+		if (typeof fileNameOrStream === 'string') {
+			fs.copySync(fileNameOrStream, path.resolve(this.outputDirectory, remoteFileName));
+		}
+		else {
+			const dst = fs.createWriteStream(path.resolve(this.outputDirectory, remoteFileName));
+			fileNameOrStream.pipe(dst);
+		}
 	}
 
 	/**
@@ -545,10 +517,7 @@ class Validator {
 	 * @private
 	 */
 	getFile(remoteFileName, localFileName) {
-		if (this.dataAccessor)
-			this.dataAccessor.getFile(remoteFileName, localFileName);
-		else
-			throw(this.constructor.name + " does not get files.");
+		fs.copySync(path.resolve(this.inputDirectory, remoteFileName), localFileName);
 	}
 
 	/**
@@ -560,10 +529,7 @@ class Validator {
 	 * @private
 	 */
 	getLog(logFileName) {
-		if (this.dataAccessor)
-			return this.dataAccessor.getLog(logFileName);
-		else
-			throw(this.constructor.name + " does not get files.");
+		return require(path.resolve(this.logDirectory, logFileName));
 	}
 
 	/**

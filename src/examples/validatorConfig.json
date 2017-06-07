@@ -4,15 +4,8 @@
 	"RulesetDirectory" : "src/examples",
 	"RulesDirectory" : "src/examples",
 	"TempDirectory" : "./tmp",
-	"Plugins" : {
-		"DataAPI" : {
-			"FileName" : "DefaultData",
-			"Config" : {
-				"InputDirectory" : "src/examples/data",
-				"OutputDirectory" : "results",
-				"LogDirectory" : "results/logs"
-			}
-		}
-	},
+	"InputDirectory" : "src/examples/data",
+	"OutputDirectory" : "results",
+	"LogDirectory" : "results/logs",
 	"RuleSet" : "exampleRuleSetConfig.json"
 }
