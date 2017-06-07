@@ -8,6 +8,20 @@ export default Ember.Controller.extend({
   actions: {
     showErrors(rule) {
       this.set('showErrors', rule);
+    },
+    saveRuleSet(ruleset) {
+      save(ruleset);
     }
   }
 });
+
+function save(ruleset) {
+  var name = document.getElementById("rulesetName").value;
+  ruleset.set("name", name);
+  ruleset.save().then(() => {
+    alert("Successfully saved.");
+  }, () => {
+    alert("Failed to save.");
+  });
+  console.log("PJT: Save ruleset \"" + name + "\".");
+}
