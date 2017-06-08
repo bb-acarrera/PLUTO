@@ -11,6 +11,9 @@ export default Ember.Controller.extend({
     },
     saveRuleSet(ruleset) {
       save(ruleset);
+    },
+    addRule() {
+      
     }
   }
 });
@@ -23,5 +26,4 @@ function save(ruleset) {
   }, () => {
     alert("Failed to save.");
   });
-  console.log("PJT: Save ruleset \"" + name + "\".");
 }
