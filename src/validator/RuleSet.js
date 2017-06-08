@@ -10,16 +10,14 @@ class RuleSet {
 		if (ruleset.data) {
 			this.name = ruleset.data.attributes.name;
 			this.id = ruleset.data.id || this.name;
-			this._filename = ruleset.FileName;
-			this.rulesDirectory = ruleset.data.attributes["rules-directory"];
+			this._filename = ruleset.filename;
 			this.addRules(ruleset.data.attributes.rules);
 		}
 		else {
-			this.name = ruleset.Name;
+			this.name = ruleset.name;
 			this.id = ruleset.id || this.name;
-			this._filename = ruleset.FileName;
-			this.rulesDirectory = ruleset.RulesDirectory;
-			this.addRules(ruleset.Rules);
+			this._filename = ruleset.filename;
+			this.addRules(ruleset.rules);
 		}
 	}
 
@@ -32,6 +30,10 @@ class RuleSet {
 			dstRule.filename = srcRule.FileName || srcRule.filename;
 			this.rules.push(dstRule);
 		}
+	}
+
+	toJSON() {
+
 	}
 }
 

@@ -23,7 +23,7 @@ class Util {
 				throw("Ruleset file \"" + rulesetFile + "\" does not contains a RuleSet member.");
 			}
 
-			contents.RuleSet.FileName = ruleset;
+			contents.RuleSet.filename = ruleset;
 			ruleset = contents.RuleSet;
 		}
 
@@ -35,7 +35,7 @@ class Util {
 	 * @param ruleDescriptor the object describing the rule.
 	 */
 	static getRuleName(ruleDescriptor) {
-		return ruleDescriptor.Name || path.basename(ruleDescriptor.FileName);
+		return ruleDescriptor.name || ruleDescriptor.Name || path.basename(ruleDescriptor.filename);
 	}
 }
 

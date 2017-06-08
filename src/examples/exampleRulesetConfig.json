@@ -1,26 +1,25 @@
 {
 	"RuleSet" : {
-		"RulesDirectory" : "../examples/",
 		"SourceFileName" : "simplemaps-worldcities-basic.csv",
 		"ResultsFileName" : "results.csv",
-		"Name" : "Example RuleSet",
-		"Rules" : [
+		"name" : "Example RuleSet",
+		"rules" : [
 			{
-				"FileName" : "RuleExampleUsingMethod",
-				"Config" : "RuleExampleUsingMethodConfig"
+				"filename" : "RuleExampleUsingMethod",
+				"config" : "RuleExampleUsingMethodConfig"
 			},
 			{
-				"FileName" : "RuleExampleUsingFiles",
-				"Config" : {}
+				"filename" : "RuleExampleUsingFiles",
+				"config" : {}
 			},
 			{
-				"FileName" : "RuleExampleUsingStreams",
-				"Config" : {}
+				"filename" : "RuleExampleUsingStreams",
+				"config" : {}
 			},
 			{
-				"FileName" : "RuleExampleUsingCat",
-				"Name" : "/bin/cat",
-				"Config" : {}
+				"filename" : "RuleExampleUsingCat",
+				"name" : "/bin/cat",
+				"config" : {}
 			}
 		]
 	}
