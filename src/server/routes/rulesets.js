@@ -25,7 +25,7 @@ class RulesetRouter extends BaseRouter {
 				{
 					filename: ruleFilename,
 					name: rulename,
-					config: rule.Config
+					config: rule.config
 				});
 		}
 
@@ -43,7 +43,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 		const ruleset = new RuleSet(req.body);
-
+		this.config.validator.saveRuleSet(ruleset);
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
 }

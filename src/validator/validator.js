@@ -15,6 +15,7 @@ const Util = require("../utilities/Util");
 const ErrorLogger = require("./ErrorLogger");
 const MemoryWriterStream = require("./MemoryWriterStream");
 const MemoryReaderStream = require("./MemoryReaderStream");
+const RuleSet = require("./RuleSet");
 
 const version = require("../../package.json").version;
 
@@ -419,6 +420,10 @@ class Validator {
 	 */
 	loadFile(filename, encoding) {
 		return fs.readFileSync(path.resolve(this.inputDirectory, filename), encoding || 'utf8');
+	}
+
+	saveRuleSet(ruleset) {
+		fs.writeFileSync(path.resolve(this.config.RulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
 	}
 
 	/**

@@ -33,7 +33,16 @@ class RuleSet {
 	}
 
 	toJSON() {
+		const ruleset = {};
+		ruleset.name = this.name;
+		ruleset.id = this.id;
+		ruleset.filename = this.filename;
+		ruleset.rules = this.rules;
 
+		const response = {};
+		response.RuleSet = ruleset;
+
+		return response;
 	}
 }
 
