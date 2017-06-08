@@ -11,16 +11,19 @@ class RulesRouter extends BaseRouter {
 	get(req, res, next) {
 		const rules = [];
 		fs.readdirSync(this.config.validator.config.RulesDirectory).forEach(file => {
-			const basename = path.basename(file, path.extname(file));
-			rules.push({
-				id: basename,
-				type: 'rule',
-				attributes: {
-					name: basename,
-					filename: basename,
-					config: {}
-				}
-			});
+			const extension = path.extname(file);
+			if (extension && extension == ".js") {
+				const basename = path.basename(file, extension);
+				rules.push({
+					id: basename,
+					type: 'rule',
+					attributes: {
+						name: basename,
+						filename: basename,
+						config: {}
+					}
+				});
+			}
 		});
 
 		res.json({
