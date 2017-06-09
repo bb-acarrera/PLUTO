@@ -13,6 +13,7 @@
             {{rule-log-icons rule=rule log=model.log}}
             <td><input type="checkbox" width="20"/></td>
             <td><button {{action "showErrors" rule}}>{{rule.name}}</button></td>
+            <td><button {{action "editRule" rule}}>Edit</button></td>
           </tr>
         {{/each}}
         <tr>
@@ -36,6 +37,12 @@
       <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
     </div>
     <div class="column">
+      <!-- The column for editting rule properties. -->
+      {{show-rule-editor rule=this.ruleToEdit}}
+      <button class="save-ruleset" style="float: right" {{action "updateRule" this.ruleToEdit}}>Apply</button>
+    </div>
+    <div class="column">
+      <!-- The column for showing rule errors. -->
       <div class="section-header">Errors:</div>
         {{#if showErrors}}
           {{show-errors rule=this.showErrors log=model.log}}

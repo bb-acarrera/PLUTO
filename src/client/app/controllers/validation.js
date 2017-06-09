@@ -21,6 +21,12 @@ export default Ember.Controller.extend({
     addRule(ruleset, rules) {
       addRule(ruleset, rules);
       this.set('showAddRule', false);
+    },
+    editRule(rule) {
+      this.set('ruleToEdit', rule);
+    },
+    updateRule(rule) {
+      updateRule(rule);
     }
   }
 });
@@ -52,4 +58,14 @@ function addRule(ruleset, rules) {
       ruleset.notifyPropertyChange("rules");
     }
   });
+}
+
+function updateRule(rule) {
+  if (!rule)
+    return;
+
+  for (var key in rule.config) {
+    const value = document.getElementById(key).value;
+    rule.config[key] = value;
+  }
 }
