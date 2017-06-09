@@ -20,9 +20,20 @@
           <td><input type="checkbox" width="20"/></td>
           <td><button {{action "showErrors" "Validator"}}>Global Errors</button></td>
         </tr>
+        {{#if showAddRule}}
+          <td/><td/><td/><td/><td>
+            <select id="selectRule">
+              <option value="None" selected>None</option>
+              {{#each model.rules as |rule|}}
+                <option value="{{rule.filename}}">{{rule.name}}</option>
+              {{/each}}
+            </select>
+          </td>
+          <td><button {{action "hideAddRule"}}>Cancel</button><button {{action "addRule" model.ruleset model.rules}}>Add</button></td>
+        {{/if}}
       </table>
-      <button class="add-rule" {{action "addRule" model.ruleset}}>+</button>
-      <button class="save-ruleset" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
+      <button class="show-add-rule" style="float: left" {{action "showAddRule"}}>+</button>
+      <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
     </div>
     <div class="column">
       <div class="section-header">Errors:</div>
@@ -31,7 +42,4 @@
         {{/if}}
     </div>
   </div>
-  {{#each model.rules as |rule|}}
-    {{rule.filename}}<br/>
-  {{/each}}
 </div>

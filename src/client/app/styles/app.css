@@ -1,10 +1,8 @@
-button.add-rule {
-  float: left;
+button.show-add-rule {
   margin:5px 5px 5px 5px;
 }
 
 button.save-ruleset {
-  float: right;
   margin:5px 5px 5px 5px;
 }
 

@@ -12,8 +12,15 @@ export default Ember.Controller.extend({
     saveRuleSet(ruleset) {
       save(ruleset);
     },
-    addRule() {
-      
+    showAddRule() {
+      this.set('showAddRule', true);
+    },
+    hideAddRule() {
+      this.set('showAddRule', false);
+    },
+    addRule(ruleset, rules) {
+      addRule(ruleset, rules);
+      this.set('showAddRule', false);
     }
   }
 });
@@ -25,5 +32,24 @@ function save(ruleset) {
     alert("Successfully saved.");
   }, () => {
     alert("Failed to save.");
+  });
+}
+
+function addRule(ruleset, rules) {
+  const newRuleFilename = document.getElementById("selectRule").value;
+  if (newRuleFilename == "None")
+    return;
+
+  rules.forEach(rule => {
+    if (rule.get("filename") == newRuleFilename) {
+      const newRule = {};
+      newRule.filename = rule.get("filename");
+      newRule.name = rule.get("name");
+      // newRule.id = rule.get("id");  // ID's should be unique.
+      newRule.config = rule.get("config");
+
+      ruleset.get("rules").push(newRule);
+      ruleset.notifyPropertyChange("rules");
+    }
   });
 }
