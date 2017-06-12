@@ -49,6 +49,20 @@ export default Ember.Controller.extend({
       rules.splice(index, 1); // Remove the rule.
       rules.splice(index+1, 0, movingRule); // Add it back one spot later.
       ruleset.notifyPropertyChange("rules");
+    },
+    toggleRowHighlight(rowID, rule) {
+      const row = document.getElementById(rowID);
+
+      var siblings = row.parentNode.childNodes;
+      for (var i = 0; i < siblings.length; i++) {
+        const sibling = siblings[i];
+        if (sibling.nodeName.toLowerCase() == "tr" && sibling.classList)
+            sibling.classList.remove('selected');
+      }
+      
+      row.classList.add('selected');
+
+      this.set('showErrors', rule);
     }
   }
 });
