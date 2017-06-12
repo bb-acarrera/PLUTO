@@ -30,17 +30,18 @@ export function ruleLogIcons(params, {rule, log, tagName}) {
     // {{s.stack-1x "square" size="lg" style="color:firebrick"}}
     // {{s.stack-1x "exclamation" inverse=true}}
     // {{/fa-stack}}
-    result += `<span class="fa-stack"><${tag} class="fa fa-square fa-lg fa-stack-1x" style="color:firebrick"></${tag}><${tag} class="fa fa-exclamation fa-stack-1x fa-inverse"></${tag}></span>`;
+    // result += `<span class="fa-stack"><${tag} class="fa fa-square fa-lg fa-stack-1x" style="color:firebrick"></${tag}><${tag} class="fa fa-exclamation fa-stack-1x fa-inverse"></${tag}></span>`;
+    result += `<${tag} class="fa fa-exclamation-triangle fa" style="color:firebrick"></${tag}>`;
   }
   result += "</td><td>"
   if (hasWarnings) {
     // {{fa-icon "exclamation-triangle" size="lg" style="color:gold"}}
-    result += `<${tag} class="fa fa-exclamation-triangle fa-lg" style="color:gold"></${tag}>`;
+    result += `<${tag} class="fa fa-exclamation-triangle fa" style="color:gold"></${tag}>`;
   }
   result += "</td><td>"
   if (hasInfo) {
     // {{fa-icon "info-circle" size="lg" style="color:deepskyblue"}}
-    result += `<${tag} class="fa fa-info-circle fa-lg" style="color:deepskyblue"></${tag}>`;
+    result += `<${tag} class="fa fa-info-circle fa" style="color:deepskyblue"></${tag}>`;
   }
   result += "</td>"
 
