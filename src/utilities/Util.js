@@ -20,7 +20,7 @@ class Util {
 			}
 
 			if (!contents.RuleSet) {
-				throw("Ruleset file \"" + rulesetFile + "\" does not contains a RuleSet member.");
+				throw("Ruleset file \"" + rulesetFile + "\" does not contain a RuleSet member.");
 			}
 
 			contents.RuleSet.filename = ruleset;
