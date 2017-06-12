@@ -27,6 +27,28 @@ export default Ember.Controller.extend({
     },
     updateRule(ruleset, rule) {
       updateRule(ruleset, rule);
+    },
+    moveRuleUp(ruleset, index) {
+      if (index < 1)
+        return;
+
+      const rules = ruleset.get('rules');
+      const movingRule = rules[index];
+
+      rules.splice(index, 1); // Remove the rule.
+      rules.splice(index-1, 0, movingRule); // Add it back one spot earlier.
+      ruleset.notifyPropertyChange("rules");
+    },
+    moveRuleDown(ruleset, index) {
+      const rules = ruleset.get('rules');
+      if (index >= rules.length)
+        return;
+
+      const movingRule = rules[index];
+
+      rules.splice(index, 1); // Remove the rule.
+      rules.splice(index+1, 0, movingRule); // Add it back one spot later.
+      ruleset.notifyPropertyChange("rules");
     }
   }
 });

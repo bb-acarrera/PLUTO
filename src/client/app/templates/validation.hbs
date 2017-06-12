@@ -8,12 +8,14 @@
       <div class="section-content"><input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
       <div class="section-header">Sequence</div>
       <table>
-        {{#each model.ruleset.rules as |ruleInstance|}}
+        {{#each model.ruleset.rules as |ruleInstance index|}}
           <tr>
             {{rule-log-icons rule=ruleInstance log=model.log}}
             <td><input type="checkbox" width="20"/></td>
             <td><button {{action "showErrors" ruleInstance}}>{{ruleInstance.config.Name}}</button></td>
             <td><button {{action "editRule" ruleInstance}}>Edit</button></td>
+            <td><button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up" aria-hidden="true"></i></button></td>
+            <td><button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
           </tr>
         {{/each}}
         <tr>
