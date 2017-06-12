@@ -25,8 +25,8 @@ export default Ember.Controller.extend({
     editRule(rule) {
       this.set('ruleToEdit', rule);
     },
-    updateRule(rule) {
-      updateRule(rule);
+    updateRule(ruleset, rule) {
+      updateRule(ruleset, rule);
     }
   }
 });
@@ -50,7 +50,6 @@ function addRule(ruleset, rules) {
     if (rule.get("filename") == newRuleFilename) {
       const newRule = {};
       newRule.filename = rule.get("filename");
-      newRule.name = rule.get("name");
       newRule.id = createGUID();
       newRule.config = rule.get("config");
 
@@ -60,14 +59,23 @@ function addRule(ruleset, rules) {
   });
 }
 
-function updateRule(rule) {
+function updateRule(ruleset, rule) {
   if (!rule)
     return;
 
+  // Get the initial name.
+  // if (!rule.config.hasOwnProperty("name")) {
+  //   const value = document.getElementById('name').value;
+  //   rule.config['name'] = value;
+  // }
+
+  // Get the properties.
   for (var key in rule.config) {
     const value = document.getElementById(key).value;
-    rule.config[key] = value;
+    Ember.set(rule.config, key, value);
   }
+
+  ruleset.notifyPropertyChange("rules");
 }
 
 function createGUID() {

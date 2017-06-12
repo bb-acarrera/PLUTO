@@ -20,11 +20,11 @@ class RulesetRouter extends BaseRouter {
 		for (var i = 0; i < ruleset.rules.length; i++) {
 			const rule = ruleset.rules[i];
 			const ruleFilename = rule.filename;
-			const rulename = Util.getRuleName(rule);
+			if (rule.hasOwnProperty('config') && !rule.config.hasOwnProperty('Name'))
+				rule.config.Name = ruleFilename;	// Make sure the rule has a name.
 			rules.push(
 				{
 					filename: ruleFilename,
-					name: rulename,
 					config: rule.config
 				});
 		}

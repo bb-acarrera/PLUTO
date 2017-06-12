@@ -8,12 +8,12 @@
       <div class="section-content"><input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
       <div class="section-header">Sequence</div>
       <table>
-        {{#each model.ruleset.rules as |rule|}}
+        {{#each model.ruleset.rules as |ruleInstance|}}
           <tr>
-            {{rule-log-icons rule=rule log=model.log}}
+            {{rule-log-icons rule=ruleInstance log=model.log}}
             <td><input type="checkbox" width="20"/></td>
-            <td><button {{action "showErrors" rule}}>{{rule.name}}</button></td>
-            <td><button {{action "editRule" rule}}>Edit</button></td>
+            <td><button {{action "showErrors" ruleInstance}}>{{ruleInstance.config.Name}}</button></td>
+            <td><button {{action "editRule" ruleInstance}}>Edit</button></td>
           </tr>
         {{/each}}
         <tr>
@@ -38,8 +38,8 @@
     </div>
     <div class="column">
       <!-- The column for editting rule properties. -->
-      {{show-rule-editor rule=this.ruleToEdit}}
-      <button class="save-ruleset" style="float: right" {{action "updateRule" this.ruleToEdit}}>Apply</button>
+      {{show-rule-editor ruleInstance=this.ruleToEdit}}
+      <button class="save-ruleset" style="float: right" {{action "updateRule" model.ruleset this.ruleToEdit}}>Apply</button>
     </div>
     <div class="column">
       <!-- The column for showing rule errors. -->
