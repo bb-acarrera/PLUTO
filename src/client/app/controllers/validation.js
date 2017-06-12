@@ -51,7 +51,7 @@ function addRule(ruleset, rules) {
       const newRule = {};
       newRule.filename = rule.get("filename");
       newRule.name = rule.get("name");
-      // newRule.id = rule.get("id");  // ID's should be unique.
+      newRule.id = createGUID();
       newRule.config = rule.get("config");
 
       ruleset.get("rules").push(newRule);
@@ -68,4 +68,11 @@ function updateRule(rule) {
     const value = document.getElementById(key).value;
     rule.config[key] = value;
   }
+}
+
+function createGUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  })
 }

@@ -28,6 +28,7 @@ class RuleSet {
 			const dstRule = {};
 			dstRule.config = srcRule.Config || srcRule.config;
 			dstRule.filename = srcRule.FileName || srcRule.filename;
+			dstRule.id = srcRule.id;
 			this.rules.push(dstRule);
 		}
 	}

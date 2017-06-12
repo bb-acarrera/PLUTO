@@ -155,14 +155,15 @@ class RuleAPI extends EventEmitter {
 	 * If null or undefined
 	 * then {@link Validator.INFO} is assumed.
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
+	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	 * @param problemDescription {string} a description of the problem encountered.
 	 * @private
 	 */
-	log(level, problemFileName, problemDescription, shouldAbort) {
+	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
 		if (this.config && this.config.validator)
-			this.config.validator.log(level, problemFileName, problemDescription, shouldAbort || false);
+			this.config.validator.log(level, problemFileName, ruleID, problemDescription, shouldAbort || false);
 		else if (this.config && this.config._debugLogger)
-			this.config._debugLogger.log(level, problemFileName, problemDescription);
+			this.config._debugLogger.log(level, problemFileName, ruleID, problemDescription);
 	}
 
 	/**
@@ -171,7 +172,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	error(problemDescription) {
-		this.log(RuleAPI.ERROR, this.constructor.name, problemDescription, this.shouldRulesetFailOnError());
+		this.log(RuleAPI.ERROR, this.constructor.name, this.config.id, problemDescription, this.shouldRulesetFailOnError());
 	}
 
 	/**
@@ -179,7 +180,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	warning(problemDescription) {
-		this.log(RuleAPI.WARNING, this.constructor.name, problemDescription);
+		this.log(RuleAPI.WARNING, this.constructor.name, this.config.id, problemDescription);
 	}
 
 	/**
@@ -187,7 +188,7 @@ class RuleAPI extends EventEmitter {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	info(problemDescription) {
-		this.log(RuleAPI.INFO, this.constructor.name, problemDescription);
+		this.log(RuleAPI.INFO, this.constructor.name, this.config.id, problemDescription);
 	}
 }
 

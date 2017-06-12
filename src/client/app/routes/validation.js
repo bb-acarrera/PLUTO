@@ -9,6 +9,7 @@ export default Ember.Route.extend({
         ruleSetResult => {
           return store.findRecord('log', params.log).then(
             logResult => {
+              // Get the rule files for displaying in a choice selector. (These are not the rule instances in a ruleset.)
               return store.findAll('rule').then(
                 rules => {
                   return {file: params.file, ruleset: ruleSetResult, log: logResult, rules: rules};

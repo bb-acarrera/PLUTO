@@ -17,15 +17,16 @@ class ErrorLogger {
 	 * @param level the level of the log. One of LEVEL_ERROR, LEVEL_WARNING, and LEVEL_INFO. If null or undefined
 	 * then LEVEL_INFO is assumed.
 	 * @param problemFileName the name of the file causing the log to be generated.
+	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	 * @param problemDescription a description of the problem encountered.
 	 */
-	log(level, problemFileName, problemDescription) {
+	log(level, problemFileName, ruleID, problemDescription) {
 		level = level || "UNDEFINED";
 		problemFileName = problemFileName || "";
 		problemDescription = problemDescription || "";
 		const dateStr = new Date().toLocaleString();
 
-		const report = { type : level, when : dateStr, problemFile : problemFileName, description : problemDescription };
+		const report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription };
 		this.reports.push(report);
 
 		//console.log(util.inspect(report, {showHidden: false, depth: null}))

@@ -544,13 +544,14 @@ class Validator {
 	 * then {@link Validator.INFO} is assumed.
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
 	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	 * @param shouldAbort should the running of rules stop at the end of the current rule,
 	 * @private
 	 */
-	log(level, problemFileName, problemDescription, shouldAbort) {
+	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
 		this.shouldAbort = shouldAbort || false;
 		if (this.logger)
-			this.logger.log(level, problemFileName, problemDescription);
+			this.logger.log(level, problemFileName, ruleID, problemDescription);
 		else {
 			level = level || RuleAPI.INFO;
 			problemFileName = problemFileName || "";

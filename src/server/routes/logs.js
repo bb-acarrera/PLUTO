@@ -24,6 +24,7 @@ class LogsRouter extends BaseRouter {
 			const reportWhen = report.when;
 			const reportProblemFile = report.problemFile;
 			const reportDescription = report.description;
+			const ruleID = report.ruleID;
 			relationshipLogReports.push({type: 'report', id: reportID});
 			includedReports.push(
 				{
@@ -32,6 +33,7 @@ class LogsRouter extends BaseRouter {
 						"log-type": reportType,
 						when: reportWhen,
 						"problem-file": reportProblemFile,
+						"rule-id": ruleID,
 						description: reportDescription
 					}
 				});
