@@ -534,7 +534,18 @@ class Validator {
 	 * @private
 	 */
 	getLog(logFileName) {
-		return require(path.resolve(this.logDirectory, logFileName));
+		const logfile = path.resolve(this.logDirectory, logFileName);
+		var log;
+		if (fs.existsSync(logfile)) {
+			const contents = fs.readFileSync(logfile, 'utf8');
+			try {
+				log = JSON.parse(contents);
+			}
+			catch (e) {
+				console.log(`Failed to load ${configName}. Attempt threw:\n${e}\n`);
+			}
+		}
+		return log;
 	}
 
 	/**
