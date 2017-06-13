@@ -1,6 +1,5 @@
 {
 	"RootDirectory" : ".",
-	"PluginsDirectory" : "src/default",
 	"RulesetDirectory" : "src/examples",
 	"RulesDirectory" : "src/examples",
 	"TempDirectory" : "./tmp",

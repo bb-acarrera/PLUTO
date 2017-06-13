@@ -1,4 +1,4 @@
-const EventEmitter = require('events');
+const BaseRuleAPI = require('./BaseRuleAPI');
 
 /**
  * This API class is used to describe the interface to rule operations. The methods indicate how the
@@ -8,18 +8,7 @@ const EventEmitter = require('events');
  * The class extends EventEmitter so that rules run asynchronously. When a rule completes it should post the static
  * {@link RuleAPI.NEXT} value.
  */
-class RuleAPI extends EventEmitter {
-	/**
-	 * Use this to signal that the next rule can be started. For synchronous rules this would be when the
-	 * rule completes and for asynchronous rules using streams this would be when data is ready on the output stream.
-	 * @example
-	 * 		setImmediate(() => {
-	 *			this.emit(RuleAPI.NEXT, filename);
-	 *		});
-	 * @static
-	 */
-	static get NEXT() { return "next"; }
-
+class RuleAPI extends BaseRuleAPI {
 	/**
 	 * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object
 	 * will be the rule's individual configuration (if any) and additionally contain <code>RootDirectory</code> which defaults to
@@ -32,9 +21,7 @@ class RuleAPI extends EventEmitter {
 	 * @param localConfig {object} the rule's configuration as defined in the ruleset file or a standalone config file.
 	 */
 	constructor(localConfig) {
-		super();
-
-		this.config = localConfig;
+		super(localConfig);
 	}
 
 	/**
@@ -113,82 +100,6 @@ class RuleAPI extends EventEmitter {
 		setImmediate(() => {
 			this.emit(RuleAPI.NEXT, data);
 		});
-	}
-
-	/**
-	 * This method indicates whether or not an entire run of a ruleset should fail if this rule fails. Rules which do
-	 * simple filtering can probably fail without breaking the entire run of the ruleset but rules which rearrange the
-	 * data, for example, should cause the entire run to fail if they fail.
-	 * @abstract
-	 * @returns {boolean} <code>false</code> by default. Derived classes should choose whether an entire ruleset run should
-	 * fail if they fail.
-	 */
-	shouldRulesetFailOnError() { return true; }
-
-	/**
-	 * Use this with {@link Validator#log} to log significant errors.
-	 * @static
-	 * @returns {string}
-	 * @private
-	 */
-	static get ERROR() { return "Error"; }
-
-	/**
-	 * Use this with {@link Validator#log} to log simple warnings.
-	 * @static
-	 * @returns {string}
-	 * @private
-	 */
-	static get WARNING() { return "Warning"; }
-
-	/**
-	 * Use this with {@link Validator#log} when reporting information.
-	 * @static
-	 * @returns {string}
-	 * @private
-	 */
-	static get INFO() { return "Info"; }
-
-	/**
-	 * This is called when the application has something to log.
-	 * @param {string} level the level of the log. One of {@link Validator.ERROR}, {@link Validator.WARNING}, or {@link Validator.INFO}.
-	 * If null or undefined
-	 * then {@link Validator.INFO} is assumed.
-	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
-	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
-	 * @param problemDescription {string} a description of the problem encountered.
-	 * @private
-	 */
-	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
-		if (this.config && this.config.validator)
-			this.config.validator.log(level, problemFileName, ruleID, problemDescription, shouldAbort || false);
-		else if (this.config && this.config._debugLogger)
-			this.config._debugLogger.log(level, problemFileName, ruleID, problemDescription);
-	}
-
-	/**
-	 * Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
-	 * <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
-	 * @param problemDescription {string} a description of the problem encountered.
-	 */
-	error(problemDescription) {
-		this.log(RuleAPI.ERROR, this.constructor.name, this.config.id, problemDescription, this.shouldRulesetFailOnError());
-	}
-
-	/**
-	 * Add a warning to the log.
-	 * @param problemDescription {string} a description of the problem encountered.
-	 */
-	warning(problemDescription) {
-		this.log(RuleAPI.WARNING, this.constructor.name, this.config.id, problemDescription);
-	}
-
-	/**
-	 * Add an information report to the log.
-	 * @param problemDescription {string} a description of the problem encountered.
-	 */
-	info(problemDescription) {
-		this.log(RuleAPI.INFO, this.constructor.name, this.config.id, problemDescription);
 	}
 }
 

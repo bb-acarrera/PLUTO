@@ -8,7 +8,8 @@ const stream = require('stream');
 
 const rimraf = require('rimraf');
 
-const RuleAPI = require("../api/RuleAPI");
+const BaseRuleAPI = require("../api/BaseRuleAPI");
+const MetadataRuleAPI = require("../api/MetadataRuleAPI");
 
 const Util = require("../utilities/Util");
 
@@ -34,15 +35,6 @@ class Validator {
 
 		if (!fs.existsSync(this.rootDir))
 			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
-
-		// Make a few relative paths absolute for ease of use.
-		if (this.config.PluginsDirectory)
-			this.config.PluginsDirectory = path.resolve(this.rootDir, this.config.PluginsDirectory);
-		else
-			this.config.PluginsDirectory = this.rootDir;
-
-		if (!fs.existsSync(this.config.PluginsDirectory))
-			throw "Failed to find PluginsDirectory \"" + this.config.PluginsDirectory + "\".\n";
 
 		if (this.config.RulesetDirectory)
 			this.config.RulesetDirectory = path.resolve(this.rootDir, this.config.RulesetDirectory);
@@ -70,6 +62,9 @@ class Validator {
 		// Remember the name of the current ruleset and rule for error reporting.
 		this.RuleSetName = undefined;
 		this.RuleName = undefined;
+
+		// Data that can be shared between rules.
+		this.SharedData = {};
 
 		this.updateConfig(this.config);
 	}
@@ -255,7 +250,11 @@ class Validator {
 		// Try to match the input method to the data. i.e. a rule could support multiple import approaches
 		// so we don't want to unnecessarily convert the data.
 		try {
-			if (rule.canUseMethod() && lastResult.data)			// No conversion necessary.
+			if (rule instanceof MetadataRuleAPI) {
+				rule.updateMetadata();
+				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);
+			}
+			else if (rule.canUseMethod() && lastResult.data)			// No conversion necessary.
 				this.runMethodsRule(rulesDirectory, rule, lastResult);
 			else if (rule.canUseStreams() && lastResult.stream)	// No conversion necessary.
 				this.runStreamsMethod(rulesDirectory, rule, lastResult);
@@ -285,7 +284,7 @@ class Validator {
 
 	runMethodsRule(rulesDirectory, rule, lastResult) {
 		// Send the output on to the next rule.
-		rule.on(RuleAPI.NEXT, (data) => {
+		rule.on(BaseRuleAPI.NEXT, (data) => {
 			// The rule may have changed the file encoding.
 			this.encoding = rule.config.OutputEncoding;
 
@@ -314,7 +313,7 @@ class Validator {
 
 	runFilesRule(rulesDirectory, rule, lastResult) {
 		// Send the output on to the next rule.
-		rule.on(RuleAPI.NEXT, (filename) => {
+		rule.on(BaseRuleAPI.NEXT, (filename) => {
 			// The rule may have changed the file encoding.
 			this.encoding = rule.config.OutputEncoding;
 
@@ -343,7 +342,7 @@ class Validator {
 
 	runStreamsMethod(rulesDirectory, rule, lastResult) {
 		// Send the output on to the next rule.
-		rule.on(RuleAPI.NEXT, (stream) => {
+		rule.on(BaseRuleAPI.NEXT, (stream) => {
 			// The rule may have changed the file encoding.
 			this.encoding = rule.config.OutputEncoding;
 
@@ -394,6 +393,7 @@ class Validator {
 		config.OutputEncoding = config.Encoding || this.encoding;
 		config.Encoding = this.encoding;
 		config.validator = this;
+		config.SharedData = this.SharedData;
 	}
 
 	// Create a unique temporary filename in the temp directory.
@@ -553,7 +553,7 @@ class Validator {
 		if (this.logger)
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
 		else {
-			level = level || RuleAPI.INFO;
+			level = level || BaseRuleAPI.INFO;
 			problemFileName = problemFileName || "";
 			problemDescription = problemDescription || "";
 			const dateStr = new Date().toLocaleString();
@@ -567,7 +567,7 @@ class Validator {
 	 * @private
 	 */
 	error(problemDescription) {
-		this.log(RuleAPI.ERROR, this.constructor.name, problemDescription);
+		this.log(BaseRuleAPI.ERROR, this.constructor.name, problemDescription);
 	}
 
 	/**
@@ -576,7 +576,7 @@ class Validator {
 	 * @private
 	 */
 	warning(problemDescription) {
-		this.log(RuleAPI.WARNING, this.constructor.name, problemDescription);
+		this.log(BaseRuleAPI.WARNING, this.constructor.name, problemDescription);
 	}
 
 	/**
@@ -585,7 +585,7 @@ class Validator {
 	 * @private
 	 */
 	info(problemDescription) {
-		this.log(RuleAPI.INFO, this.constructor.name, problemDescription);
+		this.log(BaseRuleAPI.INFO, this.constructor.name, problemDescription);
 	}
 }
 
