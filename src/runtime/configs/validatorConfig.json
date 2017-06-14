@@ -1,0 +1,9 @@
+{
+	"RootDirectory" : ".",
+	"RulesetDirectory" : "runtime/rulesets",
+	"RulesDirectory" : "runtime/rules",
+	"TempDirectory" : "./tmp",
+	"InputDirectory" : "data",
+	"OutputDirectory" : "results",
+	"LogDirectory" : "results/logs"
+}

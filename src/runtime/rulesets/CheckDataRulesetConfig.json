@@ -1,0 +1,30 @@
+{
+	"RuleSet" : {
+		"Name" : "Check Data RuleSet",
+		"Rules" : [
+			{
+				"FileName" : "CheckColumnCount",
+				"Config" : {
+					"Columns" : 9
+				}
+			},
+			{
+				"FileName" : "CheckLatLong",
+				"Config" : {
+					"NumberOfHeaderRows" : 1,
+					"LatitudeColumn"  : 2,
+					"LongitudeColumn" : 3
+				}
+			},
+			{
+				"FileName" : "CheckColumnType",
+				"Name" : "Validate Population Column",
+				"Config" : {
+					"NumberOfHeaderRows" : 1,
+					"Type" : "number",
+					"Column" : 4
+				}
+			}
+		]
+	}
+}

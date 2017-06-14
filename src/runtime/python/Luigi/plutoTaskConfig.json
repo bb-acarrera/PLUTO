@@ -1,0 +1,6 @@
+{
+	"WorkingDirectory" : "../../../..",
+	"ValidatorExecutable" : "src/validator/validator.js",
+	"RuleSet" : "src/examples/exampleRulesetConfig.json",
+	"ValidatorConfig" : "src/examples/validatorConfig.json"
+}
