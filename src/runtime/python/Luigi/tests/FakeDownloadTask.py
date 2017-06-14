@@ -6,4 +6,4 @@ class FakeDownloadTask(luigi.Task):
 		'''
 		Return a luigi.localTarget() object pointing to the output
 		'''
-		return luigi.LocalTarget(os.path.abspath('../../../examples/data/simplemaps-worldcities-basic.csv'))
+		return luigi.LocalTarget(os.path.abspath('../../../../examples/data/simplemaps-worldcities-basic.csv'))
