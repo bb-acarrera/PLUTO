@@ -20,14 +20,14 @@ class Server {
 		this.port = this.config.Port || 8000;
 		this.rootDir = path.resolve(this.config.RootDirectory || this.config.Validator.RootDirectory || ".");
 		this.router = new Router(config);
-		this.assetsDirectory = this.config.AssetsDirectory || "public";
+		this.assetsDirectory = path.resolve(this.rootDir, this.config.AssetsDirectory || "public");
 
 		// app.use(bodyParser.json()); // for parsing application/json
 		app.use(bodyParser.json({ type: 'application/*+json' }));
 
 		// Set up the routing.
 		app.use(this.router.router);
-		app.use(express.static(path.resolve(this.rootDir, this.assetsDirectory)));
+		app.use(express.static(this.assetsDirectory));
 
 		// TODO: Basic error handling. Make it a little less basic?
 		if (app.get('env') === 'development') {

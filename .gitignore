@@ -12,3 +12,4 @@ src/runtime/python/Luigi/tests/__pycache__
 simplemaps-worldcities-basic.csv.log.json
 simplemaps-worldcities-basic.csv.out
 Release
+src/tmp

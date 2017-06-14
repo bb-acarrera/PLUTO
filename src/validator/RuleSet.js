@@ -17,7 +17,7 @@ class RuleSet {
 			this.name = ruleset.name;
 			this.id = ruleset.id || this.name;
 			this._filename = ruleset.filename;
-			this.addRules(ruleset.rules);
+			this.addRules(ruleset.rules || ruleset.Rules);
 		}
 	}
 
