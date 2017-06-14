@@ -9,25 +9,35 @@ export default Ember.Controller.extend({
     showErrors(rule) {
       this.set('showErrors', rule);
     },
+
     saveRuleSet(ruleset) {
       save(ruleset);
     },
+
     showAddRule() {
       this.set('showAddRule', true);
     },
+
     hideAddRule() {
       this.set('showAddRule', false);
     },
+
     addRule(ruleset, rules) {
       addRule(ruleset, rules);
       this.set('showAddRule', false);
     },
+
+    deleteRule(tableID, ruleset) {
+      deleteRule(tableID, ruleset);
+    },
     editRule(rule) {
       this.set('ruleToEdit', rule);
     },
+
     updateRule(ruleset, rule) {
       updateRule(ruleset, rule);
     },
+
     moveRuleUp(ruleset, index) {
       if (index < 1)
         return;
@@ -39,6 +49,7 @@ export default Ember.Controller.extend({
       rules.splice(index-1, 0, movingRule); // Add it back one spot earlier.
       ruleset.notifyPropertyChange("rules");
     },
+
     moveRuleDown(ruleset, index) {
       const rules = ruleset.get('rules');
       if (index >= rules.length)
@@ -50,6 +61,7 @@ export default Ember.Controller.extend({
       rules.splice(index+1, 0, movingRule); // Add it back one spot later.
       ruleset.notifyPropertyChange("rules");
     },
+
     toggleRowHighlight(rowID, rule) {
       const row = document.getElementById(rowID);
 
@@ -94,6 +106,35 @@ function addRule(ruleset, rules) {
       ruleset.notifyPropertyChange("rules");
     }
   });
+}
+
+function deleteRule(tableID, ruleset) {
+  const table = document.getElementById(tableID);
+  var siblings = table.childNodes;
+  var ruleToDelete = -1;
+  var row = 0;
+  for (var i = 0; i < siblings.length; i++) {
+    const sibling = siblings[i];
+    if (sibling.nodeName.toLowerCase() == "tr" && sibling.classList) {
+      if (sibling.classList.contains("selected")) {
+        ruleToDelete = row;
+        break;
+      }
+      row++;
+    }
+  }
+
+  if (ruleToDelete < 0) {
+    alert("No rule selected. Nothing to delete.");
+    return;
+  }
+
+  const rules = ruleset.get('rules');
+  const rule = rules[ruleToDelete];
+  if (confirm(`Delete rule "${rule.config.Name}"?`)) {
+    rules.splice(ruleToDelete, 1); // Remove the rule.
+    ruleset.notifyPropertyChange("rules");
+  }
 }
 
 function updateRule(ruleset, rule) {

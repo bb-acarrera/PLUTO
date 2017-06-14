@@ -7,7 +7,7 @@
       <div class="section-header">Process Template</div>
       <div class="section-content"><input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
       <div class="section-header">Sequence</div>
-      <table class="ruleset-table">
+      <table id="rulesTable" class="ruleset-table">
         {{#each model.ruleset.rules as |ruleInstance index|}}
           <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
             {{rule-log-icons rule=ruleInstance log=model.log}}
@@ -34,6 +34,7 @@
         {{/if}}
       </table>
       <button class="show-add-rule" style="float: left" {{action "showAddRule"}}>+</button>
+      <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}>-</button>
       <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
     </div>
     <div class="column">
