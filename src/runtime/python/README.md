@@ -16,7 +16,7 @@ for the instructions I used to set things up on a Mac. Modify appropriately for 
 1. Run **python3 -m venv virtualEnvironment**. (You could use a directory name other than _virtualEnvironment_
  and a path outside the source area if you wish but that's what I used.)
 2. Run **source virtualEnvironment/bin/activate**.
-3. Run **pip install -r requirements.txt** to install Luigi and it's dependencies into the virtual environment.
+3. Run **pip3 install -r requirements.txt** to install Luigi and it's dependencies into the virtual environment.
 
 <sub><sup>For future reference, to create the **requirements.txt** file simply run **pip freeze >requirements.txt**.</sup></sub> 
 
