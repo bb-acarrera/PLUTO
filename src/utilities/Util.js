@@ -24,6 +24,7 @@ class Util {
 			}
 
 			contents.RuleSet.filename = ruleset;
+			contents.RuleSet.name = contents.RuleSet.name || contents.RuleSet.filename;
 			ruleset = contents.RuleSet;
 		}
 

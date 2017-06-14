@@ -1,7 +1,7 @@
 {
 	"RuleSet" : {
-		"Name" : "Check Data RuleSet",
-		"Rules" : [
+		"name" : "Check Data RuleSet",
+		"rules" : [
 			{
 				"FileName" : "CheckColumnCount",
 				"Config" : {
