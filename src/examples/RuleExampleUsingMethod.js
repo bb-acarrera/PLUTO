@@ -1,4 +1,4 @@
-const RuleAPI = require("../api/RuleAPI");
+const RuleAPI = require("../runtime/api/RuleAPI");
 
 class RuleExampleUsingMethod extends RuleAPI {
 	constructor(config) {

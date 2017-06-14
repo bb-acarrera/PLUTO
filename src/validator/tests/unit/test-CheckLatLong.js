@@ -2,8 +2,8 @@
  * Tests errors and successes of the CheckLatLong rule.
  */
 const ErrorLogger = require("../../ErrorLogger");
-const CheckLatLong = require("../../../examples/CheckLatLong");
-const RuleAPI = require("../../../api/RuleAPI");
+const CheckLatLong = require("../../../runtime/rules/CheckLatLong");
+const RuleAPI = require("../../../runtime/api/RuleAPI");
 
 QUnit.test( "CheckLatLong: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();

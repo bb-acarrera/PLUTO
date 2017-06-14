@@ -8,14 +8,14 @@ const stream = require('stream');
 
 const rimraf = require('rimraf');
 
-const BaseRuleAPI = require("../api/BaseRuleAPI");
-const MetadataRuleAPI = require("../api/MetadataRuleAPI");
+const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
+const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
 
 const Util = require("../utilities/Util");
 
 const ErrorLogger = require("./ErrorLogger");
-const MemoryWriterStream = require("./MemoryWriterStream");
-const MemoryReaderStream = require("./MemoryReaderStream");
+const MemoryWriterStream = require("../runtime/utilities/MemoryWriterStream");
+const MemoryReaderStream = require("../runtime/utilities/MemoryReaderStream");
 const RuleSet = require("./RuleSet");
 
 const version = require("../../package.json").version;
@@ -250,7 +250,7 @@ class Validator {
 		// Try to match the input method to the data. i.e. a rule could support multiple import approaches
 		// so we don't want to unnecessarily convert the data.
 		try {
-			if (rule instanceof MetadataRuleAPI) {
+			if (typeof rule.updateMetadata === 'function') {
 				rule.updateMetadata();
 				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);
 			}
