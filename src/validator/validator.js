@@ -578,7 +578,7 @@ class Validator {
 	 * @private
 	 */
 	error(problemDescription) {
-		this.log(BaseRuleAPI.ERROR, this.constructor.name, problemDescription);
+		this.log(BaseRuleAPI.ERROR, this.constructor.name, undefined, problemDescription);
 	}
 
 	/**
@@ -587,7 +587,7 @@ class Validator {
 	 * @private
 	 */
 	warning(problemDescription) {
-		this.log(BaseRuleAPI.WARNING, this.constructor.name, problemDescription);
+		this.log(BaseRuleAPI.WARNING, this.constructor.name, undefined, problemDescription);
 	}
 
 	/**
@@ -596,7 +596,7 @@ class Validator {
 	 * @private
 	 */
 	info(problemDescription) {
-		this.log(BaseRuleAPI.INFO, this.constructor.name, problemDescription);
+		this.log(BaseRuleAPI.INFO, this.constructor.name, undefined, problemDescription);
 	}
 }
 
