@@ -59,7 +59,7 @@ export default Ember.Controller.extend({
         if (sibling.nodeName.toLowerCase() == "tr" && sibling.classList)
             sibling.classList.remove('selected');
       }
-      
+
       row.classList.add('selected');
 
       this.set('showErrors', rule);
@@ -87,7 +87,8 @@ function addRule(ruleset, rules) {
       const newRule = {};
       newRule.filename = rule.get("filename");
       newRule.id = createGUID();
-      newRule.config = rule.get("config");
+      newRule.config = Object.assign({}, rule.get("config") || {});  // Clone the config. Don't want to reference the original.
+      newRule.config.Name = newRule.filename;
 
       ruleset.get("rules").push(newRule);
       ruleset.notifyPropertyChange("rules");
