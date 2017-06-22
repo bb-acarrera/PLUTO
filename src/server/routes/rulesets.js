@@ -46,6 +46,10 @@ class RulesetRouter extends BaseRouter {
 		this.config.validator.saveRuleSet(ruleset);
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
+
+	getAll(req, res, next) {
+
+	}
 }
 
 module.exports = RulesetRouter;

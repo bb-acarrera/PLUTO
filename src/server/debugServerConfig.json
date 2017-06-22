@@ -1,5 +1,5 @@
 {
 	"RootDirectory" : ".",
 	"Port" : "8000",
-	"AssetsDirectory": "../Release/public"
+	"AssetsDirectory": "client/dist"
 }

@@ -20,6 +20,17 @@ const RuleSet = require("./RuleSet");
 
 const version = require("../../package.json").version;
 
+
+const getCurrentDateTimeString = function() {
+	const currentdate = new Date();
+	return currentdate.getFullYear() + "_" +
+		(currentdate.getMonth()+1) + "_" +
+		currentdate.getDate() + "_" +
+		currentdate.getHours() + "_" +
+		currentdate.getMinutes() + "_" +
+		currentdate.getSeconds();
+}
+
 /*
  * The Validator class is the main application class.
  */
@@ -55,6 +66,7 @@ class Validator {
 		this.inputDirectory  = path.resolve(this.config.RootDirectory, this.config.InputDirectory);
 		this.outputDirectory = path.resolve(this.config.RootDirectory, this.config.OutputDirectory);
 		this.logDirectory = path.resolve(this.config.RootDirectory, this.config.LogDirectory);
+		this.runsDirectory = path.resolve(this.config.RootDirectory, this.config.RunsDirectory);
 
 		this.logger = new ErrorLogger(config);
 		this.ruleIterator = null;
@@ -369,7 +381,7 @@ class Validator {
 				this.putFile(results.file, this.outputFileName);
 		}
 
-		this.saveLog(this.inputFileName);
+		this.saveRun(this.config.RuleSet, this.inputFileName, this.outputFileName);
 	}
 
 	cleanup() {
@@ -426,6 +438,34 @@ class Validator {
 		fs.writeFileSync(path.resolve(this.config.RulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
 	}
 
+	saveRun(rulesetName, inputfilename, outputfilename) {
+
+
+
+		try {
+			if (!fs.existsSync(this.runsDirectory))
+				fs.mkdirSync(this.runsDirectory);	// Make sure the logDirectory exists.
+		}
+		catch (e) {
+			console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
+			throw e;
+		}
+
+		const logName = this.saveLog(inputfilename);
+
+		const run = {
+			log: logName,
+			ruleset: rulesetName,
+			inputfilename: inputfilename,
+			outputfilename: outputfilename,
+			time: new Date()
+		};
+
+		const basename = path.basename(inputfilename, path.extname(inputfilename)) + '_' + getCurrentDateTimeString() + ".run.json";
+
+		fs.writeFileSync(path.resolve(this.runsDirectory, basename), JSON.stringify(run), 'utf8');
+	}
+
 	/**
 	 * This method is used by the application to save the log of results for the given file synchronously.
 	 * @param filename {string} the name of the file to save.
@@ -442,8 +482,11 @@ class Validator {
 			throw e;
 		}
 
-		const basename = path.basename(filename, path.extname(filename));
-		fs.writeFileSync(path.resolve(this.logDirectory, basename + ".log.json"), JSON.stringify(this.logger.getLog()), 'utf8');
+		const basename = path.basename(filename, path.extname(filename)) + '_' + getCurrentDateTimeString() + ".log.json";
+
+		fs.writeFileSync(path.resolve(this.logDirectory, basename), JSON.stringify(this.logger.getLog()), 'utf8');
+
+		return basename;
 	}
 
 	/**
@@ -546,6 +589,48 @@ class Validator {
 			}
 		}
 		return log;
+	}
+
+	/**
+	 * This method is used by the application to get an in-memory copy of a run managed by
+	 * the plugin.
+	 * @param runFileName {string} the name of the run file to retrieve.
+	 * @returns {string} the contents of the run file.
+	 * @throws Throws an error if the copy cannot be completed successfully.
+	 * @private
+	 */
+	getRun(runFileName) {
+		const runfile = path.resolve(this.runsDirectory, runFileName);
+		var run;
+		if (fs.existsSync(runfile)) {
+			const contents = fs.readFileSync(runfile, 'utf8');
+			try {
+				run = JSON.parse(contents);
+			}
+			catch (e) {
+				console.log(`Failed to load ${configName}. Attempt threw:\n${e}\n`);
+			}
+		}
+		return run;
+	}
+
+	/**
+	 * This method is used by the application to get an in-memory copy of all runs managed by
+	 * the plugin.
+	 * @returns {array} list of the run file.
+	 * @private
+	 */
+	getRuns() {
+
+		var runs = [];
+
+		fs.readdirSync(this.runsDirectory).forEach(file => {
+			if(file.substr(file.length-8) === 'run.json') {
+				runs.push(file);
+			}
+		});
+
+		return runs;
 	}
 
 	/**
@@ -687,7 +772,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 			console.log("Exiting with unspecified error.");
 		}
 
-		validator.saveLog(validator.inputFileName);	// Write the log.
+		validator.saveRun(validator.RuleSetName, validator.inputFileName, validator.outputFileName);	// Write the log.
 		process.exit(1);	// Quit.
 	});
 }

@@ -6,23 +6,26 @@ export function ruleLogIcons(params, {rule, log, tagName}) {
   const ruleFileName = typeof rule === 'string' ? rule : rule.filename;
   let hasInfo = false, hasWarnings = false, hasErrors = false;
 
-  log.get('reports').forEach((report) => {
-    const reportFile = report.get('problemFile');
-    if (reportFile == ruleFileName) {
-      switch (report.get('logType').toLowerCase()) {
-        case 'error':
-          hasErrors = true;
-          break;
-        case 'warning':
-          hasWarnings = true;
-          break;
-        case 'info':
-        default:
-          hasInfo = true;
-          break;
+  if(log && log.get) {
+    log.get('reports').forEach((report) => {
+      const reportFile = report.get('problemFile');
+      if (reportFile == ruleFileName) {
+        switch (report.get('logType').toLowerCase()) {
+          case 'error':
+            hasErrors = true;
+            break;
+          case 'warning':
+            hasWarnings = true;
+            break;
+          case 'info':
+          default:
+            hasInfo = true;
+            break;
+        }
       }
-    }
-  });
+    });
+  }
+
 
   var result = "<td>";
   if (hasErrors) {

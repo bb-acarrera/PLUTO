@@ -5,5 +5,6 @@
 	"TempDirectory" : "./tmp",
 	"InputDirectory" : "data",
 	"OutputDirectory" : "results",
-	"LogDirectory" : "results/logs"
+	"LogDirectory" : "results/logs",
+	"RunsDirectory" : "results/runs"
 }
