@@ -20,6 +20,7 @@ class Router {
 
 		//this._router.get('/validation', (req, res) => this.validationRouter.get(req, res) );
 		this._router.get('/rulesets/:id', (req, res) => this.rulesetRouter.get(req, res) );
+		this._router.get('/rulesets', (req, res) => this.rulesetRouter.get(req, res) );
 		this._router.get('/logs/:id', (req, res) => this.logsRouter.get(req, res) );
 		this._router.get('/rules', (req, res) => this.rulesRouter.get(req, res));
 		this._router.get('/runs/:id', (req, res) => this.runsRouter.get(req, res));

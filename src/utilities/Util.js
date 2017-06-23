@@ -1,5 +1,6 @@
 const path = require("path");
 const RuleSet = require("../validator/RuleSet");
+const fs = require('fs-extra');
 class Util {
 	/*
 	 * Retrieve a ruleset description.
@@ -37,6 +38,18 @@ class Util {
 	 */
 	static getRuleName(ruleDescriptor) {
 		return ruleDescriptor.name || ruleDescriptor.Name || path.basename(ruleDescriptor.filename);
+	}
+
+	static getRulesets(rootDir) {
+		var rulesets = [];
+
+		fs.readdirSync(rootDir).forEach(file => {
+			if(file.substr(file.length-5) === '.json') {
+				rulesets.push(file);
+			}
+		});
+
+		return rulesets;
 	}
 }
 
