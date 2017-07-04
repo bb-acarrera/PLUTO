@@ -121,7 +121,7 @@ class Validator {
 
 			this.inputFileName = this.getTempName(this.config);
 
-			this.importFile(ruleset.import, this.inputFileName, rulesDirectory).then( () => {
+			this.importFile(ruleset.import, this.inputFileName).then( () => {
 					try {
 						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
 					}
@@ -415,7 +415,7 @@ class Validator {
 				resolveOutputFN = path.resolve(this.outputDirectory, this.outputFileName)
 			}
 
-			this.exportFile(this.currentRuleset.export, resolveOutputFN, this.rulesDirectory, runId)
+			this.exportFile(this.currentRuleset.export, resolveOutputFN, runId)
 				.then(() => {},
 
 				(error) => {
@@ -627,26 +627,26 @@ class Validator {
 		return runs;
 	}
 
-	importFile(importConfig, targetFilename, rulesDirectory) {
+	importFile(importConfig, targetFilename) {
 
 		return new Promise((resolve, reject) => {
-			var ruleClass = this.loadRule(importConfig.FileName, rulesDirectory);
+			var importerClass = this.loadRule(importConfig.ScriptPath);
 
-			if(!ruleClass) {
-				return reject("Could not find importer " + importConfig.FileName);
+			if(!importerClass) {
+				return reject("Could not find importer " + importConfig.ScriptPath);
 			}
 
-			if(!ruleClass.importFile) {
-				return reject("Importer " + importConfig.FileName + " does not have importFile method");
+			if(!importerClass.importFile) {
+				return reject("Importer " + importConfig.ScriptPath + " does not have importFile method");
 			}
 
-			ruleClass.importFile(targetFilename, importConfig.Config).then(function() {
+			importerClass.importFile(targetFilename, importConfig.Config).then(function() {
 					resolve();
 				}, error => {
-					reject("Importer " + importConfig.FileName + " failed: " + error);
+					reject("Importer " + importConfig.ScriptPath + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Importer" + importConfig.FileName + " fail unexpectedly: " + e);
+					reject("Importer" + importConfig.ScriptPath + " fail unexpectedly: " + e);
 				});
 
 
@@ -654,7 +654,7 @@ class Validator {
 		});
 	}
 
-	exportFile(exportConfig, filename, rulesDirectory, runId) {
+	exportFile(exportConfig, filename, runId) {
 		return new Promise((resolve, reject) => {
 
 			let outputFileName = filename;
@@ -663,23 +663,23 @@ class Validator {
 				outputFileName = null;
 			}
 
-			var ruleClass = this.loadRule(exportConfig.FileName, rulesDirectory);
+			var exporterClass = this.loadRule(exportConfig.ScriptPath);
 
-			if(!ruleClass) {
-				return reject("Could not find exporter " + exportConfig.FileName);
+			if(!exporterClass) {
+				return reject("Could not find exporter " + exportConfig.ScriptPath);
 			}
 
-			if(!ruleClass.exportFile) {
-				return reject("Exporter " + exportConfig.FileName + " does not have exportFile method");
+			if(!exporterClass.exportFile) {
+				return reject("Exporter " + exportConfig.ScriptPath + " does not have exportFile method");
 			}
 
-			ruleClass.exportFile(outputFileName, exportConfig.Config, runId, this.logger.getLog()).then(function() {
+			exporterClass.exportFile(outputFileName, exportConfig.Config, runId, this.logger.getLog()).then(function() {
 					resolve();
 				}, error => {
-					reject("Importer " + exportConfig.FileName + " failed: " + error);
+					reject("Importer " + exportConfig.ScriptPath + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Importer" + exportConfig.FileName + " fail unexpectedly: " + e);
+					reject("Importer" + exportConfig.ScriptPath + " fail unexpectedly: " + e);
 				});
 
 		});
@@ -691,9 +691,9 @@ class Validator {
 
 		// Find the rule file.
 
-		let ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
+		let ruleFilename = rulesDirectory === undefined ? path.resolve(filename) : path.resolve(rulesDirectory, filename);
 		if(!fs.existsSync(ruleFilename + '.js')) {
-			ruleFilename = path.resolve(rulesDirectory, filename);
+			ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
 		}
 
 		let ruleClass;

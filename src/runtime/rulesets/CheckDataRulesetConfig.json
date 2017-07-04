@@ -27,13 +27,13 @@
 			}
 		],
 		"import" : {
-			"FileName": "LocalCopyImport",
+			"ScriptPath": "./runtime/rules/LocalCopyImport",
 			"Config": {
 				"file": "./examples/data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"FileName": "LocalCopyExport",
+			"ScriptPath": "./runtime/rules/LocalCopyExport",
 			"Config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
 			}
