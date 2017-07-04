@@ -12,12 +12,16 @@ class RuleSet {
 			this.id = ruleset.data.id || this.name;
 			this._filename = ruleset.filename;
 			this.addRules(ruleset.data.attributes.rules);
+			this.import = ruleset.data.import;
+			this.export = ruleset.data.export
 		}
 		else {
 			this.name = ruleset.name;
 			this.id = ruleset.id || this.name;
 			this._filename = ruleset.filename;
 			this.addRules(ruleset.rules || ruleset.Rules);
+			this.import = ruleset.import;
+			this.export = ruleset.export;
 		}
 	}
 

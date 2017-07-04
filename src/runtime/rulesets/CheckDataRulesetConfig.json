@@ -25,6 +25,18 @@
 					"Column" : 4
 				}
 			}
-		]
+		],
+		"import" : {
+			"FileName": "LocalCopyImport",
+			"Config": {
+				"file": "./examples/data/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"export" : {
+			"FileName": "LocalCopyExport",
+			"Config" : {
+				"file": "./tmp/simplemaps-worldcities-basic.csv"
+			}
+		}
 	}
 }

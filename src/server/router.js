@@ -7,6 +7,7 @@ const RulesetRouter = require('./routes/rulesets');
 const LogsRouter = require('./routes/logs');
 const RulesRouter = require('./routes/rules');
 const RunsRouter = require('./routes/runs');
+const ProcessFileRouter = require('./routes/processFile');
 
 class Router {
 	constructor(config) {
@@ -17,6 +18,7 @@ class Router {
 		this.logsRouter = new LogsRouter(config);
 		this.rulesRouter = new RulesRouter(config);
 		this.runsRouter = new RunsRouter(config);
+		this.processFileRouter = new ProcessFileRouter(config);
 
 		//this._router.get('/validation', (req, res) => this.validationRouter.get(req, res) );
 		this._router.get('/rulesets/:id', (req, res) => this.rulesetRouter.get(req, res) );
@@ -27,6 +29,8 @@ class Router {
 		this._router.get('/runs', (req, res) => this.runsRouter.get(req, res));
 
 		this._router.patch('/rulesets/:id', (req, res) => this.rulesetRouter.patch(req, res) );
+
+		this._router.post('/processfile', (req, res) => this.processFileRouter.post(req, res))
 	}
 
 	get router() {

@@ -11,19 +11,28 @@ const Router = require("./router");
 
 const version = require("../../package.json").version;
 
+const Util = require('../utilities/Util');
+
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {
-	constructor(config, validatorConfig) {
+	constructor(config, validatorConfig, validatorConfigPath) {
 		this.config = config;
 		this.config.validator = new Validator(validatorConfig);
+		this.config.validatorConfigPath = validatorConfigPath;
+		this.config.validatorConfig = validatorConfig;
+
 
 		this.port = this.config.Port || 8000;
 		this.rootDir = path.resolve(this.config.RootDirectory || this.config.Validator.RootDirectory || ".");
+		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
 		this.router = new Router(config);
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.AssetsDirectory || "public");
 
 		// app.use(bodyParser.json()); // for parsing application/json
-		app.use(bodyParser.json({ type: 'application/*+json' }));
+		app.use(bodyParser.json());
+		app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+			extended: true
+		}));
 
 		// Set up the routing.
 		app.use(this.router.router);
@@ -98,7 +107,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 	let validatorConfig = require(program.validatorConfig);
 	validatorConfig.scriptName = scriptName;
 
-	const server = new Server(serverConfig, validatorConfig);
+	const server = new Server(serverConfig, validatorConfig, program.validatorConfig);
 	server.start();
 }
 

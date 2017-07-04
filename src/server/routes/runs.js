@@ -1,7 +1,7 @@
 const BaseRouter = require('./baseRouter');
 const Util = require('../../utilities/Util');
 
-class LogsRouter extends BaseRouter {
+class RunsRouter extends BaseRouter {
     constructor(config) {
         super(config);
     }
@@ -49,4 +49,4 @@ class LogsRouter extends BaseRouter {
     }
 }
 
-module.exports = LogsRouter;
+module.exports = RunsRouter;

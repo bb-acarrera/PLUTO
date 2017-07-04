@@ -42,7 +42,8 @@ class Validator {
 	 */
 	constructor(config) {
 		this.config = config || {};
-		this.rootDir = this.getRootDirectory();
+
+		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
 			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
@@ -81,67 +82,15 @@ class Validator {
 		this.updateConfig(this.config);
 	}
 
-	getRootDirectory() {
-		if (this.rootDir !== undefined)
-			return this.rootDir;
-
-		// Get the root directory for everything.
-		let rootDir = path.dirname(this.config.scriptName);	// Default is the directory this script lives in.
-		if (this.config.RootDirectory) {
-			rootDir = path.resolve(this.config.RootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
-			if (!rootDir.endsWith(path.sep))
-				rootDir = rootDir + path.sep;
-		}
-		return rootDir;
-	}
-
-	getTempDirectory() {
-		let tmpDir;
-		if (this.config.TempDirectory)
-			tmpDir = this.config.TempDirectory;
-		else
-			tmpDir = "tmp";
-
-		// Make absolute.
-		tmpDir = path.resolve(this.getRootDirectory(), tmpDir);
-
-		// Make sure the parent directory exists.
-		try {
-			fs.accessSync(tmpDir, fs.constants.R_OK | fs.constants.W_OK | fs.constants.F_OK);
-		}
-		catch (e) {
-			try {
-				fs.mkdirSync(tmpDir);
-			}
-			catch (e) {
-				throw "Failed to create \"" + tmpDir + ".\n" + e;
-			}
-		}
-
-		// Create a temporary child directory.
-		let basename = path.basename(this.config.scriptName, ".js");
-		tmpDir = path.resolve(tmpDir, basename + this.createGUID());
-
-		try {
-			fs.mkdirSync(tmpDir);
-		}
-		catch (e) {
-			// Can't create the tmpdir so give up.
-			throw "Failed to create \"" + tmpDir + ".\n" + e;
-		}
-
-		return tmpDir;
-	}
-
 	/*
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
 	 */
 	runRuleset(inputFile, outputFile, inputEncoding) {
 		var ruleset;
 		try {
-			this.tempDir = this.getTempDirectory();
+			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
 
-			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.rootDir, this.config.RuleSet);
+			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.rootDir, this.config.RuleSet, this.config.RuleSetOverride);
 		}
 		catch (e) {
 			this.error(e);
@@ -154,36 +103,55 @@ class Validator {
 		else
 			rulesDirectory = this.config.RulesDirectory || this.config.RulesetDirectory;
 
+
+
 		this.RuleSetName = ruleset.name || "Unnamed";
-		this.inputFileName = inputFile;
+
 		this.outputFileName = outputFile;
 		this.encoding = inputEncoding || 'utf8';
+		this.currentRuleset = ruleset;
+		this.rulesDirectory = rulesDirectory;
 
-		if (!this.inputFileName)
-			throw "No input file specified.";
-		if (!fs.existsSync(this.inputFileName))
-			throw "Input file \"" + this.inputFileName + "\" does not exist.";
-		if (!this.outputFileName)
+		if (!this.outputFileName) {
 			this.warning("No output file specified.");
-
-		const rules = ruleset.rules;
-		if (!rules) {
-			this.warning("Ruleset \"" + this.RuleSetName + "\" contains no rules.");
-			return;
 		}
 
-		if( Object.prototype.toString.call( rules ) !== '[object Array]' ) {
-			this.warning("Ruleset \"" + this.RuleSetName + "\": Rules must be an array of rules.");
-			return;
+
+		if(ruleset.import) {
+
+			this.inputFileName = this.getTempName(this.config);
+
+			this.importFile(ruleset.import, this.inputFileName, rulesDirectory).then( () => {
+					try {
+						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+					}
+					catch (e) {
+						this.error("Ruleset \"" + this.RuleSetName + "\" failed.\n\t" + e);
+						throw e;
+					}
+
+				},error => {
+					this.error("Failed to import file: " + error);
+					this.finishRun();
+				})
+				.catch((e) => {
+					this.error("Failed to import file: " + e);
+					this.finishRun();
+				});
+		} else {
+			this.inputFileName = inputFile;
+			if (!this.inputFileName)
+				throw "No input file specified.";
+
+			try {
+				this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+			}
+			catch (e) {
+				this.error("Ruleset \"" + this.RuleSetName + "\" failed.\n\t" + e);
+				throw e;
+			}
 		}
 
-		try {
-			this.runRules(rulesDirectory, rules, this.inputFileName);
-		}
-		catch (e) {
-			this.error("Ruleset \"" + this.RuleSetName + "\" failed.\n\t" + e);
-			throw e;
-		}
 	}
 
 	/*
@@ -191,6 +159,15 @@ class Validator {
 	 * (The output from a rule will generally be a new file which is input to the next rule.)
 	 */
 	runRules(rulesDirectory, rules, file) {
+
+		if (!fs.existsSync(file))
+			throw "Input file \"" + file + "\" does not exist.";
+
+		if (!rules || rules.lenth == 0) {
+			this.warning("Ruleset \"" + this.RuleSetName + "\" contains no rules.");
+			return;
+		}
+
 		// As a first step get the file locally. Do this to simplify running the rules (they
 		// all run locally) and make sure the data is all available at the start of the process.
 		const localFileName = this.getTempName();
@@ -208,7 +185,7 @@ class Validator {
 					return nextIndex-1;
 				}
 			};
-		};
+		}
 		this.ruleIterator = makeIterator(rules);
 
 		this.runRule(rulesDirectory, this.ruleIterator.next(), currentResult);
@@ -220,22 +197,16 @@ class Validator {
 			this.saveResults(lastResult);
 			this.cleanup();
 			console.log("Done.");
+
+
+			//TODO: track down why the process is still active when we hit this point in debugger
+			//console.log(process._getActiveHandles());
+
 			return;
 		}
 
-		let ruleFilename = ruleDescriptor.filename;
-		if (!ruleFilename)
-			throw("Rule has no 'FileName'.");
+		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
 
-		// Find the rule file.
-		ruleFilename = path.resolve(rulesDirectory, ruleFilename);
-		let ruleClass;
-		try {
-			ruleClass = require(ruleFilename);
-		}
-		catch (e) {
-			throw("Failed to load rule " + ruleFilename + ".\n\tCause: " + e + "\n\tRoot folder: " + this.rootDir);
-		}
 
 		// Get the rule's config.
 		let config = ruleDescriptor.config || {};
@@ -254,7 +225,7 @@ class Validator {
 
 		// Set the validator so that the rule can report errors and such.
 		this.updateConfig(config);
-		config.Name = config.Name || path.basename(ruleFilename);
+		config.Name = config.Name || ruleDescriptor.filename;
 		this.RuleName = config.Name;
 
 		const rule = new ruleClass.instance(config);
@@ -372,6 +343,7 @@ class Validator {
 	}
 
 	saveResults(results) {
+
 		if (results && this.outputFileName) {
 			if (results.data)
 				this.saveFile(results.data, this.outputFileName, this.encoding);
@@ -381,7 +353,7 @@ class Validator {
 				this.putFile(results.file, this.outputFileName);
 		}
 
-		this.saveRun(this.config.RuleSet, this.inputFileName, this.outputFileName);
+		this.finishRun();
 	}
 
 	cleanup() {
@@ -411,15 +383,9 @@ class Validator {
 	// Create a unique temporary filename in the temp directory.
 	getTempName(config) {
 		const dirname = (config && config.TempDirectory) || this.tempDir;
-		const filename = this.createGUID();
+		const filename = Util.createGUID();
 		return path.resolve(dirname, filename);
 	}
-
-	createGUID() {
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-			var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-			return v.toString(16);
-		})};
 
 	/**
 	 * This method is used by the application to load the given file synchronously. Derived classes should implement
@@ -438,10 +404,36 @@ class Validator {
 		fs.writeFileSync(path.resolve(this.config.RulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
 	}
 
-	saveRun(rulesetName, inputfilename, outputfilename) {
+	finishRun() {
 
+		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + getCurrentDateTimeString() + ".run.json";
 
+		if(this.currentRuleset.export) {
 
+			let resolveOutputFN = null;
+			if(this.outputFileName) {
+				resolveOutputFN = path.resolve(this.outputDirectory, this.outputFileName)
+			}
+
+			this.exportFile(this.currentRuleset.export, resolveOutputFN, this.rulesDirectory, runId)
+				.then(() => {},
+
+				(error) => {
+					this.error("Export failed: " + error)	;
+				})
+				.catch((e) => {
+					this.error("Export" + importConfig.FileName + " fail unexpectedly: " + e);
+				})
+				.then(() => {
+					this.saveRun(runId);
+				});
+		} else {
+			this.saveRun(runId);
+		}
+
+	}
+
+	saveRun(runId) {
 		try {
 			if (!fs.existsSync(this.runsDirectory))
 				fs.mkdirSync(this.runsDirectory);	// Make sure the logDirectory exists.
@@ -451,19 +443,21 @@ class Validator {
 			throw e;
 		}
 
-		const logName = this.saveLog(inputfilename);
+		const logName = this.saveLog(this.inputFileName);
 
 		const run = {
+			id: runId,
 			log: logName,
-			ruleset: rulesetName,
-			inputfilename: inputfilename,
-			outputfilename: outputfilename,
+			ruleset: this.RuleSetName,
+			inputfilename: this.inputFileName,
+			outputfilename: this.outputFileName,
 			time: new Date()
 		};
 
-		const basename = path.basename(inputfilename, path.extname(inputfilename)) + '_' + getCurrentDateTimeString() + ".run.json";
 
-		fs.writeFileSync(path.resolve(this.runsDirectory, basename), JSON.stringify(run), 'utf8');
+		fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
+
+		return run;
 	}
 
 	/**
@@ -633,6 +627,85 @@ class Validator {
 		return runs;
 	}
 
+	importFile(importConfig, targetFilename, rulesDirectory) {
+
+		return new Promise((resolve, reject) => {
+			var ruleClass = this.loadRule(importConfig.FileName, rulesDirectory);
+
+			if(!ruleClass) {
+				return reject("Could not find importer " + importConfig.FileName);
+			}
+
+			if(!ruleClass.importFile) {
+				return reject("Importer " + importConfig.FileName + " does not have importFile method");
+			}
+
+			ruleClass.importFile(targetFilename, importConfig.Config).then(function() {
+					resolve();
+				}, error => {
+					reject("Importer " + importConfig.FileName + " failed: " + error);
+				})
+				.catch((e) => {
+					reject("Importer" + importConfig.FileName + " fail unexpectedly: " + e);
+				});
+
+
+
+		});
+	}
+
+	exportFile(exportConfig, filename, rulesDirectory, runId) {
+		return new Promise((resolve, reject) => {
+
+			let outputFileName = filename;
+
+			if(!fs.existsSync(filename)) {
+				outputFileName = null;
+			}
+
+			var ruleClass = this.loadRule(exportConfig.FileName, rulesDirectory);
+
+			if(!ruleClass) {
+				return reject("Could not find exporter " + exportConfig.FileName);
+			}
+
+			if(!ruleClass.exportFile) {
+				return reject("Exporter " + exportConfig.FileName + " does not have exportFile method");
+			}
+
+			ruleClass.exportFile(outputFileName, exportConfig.Config, runId, this.logger.getLog()).then(function() {
+					resolve();
+				}, error => {
+					reject("Importer " + exportConfig.FileName + " failed: " + error);
+				})
+				.catch((e) => {
+					reject("Importer" + exportConfig.FileName + " fail unexpectedly: " + e);
+				});
+
+		});
+	}
+
+	loadRule(filename, rulesDirectory){
+		if (!filename)
+			throw("Rule has no 'FileName'.");
+
+		// Find the rule file.
+
+		let ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
+		if(!fs.existsSync(ruleFilename + '.js')) {
+			ruleFilename = path.resolve(rulesDirectory, filename);
+		}
+
+		let ruleClass;
+		try {
+			ruleClass = require(ruleFilename);
+		}
+		catch (e) {
+			throw("Failed to load rule " + filename + ".\n\tCause: " + e + "\n\tFull Path: " + ruleFilename);
+		}
+		return ruleClass;
+	}
+
 	/**
 	 * This is called when the application has something to log.
 	 * @param {string} level the level of the log. One of {@link Validator.ERROR}, {@link Validator.WARNING}, or {@link Validator.INFO}.
@@ -696,6 +769,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		.option('-i, --input <filename>', 'The name of the input file.')
 		.option('-o, --output <filename>', 'The name of the output file.')
 		.option('-r, --ruleset <rulesetFile>', 'The ruleset file to use.')
+		.option('-v, --rulesetoverride <rulesetOverrideFile>', 'The ruleset overrides file to use.')
 		.parse(process.argv);
 
 	if (!program.config)
@@ -723,6 +797,10 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 			return "A ruleset must be specified either as an argument or a property in the config. file.\n" + text;
 		});
 
+	if(program.rulesetoverride) {
+		config.RuleSetOverride = program.rulesetoverride;
+	}
+
 	// If the input or output are not set they'll be grabbed from the ruleset file.
 	let inputFile = program.input ? path.resolve(program.input) : undefined;
 	let outputFile = program.output;
@@ -732,9 +810,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 	const validator = new Validator(config);
 
 	// TODO: Remove this log message once there are more reasonable log messages.
-	if (validator.logger)
-		validator.info("Using " + validator.logger.constructor.name + " for error and warning reports.");
-	else {
+	if (!validator.logger) {
 		console.error("Failed to initialize any reporting plug-in.");
 		process.exit(1);
 	}
@@ -746,6 +822,8 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 	}
 	catch (e) {
 		console.log("Failed.\n\t" + e);
+		validator.error("Failed: " + e);
+		validator.finishRun();	// Write the log.
 		process.exit(1);
 	}
 
@@ -772,7 +850,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 			console.log("Exiting with unspecified error.");
 		}
 
-		validator.saveRun(validator.RuleSetName, validator.inputFileName, validator.outputFileName);	// Write the log.
+		validator.finishRun();	// Write the log.
 		process.exit(1);	// Quit.
 	});
 }
