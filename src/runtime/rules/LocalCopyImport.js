@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const path = require("path");
+const spawn = require('child_process').spawn;
 
 const LocalCopyImport = {
 
@@ -22,6 +23,7 @@ const LocalCopyImport = {
             }
 
             /*
+            // Copy the file using streams.
             const rd = fs.createReadStream(sourceFileName);
             rd.on('error', err => reject(err));
             const wr = fs.createWriteStream(targetFileName);
@@ -30,9 +32,14 @@ const LocalCopyImport = {
             rd.pipe(wr);
             */
 
-            fs.copySync(sourceFileName, targetFileName);
-            resolve();
+            // Copy the file using internal JavaScript functions.
+            // fs.copySync(sourceFileName, targetFileName);
+			// resolve();
 
+            // Copy the file using an external process ('cp' in this case).
+			const cat = spawn('cp', [sourceFileName, targetFileName]);
+            cat.on('close', () => resolve());
+            cat.on('error', () => reject("Failed to copy file."));
         });
     }
 
