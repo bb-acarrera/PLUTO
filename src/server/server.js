@@ -9,7 +9,7 @@ const app = express();
 const Validator = require("../validator/validator");
 const Router = require("./router");
 
-const version = require("../../package.json").version;
+const version = '0.1'; //require("../../package.json").version;
 
 const Util = require('../utilities/Util');
 
@@ -98,16 +98,20 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 			return "A validator configuration file must be specified.\n" + text;
 		});
 
-	if (!fs.existsSync(program.validatorConfig)) {
+	let serverConfigPath = path.resolve(program.validatorConfig);
+
+	if (!fs.existsSync(serverConfigPath)) {
 		console.log("Failed to find validator configuration file \"" + program.validatorConfig + "\".\n");
 		process.exit(1);
 	}
 
-	let serverConfig = require(program.serverConfig);
-	let validatorConfig = require(program.validatorConfig);
+	let validatorConfigPath = path.resolve(program.validatorConfig);
+
+	let serverConfig = require(serverConfigPath);
+	let validatorConfig = require(validatorConfigPath);
 	validatorConfig.scriptName = scriptName;
 
-	const server = new Server(serverConfig, validatorConfig, program.validatorConfig);
+	const server = new Server(serverConfig, validatorConfig, validatorConfigPath);
 	server.start();
 }
 

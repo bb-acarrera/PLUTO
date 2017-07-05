@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "sh build/bin/runUnitTests.sh",
-    "postinstall": "sh build/bin/setup.sh"
+    "postinstall": "sh build/bin/setup.sh",
+    "docker_build" : "docker build -t pluto:develop .",
+    "docker_run" : "docker run -d pluto:develop -p 8000:8000 -v $(pwd)/config:/opt/PLUTO/config",
+    "docker_run_bash": "docker run -v $(pwd)/config:/opt/PLUTO/config -p 8000:8000 -ti pluto:develop bash"
   },
   "repository": {
     "type": "git",

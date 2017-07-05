@@ -17,7 +17,7 @@ const MemoryWriterStream = require("../runtime/utilities/MemoryWriterStream");
 const MemoryReaderStream = require("../runtime/utilities/MemoryReaderStream");
 const RuleSet = require("./RuleSet");
 
-const version = require("../../package.json").version;
+const version = '0.1'; //require("../../package.json").version;
 
 
 /*
@@ -40,7 +40,7 @@ class Validator {
 		if (this.config.RulesetDirectory)
 			this.config.RulesetDirectory = path.resolve(this.rootDir, this.config.RulesetDirectory);
 		else
-			this.config.RulesetDirectory = this.rootDir;
+			this.config.RulesetDirectory = path.resolve('runtime/rulesets');
 
 		if (!fs.existsSync(this.config.RulesetDirectory))
 			throw "Failed to find RulesetDirectory \"" + this.config.RulesetDirectory + "\".\n";
