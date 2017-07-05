@@ -1,15 +1,17 @@
 {
 	"RuleSet" : {
-		"name" : "Check Data RuleSet",
+		"name" : "Test Data RuleSet",
 		"rules" : [
 			{
 				"FileName" : "CheckColumnCount",
+				"Name" : "Validate column count",
 				"Config" : {
 					"Columns" : 9
 				}
 			},
 			{
 				"FileName" : "CheckLatLong",
+				"Name" : "Validate Lat & Long",
 				"Config" : {
 					"NumberOfHeaderRows" : 1,
 					"LatitudeColumn"  : 2,
@@ -27,15 +29,15 @@
 			}
 		],
 		"import" : {
-			"FileName": "LocalCopyImport",
+			"ScriptPath": "/opt/PLUTO/config/import.js",
 			"Config": {
-				"file": "./examples/data/simplemaps-worldcities-basic.csv"
+				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"FileName": "LocalCopyExport",
+			"ScriptPath": "/opt/PLUTO/config/export.js",
 			"Config" : {
-				"file": "./tmp/simplemaps-worldcities-basic.csv"
+				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
 			}
 		}
 	}

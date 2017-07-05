@@ -14,3 +14,4 @@ simplemaps-worldcities-basic.csv.out
 Release
 src/tmp
 /test build/
+test_config/tmp/*
