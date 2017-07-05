@@ -4,9 +4,8 @@
 const fs = require('fs-extra');
 const path = require("path");
 const program = require("commander");
-const stream = require('stream');
-
 const rimraf = require('rimraf');
+const stream = require('stream');
 
 const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
 const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
@@ -20,16 +19,6 @@ const RuleSet = require("./RuleSet");
 
 const version = require("../../package.json").version;
 
-
-const getCurrentDateTimeString = function() {
-	const currentdate = new Date();
-	return currentdate.getFullYear() + "_" +
-		(currentdate.getMonth()+1) + "_" +
-		currentdate.getDate() + "_" +
-		currentdate.getHours() + "_" +
-		currentdate.getMinutes() + "_" +
-		currentdate.getSeconds();
-}
 
 /*
  * The Validator class is the main application class.
@@ -195,6 +184,7 @@ class Validator {
 		if (!ruleDescriptor || this.shouldAbort) {	// "shouldAbort" is set in the "log" method.
 			// No more rules, so done.
 			this.saveResults(lastResult);
+			this.finishRun();
 			this.cleanup();
 			console.log("Done.");
 
@@ -352,8 +342,6 @@ class Validator {
 			else
 				this.putFile(results.file, this.outputFileName);
 		}
-
-		this.finishRun();
 	}
 
 	cleanup() {
@@ -406,7 +394,7 @@ class Validator {
 
 	finishRun() {
 
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + getCurrentDateTimeString() + ".run.json";
+		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
 
 		if(this.currentRuleset.export) {
 
@@ -476,7 +464,7 @@ class Validator {
 			throw e;
 		}
 
-		const basename = path.basename(filename, path.extname(filename)) + '_' + getCurrentDateTimeString() + ".log.json";
+		const basename = path.basename(filename, path.extname(filename)) + '_' + Util.getCurrentDateTimeString() + ".log.json";
 
 		fs.writeFileSync(path.resolve(this.logDirectory, basename), JSON.stringify(this.logger.getLog()), 'utf8');
 
