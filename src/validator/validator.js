@@ -242,12 +242,14 @@ class Validator {
 				this.runMethodsRule(rulesDirectory, rule, lastResult);
 
 			else
-				throw("Rule will not accept the data.");	// Should never happen. All cases should be covered above.
+				throw(`Rule '${this.RuleName}' will not accept the data from the last rule.`);	// Should never happen. All cases should be covered above.
 		}
 		catch (e) {
 			const errorMsg = `${this.RuleSetName}: Rule: "${this.RuleName}" failed.\n\t${e}`;
-			if (rule.shouldRulesetFailOnError())
+			if (rule.shouldRulesetFailOnError()) {
+				this.error(errorMsg);
 				throw errorMsg;	// Failed so bail.
+			}
 			else {
 				this.warning(errorMsg);
 				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);	// Failed but continue.
@@ -388,10 +390,22 @@ class Validator {
 		return fs.readFileSync(path.resolve(this.inputDirectory, filename), encoding || 'utf8');
 	}
 
+	/**
+	 * This file saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
+	 * taken from the ruleset's 'filename' property with '.json' appended to it by this function and if a file with
+	 * that name already exists it will be overwritten. The file is written using 'utf8'.
+	 * @param ruleset the ruleset to write.
+	 * @private
+	 */
 	saveRuleSet(ruleset) {
 		fs.writeFileSync(path.resolve(this.config.RulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
 	}
 
+	/**
+	 * Do necessary finishing work at the completion of a run. This work includes using the export plug-in, if one
+	 * was specified, to export the result file, and then calls {@link saveRunRecord} to save the run record.
+	 * @private
+	 */
 	finishRun() {
 
 		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
@@ -413,15 +427,21 @@ class Validator {
 					this.error("Export" + importConfig.FileName + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.saveRun(runId);
+					this.saveRunRecord(runId, this.saveLog(this.inputFileName));
 				});
 		} else {
-			this.saveRun(runId);
+			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
 		}
 
 	}
 
-	saveRun(runId) {
+	/**
+	 * This method saves record which is used by the client code to reference files for any particular run.
+	 * @param runId the unique ID of the run.
+	 * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
+	 * @private
+	 */
+	saveRunRecord(runId, logName) {
 		try {
 			if (!fs.existsSync(this.runsDirectory))
 				fs.mkdirSync(this.runsDirectory);	// Make sure the logDirectory exists.
@@ -430,8 +450,6 @@ class Validator {
 			console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
 			throw e;
 		}
-
-		const logName = this.saveLog(this.inputFileName);
 
 		const run = {
 			id: runId,
@@ -615,10 +633,17 @@ class Validator {
 		return runs;
 	}
 
+	/**
+	 * This method return a Promise that loads an importer plugin and then uses that plugin to import a file.
+	 * @param importConfig the configuration identifying the import plugin and the file to import.
+	 * @param targetFilename the final name for the imported file.
+	 * @returns {Promise} the Promise object that attempts to load the importer and import a file.
+	 * @private
+	 */
 	importFile(importConfig, targetFilename) {
 
 		return new Promise((resolve, reject) => {
-			var importerClass = this.loadRule(importConfig.ScriptPath);
+			var importerClass = this.loadImporterExporter(importConfig.ScriptPath);
 
 			if(!importerClass) {
 				return reject("Could not find importer " + importConfig.ScriptPath);
@@ -642,6 +667,14 @@ class Validator {
 		});
 	}
 
+	/**
+	 * This method loads an exporter plugin and then uses that plugin to export the resulting file.
+	 * @param exportConfig a configration object that describes the exporter.
+	 * @param filename the name of the file to export
+	 * @param runId the ID of this run of the ruleset.
+	 * @returns {Promise} the promise object that does all the work.
+	 * @private
+	 */
 	exportFile(exportConfig, filename, runId) {
 		return new Promise((resolve, reject) => {
 
@@ -651,7 +684,7 @@ class Validator {
 				outputFileName = null;
 			}
 
-			var exporterClass = this.loadRule(exportConfig.ScriptPath);
+			var exporterClass = this.loadImporterExporter(exportConfig.ScriptPath);
 
 			if(!exporterClass) {
 				return reject("Could not find exporter " + exportConfig.ScriptPath);
@@ -673,9 +706,18 @@ class Validator {
 		});
 	}
 
-	loadRule(filename, rulesDirectory){
+	/**
+	 * A method for loading a rule object.
+	 * @param filename the name of the rule file to load.
+	 * @param rulesDirectory the directory rules are kept in. If this is <code>null</code> then an attempt is made
+	 * to resolve the filename against the current working directory. If the rule does not exist in either location
+	 * then an attempt is made to load the plugin from '../runtime/rules' relative to the current working directory.
+	 * @returns {*} the executable rule if it could be loaded.
+	 * @private
+	 */
+	loadRule(filename, rulesDirectory) {
 		if (!filename)
-			throw("Rule has no 'FileName'.");
+			throw("Rule has no filename.");
 
 		// Find the rule file.
 
@@ -684,14 +726,38 @@ class Validator {
 			ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
 		}
 
-		let ruleClass;
+		return this.loadPlugin(ruleFilename);
+	}
+
+	/**
+	 * A method for loading an importer or exporter object.
+	 * @param filename the name of the importer or exporter file to load.
+	 * @returns {*} the executable importer/exporter if it could be loaded.
+	 * @private
+	 */
+	loadImporterExporter(filename) {
+		if (!filename)
+			throw("Importer/Exporter has no filename.");
+
+		let porterFilename = path.resolve(filename);
+		return this.loadPlugin(porterFilename);
+	}
+
+	/**
+	 * Load an executable plugin.
+	 * @param filename the name of the plugin to load
+	 * @returns {*} the executable plugin if it could be loaded.
+	 * @private
+	 */
+	loadPlugin(filename) {
+		let pluginClass;
 		try {
-			ruleClass = require(ruleFilename);
+			pluginClass = require(filename);
 		}
 		catch (e) {
-			throw("Failed to load rule " + filename + ".\n\tCause: " + e + "\n\tFull Path: " + ruleFilename);
+			throw("Failed to load rule " + filename + ".\n\tCause: " + e);
 		}
-		return ruleClass;
+		return pluginClass;
 	}
 
 	/**
@@ -789,7 +855,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		config.RuleSetOverride = program.rulesetoverride;
 	}
 
-	// If the input or output are not set they'll be grabbed from the ruleset file.
+	// If the input or output are not set they'll be grabbed from the ruleset file later.
 	let inputFile = program.input ? path.resolve(program.input) : undefined;
 	let outputFile = program.output;
 	let inputEncoding = program.encoding;
@@ -797,16 +863,8 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 	config.scriptName = scriptName;
 	const validator = new Validator(config);
 
-	// TODO: Remove this log message once there are more reasonable log messages.
-	if (!validator.logger) {
-		console.error("Failed to initialize any reporting plug-in.");
-		process.exit(1);
-	}
-
 	try {
 		validator.runRuleset(inputFile, outputFile, inputEncoding);
-		// console.log("Done.");
-		// process.exit(0);
 	}
 	catch (e) {
 		console.log("Failed.\n\t" + e);

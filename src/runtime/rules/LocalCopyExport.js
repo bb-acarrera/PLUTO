@@ -28,8 +28,7 @@ const LocalCopyExport = {
 				    reject("Failed to copy file.")
 				});
 			}
-
-
+			// console.log(errorLog);
         });
     }
 
