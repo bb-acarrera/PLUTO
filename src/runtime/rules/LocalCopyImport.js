@@ -33,13 +33,13 @@ const LocalCopyImport = {
             */
 
             // Copy the file using internal JavaScript functions.
-            // fs.copySync(sourceFileName, targetFileName);
-			// resolve();
+            fs.copySync(sourceFileName, targetFileName);
+			resolve();
 
             // Copy the file using an external process ('cp' in this case).
-			const cat = spawn('cp', [sourceFileName, targetFileName]);
-            cat.on('close', () => resolve());
-            cat.on('error', () => reject("Failed to copy file."));
+			//const cat = spawn('cp', [sourceFileName, targetFileName]);
+            //cat.on('close', () => resolve());
+            //cat.on('error', () => reject("Failed to copy file."));
         });
     }
 
