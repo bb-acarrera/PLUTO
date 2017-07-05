@@ -22,7 +22,7 @@ class Server {
 		this.config.validatorConfig = validatorConfig;
 
 
-		this.port = this.config.Port || 8000;
+		this.port = this.config.Port || 3000;
 		this.rootDir = path.resolve(this.config.RootDirectory || this.config.Validator.RootDirectory || ".");
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
 		this.router = new Router(config);
@@ -88,24 +88,26 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 			return "A server configuration file must be specified.\n" + text;
 		});
 
-	if (!fs.existsSync(program.serverConfig)) {
+	let serverConfigPath = path.resolve(program.serverConfig);
+
+	if (!fs.existsSync(serverConfigPath)) {
 		console.log("Failed to find server configuration file \"" + program.serverConfig + "\".\n");
 		process.exit(1);
 	}
+
+
 
 	if (!program.validatorConfig)
 		program.help((text) => {
 			return "A validator configuration file must be specified.\n" + text;
 		});
 
-	let serverConfigPath = path.resolve(program.validatorConfig);
+	let validatorConfigPath = path.resolve(program.validatorConfig);
 
-	if (!fs.existsSync(serverConfigPath)) {
+	if (!fs.existsSync(validatorConfigPath)) {
 		console.log("Failed to find validator configuration file \"" + program.validatorConfig + "\".\n");
 		process.exit(1);
 	}
-
-	let validatorConfigPath = path.resolve(program.validatorConfig);
 
 	let serverConfig = require(serverConfigPath);
 	let validatorConfig = require(validatorConfigPath);
