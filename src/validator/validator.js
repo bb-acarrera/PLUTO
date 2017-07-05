@@ -101,12 +101,20 @@ class Validator {
 		this.currentRuleset = ruleset;
 		this.rulesDirectory = rulesDirectory;
 
-		if (!this.outputFileName) {
+		if (!this.outputFileName && (!ruleset.export || !ruleset.export.Config || !ruleset.export.Config.file)) {
 			this.warning("No output file specified.");
 		}
 
+		if (ruleset.export) {
+			// Override the file in the ruleset with the one specified on the command line.
+			if (outputFile && ruleset.export.Config)
+				ruleset.export.Config.file = outputFile;
+		}
 
 		if(ruleset.import) {
+			// Override the file in the ruleset with the one specified on the command line.
+			if (outputFile && ruleset.import.Config)
+				ruleset.import.Config.file = inputFile;
 
 			this.inputFileName = this.getTempName();
 
@@ -183,9 +191,9 @@ class Validator {
 	runRule(rulesDirectory, ruleDescriptor, lastResult) {
 		if (!ruleDescriptor || this.shouldAbort) {	// "shouldAbort" is set in the "log" method.
 			// No more rules, so done.
-			this.saveResults(lastResult);
-			this.finishRun();
-			this.cleanup();
+			// this.saveResults(lastResult);
+			this.finishRun(lastResult);
+			// this.cleanup();
 			console.log("Done.");
 
 
@@ -334,6 +342,11 @@ class Validator {
 			throw "Rule cannot read data.";
 	}
 
+	/**
+	 * Save the results to a local file.
+	 * @param results a results object from a ruleset run.
+	 * @private
+	 */
 	saveResults(results) {
 
 		if (results && this.outputFileName) {
@@ -346,6 +359,86 @@ class Validator {
 		}
 	}
 
+	/**
+	 * Do necessary finishing work at the completion of a run. This work includes using the export plug-in, if one
+	 * was specified, to export the result file, and then calls {@link saveRunRecord} to save the run record.
+	 * @param results a results object from a ruleset run.
+	 * @private
+	 */
+	finishRun(results) {
+
+		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
+
+		if(results && this.currentRuleset.export) {
+			var resultsFile;
+			if (results.data) {
+				resultsFile = this.getTempName();
+				this.saveFile(results.data, resultsFile, this.encoding);
+			}
+			else if (results.stream) {
+				resultsFile = this.getTempName();
+				this.putFile(results.stream, resultsFile, this.encoding);
+			}
+			else
+				resultsFile = results.file;
+
+			this.exportFile(this.currentRuleset.export, resultsFile, runId)
+				.then(() => {},
+
+					(error) => {
+						this.error("Export failed: " + error)	;
+					})
+				.catch((e) => {
+					this.error("Export" + importConfig.FileName + " fail unexpectedly: " + e);
+				})
+				.then(() => {
+					this.saveRunRecord(runId, this.saveLog(this.inputFileName));
+					this.cleanup();
+				});
+		} else if (results) {
+			this.saveResults(results);
+			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
+			this.cleanup();
+		}
+
+	}
+
+	/**
+	 * This method saves record which is used by the client code to reference files for any particular run.
+	 * @param runId the unique ID of the run.
+	 * @param logName the name of the log file
+	 * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
+	 * @private
+	 */
+	saveRunRecord(runId, logName) {
+		try {
+			if (!fs.existsSync(this.runsDirectory))
+				fs.mkdirSync(this.runsDirectory);	// Make sure the logDirectory exists.
+		}
+		catch (e) {
+			console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
+			throw e;
+		}
+
+		const run = {
+			id: runId,
+			log: logName,
+			ruleset: this.RuleSetName,
+			inputfilename: this.inputFileName,
+			outputfilename: this.outputFileName,
+			time: new Date()
+		};
+
+
+		fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
+
+		return run;
+	}
+
+	/**
+	 * Clean up any temporary artifacts.
+	 * @private
+	 */
 	cleanup() {
 		// Remove the temp directory and contents.
 
@@ -398,71 +491,6 @@ class Validator {
 	 */
 	saveRuleSet(ruleset) {
 		fs.writeFileSync(path.resolve(this.config.RulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
-	}
-
-	/**
-	 * Do necessary finishing work at the completion of a run. This work includes using the export plug-in, if one
-	 * was specified, to export the result file, and then calls {@link saveRunRecord} to save the run record.
-	 * @private
-	 */
-	finishRun() {
-
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
-
-		if(this.currentRuleset.export) {
-
-			let resolveOutputFN = null;
-			if(this.outputFileName) {
-				resolveOutputFN = path.resolve(this.outputDirectory, this.outputFileName)
-			}
-
-			this.exportFile(this.currentRuleset.export, resolveOutputFN, runId)
-				.then(() => {},
-
-				(error) => {
-					this.error("Export failed: " + error)	;
-				})
-				.catch((e) => {
-					this.error("Export" + importConfig.FileName + " fail unexpectedly: " + e);
-				})
-				.then(() => {
-					this.saveRunRecord(runId, this.saveLog(this.inputFileName));
-				});
-		} else {
-			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
-		}
-
-	}
-
-	/**
-	 * This method saves record which is used by the client code to reference files for any particular run.
-	 * @param runId the unique ID of the run.
-	 * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
-	 * @private
-	 */
-	saveRunRecord(runId, logName) {
-		try {
-			if (!fs.existsSync(this.runsDirectory))
-				fs.mkdirSync(this.runsDirectory);	// Make sure the logDirectory exists.
-		}
-		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-			throw e;
-		}
-
-		const run = {
-			id: runId,
-			log: logName,
-			ruleset: this.RuleSetName,
-			inputfilename: this.inputFileName,
-			outputfilename: this.outputFileName,
-			time: new Date()
-		};
-
-
-		fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
-
-		return run;
 	}
 
 	/**
