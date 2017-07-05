@@ -1,0 +1,10 @@
+{
+	"RootDirectory" : "/opt/PLUTO/config",
+	"RulesetDirectory" : "/opt/PLUTO/config/rulesets",
+	"RulesDirectory" : "/opt/PLUTO/config/customRules",
+	"TempDirectory" : "/opt/PLUTO/config/tmp",
+	"InputDirectory" : "/opt/PLUTO/config",
+	"OutputDirectory" : "/opt/PLUTO/config/results",
+	"LogDirectory" : "/opt/PLUTO/config/results/logs",
+	"RunsDirectory" : "/opt/PLUTO/config/results/runs"
+}

@@ -15,20 +15,18 @@ const LocalCopyExport = {
             if(fileName) {
                 const targetFileName = path.resolve(config.file);
 
-                fs.copySync(fileName, targetFileName);
-				resolve();
-
                 // Copy using a spawned process.
-                // const cat = spawn('cp', [fileName, targetFileName]);
-                // cat.on('close', () => {
-					// console.log(errorLog);
-				 //    resolve()
-                // });
-                // cat.on('error', () => {
-				 //    reject("Failed to copy file.")
-                // });
+				const proc = spawn('cp', [fileName, targetFileName]);
+                proc.on('close', () => {
+					console.log(errorLog);
+				    resolve()
+				});
+                proc.on('error', () => {
+				    reject("Failed to copy file.")
+				});
 			}
-			// console.log(errorLog);
+
+
         });
     }
 

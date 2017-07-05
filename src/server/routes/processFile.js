@@ -56,7 +56,7 @@ class ProcessFileRouter extends BaseRouter {
             }
 
             const options = {
-                cwd: '..\..\.'
+                cwd: path.resolve('.')
             };
 
             var cmd = 'node validator/validator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
