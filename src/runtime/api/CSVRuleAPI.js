@@ -143,7 +143,7 @@ class CSVRuleAPI extends RuleAPI {
 	 * @private
 	 */
 	useFiles(inputFile) {
-		const tempFileName = this.config.validator.getTempName(this.config.validator.config);
+		const tempFileName = this.config.validator.getTempName();
 		const writer = fs.createWriteStream(tempFileName);
 		writer.once("finish", () => {
 			this.emit(RuleAPI.NEXT, tempFileName);

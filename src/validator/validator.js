@@ -108,7 +108,7 @@ class Validator {
 
 		if(ruleset.import) {
 
-			this.inputFileName = this.getTempName(this.config);
+			this.inputFileName = this.getTempName();
 
 			this.importFile(ruleset.import, this.inputFileName).then( () => {
 					try {
@@ -304,7 +304,7 @@ class Validator {
 		else if (lastResult.stream) {
 			// The last rule output to a stream but the new rule requires the data in a file. So write the
 			// stream into a file and when done call the next rule.
-			const tempFileName = this.getTempName(this.config);
+			const tempFileName = this.getTempName();
 			const writer = fs.createWriteStream(tempFileName);
 			writer.once("finish", () => {
 				rule.useFiles(tempFileName);
@@ -371,10 +371,9 @@ class Validator {
 	}
 
 	// Create a unique temporary filename in the temp directory.
-	getTempName(config) {
-		const dirname = (config && config.TempDirectory) || this.tempDir;
+	getTempName() {
 		const filename = Util.createGUID();
-		return path.resolve(dirname, filename);
+		return path.resolve(this.tempDir, filename);
 	}
 
 	/**
