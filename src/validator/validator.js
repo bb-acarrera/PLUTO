@@ -53,10 +53,10 @@ class Validator {
 		if (!fs.existsSync(this.config.RulesDirectory))
 			throw "Failed to find RulesDirectory \"" + this.config.RulesDirectory + "\".\n";
 
-		this.inputDirectory  = path.resolve(this.config.RootDirectory, this.config.InputDirectory);
-		this.outputDirectory = path.resolve(this.config.RootDirectory, this.config.OutputDirectory);
-		this.logDirectory = path.resolve(this.config.RootDirectory, this.config.LogDirectory);
-		this.runsDirectory = path.resolve(this.config.RootDirectory, this.config.RunsDirectory);
+		this.inputDirectory  = path.resolve(this.rootDir, this.config.InputDirectory || "");
+		this.outputDirectory = path.resolve(this.rootDir, this.config.OutputDirectory);
+		this.logDirectory = path.resolve(this.rootDir, this.config.LogDirectory);
+		this.runsDirectory = path.resolve(this.rootDir, this.config.RunsDirectory);
 
 		this.logger = new ErrorLogger(config);
 		this.ruleIterator = null;
@@ -191,9 +191,7 @@ class Validator {
 	runRule(rulesDirectory, ruleDescriptor, lastResult) {
 		if (!ruleDescriptor || this.shouldAbort) {	// "shouldAbort" is set in the "log" method.
 			// No more rules, so done.
-			// this.saveResults(lastResult);
 			this.finishRun(lastResult);
-			// this.cleanup();
 			console.log("Done.");
 
 
@@ -527,7 +525,7 @@ class Validator {
 	saveFile(fileContents, filename, encoding) {
 		try {
 			if (!fs.existsSync(this.outputDirectory))
-				fs.mkdirSync(this.outputDirectory);	// Make sure the inputDirectory exists.
+				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 		}
 		catch (e) {
 			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to.
@@ -565,10 +563,10 @@ class Validator {
 	putFile(fileNameOrStream, remoteFileName) {
 		try {
 			if (!fs.existsSync(this.outputDirectory))
-				fs.mkdirSync(this.outputDirectory);	// Make sure the inputDirectory exists.
+				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 		}
 		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the inputDirectory to write to, so can't use this logger.
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to, so can't use this logger.
 			throw e;
 		}
 
