@@ -1,4 +1,6 @@
-FROM node:slim
+FROM node:alpine
+
+RUN apk --no-cache add  python
 
 ADD ./Release /opt/PLUTO
 
