@@ -707,7 +707,7 @@ class Validator {
 
 	/**
 	 * This method loads an exporter plugin and then uses that plugin to export the resulting file.
-	 * @param exportConfig a configration object that describes the exporter.
+	 * @param exportConfig a configuration object that describes the exporter.
 	 * @param filename the name of the file to export
 	 * @param runId the ID of this run of the ruleset.
 	 * @returns {Promise} the promise object that does all the work.
@@ -716,10 +716,13 @@ class Validator {
 	exportFile(exportConfig, filename, runId) {
 		return new Promise((resolve, reject) => {
 
-			let outputFileName = filename;
-
-			if(!fs.existsSync(filename)) {
-				outputFileName = null;
+			if (!filename) {
+				reject(`Exporter ${exportConfig.ScriptPath} failed: no filename specified.`);
+				return;
+			}
+			else if(!fs.existsSync(filename)) {
+				reject(`Exporter ${exportConfig.ScriptPath} failed: ${filename} does not exist.`);
+				return;
 			}
 
 			var exporterClass = this.loadImporterExporter(exportConfig.ScriptPath);
@@ -732,13 +735,13 @@ class Validator {
 				return reject("Exporter " + exportConfig.ScriptPath + " does not have exportFile method");
 			}
 
-			exporterClass.exportFile(outputFileName, exportConfig.Config, runId, this.logger.getLog()).then(function() {
+			exporterClass.exportFile(filename, exportConfig.Config, runId, this.logger.getLog()).then(function() {
 					resolve();
 				}, error => {
-					reject("Importer " + exportConfig.ScriptPath + " failed: " + error);
+					reject("Exporter " + exportConfig.ScriptPath + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Importer" + exportConfig.ScriptPath + " fail unexpectedly: " + e);
+					reject("Exporter" + exportConfig.ScriptPath + " fail unexpectedly: " + e);
 				});
 
 		});
