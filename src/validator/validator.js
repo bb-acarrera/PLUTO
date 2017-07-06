@@ -163,7 +163,7 @@ class Validator {
 		if (!fs.existsSync(file))
 			throw "Input file \"" + file + "\" does not exist.";
 
-		if (!rules || rules.lenth == 0) {
+		if (!rules || rules.length() == 0) {
 			this.warning("Ruleset \"" + this.RuleSetName + "\" contains no rules.");
 			return;
 		}
