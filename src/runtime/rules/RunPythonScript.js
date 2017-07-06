@@ -1,3 +1,4 @@
+const fs = require('fs-extra');
 const path = require("path");
 const spawnSync = require('child_process').spawnSync;
 
@@ -13,10 +14,12 @@ class RunPythonScript extends RuleAPI {
 	}
 
 	useFiles(inputName) {
+		let outputName = this.config.validator.getTempName();
+
 		if (!this.config) {
 			this.error(`No configuration specified.`);
 			setImmediate(() => {
-				this.emit(RuleAPI.NEXT, undefined);
+				this.emit(RuleAPI.NEXT, outputName);
 			});
 
 			return;
@@ -25,32 +28,49 @@ class RunPythonScript extends RuleAPI {
 		if (!this.config.PythonScript) {
 			this.error('No PythonScript in the configuration.');
 			setImmediate(() => {
-				this.emit(RuleAPI.NEXT, undefined);
+				this.emit(RuleAPI.NEXT, outputName);
+			});
+
+			return;
+		}
+
+		let pythonScript = path.resolve(this.config.PythonScript);
+		if (!!fs.existsSync(pythonScript)) {
+			this.error(`${pythonScript} does not exist.`);
+			setImmediate(() => {
+				this.emit(RuleAPI.NEXT, outputName);
 			});
 
 			return;
 		}
 
 		let scriptName = path.basename(this.config.PythonScript);
-		let outputName = this.config.validator.getTempName();
 		try {
-			const results = spawnSync('python', [this.config.PythonScript, inputName, outputName]);
+			// Run the python script. This complains if the script doesn't exist.
+			const results = spawnSync('python', [pythonScript, inputName, outputName]);
 
 			if (results) {
+				// Write any stdout/stderr output to the error log.
+
 				if (typeof results.stdout === 'string')
 					this.warning(results.stdout);
 				else if (results.stdout && typeof results.stdout.toString === 'function') {
 					let str = results.stdout.toString();
-					if (str.length > 0)
-						this.warning(str);
+					let strs = str.split("\n");
+					for (var i = 0; i < strs.length; i++) {
+						if (strs[i].length > 0)
+							this.warning(`${scriptName} wrote to stdout: ${strs[i]}.`);
+					}
 				}
 
 				if (typeof results.stderr === 'string')
 					this.error(results.stderr);
 				else if (results.stderr && typeof results.stderr.toString === 'function') {
 					let str = results.stderr.toString().trim();
-					if (str.length > 0)
-						this.error(str);
+					let strs = str.split("\n");
+					for (var i = 0; i < strs.length; i++)
+						if (strs[i].length > 0)
+							this.error(`${scriptName} wrote to stderr: ${strs[i]}.`);
 				}
 
 				if (results.status != 0)
