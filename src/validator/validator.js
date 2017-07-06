@@ -116,7 +116,7 @@ class Validator {
 
 		if(ruleset.import) {
 			// Override the file in the ruleset with the one specified on the command line.
-			if (outputFile && ruleset.import.Config)
+			if (inputFile && ruleset.import.Config)
 				ruleset.import.Config.file = inputFile;
 
 			this.inputFileName = this.getTempName();
@@ -163,7 +163,7 @@ class Validator {
 		if (!fs.existsSync(file))
 			throw "Input file \"" + file + "\" does not exist.";
 
-		if (!rules || rules.length() == 0) {
+		if (!rules || rules.length == 0) {
 			this.warning("Ruleset \"" + this.RuleSetName + "\" contains no rules.");
 			return;
 		}
@@ -370,17 +370,17 @@ class Validator {
 
 		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
 
-		if(results && this.currentRuleset.export) {
-			var resultsFile;
-			if (results.data) {
+		if(this.currentRuleset.export) {
+			var resultsFile = null;
+			if (results && results.data) {
 				resultsFile = this.getTempName();
 				this.saveFile(results.data, resultsFile, this.encoding);
 			}
-			else if (results.stream) {
+			else if (results && results.stream) {
 				resultsFile = this.getTempName();
 				this.putFile(results.stream, resultsFile, this.encoding);
 			}
-			else
+			else if (results)
 				resultsFile = results.file;
 
 			this.exportFile(this.currentRuleset.export, resultsFile, runId)
@@ -398,6 +398,10 @@ class Validator {
 				});
 		} else if (results) {
 			this.saveResults(results);
+			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
+			this.cleanup();
+		}
+		else {
 			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
 			this.cleanup();
 		}
