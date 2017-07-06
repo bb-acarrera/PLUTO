@@ -83,7 +83,7 @@ class Util {
 	static getRootDirectory(config) {
 
 		// Get the root directory for everything.
-		let rootDir = path.dirname(config.scriptName);	// Default is the directory this script lives in.
+		let rootDir = '.';	// Default is the current working directory.
 		if (config.RootDirectory) {
 			rootDir = path.resolve(config.RootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
 			if (!rootDir.endsWith(path.sep))
