@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require("path");
-const spawn = require('child_process').spawn;
+const child_process = require('child_process');
 
 const LocalCopyImport = {
 
@@ -22,11 +22,17 @@ const LocalCopyImport = {
                 reject(config.file + ' does not exist');
             }
 
+            child_process.exec('python /opt/PLUTO/config/copy.py ' + sourceFileName + ' ' + targetFileName, (error, stdout, stderr) => {
 
-            // Copy the file using an external process ('cp' in this case).
-			const proc = spawn('cp', [sourceFileName, targetFileName]);
-            proc.on('close', () => resolve());
-            proc.on('error', () => reject("Failed to copy file."));
+                if (error) {
+                    console.log(`stdout: ${stdout}`);
+                    console.log(`stderr: ${stderr}`);
+                    reject("Failed to copy file.");
+                    return;
+                }
+
+                resolve();
+            });
         });
     }
 
