@@ -58,6 +58,9 @@ class Validator {
 		this.logDirectory = path.resolve(this.rootDir, this.config.LogDirectory);
 		this.runsDirectory = path.resolve(this.rootDir, this.config.RunsDirectory);
 
+		if (!fs.existsSync(this.outputDirectory))
+			fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
+
 		this.logger = new ErrorLogger(config);
 		this.ruleIterator = null;
 
