@@ -78,6 +78,8 @@ class Validator {
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
 	 */
 	runRuleset(inputFile, outputFile, inputEncoding) {
+		this.running = true;	// Used by finishRun() to determine if it should clean up. Avoids issues with finishRun() being called twice.
+
 		var ruleset;
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
@@ -135,8 +137,8 @@ class Validator {
 					this.finishRun();
 				})
 				.catch((e) => {
-					this.error("Failed to import file: " + e);
 					this.finishRun();
+					throw e;
 				});
 		} else {
 			this.inputFileName = inputFile;
@@ -367,7 +369,11 @@ class Validator {
 	 * @private
 	 */
 	finishRun(results) {
+		if (!this.running)
+			return;
 
+		this.running = false;
+		
 		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
 
 		if(this.currentRuleset.export) {
@@ -929,6 +935,11 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		}
 
 		validator.finishRun();	// Write the log.
+		process.exit(1);	// Quit.
+	}).on('unhandledRejection', (reason, p) => {
+		console.error(reason, 'Unhandled Rejection at Promise', p);
+
+		// validator.finishRun();	// Write the log.
 		process.exit(1);	// Quit.
 	});
 }
