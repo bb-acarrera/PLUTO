@@ -895,16 +895,6 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 	config.scriptName = scriptName;
 	const validator = new Validator(config);
 
-	try {
-		validator.runRuleset(inputFile, outputFile, inputEncoding);
-	}
-	catch (e) {
-		console.log("Failed.\n\t" + e);
-		validator.error("Failed: " + e);
-		validator.finishRun();	// Write the log.
-		process.exit(1);
-	}
-
 	process.on('uncaughtException', (err) => {
 		// Caught an uncaught exception so something went extraordinarily wrong.
 		// Log the error and then give up. Do not attempt to write the output file because we have no idea
@@ -931,6 +921,16 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		validator.finishRun();	// Write the log.
 		process.exit(1);	// Quit.
 	});
+
+	try {
+		validator.runRuleset(inputFile, outputFile, inputEncoding);
+	}
+	catch (e) {
+		console.log("Failed.\n\t" + e);
+		validator.error("Failed: " + e);
+		validator.finishRun();	// Write the log.
+		process.exit(1);
+	}
 }
 
 module.exports = Validator;
