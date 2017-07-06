@@ -1,0 +1,25 @@
+{
+	"RuleSet" : {
+		"name" : "Python Example RuleSet",
+		"rules" : [
+			{
+				"FileName" : "RunPythonScript",
+				"Config" : {
+					"PythonScript" : "../test_config/copy.py"
+				}
+			}
+		],
+		"import" : {
+			"ScriptPath": "./runtime/rules/LocalCopyImport",
+			"Config": {
+				"file": "./examples/data/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"export" : {
+			"ScriptPath": "./runtime/rules/LocalCopyExport",
+			"Config" : {
+				"file": "./tmp/simplemaps-worldcities-basic.csv"
+			}
+		}
+	}
+}
