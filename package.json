@@ -7,7 +7,8 @@
     "test": "sh build/bin/runUnitTests.sh",
     "docker_build" : "docker build -t pluto:develop .",
     "docker_run" : "docker run -v $(pwd)/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto:develop",
-    "docker_run_bash": "docker run -v $(pwd)/test_config:/opt/PLUTO/config -p 3000:3000 -ti pluto:develop bash"
+    "docker_run_bash": "docker run -v $(pwd)/test_config:/opt/PLUTO/config -p 3000:3000 -ti pluto:develop /bin/sh"
+    "docker_save": "docker save --output pluto.image.tar pluto:develop"
   },
   "repository": {
     "type": "git",
