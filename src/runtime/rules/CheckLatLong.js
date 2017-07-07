@@ -103,9 +103,4 @@ class CheckLatLong extends CSVRuleAPI {
 	}
 }
 
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {CheckLatLong}
- */
 module.exports = CheckLatLong;	// Export this so derived classes can extend it.
-module.exports.instance = CheckLatLong;	// Export this so the application can instantiate the class without knowing it's name.

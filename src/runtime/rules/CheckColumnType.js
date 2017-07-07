@@ -90,9 +90,4 @@ class CheckColumnType extends CSVRuleAPI {
 	}
 }
 
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {CheckColumnType}
- */
 module.exports = CheckColumnType;	// Export this so derived classes can extend it.
-module.exports.instance = CheckColumnType;	// Export this so the application can instantiate the class without knowing it's name.

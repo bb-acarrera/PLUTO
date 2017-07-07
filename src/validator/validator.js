@@ -229,7 +229,7 @@ class Validator {
 		config.Name = config.Name || ruleDescriptor.filename;
 		this.RuleName = config.Name;
 
-		const rule = new ruleClass.instance(config);
+		const rule = new ruleClass(config);
 
 		// Try to match the input method to the data. i.e. a rule could support multiple import approaches
 		// so we don't want to unnecessarily convert the data.
