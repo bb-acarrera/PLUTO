@@ -768,7 +768,7 @@ class Validator {
 		// Find the rule file.
 
 		let ruleFilename = rulesDirectory === undefined ? path.resolve(filename) : path.resolve(rulesDirectory, filename);
-		if(!fs.existsSync(ruleFilename + '.js')) {
+		if (!fs.existsSync(ruleFilename) && !fs.existsSync(ruleFilename + '.js')) {
 			ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
 		}
 
