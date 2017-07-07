@@ -684,14 +684,18 @@ class Validator {
 			var importerClass = this.loadImporterExporter(importConfig.ScriptPath);
 
 			if(!importerClass) {
-				return reject("Could not find importer " + importConfig.ScriptPath);
+				reject("Could not find importer " + importConfig.ScriptPath);
+				return;
 			}
 
-			if(!importerClass.importFile) {
-				return reject("Importer " + importConfig.ScriptPath + " does not have importFile method");
+			let importer = new importerClass(importConfig.Config);
+
+			if(!importer.importFile) {
+				reject("Importer " + importConfig.ScriptPath + " does not have importFile method");
+				return;
 			}
 
-			importerClass.importFile(targetFilename, importConfig.Config).then(function() {
+			importer.importFile(targetFilename).then(function() {
 					resolve();
 				}, error => {
 					reject("Importer " + importConfig.ScriptPath + " failed: " + error);
@@ -699,9 +703,6 @@ class Validator {
 				.catch((e) => {
 					reject("Importer" + importConfig.ScriptPath + " fail unexpectedly: " + e);
 				});
-
-
-
 		});
 	}
 
@@ -728,14 +729,18 @@ class Validator {
 			var exporterClass = this.loadImporterExporter(exportConfig.ScriptPath);
 
 			if(!exporterClass) {
-				return reject("Could not find exporter " + exportConfig.ScriptPath);
+				reject("Could not find exporter " + exportConfig.ScriptPath);
+				return;
 			}
 
-			if(!exporterClass.exportFile) {
-				return reject("Exporter " + exportConfig.ScriptPath + " does not have exportFile method");
+			let exporter = new exporterClass(exportConfig.Config);
+
+			if(!exporter.exportFile) {
+				reject("Exporter " + exportConfig.ScriptPath + " does not have exportFile method");
+				return;
 			}
 
-			exporterClass.exportFile(filename, exportConfig.Config, runId, this.logger.getLog()).then(function() {
+			exporter.exportFile(filename, runId, this.logger.getLog()).then(function() {
 					resolve();
 				}, error => {
 					reject("Exporter " + exportConfig.ScriptPath + " failed: " + error);

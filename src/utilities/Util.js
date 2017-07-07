@@ -6,6 +6,8 @@ class Util {
 	 * Retrieve a ruleset description.
 	 * @param rootDir the directory that may contain the ruleset file.
 	 * @param ruleset the name of the ruleset or a ruleset (which is then just returned).
+	 * @param rulesetOverrideFile the name of a file containing additional ruleset data which can override the
+	 * initial values in the ruleset.
 	 * @return an object describing a ruleset.
 	 */
 	static retrieveRuleset(rootDir, ruleset, rulesetOverrideFile) {
@@ -32,7 +34,7 @@ class Util {
 		if(rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
 			var contents;
 			try {
-				contents = require(rulesetOverrideFile);
+				contents = require(path.resolve(rootDir, rulesetOverrideFile));
 			}
 			catch (e) {
 				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);

@@ -1,23 +1,25 @@
 const fs = require('fs-extra');
 const path = require("path");
-const spawn = require('child_process').spawn;
 
-const LocalCopyExport = {
+class LocalCopyExport {
+	constructor(config) {
+		this.config = config;
+	}
 
-    exportFile: function(fileName, config, runId, errorLog) {
+	exportFile(fileName, runId, errorLog) {
 
         return new Promise((resolve, reject) => {
 
-            if(!config.file) {
+            if(!this.config.file) {
                 reject('No source file name');
+                return;
             }
 
             if(fileName) {
-                const targetFileName = path.resolve(config.file);
+                const targetFileName = path.resolve(this.config.file);
 
                 fs.copySync(fileName, targetFileName);
 				resolve();
-
 			}
         });
     }

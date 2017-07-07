@@ -1,20 +1,23 @@
 const fs = require('fs');
 const path = require("path");
 const child_process = require('child_process');
-var http = require('http')
+var http = require('http');
 
-const LocalCopyExport = {
+class LocalCopyExport {
+	constructor(config) {
+		this.config = config;
+	}
 
-    exportFile: function(fileName, config, runId, errorLog) {
+	exportFile(fileName, runId, errorLog) {
 
         return new Promise((resolve, reject) => {
 
-            if(!config.file) {
+            if(!this.config.file) {
                 reject('No source file name');
             }
 
             if(fileName) {
-                const targetFileName = path.resolve(config.file);
+                const targetFileName = path.resolve(this.config.file);
 
                 // Copy using a spawned process.
 
