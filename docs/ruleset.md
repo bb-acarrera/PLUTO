@@ -70,9 +70,8 @@ The rules have three required properties, `FileName`, `Name`, and `Config`.
 
 #### 2.2.1. FileName
 
-This is the name of the JavaScript plug-in rule without the suffix. It is assumed the rule file is
-suffixed with `.js` (no other suffixes are permitted). The rule file must exist in the `RulesDirectory` as
- set in the [validator][validator] configuration file.
+This is the file name of the JavaScript plug-in rule. If no suffix is specified `.js` is assumed.
+The rule file must exist in the `RulesDirectory` as set in the [validator][validator] configuration file.
 
 #### 2.2.2. Name
 
@@ -144,7 +143,29 @@ This is an example of an `export` property.
 
 The `export` property has exactly the same properties as the `import` property.
 
-## 3.0. Example
+## 3.0. Overrides
+
+The validator has a command line option, `-v/--rulesetoverride`, which is used for overriding the importer
+or exporter configuration. This is necessary when a ruleset has been defined with an importer and/or exporter
+that references one file
+but you want it to operate on a different file, or output a different file, or use different credentials, etc.
+
+An override has two properties `import` and `export`. Both are optional. If specified they should contain
+ overriding `Config` properties for the `import` and `export` properties in the ruleset.
+ 
+For example:
+```json
+{
+    "import" : {
+        "file": "/opt/PLUTO/config/test_data/factories.csv"
+    },
+    "export" : {
+        "file": "/opt/PLUTO/config/tmp/factories.csv.out"
+    }
+}
+```
+
+## 4.0. Example
 
 Below is an example ruleset demonstrating all the properties of a ruleset and it's nested objects.
 
