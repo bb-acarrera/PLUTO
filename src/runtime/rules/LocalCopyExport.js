@@ -6,19 +6,19 @@ class LocalCopyExport {
 		this.config = config;
 	}
 
-	exportFile(fileName, runId, errorLog) {
+	exportFile(sourceFileName, runId, errorLog) {
 
         return new Promise((resolve, reject) => {
 
             if(!this.config.file) {
-                reject('No source file name');
+                reject('No target file name.');
                 return;
             }
 
-            if(fileName) {
+            if(sourceFileName) {
                 const targetFileName = path.resolve(this.config.file);
 
-                fs.copySync(fileName, targetFileName);
+                fs.copySync(sourceFileName, targetFileName);
 				resolve();
 			}
         });
