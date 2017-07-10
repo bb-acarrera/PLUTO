@@ -6,7 +6,10 @@ values) files can be processed.
 
 ## 1. Overview
 
-CSV Rules are written in JavaScript. They should implement a constructor which takes a configuration object, and should
+CSV Rules are written in JavaScript (ES6). They should be derived from the `CSVRuleAPI` class which is defined in the
+ `runtime/api` directory.
+
+They should implement a constructor which takes a configuration object, and should
  implement the `processRecord(record)` method. They can validate the records, raising warnings and errors, and can
  modify the fields of a record.
 
