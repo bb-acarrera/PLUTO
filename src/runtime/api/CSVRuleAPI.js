@@ -38,10 +38,10 @@ class CSVRuleAPI extends RuleAPI {
 	constructor(config) {
 		super(config)
 
-		this.delimiter = this.config.Delimiter || ',';
-		this.comment = this.config.Comment || '';
-		this.escape = this.config.Escape || '"';
-		this.quote = this.config.Quote || '"';
+		this.delimiter = this.config.delimiter || ',';
+		this.comment = this.config.comment || '';
+		this.escape = this.config.escape || '"';
+		this.quote = this.config.quote || '"';
 
 		this.post_delimiter = this.config.OutputDelimiter || ',';
 		this.post_comment = this.config.OutputComment || '';
