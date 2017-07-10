@@ -21,7 +21,7 @@ QUnit.test( "CheckLatLong: Check For Absent NumberOfHeaderRows property", functi
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Type" : "number"
+		"type" : "number"
 	};
 
 	const rule = new CheckLatLong(config);
@@ -36,8 +36,8 @@ QUnit.test( "CheckLatLong: Check For Non-Number NumberOfHeaderRows", function( a
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Type" : "number",
-		"NumberOfHeaderRows" : "foo"
+		"type" : "number",
+		"numberOfHeaderRows" : "foo"
 	};
 
 	const rule = new CheckLatLong(config);
@@ -52,7 +52,7 @@ QUnit.test( "CheckLatLong: Check For Negative NumberOfHeaderRows", function( ass
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : -1
+		"numberOfHeaderRows" : -1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -67,7 +67,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer NumberOfHeaderRows", function( 
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1.1
+		"numberOfHeaderRows" : 1.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -82,7 +82,7 @@ QUnit.test( "CheckLatLong: Check For Absent LatitudeColumn Property", function( 
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1
+		"numberOfHeaderRows" : 1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -97,8 +97,8 @@ QUnit.test( "CheckLatLong: Check For Non-Number LatitudeColumn Property", functi
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : "foo"
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : "foo"
 	};
 
 	const rule = new CheckLatLong(config);
@@ -113,8 +113,8 @@ QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : -1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : -1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -129,8 +129,8 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", funct
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 1.1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 1.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -146,8 +146,8 @@ QUnit.test( "CheckLatLong: Check For Absent LongitudeColumn Property", function(
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -162,9 +162,9 @@ QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", funct
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 1,
-		"LongitudeColumn" : "foo"
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 1,
+		"longitudeColumn" : "foo"
 	};
 
 	const rule = new CheckLatLong(config);
@@ -179,9 +179,9 @@ QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", functio
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 1,
-		"LongitudeColumn" : -1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 1,
+		"longitudeColumn" : -1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -196,9 +196,9 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", func
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 1,
-		"LongitudeColumn" : 1.1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 1,
+		"longitudeColumn" : 1.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -213,9 +213,9 @@ QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Prop
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 1,
-		"LongitudeColumn" : 1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 1,
+		"longitudeColumn" : 1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -230,9 +230,9 @@ QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", functio
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LongitudeColumn" : 0,
-		"LatitudeColumn" : 1
+		"numberOfHeaderRows" : 1,
+		"longitudeColumn" : 0,
+		"latitudeColumn" : 1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -247,10 +247,10 @@ QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", fun
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LongitudeColumn" : 0,
-		"LatitudeColumn" : 1,
-		"NullIslandEpsilon" : "foo"
+		"numberOfHeaderRows" : 1,
+		"longitudeColumn" : 0,
+		"latitudeColumn" : 1,
+		"nullIslandEpsilon" : "foo"
 	};
 
 	const rule = new CheckLatLong(config);
@@ -265,10 +265,10 @@ QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", funct
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LongitudeColumn" : 0,
-		"LatitudeColumn" : 1,
-		"NullIslandEpsilon" : -0.1
+		"numberOfHeaderRows" : 1,
+		"longitudeColumn" : 0,
+		"latitudeColumn" : 1,
+		"nullIslandEpsilon" : -0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -283,10 +283,10 @@ QUnit.test( "CheckLatLong: Check For Bad Column Count", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 0,
-		"LongitudeColumn" : 1,
-		"NullIslandEpsilon" : 0.1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 0,
+		"longitudeColumn" : 1,
+		"nullIslandEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -308,10 +308,10 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 0,
-		"LongitudeColumn" : 1,
-		"NullIslandEpsilon" : 0.1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 0,
+		"longitudeColumn" : 1,
+		"nullIslandEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -335,10 +335,10 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 0,
-		"LongitudeColumn" : 1,
-		"NullIslandEpsilon" : 0.1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 0,
+		"longitudeColumn" : 1,
+		"nullIslandEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -366,10 +366,10 @@ QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"NumberOfHeaderRows" : 1,
-		"LatitudeColumn" : 0,
-		"LongitudeColumn" : 1,
-		"NullIslandEpsilon" : 0.1
+		"numberOfHeaderRows" : 1,
+		"latitudeColumn" : 0,
+		"longitudeColumn" : 1,
+		"nullIslandEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);

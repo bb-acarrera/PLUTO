@@ -24,8 +24,8 @@ class Util {
 				throw("Ruleset file \"" + rulesetFile + "\" does not contain a RuleSet member.");
 			}
 
-			contents.RuleSet.filename = ruleset;
-			contents.RuleSet.name = contents.RuleSet.name || contents.RuleSet.filename;
+			contents.RuleSet.fileName = ruleset;
+			contents.RuleSet.name = contents.RuleSet.name || contents.RuleSet.fileName;
 			ruleset = contents.RuleSet;
 		}
 
@@ -63,7 +63,7 @@ class Util {
 	 * @param ruleDescriptor the object describing the rule.
 	 */
 	static getRuleName(ruleDescriptor) {
-		return ruleDescriptor.name || ruleDescriptor.Name || path.basename(ruleDescriptor.filename);
+		return ruleDescriptor.name || ruleDescriptor.Name || path.basename(ruleDescriptor.fileName);
 	}
 
 	static getRulesets(rootDir) {
@@ -84,8 +84,8 @@ class Util {
 
 		// Get the root directory for everything.
 		let rootDir = path.dirname(config.scriptName);	// Default is the directory this script lives in.
-		if (config.RootDirectory) {
-			rootDir = path.resolve(config.RootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
+		if (config.rootDirectory) {
+			rootDir = path.resolve(config.rootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
 			if (!rootDir.endsWith(path.sep))
 				rootDir = rootDir + path.sep;
 		}
@@ -94,8 +94,8 @@ class Util {
 
 	static getRootTempDirectory(config, rootDir) {
 		let tmpDir;
-		if (config.TempDirectory)
-			tmpDir = config.TempDirectory;
+		if (config.tempDirectory)
+			tmpDir = config.tempDirectory;
 		else
 			tmpDir = "tmp";
 

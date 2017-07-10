@@ -1,10 +1,10 @@
 {
-	"RootDirectory" : "/opt/PLUTO/config",
-	"RulesetDirectory" : "/opt/PLUTO/config/rulesets",
-	"RulesDirectory" : "/opt/PLUTO/config/customRules",
-	"TempDirectory" : "/opt/PLUTO/config/tmp",
-	"InputDirectory" : "/opt/PLUTO/config",
-	"OutputDirectory" : "/opt/PLUTO/config/results",
-	"LogDirectory" : "/opt/PLUTO/config/results/logs",
-	"RunsDirectory" : "/opt/PLUTO/config/results/runs"
+	"rootDirectory" : "/opt/PLUTO/config",
+	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
+	"rulesDirectory" : "/opt/PLUTO/config/customRules",
+	"tempDirectory" : "/opt/PLUTO/config/tmp",
+	"inputDirectory" : "/opt/PLUTO/config",
+	"outputDirectory" : "/opt/PLUTO/config/results",
+	"logDirectory" : "/opt/PLUTO/config/results/logs",
+	"runsDirectory" : "/opt/PLUTO/config/results/runs"
 }
