@@ -116,13 +116,6 @@ class CSVRuleAPI extends RuleAPI {
 			inputStream.pipe(parser).pipe(transformer);
 	}
 
-	/*
-	 * RuleAPI methods. These are not exposed to users of the CSVRuleAPI.
-	 */
-	canUseStreams() { return true; }
-	canUseMethod() { return true; }
-	canUseFiles() { return true; }
-
 	/**
 	 * Add a notification onto the inputStream before moving on to processing the streams.
 	 * @param inputStream the stream containing the CSV to process.
