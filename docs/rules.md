@@ -12,7 +12,7 @@ of a ruleset run the final version of the input file and the error log are sent 
 Rules come in several types:
 - [Python Rules][python], rules written in Python and run as a separate process from the validator executable.
 - [CSV Rules][csv], rules written in JavaScript that operate on a CSV file one line at a time.
-- [Basic Rules][basic], any rules that cannot be written as a Python Rule or a CSV Rule can be written as a Basic Rule.
+- [General Rules][basic], any rules that cannot be written as a Python Rule or a CSV Rule can be written as a general rule.
 
 
 Attributes common to all rules (config settings, logging errors, SharedData, ???)
