@@ -15,7 +15,7 @@ class RulesetRouter extends BaseRouter {
 		// that these two root directories are the same.
 
 		if(req.params.id) {
-			const ruleset = Util.retrieveRuleset(this.config.validator.config.RulesetDirectory, req.params.id);
+			const ruleset = Util.retrieveRuleset(this.config.validator.config.rulesetDirectory, req.params.id);
 			if (!ruleset)
 				return next(new Error("Unable to find ruleset."));
 
@@ -43,7 +43,7 @@ class RulesetRouter extends BaseRouter {
 				}
 			});
 		} else {
-			const rawRulesets = Util.getRulesets(this.config.validator.config.RulesetDirectory);
+			const rawRulesets = Util.getRulesets(this.config.validator.config.rulesetDirectory);
 
 			const rulesets = [];
 

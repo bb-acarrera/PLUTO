@@ -10,67 +10,67 @@ class CheckLatLong extends CSVRuleAPI {
 		}
 
 		this.numHeaderRows = 0;
-		if (this.config.NumberOfHeaderRows === undefined)
+		if (this.config.numberOfHeaderRows === undefined)
 			this.warning(`Configured without a 'NumberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
-		else if (isNaN(this.config.NumberOfHeaderRows))
-			this.warning(`Configured with a non-number NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		else if (this.config.NumberOfHeaderRows < 0)
-			this.warning(`Configured with a negative NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+		else if (isNaN(this.config.numberOfHeaderRows))
+			this.warning(`Configured with a non-number NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
+		else if (this.config.numberOfHeaderRows < 0)
+			this.warning(`Configured with a negative NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		else {
-			this.numHeaderRows = Math.floor(parseFloat(this.config.NumberOfHeaderRows));
-			if (!Number.isInteger(parseFloat(this.config.NumberOfHeaderRows)))
-				this.warning(`Configured with a non-integer NumberOfHeaderRows. Got '${this.config.NumberOfHeaderRows}', using ${this.numHeaderRows}.`);
+			this.numHeaderRows = Math.floor(parseFloat(this.config.numberOfHeaderRows));
+			if (!Number.isInteger(parseFloat(this.config.numberOfHeaderRows)))
+				this.warning(`Configured with a non-integer NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		}
 
 		this.latitudeColumn = undefined;
-		if (this.config.LatitudeColumn === undefined)
+		if (this.config.latitudeColumn === undefined)
 			this.error(`Configured without a 'LatitudeColumn' property.`);
-		else if (isNaN(this.config.LatitudeColumn))
-			this.error(`Configured with a non-number LatitudeColumn. Got '${this.config.LatitudeColumn}'.`);
-		else if (this.config.LatitudeColumn < 0)
-			this.error(`Configured with a negative LatitudeColumn. Got '${this.config.LatitudeColumn}'.`);
+		else if (isNaN(this.config.latitudeColumn))
+			this.error(`Configured with a non-number LatitudeColumn. Got '${this.config.latitudeColumn}'.`);
+		else if (this.config.latitudeColumn < 0)
+			this.error(`Configured with a negative LatitudeColumn. Got '${this.config.latitudeColumn}'.`);
 		else {
-			this.latitudeColumn = Math.floor(parseFloat(this.config.LatitudeColumn));
-			if (!Number.isInteger(parseFloat(this.config.LatitudeColumn)))
-				this.warning(`Configured with a non-integer LatitudeColumn. Got '${this.config.LatitudeColumn}', using ${this.latitudeColumn}.`);
+			this.latitudeColumn = Math.floor(parseFloat(this.config.latitudeColumn));
+			if (!Number.isInteger(parseFloat(this.config.latitudeColumn)))
+				this.warning(`Configured with a non-integer LatitudeColumn. Got '${this.config.latitudeColumn}', using ${this.latitudeColumn}.`);
 		}
 
 		this.longitudeColumn = undefined;
-		if (this.config.LongitudeColumn === undefined)
+		if (this.config.longitudeColumn === undefined)
 			this.error(`Configured without a 'LongitudeColumn' property.`);
-		else if (isNaN(this.config.LongitudeColumn))
-			this.error(`Configured with a non-number LongitudeColumn. Got '${this.config.LongitudeColumn}'.`);
-		else if (this.config.LongitudeColumn < 0)
-			this.error(`Configured with a negative LongitudeColumn. Got '${this.config.LongitudeColumn}'.`);
+		else if (isNaN(this.config.longitudeColumn))
+			this.error(`Configured with a non-number LongitudeColumn. Got '${this.config.longitudeColumn}'.`);
+		else if (this.config.longitudeColumn < 0)
+			this.error(`Configured with a negative LongitudeColumn. Got '${this.config.longitudeColumn}'.`);
 		else {
-			this.longitudeColumn = Math.floor(parseFloat(this.config.LongitudeColumn));
-			if (!Number.isInteger(parseFloat(this.config.LongitudeColumn)))
-				this.warning(`Configured with a non-integer LongitudeColumn. Got '${this.config.LongitudeColumn}', using ${this.longitudeColumn}.`);
+			this.longitudeColumn = Math.floor(parseFloat(this.config.longitudeColumn));
+			if (!Number.isInteger(parseFloat(this.config.longitudeColumn)))
+				this.warning(`Configured with a non-integer LongitudeColumn. Got '${this.config.longitudeColumn}', using ${this.longitudeColumn}.`);
 		}
 
 		if (this.latitudeColumn === this.longitudeColumn)
 			this.error(`Configured with identical LatitudeColumn and LongitudeColumn property values.`);
 
 		this.nullEpsilon = 0.01;
-		if (this.config.NullIslandEpsilon === undefined) {
+		if (this.config.nullIslandEpsilon === undefined) {
 			this.warning(`Configured without a NullIslandEpsilon property. Using ${this.nullEpsilon}.`);
 			this.nullEpsilon = 0;
 		}
-		else if (isNaN(this.config.NullIslandEpsilon))
-			this.error(`Configured with a non-number NullIslandEpsilon. Got '${this.config.NullIslandEpsilon}'.`);
-		else if (this.config.NullIslandEpsilon < 0) {
-			this.nullEpsilon = -this.config.NullIslandEpsilon;
-			this.warning(`Configured with a negative NullIslandEpsilon. Got '${this.config.NullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
+		else if (isNaN(this.config.nullIslandEpsilon))
+			this.error(`Configured with a non-number NullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'.`);
+		else if (this.config.nullIslandEpsilon < 0) {
+			this.nullEpsilon = -this.config.nullIslandEpsilon;
+			this.warning(`Configured with a negative NullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
 		}
 		else
-			this.nullEpsilon = this.config.NullIslandEpsilon;
+			this.nullEpsilon = this.config.nullIslandEpsilon;
 
 		this.rowNumber = 0;
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
-		this.reportAlways = this.config.ReportAlways || true;	// Should every occurrence be reported?
+		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 	}
 
-	processRecord(record) {
+        processRecord(record) {
 		if (this.latitudeColumn !== undefined && this.longitudeColumn !== undefined && this.rowNumber >= this.numHeaderRows) {
 			if (this.latitudeColumn >= record.length || this.longitudeColumn >= record.length) {
 				if (this.reportAlways || !this.badColumnCountReported) {

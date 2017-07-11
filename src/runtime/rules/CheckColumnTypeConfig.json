@@ -1,5 +1,5 @@
 {
-	"NumberOfHeaderRows" : 1,
-	"Type" : "number",
-	"Column" : 4
+	"numberOfHeaderRows" : 1,
+	"type" : "number",
+	"column" : 4
 }

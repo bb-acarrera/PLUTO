@@ -3,38 +3,38 @@
 		"name" : "Check Data RuleSet",
 		"rules" : [
 			{
-				"FileName" : "CheckColumnCount",
-				"Config" : {
-					"Columns" : 9
+				"fileName" : "CheckColumnCount",
+				"config" : {
+					"columns" : 9
 				}
 			},
 			{
-				"FileName" : "CheckLatLong",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"LatitudeColumn"  : 2,
-					"LongitudeColumn" : 3
+				"fileName" : "CheckLatLong",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"latitudeColumn"  : 2,
+					"longitudeColumn" : 3
 				}
 			},
 			{
-				"FileName" : "CheckColumnType",
-				"Name" : "Validate Population Column",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"Type" : "number",
-					"Column" : 4
+				"fileName" : "CheckColumnType",
+				"name" : "Validate Population Column",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"type" : "number",
+					"column" : 4
 				}
 			}
 		],
 		"import" : {
-			"ScriptPath": "./runtime/rules/LocalCopyImport",
-			"Config": {
+			"scriptPath": "./runtime/rules/LocalCopyImport",
+			"config": {
 				"file": "./examples/data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"ScriptPath": "./runtime/rules/LocalCopyExport",
-			"Config" : {
+			"scriptPath": "./runtime/rules/LocalCopyExport",
+			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
 			}
 		}

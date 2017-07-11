@@ -26,7 +26,7 @@ QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "foo"
+		"columns" : "foo"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -43,7 +43,7 @@ QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( 
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "-1"
+		"columns" : "-1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -60,7 +60,7 @@ QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", functio
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1.1"
+		"columns" : "1.1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -77,7 +77,7 @@ QUnit.test( "CheckColumnCount: Check Valid Columns Property Test", function( ass
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -92,7 +92,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -113,7 +113,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -135,7 +135,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "2"
+		"columns" : "2"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -159,7 +159,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);

@@ -10,7 +10,7 @@ class LabelColumns extends MetadataRuleAPI {
 		if (!sharedData)
 			return;
 
-		sharedData.ColumnLabels = config.ColumnLabels;
+		sharedData.columnLabels = config.columnLabels;
 	}
 }
 
