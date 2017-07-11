@@ -125,6 +125,9 @@ This can either be an absolute path or a relative path relative to the applicati
 This property contains properties specific to the importer plug-in. Unlike the `Config` for
 [rules](#2.2.3.-config) this cannot reference a separate file.
 
+If the `config` includes an `encoding` property this will be taken as the encoding to be used when
+importing the file.
+
 ### 2.4. export _(Optional)_
 
 The `export` section is used to describe a custom exporter. Custom exporters, similar to custom importers,
