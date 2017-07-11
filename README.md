@@ -43,7 +43,10 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 }
 ```
 
-## More...
+## More..
+
+Additional iformation can be found in the following documents.
+
 [Server][server] <span style="color: red">Needs updating</span>
 
 [Validator][validator]
