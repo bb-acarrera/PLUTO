@@ -13,7 +13,7 @@ Rules come in several types:
 - [Python Rules][python], rules written in Python and run as a separate process from the validator executable.
 - [CSV Rules][csv], rules written in JavaScript that operate on a CSV file one line at a time.
 - [General Rules][basic], any rules that cannot be written as a Python Rule or a CSV Rule can be written as a general rule.
-
+- [Metadata Rules][metadata], rules that do not operate on the data but on the data about the data.
 
 Attributes common to all rules (config settings, logging errors, SharedData, ???)
 
@@ -26,3 +26,4 @@ Location? Where should rules be placed?
 [csv]: csvRules.md
 [basic]: basicRules.md
 [existing]: existingRules.md
+[metadata]: metadataRules.md

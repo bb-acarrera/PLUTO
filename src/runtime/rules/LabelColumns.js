@@ -14,4 +14,4 @@ class LabelColumns extends MetadataRuleAPI {
 	}
 }
 
-module.exports = LabelColumns;	// Export this so derived classes can extend it.
+module.exports = LabelColumns;
