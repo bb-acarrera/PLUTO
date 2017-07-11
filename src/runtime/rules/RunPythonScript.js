@@ -35,7 +35,7 @@ class RunPythonScript extends RuleAPI {
 		}
 
 		let pythonScript = path.resolve(this.config.PythonScript);
-		if (!!fs.existsSync(pythonScript)) {
+		if (!fs.existsSync(pythonScript)) {
 			this.error(`${pythonScript} does not exist.`);
 			setImmediate(() => {
 				this.emit(RuleAPI.NEXT, outputName);
@@ -47,7 +47,7 @@ class RunPythonScript extends RuleAPI {
 		let scriptName = path.basename(this.config.PythonScript);
 		try {
 			// Run the python script. This complains if the script doesn't exist.
-			const results = spawnSync('python', [pythonScript, inputName, outputName]);
+			const results = spawnSync('python', [pythonScript, inputName, outputName, this.config.encoding || 'utf8']);
 
 			if (results) {
 				// Write any stdout/stderr output to the error log.
