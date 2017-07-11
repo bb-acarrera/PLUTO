@@ -71,13 +71,41 @@ a Docker container this would be the root of the mounted volume.)
 - **TempDirectory** a folder to store temporary files
 - **InputDirectory** only needed when running the validator from the command line, the default folder where files to be
 processed files are stored. This is _optional_ and defaults to the current working directory of the application.
-- **OutputDirectory** the folder where processed files will be stored
+- **OutputDirectory** the folder where processed files will be stored if no exporter is used.
 - **LogDirectory** the folder where the error logs of processing files will be stored
 - **RunsDirectory** the folder where the processing details will be stored
 
-## 4. Running Rulesets (COMPLETE THIS!!!)
+## 4. Validating Files
 
-Running stops immediately when a rule posts an error to the error log.
+To validate a file three things are required, a ruleset, a rule files, and an file to validate. The
+[ruleset] describes how the input file is retrieved from a remote location, a sequence of [rules] to
+run the input file through, and how to export the resulting file and log results to a potentially different
+remote location.
+
+*In the near future setting all this up will be possible with a dedicated UI but
+for now this is a manual process.*
+
+### 4.1 Validator Configuration
+
+Set up the validator configuration file as described above. The validator will use the values in this
+file to locate the ruleset and rules.
+
+### 4.2 Rules Directory
+
+Place your rule files in the rules directory as defined in the validator configuration.
+
+### 4.3 Importer and Exporter
+
+If you are using an importer and/or exporter script place it/them in the root directory.
+
+### 4.4 Ruleset File
+
+Define your [ruleset] file. For simplicity add rules one at a time testing the ruleset
+workflow after each addition. This will make debugging your ruleset easier.
+
+### 4.5 Run the Validator
+
+Run the validator from the command line passing in at least the validator configuration file and ruleset.
 
 [ruleset]: docs/ruleset.md
 [rules]: docs/rules.md
