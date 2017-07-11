@@ -10,13 +10,13 @@ class CheckColumnCount extends CSVRuleAPI {
 		if (!this.config)
 			this.error('No configuration specified.');
 		else if (this.config.columns === undefined)
-			this.error("Configured without a Columns property.");
+			this.error("Configured without a 'columns' property.");
 		else if (isNaN(this.config.columns))
-			this.error(`Configured with a non-number Columns. Got '${config.columns}'.`);
+			this.error(`Configured with a non-number columns. Got '${config.columns}'.`);
 		else if (this.config.columns < 0)
-			this.error(`Configured with a negative Columns. Got '${config.columns}'.`);
+			this.error(`Configured with a negative columns. Got '${config.columns}'.`);
 		else if (!Number.isInteger(parseFloat(this.config.columns)))
-			this.error(`Configured with a non-integer Columns. Got '${config.columns}'.`);
+			this.error(`Configured with a non-integer columns. Got '${config.columns}'.`);
 		else
 			this.columns = parseFloat(this.config.columns);
 
@@ -39,4 +39,4 @@ class CheckColumnCount extends CSVRuleAPI {
 	}
 }
 
-module.exports = CheckColumnCount;	// Export this so derived classes can extend it.
+module.exports = CheckColumnCount;

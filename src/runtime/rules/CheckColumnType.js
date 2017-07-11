@@ -9,7 +9,7 @@ class CheckColumnType extends CSVRuleAPI {
 			return;	// Might as well give up...
 		}
 		else if (!config.type) {
-			this.error(`Configured without a 'Type' property.`);
+			this.error(`Configured without a 'type' property.`);
 			return; // Ditto
 		}
 		else {
@@ -26,10 +26,10 @@ class CheckColumnType extends CSVRuleAPI {
 					}
 					break;
 				case 'regex': {
-					if (!this.config.regEx)
-						this.error(`Type is 'regex' but no 'RegEx' property defined'.`);
+					if (!this.config.regex)
+						this.error(`Type is 'regex' but no 'regex' property defined'.`);
 					else {
-						const regex = new RegExp(this.config.regEx);
+						const regex = new RegExp(this.config.regex);
 						this.test = function (datum) {
 							var x = regex.test(datum);
 							return x;
@@ -38,7 +38,7 @@ class CheckColumnType extends CSVRuleAPI {
 					break;
 				}
 				default:
-					this.error(`Configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got '${config.Type}'.`);
+					this.error(`Configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got '${config.type}'.`);
 					break;
 			}
 		}
@@ -59,15 +59,15 @@ class CheckColumnType extends CSVRuleAPI {
 
 		this.column = undefined;
 		if (this.config.column === undefined)
-			this.error(`Configured without a 'Column' property.`);
+			this.error(`Configured without a 'column' property.`);
 		else if (isNaN(this.config.column))
-			this.error(`Configured with a non-number Column. Got '${this.config.column}'.`);
+			this.error(`Configured with a non-number column. Got '${this.config.column}'.`);
 		else if (this.config.column < 0)
-			this.error(`Configured with a negative Column. Got '${this.config.column}'.`);
+			this.error(`Configured with a negative column. Got '${this.config.column}'.`);
 		else {
 			this.column = Math.floor(parseFloat(this.config.column));
 			if (!Number.isInteger(parseFloat(this.config.column)))
-				this.warning(`Configured with a non-integer Column. Got '${this.config.column}', using ${this.column}.`);
+				this.warning(`Configured with a non-integer column. Got '${this.config.column}', using ${this.column}.`);
 		}
 
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
@@ -91,4 +91,4 @@ class CheckColumnType extends CSVRuleAPI {
 	}
 }
 
-module.exports = CheckColumnType;	// Export this so derived classes can extend it.
+module.exports = CheckColumnType;

@@ -11,56 +11,56 @@ class CheckLatLong extends CSVRuleAPI {
 
 		this.numHeaderRows = 0;
 		if (this.config.numberOfHeaderRows === undefined)
-			this.warning(`Configured without a 'NumberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
+			this.warning(`Configured without a 'numberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
 		else if (isNaN(this.config.numberOfHeaderRows))
-			this.warning(`Configured with a non-number NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
+			this.warning(`Configured with a non-number numberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		else if (this.config.numberOfHeaderRows < 0)
-			this.warning(`Configured with a negative NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
+			this.warning(`Configured with a negative numberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		else {
 			this.numHeaderRows = Math.floor(parseFloat(this.config.numberOfHeaderRows));
 			if (!Number.isInteger(parseFloat(this.config.numberOfHeaderRows)))
-				this.warning(`Configured with a non-integer NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
+				this.warning(`Configured with a non-integer numberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
 		}
 
 		this.latitudeColumn = undefined;
 		if (this.config.latitudeColumn === undefined)
-			this.error(`Configured without a 'LatitudeColumn' property.`);
+			this.error(`Configured without a 'latitudeColumn' property.`);
 		else if (isNaN(this.config.latitudeColumn))
-			this.error(`Configured with a non-number LatitudeColumn. Got '${this.config.latitudeColumn}'.`);
+			this.error(`Configured with a non-number latitudeColumn. Got '${this.config.latitudeColumn}'.`);
 		else if (this.config.latitudeColumn < 0)
-			this.error(`Configured with a negative LatitudeColumn. Got '${this.config.latitudeColumn}'.`);
+			this.error(`Configured with a negative latitudeColumn. Got '${this.config.latitudeColumn}'.`);
 		else {
 			this.latitudeColumn = Math.floor(parseFloat(this.config.latitudeColumn));
 			if (!Number.isInteger(parseFloat(this.config.latitudeColumn)))
-				this.warning(`Configured with a non-integer LatitudeColumn. Got '${this.config.latitudeColumn}', using ${this.latitudeColumn}.`);
+				this.warning(`Configured with a non-integer latitudeColumn. Got '${this.config.latitudeColumn}', using ${this.latitudeColumn}.`);
 		}
 
 		this.longitudeColumn = undefined;
 		if (this.config.longitudeColumn === undefined)
-			this.error(`Configured without a 'LongitudeColumn' property.`);
+			this.error(`Configured without a 'longitudeColumn' property.`);
 		else if (isNaN(this.config.longitudeColumn))
-			this.error(`Configured with a non-number LongitudeColumn. Got '${this.config.longitudeColumn}'.`);
+			this.error(`Configured with a non-number longitudeColumn. Got '${this.config.longitudeColumn}'.`);
 		else if (this.config.longitudeColumn < 0)
-			this.error(`Configured with a negative LongitudeColumn. Got '${this.config.longitudeColumn}'.`);
+			this.error(`Configured with a negative longitudeColumn. Got '${this.config.longitudeColumn}'.`);
 		else {
 			this.longitudeColumn = Math.floor(parseFloat(this.config.longitudeColumn));
 			if (!Number.isInteger(parseFloat(this.config.longitudeColumn)))
-				this.warning(`Configured with a non-integer LongitudeColumn. Got '${this.config.longitudeColumn}', using ${this.longitudeColumn}.`);
+				this.warning(`Configured with a non-integer longitudeColumn. Got '${this.config.longitudeColumn}', using ${this.longitudeColumn}.`);
 		}
 
 		if (this.latitudeColumn === this.longitudeColumn)
-			this.error(`Configured with identical LatitudeColumn and LongitudeColumn property values.`);
+			this.error(`Configured with identical latitudeColumn and longitudeColumn property values.`);
 
 		this.nullEpsilon = 0.01;
 		if (this.config.nullIslandEpsilon === undefined) {
-			this.warning(`Configured without a NullIslandEpsilon property. Using ${this.nullEpsilon}.`);
+			this.warning(`Configured without a nullIslandEpsilon property. Using ${this.nullEpsilon}.`);
 			this.nullEpsilon = 0;
 		}
 		else if (isNaN(this.config.nullIslandEpsilon))
-			this.error(`Configured with a non-number NullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'.`);
+			this.error(`Configured with a non-number nullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'.`);
 		else if (this.config.nullIslandEpsilon < 0) {
 			this.nullEpsilon = -this.config.nullIslandEpsilon;
-			this.warning(`Configured with a negative NullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
+			this.warning(`Configured with a negative nullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
 		}
 		else
 			this.nullEpsilon = this.config.nullIslandEpsilon;
@@ -102,5 +102,4 @@ class CheckLatLong extends CSVRuleAPI {
 		return record;
 	}
 }
-
-module.exports = CheckLatLong;	// Export this so derived classes can extend it.
+module.exports = CheckLatLong;

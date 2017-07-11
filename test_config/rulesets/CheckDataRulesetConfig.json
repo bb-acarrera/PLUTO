@@ -1,42 +1,42 @@
 {
-	"RuleSet" : {
+	"ruleset" : {
 		"name" : "Test Data RuleSet",
 		"rules" : [
 			{
-				"FileName" : "CheckColumnCount",
-				"Name" : "Validate column count",
-				"Config" : {
-					"Columns" : 9
+				"filename" : "CheckColumnCount",
+				"name" : "Validate column count",
+				"config" : {
+					"columns" : 9
 				}
 			},
 			{
-				"FileName" : "CheckLatLong",
-				"Name" : "Validate Lat & Long",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"LatitudeColumn"  : 2,
-					"LongitudeColumn" : 3
+				"filename" : "CheckLatLong",
+				"name" : "Validate Lat & Long",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"latitudeColumn"  : 2,
+					"longitudeColumn" : 3
 				}
 			},
 			{
-				"FileName" : "CheckColumnType",
-				"Name" : "Validate Population Column",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"Type" : "number",
-					"Column" : 4
+				"filename" : "CheckColumnType",
+				"name" : "Validate Population Column",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"type" : "number",
+					"column" : 4
 				}
 			}
 		],
 		"import" : {
-			"ScriptPath": "/opt/PLUTO/config/import.js",
-			"Config": {
+			"scriptPath": "/opt/PLUTO/config/import.js",
+			"config": {
 				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"ScriptPath": "/opt/PLUTO/config/export.js",
-			"Config" : {
+			"scriptPath": "/opt/PLUTO/config/export.js",
+			"config" : {
 				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
 			}
 		}

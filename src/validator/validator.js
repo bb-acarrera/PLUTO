@@ -85,7 +85,7 @@ class Validator {
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
 
-			ruleset = Util.retrieveRuleset(this.config.rulesetDirectory || this.rootDir, this.config.RuleSet, this.config.ruleSetOverride);
+			ruleset = Util.retrieveRuleset(this.config.rulesetDirectory || this.rootDir, this.config.ruleset, this.config.ruleSetOverride);
 		}
 		catch (e) {
 			this.error(e);
@@ -207,7 +207,7 @@ class Validator {
 			return;
 		}
 
-		var ruleClass = this.loadRule(ruleDescriptor.fileName, rulesDirectory);
+		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
 
 
 		// Get the rule's config.
@@ -227,7 +227,7 @@ class Validator {
 
 		// Set the validator so that the rule can report errors and such.
 		this.updateConfig(config);
-		config.name = config.name || ruleDescriptor.fileName;
+		config.name = config.name || ruleDescriptor.filename;
 		this.ruleName = config.name;
 
 		const rule = new ruleClass(config);
@@ -397,7 +397,7 @@ class Validator {
 						this.error("Export failed: " + error)	;
 					})
 				.catch((e) => {
-					this.error("Export" + importConfig.fileName + " fail unexpectedly: " + e);
+					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 				})
 				.then(() => {
 					this.saveRunRecord(runId, this.saveLog(this.inputFileName));
@@ -467,11 +467,11 @@ class Validator {
 
 	// Add some useful things to a config object.
 	updateConfig(config) {
-		config.RootDirectory = config.RootDirectory || this.rootDir;
-		config.TempDirectory = config.TempDirectory || this.tempDir;
-		config.Encoding = config.Encoding || this.encoding;
+		config.rootDirectory = config.rootDirectory || this.rootDir;
+		config.tempDirectory = config.tempDirectory || this.tempDir;
+		config.encoding = config.encoding || this.encoding;
 		config.validator = this;
-		config.SharedData = this.SharedData;
+		config.sharedData = this.sharedData;
 	}
 
 	// Create a unique temporary filename in the temp directory.
@@ -729,7 +729,6 @@ class Validator {
 				return;
 			}
 
-			this.updateConfig(exportConfig.scriptPath);
 			var exporterClass = this.loadImporterExporter(exportConfig.scriptPath);
 
 			if(!exporterClass) {
@@ -737,6 +736,7 @@ class Validator {
 				return;
 			}
 
+			this.updateConfig(exportConfig.config);
 			let exporter = new exporterClass(exportConfig.config);
 
 			if(!exporter.exportFile) {
@@ -895,8 +895,8 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 		process.exit(1);
 	}
 
-	config.RuleSet = program.ruleset || config.RuleSet;
-	if (!config.RuleSet)
+	config.ruleset = program.ruleset || config.ruleset;
+	if (!config.ruleset)
 		program.help((text) => {
 			return "A ruleset must be specified either as an argument or a property in the config. file.\n" + text;
 		});

@@ -22,8 +22,8 @@ class Util {
 				throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
 			}
 
-			if (!contents.RuleSet) {
-				throw("Ruleset file \"" + rulesetFile + "\" does not contain a RuleSet member.");
+			if (!contents.ruleset) {
+				throw("Ruleset file \"" + rulesetFile + "\" does not contain a ruleset member.");
 			}
 
 			contents.ruleset.filename = ruleset;
@@ -45,7 +45,7 @@ class Util {
 					ruleset.import = {};
 				}
 
-				Object.assign(ruleset.import.Config, contents.import);
+				Object.assign(ruleset.import.config, contents.import);
 			}
 
 			if(contents.export) {
@@ -65,7 +65,7 @@ class Util {
 	 * @param ruleDescriptor the object describing the rule.
 	 */
 	static getRuleName(ruleDescriptor) {
-		return ruleDescriptor.name || ruleDescriptor.Name || path.basename(ruleDescriptor.fileName);
+		return ruleDescriptor.name || ruleDescriptor.name || path.basename(ruleDescriptor.filename);
 	}
 
 	static getRulesets(rootDir) {

@@ -10,7 +10,7 @@ class RuleSet {
 		if (ruleset.data) {
 			this.name = ruleset.data.attributes.name;
 			this.id = ruleset.data.id || this.name;
-			this._filename = ruleset.fileName;
+			this._filename = ruleset.filename;
 			this.addRules(ruleset.data.attributes.rules);
 			this.import = ruleset.data.import;
 			this.export = ruleset.data.export
@@ -18,8 +18,8 @@ class RuleSet {
 		else {
 			this.name = ruleset.name;
 			this.id = ruleset.id || this.name;
-			this._filename = ruleset.fileName;
-			this.addRules(ruleset.rules || ruleset.Rules);
+			this._filename = ruleset.filename;
+			this.addRules(ruleset.rules || ruleset.rules);
 			this.import = ruleset.import;
 			this.export = ruleset.export;
 		}
@@ -30,8 +30,8 @@ class RuleSet {
 		for (var i = 0; i < rules.length; i++) {
 			const srcRule = rules[i];
 			const dstRule = {};
-			dstRule.config = srcRule.Config || srcRule.config;
-			dstRule.fileName = srcRule.FileName || srcRule.fileName;
+			dstRule.config = srcRule.config || srcRule.config;
+			dstRule.filename = srcRule.filename || srcRule.filename;
 			dstRule.id = srcRule.id;
 			this.rules.push(dstRule);
 		}
