@@ -272,7 +272,7 @@ class Validator {
 		// Send the output on to the next rule.
 		rule.on(BaseRuleAPI.NEXT, (data) => {
 			// The rule may have changed the file encoding.
-			this.encoding = rule.config.OutputEncoding;
+			this.encoding = rule.config.Encoding;
 
 			this.runRule(rulesDirectory, this.ruleIterator.next(), { data: data });
 		});
@@ -301,7 +301,7 @@ class Validator {
 		// Send the output on to the next rule.
 		rule.on(BaseRuleAPI.NEXT, (filename) => {
 			// The rule may have changed the file encoding.
-			this.encoding = rule.config.OutputEncoding;
+			this.encoding = rule.config.Encoding;
 
 			this.runRule(rulesDirectory, this.ruleIterator.next(), { file: filename });
 		});
@@ -330,7 +330,7 @@ class Validator {
 		// Send the output on to the next rule.
 		rule.on(BaseRuleAPI.NEXT, (stream) => {
 			// The rule may have changed the file encoding.
-			this.encoding = rule.config.OutputEncoding;
+			this.encoding = rule.config.Encoding;
 
 			this.runRule(rulesDirectory, this.ruleIterator.next(), { stream: stream });
 		});
@@ -468,7 +468,6 @@ class Validator {
 	updateConfig(config) {
 		config.RootDirectory = config.RootDirectory || this.rootDir;
 		config.TempDirectory = config.TempDirectory || this.tempDir;
-		config.OutputEncoding = config.Encoding || this.encoding;
 		config.Encoding = this.encoding;
 		config.validator = this;
 		config.SharedData = this.SharedData;
@@ -679,7 +678,7 @@ class Validator {
 	 * @private
 	 */
 	importFile(importConfig, targetFilename) {
-
+		let validator = this;
 		return new Promise((resolve, reject) => {
 			var importerClass = this.loadImporterExporter(importConfig.ScriptPath);
 
@@ -697,6 +696,8 @@ class Validator {
 			}
 
 			importer.importFile(targetFilename).then(function() {
+					// Save the encoding set by the importer.
+					validator.encoding = importConfig.Config.Encoding || 'utf8';
 					resolve();
 				}, error => {
 					reject("Importer " + importConfig.ScriptPath + " failed: " + error);
