@@ -31,12 +31,16 @@ credentials, etc. (The `config` exists in a readable file, the ruleset file, so 
 are required it is the responsibility of the author of the exporter to obfuscate credentials if necessary
 to maintain privacy.)
 
+Similarly to rules the `config` object for the exporter is updated with some useful properties. See
+[this document](ruleConfig.md) for more information.
+
 ### 2.2. exportFile(sourceFileName)
 
-`exportFile()` takes a three arguments, the fully qualified name of the local file system file that
+`exportFile()` takes three arguments, the fully qualified name of the local file system file that
 the exporter should export, the ID of the run - a unique string identifying the current run of the
 ruleset - and the run's error log in a JavaScript object. The remote, destination file should be defined by the
-`config` object passed to the constructor.
+`config` object passed to the constructor. The encoding for the exported file is in the `config.encoding`
+property.
 
 The `exportFile()` method may write the error log in any manner it chooses. For example the `errorLog`
 could be passed to [JSON.stringify()](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)

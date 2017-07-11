@@ -29,6 +29,9 @@ credentials, etc. (The `config` exists in a readable file, the ruleset file, so 
 are required it is the responsibility of the author of the importer to obfuscate credentials if necessary
 to maintain privacy.)
 
+Similarly to rules the `config` object for the importer is updated with some useful properties. See
+[this document](ruleConfig.md) for more information.
+ 
 ### 2.2. importFile(targetFileName)
 
 This method performs the actual import of the file and is called by the validator before the first rule is
@@ -41,7 +44,11 @@ the importer should write the imported file into. The remote, source file should
 It should return a [Promise](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 which imports the file calling `resolve()` when the file has been successfully written to the `targetFileName`
 and `reject()`, with a description, when an error occurs.
- 
+
+If the rule should set the `encoding` property on the `config` object to the encoding
+of the file. By default it will be 'utf8'. This allows the rules to properly handle
+the file.
+
 ## 3.0. Example
 
 This simple example of a custom importer copies a file, defined in `config` to the target location.

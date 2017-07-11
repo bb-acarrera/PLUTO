@@ -21,12 +21,11 @@ the validator places its own temporary files here.
 This is the data encoding on the input data to the rule. By default this is '`utf8`' but may be something
 else if the a previous rule has changed it or a different encoding was specified when starting the
 validator.
-  
-## 4. outputEncoding
 
-TBD: This may be going away and replaced by changing the 'encoding'.
+If a rule changes the encoding of the data for some reason it should set this property
+to the new value. This will then be shared with the following rule.
 
-## 5. sharedData
+## 4. sharedData
 
 This is data shared between rules. See the documentation on [metadata rules](metadataRules.md) for detailed
 information.
