@@ -15,7 +15,7 @@ Rules come in several types:
 - [General Rules][basic], any rules that cannot be written as a Python Rule or a CSV Rule can be written as a general rule.
 - [Metadata Rules][metadata], rules that do not operate on the data but on the data about the data.
 
-Attributes common to all rules (config settings, logging errors, SharedData, ???)
+Common Rule [configuration][config] attributes common to all rules (config settings, logging errors, SharedData, ???)
 
 Location? Where should rules be placed?
 
@@ -27,3 +27,4 @@ Location? Where should rules be placed?
 [basic]: basicRules.md
 [existing]: existingRules.md
 [metadata]: metadataRules.md
+[config]: ruleConfig.md
