@@ -688,6 +688,7 @@ class Validator {
 				return;
 			}
 
+			this.updateConfig(importConfig.Config);
 			let importer = new importerClass(importConfig.Config);
 
 			if(!importer.importFile) {
@@ -726,6 +727,7 @@ class Validator {
 				return;
 			}
 
+			this.updateConfig(exportConfig.ScriptPath);
 			var exporterClass = this.loadImporterExporter(exportConfig.ScriptPath);
 
 			if(!exporterClass) {
