@@ -40,7 +40,7 @@ valid and whether or not they can handle it.
 The ruleset override replaces properties on a default [ruleset][ruleset] allowing one ruleset file to
 be used to validate and edit many different files without changing the default ruleset file. Additionally
 it allows overriding properties on the importer and exporter used by the validator, for example,
-to use different authentication values for different files or databases.
+to use different authentication values for different files or databases or different file encodings.
   
 ## 3. Configuration File
 
