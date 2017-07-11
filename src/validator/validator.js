@@ -468,7 +468,7 @@ class Validator {
 	updateConfig(config) {
 		config.RootDirectory = config.RootDirectory || this.rootDir;
 		config.TempDirectory = config.TempDirectory || this.tempDir;
-		config.Encoding = this.encoding;
+		config.Encoding = config.Encoding || this.encoding;
 		config.validator = this;
 		config.SharedData = this.SharedData;
 	}
