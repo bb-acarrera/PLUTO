@@ -75,5 +75,9 @@ processed files are stored. This is _optional_ and defaults to the current worki
 - **LogDirectory** the folder where the error logs of processing files will be stored
 - **RunsDirectory** the folder where the processing details will be stored
 
+## 4. Running Rulesets (COMPLETE THIS!!!)
+
+Running stops immediately when a rule posts an error to the error log.
+
 [ruleset]: docs/ruleset.md
 [rules]: docs/rules.md
