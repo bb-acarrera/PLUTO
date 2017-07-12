@@ -25,7 +25,7 @@ class CheckColumnCount extends CSVRuleAPI {
 	}
 
 	processRecord(record) {
-		if (this.columns) {
+		if (this.columns !== undefined) {
 			if (record.length !== this.columns) {
 				if (this.reportAlways || !this.badColumnCountReported) {
 					this.error(`Row ${this.rowNumber} has wrong number of columns. Got ${record.length}.`);
