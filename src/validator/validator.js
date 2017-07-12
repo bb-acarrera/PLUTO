@@ -210,8 +210,22 @@ class Validator {
 
 		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
 
-		// Get the rule's config.
-		let config = ruleDescriptor.config || {};
+		// Load the default config, if it exists.
+		let suffixIndex = ruleDescriptor.filename.lastIndexOf('.');
+		var defaultConfigName;
+		if (suffixIndex > 0)
+			defaultConfigName = ruleDescriptor.filename.substring(0, suffixIndex) + "Config.json";
+		else
+			defaultConfigName = ruleDescriptor.filename + "Config.json";
+		let defaultConfigPath = path.resolve(rulesDirectory, defaultConfigName);
+
+		var defaultConfig = {};
+		if (fs.existsSync(defaultConfigPath))
+			defaultConfig = require(defaultConfigPath);
+
+		// Get the rule's config. If there isn't one use the default. The config from the ruleset file replaces
+		// the default. It does not amend it.
+		let config = ruleDescriptor.config || defaultConfig;
 		if (typeof config === 'string') {
 			try {
 				config = path.resolve(rulesDirectory, config);
