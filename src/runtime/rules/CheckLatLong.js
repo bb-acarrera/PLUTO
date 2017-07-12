@@ -25,8 +25,27 @@ class CheckLatLong extends CSVRuleAPI {
 		this.latitudeColumn = undefined;
 		if (this.config.latitudeColumn === undefined)
 			this.error(`Configured without a 'latitudeColumn' property.`);
-		else if (isNaN(this.config.latitudeColumn))
-			this.error(`Configured with a non-number latitudeColumn. Got '${this.config.latitudeColumn}'.`);
+		else if (isNaN(this.config.latitudeColumn)) {
+			if (config.sharedData && config.sharedData.columnLabels) {
+				if (config.sharedData.columnLabels.length == undefined) {
+					this.error(`Shared 'columnLabels' is not an array.`);
+					return;
+				}
+				else if (config.sharedData.columnLabels.length == 0) {
+					this.error(`Shared 'columnLabels' has no content.`);
+					return;
+				}
+
+				// Found a column label not index.
+				let index = this.config.sharedData.columnLabels.indexOf(this.config.latitudeColumn);
+				if (index < 0)
+					this.error(`Configured with a 'latitudeColumn' label '${this.config.latitudeColumn}' that is not in sharedData.columnLabels.`);
+				else
+					this.latitudeColumn = index;
+			}
+			else
+				this.error(`Configured with a non-number latitudeColumn. Got '${this.config.latitudeColumn}'.`);
+		}
 		else if (this.config.latitudeColumn < 0)
 			this.error(`Configured with a negative latitudeColumn. Got '${this.config.latitudeColumn}'.`);
 		else {
@@ -38,8 +57,27 @@ class CheckLatLong extends CSVRuleAPI {
 		this.longitudeColumn = undefined;
 		if (this.config.longitudeColumn === undefined)
 			this.error(`Configured without a 'longitudeColumn' property.`);
-		else if (isNaN(this.config.longitudeColumn))
-			this.error(`Configured with a non-number longitudeColumn. Got '${this.config.longitudeColumn}'.`);
+		else if (isNaN(this.config.longitudeColumn)) {
+			if (config.sharedData && config.sharedData.columnLabels) {
+				if (config.sharedData.columnLabels.length == undefined) {
+					this.error(`Shared 'columnLabels' is not an array.`);
+					return;
+				}
+				else if (config.sharedData.columnLabels.length == 0) {
+					this.error(`Shared 'columnLabels' has no content.`);
+					return;
+				}
+
+				// Found a column label not index.
+				let index = this.config.sharedData.columnLabels.indexOf(this.config.longitudeColumn);
+				if (index < 0)
+					this.error(`Configured with a 'longitudeColumn' label '${this.config.longitudeColumn}' that is not in sharedData.columnLabels.`);
+				else
+					this.longitudeColumn = index;
+			}
+			else
+				this.error(`Configured with a non-number longitudeColumn. Got '${this.config.longitudeColumn}'.`);
+		}
 		else if (this.config.longitudeColumn < 0)
 			this.error(`Configured with a negative longitudeColumn. Got '${this.config.longitudeColumn}'.`);
 		else {

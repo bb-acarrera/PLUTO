@@ -1,0 +1,48 @@
+{
+	"ruleset" : {
+		"name" : "Labeled Columns RuleSet",
+		"rules" : [
+			{
+				"filename" : "LabelColumns",
+				"config" : {
+					"columnLabels" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
+				}
+			},
+			{
+				"filename" : "CheckColumnCount",
+				"config" : {
+					"columns" : 9
+				}
+			},
+			{
+				"filename" : "CheckLatLong",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"latitudeColumn"  : "lat",
+					"longitudeColumn" : "lng"
+				}
+			},
+			{
+				"filename" : "CheckColumnType",
+				"name" : "Validate Population Column",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"type" : "number",
+					"column" : "pop"
+				}
+			}
+		],
+		"import" : {
+			"scriptPath": "./runtime/rules/LocalCopyImport",
+			"config": {
+				"file": "./examples/data/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"export" : {
+			"scriptPath": "./runtime/rules/LocalCopyExport",
+			"config" : {
+				"file": "./results/labeledColumnsOutput.csv"
+			}
+		}
+	}
+}

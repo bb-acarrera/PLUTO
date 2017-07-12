@@ -31,8 +31,7 @@ class CheckColumnType extends CSVRuleAPI {
 					else {
 						const regex = new RegExp(this.config.regex);
 						this.test = function (datum) {
-							var x = regex.test(datum);
-							return x;
+							return regex.test(datum);
 						}
 					}
 					break;
@@ -60,8 +59,27 @@ class CheckColumnType extends CSVRuleAPI {
 		this.column = undefined;
 		if (this.config.column === undefined)
 			this.error(`Configured without a 'column' property.`);
-		else if (isNaN(this.config.column))
-			this.error(`Configured with a non-number column. Got '${this.config.column}'.`);
+		else if (isNaN(this.config.column)) {
+			if (config.sharedData && config.sharedData.columnLabels) {
+				if (config.sharedData.columnLabels.length == undefined) {
+					this.error(`Shared 'columnLabels' is not an array.`);
+					return;
+				}
+				else if (config.sharedData.columnLabels.length == 0) {
+					this.error(`Shared 'columnLabels' has no content.`);
+					return;
+				}
+
+				// Found a column label not index.
+				let index = this.config.sharedData.columnLabels.indexOf(this.config.column);
+				if (index < 0)
+					this.error(`Configured with a column label '${this.config.column}' that is not in sharedData.columnLabels.`);
+				else
+					this.column = index;
+			}
+			else
+				this.error(`Configured with a non-number column. Got '${this.config.column}'.`);
+		}
 		else if (this.config.column < 0)
 			this.error(`Configured with a negative column. Got '${this.config.column}'.`);
 		else {

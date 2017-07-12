@@ -6,11 +6,11 @@ class LabelColumns extends MetadataRuleAPI {
 	}
 
 	updateMetadata() {
-		const sharedData = config.sharedData;
+		const sharedData = this.config.sharedData;
 		if (!sharedData)
 			return;
 
-		sharedData.columnLabels = config.columnLabels;
+		sharedData.columnLabels = this.config.columnLabels;
 	}
 }
 
