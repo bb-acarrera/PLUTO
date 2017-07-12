@@ -127,6 +127,8 @@ class Validator {
 			this.importFile(ruleset.import, this.inputFileName).then( () => {
 					try {
 						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+						if (!ruleset.rules || ruleset.rules.length == 0)
+							this.finishRun({file:this.inputFileName});	// If there are rules this will have been run asynchronously after the last run was run.
 					}
 					catch (e) {
 						this.error("Ruleset \"" + this.ruleSetName + "\" failed.\n\t" + e);
@@ -198,7 +200,6 @@ class Validator {
 		if (!ruleDescriptor || this.shouldAbort) {	// "shouldAbort" is set in the "log" method.
 			// No more rules, so done.
 			this.finishRun(lastResult);
-			console.log("Done.");
 
 
 			//TODO: track down why the process is still active when we hit this point in debugger
@@ -208,7 +209,6 @@ class Validator {
 		}
 
 		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
-
 
 		// Get the rule's config.
 		let config = ruleDescriptor.config || {};
@@ -402,15 +402,18 @@ class Validator {
 				.then(() => {
 					this.saveRunRecord(runId, this.saveLog(this.inputFileName));
 					this.cleanup();
+					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
 			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
 			this.cleanup();
+			console.log("Done.");
 		}
 		else {
 			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
 			this.cleanup();
+			console.log("Done.");
 		}
 
 	}

@@ -27,6 +27,9 @@ class RuleSet {
 
 	addRules(rules) {
 		this.rules = [];
+		if (!rules)
+			return;
+
 		for (var i = 0; i < rules.length; i++) {
 			const srcRule = rules[i];
 			const dstRule = {};
