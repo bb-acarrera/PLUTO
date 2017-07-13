@@ -20,24 +20,23 @@ class CheckColumnType extends CSVRuleAPI {
 						return typeof datum === 'string'
 					};
 					break;
+				case 'float':
 				case 'number':
 					this.test = function (datum) {
 						return !isNaN(datum);
 					}
 					break;
-				case 'regex': {
-					if (!this.config.regex)
-						this.error(`Type is 'regex' but no 'regex' property defined'.`);
-					else {
-						const regex = new RegExp(this.config.regex);
-						this.test = function (datum) {
-							return regex.test(datum);
-						}
+				case 'integer':
+					this.test = function (datum) {
+						if (isNaN(datum))
+							return false;
+						let i = parseInt(datum);		// parseInt("1.2") returns 1 so we need to go further to confirm
+						let f = parseFloat(datum);		// the value is an int. So also parseFloat() and check they are
+						return i == f;					// the same.
 					}
 					break;
-				}
 				default:
-					this.error(`Configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got '${config.type}'.`);
+					this.error(`Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got '${config.type}'.`);
 					break;
 			}
 		}

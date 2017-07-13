@@ -35,22 +35,7 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 	assert.equal(logResults[0].description,
-		"Configured with an unrecognized data type. Expected 'string', 'number', or 'regex' but got 'foo'.");
-});
-
-QUnit.test( "CheckColumnType: Check Incomplete RegEx Type Property Test", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"type" : "regex"
-	};
-
-	const rule = new CheckColumnType(config);
-
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Type is 'regex' but no 'regex' property defined'.");
+		"Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got 'foo'.");
 });
 
 QUnit.test( "CheckColumnType: Check For Absent NumberOfHeaderRows property", function( assert ) {
@@ -257,12 +242,11 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 	rule.useMethod(data);
 });
 
-QUnit.test( "CheckColumnType: Check For Failing RegEx Column Value", function( assert ) {
+QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"type" : "regex",
-		"regex" : "a+",
+		"type" : "float",
 		"numberOfHeaderRows" : 1,
 		"column" : 0
 	};
@@ -275,21 +259,20 @@ QUnit.test( "CheckColumnType: Check For Failing RegEx Column Value", function( a
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a regex but got bbbb.");
+			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a float but got foo.");
 		}
 		done();
 	});
 
-	const data = "Column 0\nbbbb";
+	const data = "Column 0\nfoo";
 	rule.useMethod(data);
 });
 
-QUnit.test( "CheckColumnType: Check For Passing RegEx Column Value", function( assert ) {
+QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"type" : "regex",
-		"regex" : "a+",
+		"type" : "float",
 		"numberOfHeaderRows" : 1,
 		"column" : 0
 	};
@@ -303,6 +286,102 @@ QUnit.test( "CheckColumnType: Check For Passing RegEx Column Value", function( a
 		done();
 	});
 
-	const data = "Column 0\naaaa";
+	const data = "Column 0\n3.14";
+	rule.useMethod(data);
+});
+
+QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"type" : "float",
+		"numberOfHeaderRows" : 1,
+		"column" : 0
+	};
+
+	const rule = new CheckColumnType(config);
+
+	const done = assert.async();
+	rule.on(RuleAPI.NEXT, (data) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		done();
+	});
+
+	const data = "Column 0\n3";
+	rule.useMethod(data);
+});
+
+QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"type" : "integer",
+		"numberOfHeaderRows" : 1,
+		"column" : 0
+	};
+
+	const rule = new CheckColumnType(config);
+
+	const done = assert.async();
+	rule.on(RuleAPI.NEXT, (data) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
+		if (logResults.length == 1) {
+			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a integer but got foo.");
+		}
+		done();
+	});
+
+	const data = "Column 0\nfoo";
+	rule.useMethod(data);
+});
+
+QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"type" : "integer",
+		"numberOfHeaderRows" : 1,
+		"column" : 0
+	};
+
+	const rule = new CheckColumnType(config);
+
+	const done = assert.async();
+	rule.on(RuleAPI.NEXT, (data) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
+		if (logResults.length == 1) {
+			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a integer but got 3.14.");
+		}
+		done();
+	});
+
+	const data = "Column 0\n3.14";
+	rule.useMethod(data);
+});
+
+QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"type" : "integer",
+		"numberOfHeaderRows" : 1,
+		"column" : 0
+	};
+
+	const rule = new CheckColumnType(config);
+
+	const done = assert.async();
+	rule.on(RuleAPI.NEXT, (data) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		done();
+	});
+
+	const data = "Column 0\n3";
 	rule.useMethod(data);
 });
