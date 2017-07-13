@@ -1,5 +1,5 @@
 const BaseRouter = require('./baseRouter');
-const Util = require('../../utilities/Util');
+const Util = require('../../common/Util');
 
 class RunsRouter extends BaseRouter {
     constructor(config) {
@@ -13,7 +13,7 @@ class RunsRouter extends BaseRouter {
         // that these two root directories are the same.
 
         if(req.params.id) {
-            const runInfo = this.config.validator.getRun(req.params.id);
+            const runInfo = this.config.data.getRun(req.params.id);
             if (!runInfo)
                 return next(new Error(`Unable to retrieve the run '${req.params.id}'.`));
 
@@ -26,11 +26,11 @@ class RunsRouter extends BaseRouter {
                 }
             });
         } else {
-            const runs = this.config.validator.getRuns();
+            const runs = this.config.data.getRuns();
             var data = [];
 
             runs.forEach(runId => {
-                const runInfo = this.config.validator.getRun(runId);
+                const runInfo = this.config.data.getRun(runId);
                 //var run = Object.assign({id: runId}, runInfo);
                 var run = {
                     id: runId,

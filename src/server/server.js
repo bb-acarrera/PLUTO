@@ -11,7 +11,8 @@ const Router = require("./router");
 
 const version = '0.1'; //require("../../package.json").version;
 
-const Util = require('../utilities/Util');
+const Util = require('../common/Util');
+const Data = require('../common/dataFs');
 
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {
@@ -27,6 +28,8 @@ class Server {
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
 		this.router = new Router(config);
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.AssetsDirectory || "public");
+
+		this.config.data = Data(this.config.validatorConfig);
 
 		// app.use(bodyParser.json()); // for parsing application/json
 		app.use(bodyParser.json());

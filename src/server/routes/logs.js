@@ -1,5 +1,6 @@
 const BaseRouter = require('./baseRouter');
-const Util = require('../../utilities/Util');
+const Util = require('../../common/Util');
+
 
 class LogsRouter extends BaseRouter {
 	constructor(config) {
@@ -11,9 +12,11 @@ class LogsRouter extends BaseRouter {
 		// The server's root directory points to the client code while the validator's root
 		// directory points to rulesets, rule plugins and such. It can be configured such
 		// that these two root directories are the same.
-		const log = this.config.validator.getLog(req.params.id);
-		if (!log)
-			return next(new Error(`Unable to retrieve the log '${req.params.id}'.`));
+		const log = this.config.data.getLog(req.params.id);
+		if (!log) {
+			throw new Error(`Unable to retrieve the log '${req.params.id}'.`);
+		}
+
 
 		var relationshipLogReports = [];
 		var includedReports = [];
