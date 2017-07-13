@@ -10,7 +10,8 @@ const stream = require('stream');
 const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
 const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
 
-const Util = require("../utilities/Util");
+const Util = require("../common/Util");
+const Data = require("../common/dataFs");
 
 const ErrorLogger = require("./ErrorLogger");
 const MemoryWriterStream = require("../runtime/utilities/MemoryWriterStream");
@@ -32,6 +33,8 @@ class Validator {
 	constructor(config) {
 		this.config = config || {};
 
+		this.data = Data(this.config);
+
 		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
@@ -48,15 +51,13 @@ class Validator {
 		if (this.config.RulesDirectory)
 			this.config.RulesDirectory = path.resolve(this.rootDir, this.config.RulesDirectory);
 		else
-			this.config.RulesDirectory = this.config.RulesetDirectory;	// By default rules live with the rulesets.
+			this.config.RulesDirectory = path.resolve('runtime/rulesets');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.RulesDirectory))
 			throw "Failed to find RulesDirectory \"" + this.config.RulesDirectory + "\".\n";
 
 		this.inputDirectory  = path.resolve(this.rootDir, this.config.InputDirectory || "");
 		this.outputDirectory = path.resolve(this.rootDir, this.config.OutputDirectory);
-		this.logDirectory = path.resolve(this.rootDir, this.config.LogDirectory);
-		this.runsDirectory = path.resolve(this.rootDir, this.config.RunsDirectory);
 
 		if (!fs.existsSync(this.outputDirectory))
 			fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
@@ -84,7 +85,7 @@ class Validator {
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
 
-			ruleset = Util.retrieveRuleset(this.config.RulesetDirectory || this.rootDir, this.config.RuleSet, this.config.RuleSetOverride);
+			ruleset = this.data.retrieveRuleset(this.config.RuleSet, this.config.RuleSetOverride);
 		}
 		catch (e) {
 			this.error(e);
@@ -95,7 +96,7 @@ class Validator {
 		if (ruleset.rulesDirectory)
 			rulesDirectory = path.resolve(this.config.RulesetDirectory, ruleset.rulesDirectory);
 		else
-			rulesDirectory = this.config.RulesDirectory || this.config.RulesetDirectory;
+			rulesDirectory = this.config.RulesDirectory;
 
 
 
@@ -399,51 +400,22 @@ class Validator {
 					this.error("Export" + importConfig.FileName + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.saveRunRecord(runId, this.saveLog(this.inputFileName));
+					this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+						this.RuleSetName, this.inputFileName, this.outputFileName);
 					this.cleanup();
 				});
 		} else if (results) {
 			this.saveResults(results);
-			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
+			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+				this.RuleSetName, this.inputFileName, this.outputFileName);
 			this.cleanup();
 		}
 		else {
-			this.saveRunRecord(runId, this.saveLog(this.inputFileName));
+			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+				this.RuleSetName, this.inputFileName, this.outputFileName);
 			this.cleanup();
 		}
 
-	}
-
-	/**
-	 * This method saves record which is used by the client code to reference files for any particular run.
-	 * @param runId the unique ID of the run.
-	 * @param logName the name of the log file
-	 * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
-	 * @private
-	 */
-	saveRunRecord(runId, logName) {
-		try {
-			if (!fs.existsSync(this.runsDirectory))
-				fs.mkdirSync(this.runsDirectory);	// Make sure the logDirectory exists.
-		}
-		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-			throw e;
-		}
-
-		const run = {
-			id: runId,
-			log: logName,
-			ruleset: this.RuleSetName,
-			inputfilename: this.inputFileName,
-			outputfilename: this.outputFileName,
-			time: new Date()
-		};
-
-
-		fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
-
-		return run;
 	}
 
 	/**
@@ -493,39 +465,7 @@ class Validator {
 		return fs.readFileSync(path.resolve(this.inputDirectory, filename), encoding || 'utf8');
 	}
 
-	/**
-	 * This file saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
-	 * taken from the ruleset's 'filename' property with '.json' appended to it by this function and if a file with
-	 * that name already exists it will be overwritten. The file is written using 'utf8'.
-	 * @param ruleset the ruleset to write.
-	 * @private
-	 */
-	saveRuleSet(ruleset) {
-		fs.writeFileSync(path.resolve(this.config.RulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
-	}
 
-	/**
-	 * This method is used by the application to save the log of results for the given file synchronously.
-	 * @param filename {string} the name of the file to save.
-	 * @throws Throws an error if the directory cannot be found or the file saved.
-	 * @private
-	 */
-	saveLog(filename) {
-		try {
-			if (!fs.existsSync(this.logDirectory))
-				fs.mkdirSync(this.logDirectory);	// Make sure the logDirectory exists.
-		}
-		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.logDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-			throw e;
-		}
-
-		const basename = path.basename(filename, path.extname(filename)) + '_' + Util.getCurrentDateTimeString() + ".log.json";
-
-		fs.writeFileSync(path.resolve(this.logDirectory, basename), JSON.stringify(this.logger.getLog()), 'utf8');
-
-		return basename;
-	}
 
 	/**
 	 * This method is used by the application to save the given file synchronously.
@@ -606,70 +546,9 @@ class Validator {
 		fs.copySync(path.resolve(this.inputDirectory, remoteFileName), localFileName);
 	}
 
-	/**
-	 * This method is used by the application to get an in-memory copy of a log file managed by
-	 * the plugin.
-	 * @param logFileName {string} the name of the log file to retrieve.
-	 * @returns {string} the contents of the log file.
-	 * @throws Throws an error if the copy cannot be completed successfully.
-	 * @private
-	 */
-	getLog(logFileName) {
-		const logfile = path.resolve(this.logDirectory, logFileName);
-		var log;
-		if (fs.existsSync(logfile)) {
-			const contents = fs.readFileSync(logfile, 'utf8');
-			try {
-				log = JSON.parse(contents);
-			}
-			catch (e) {
-				console.log(`Failed to load ${configName}. Attempt threw:\n${e}\n`);
-			}
-		}
-		return log;
-	}
 
-	/**
-	 * This method is used by the application to get an in-memory copy of a run managed by
-	 * the plugin.
-	 * @param runFileName {string} the name of the run file to retrieve.
-	 * @returns {string} the contents of the run file.
-	 * @throws Throws an error if the copy cannot be completed successfully.
-	 * @private
-	 */
-	getRun(runFileName) {
-		const runfile = path.resolve(this.runsDirectory, runFileName);
-		var run;
-		if (fs.existsSync(runfile)) {
-			const contents = fs.readFileSync(runfile, 'utf8');
-			try {
-				run = JSON.parse(contents);
-			}
-			catch (e) {
-				console.log(`Failed to load ${configName}. Attempt threw:\n${e}\n`);
-			}
-		}
-		return run;
-	}
 
-	/**
-	 * This method is used by the application to get an in-memory copy of all runs managed by
-	 * the plugin.
-	 * @returns {array} list of the run file.
-	 * @private
-	 */
-	getRuns() {
 
-		var runs = [];
-
-		fs.readdirSync(this.runsDirectory).forEach(file => {
-			if(file.substr(file.length-8) === 'run.json') {
-				runs.push(file);
-			}
-		});
-
-		return runs;
-	}
 
 	/**
 	 * This method return a Promise that loads an importer plugin and then uses that plugin to import a file.

@@ -1,6 +1,6 @@
 const BaseRouter = require('./baseRouter');
 const RuleSet = require('../../validator/RuleSet');
-const Util = require('../../utilities/Util');
+const Util = require('../../common/Util');
 
 
 class RulesetRouter extends BaseRouter {
@@ -15,7 +15,7 @@ class RulesetRouter extends BaseRouter {
 		// that these two root directories are the same.
 
 		if(req.params.id) {
-			const ruleset = Util.retrieveRuleset(this.config.validator.config.RulesetDirectory, req.params.id);
+			const ruleset = this.config.data.retrieveRuleset(req.params.id);
 			if (!ruleset)
 				return next(new Error("Unable to find ruleset."));
 
@@ -60,7 +60,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 		const ruleset = new RuleSet(req.body);
-		this.config.validator.saveRuleSet(ruleset);
+		this.config.data.saveRuleSet(ruleset);
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
 
