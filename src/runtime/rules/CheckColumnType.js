@@ -42,51 +42,8 @@ class CheckColumnType extends CSVRuleAPI {
 		}
 
 		this.rowNumber = 0;
-		this.numHeaderRows = 0;
-		if (!this.config.numberOfHeaderRows)
-			this.warning(`Configured without a 'NumberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
-		else if (isNaN(this.config.numberOfHeaderRows))
-			this.warning(`Configured with a non-number NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		else if (this.config.numberOfHeaderRows < 0)
-			this.warning(`Configured with a negative NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		else {
-			this.numHeaderRows = Math.floor(parseFloat(this.config.numberOfHeaderRows));
-			if (!Number.isInteger(parseFloat(this.config.numberOfHeaderRows)))
-				this.warning(`Configured with a non-integer NumberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		}
-
-		this.column = undefined;
-		if (this.config.column === undefined)
-			this.error(`Configured without a 'column' property.`);
-		else if (isNaN(this.config.column)) {
-			if (config.sharedData && config.sharedData.columnLabels) {
-				if (config.sharedData.columnLabels.length == undefined) {
-					this.error(`Shared 'columnLabels' is not an array.`);
-					return;
-				}
-				else if (config.sharedData.columnLabels.length == 0) {
-					this.error(`Shared 'columnLabels' has no content.`);
-					return;
-				}
-
-				// Found a column label not index.
-				let index = this.config.sharedData.columnLabels.indexOf(this.config.column);
-				if (index < 0)
-					this.error(`Configured with a column label '${this.config.column}' that is not in sharedData.columnLabels.`);
-				else
-					this.column = index;
-			}
-			else
-				this.error(`Configured with a non-number column. Got '${this.config.column}'.`);
-		}
-		else if (this.config.column < 0)
-			this.error(`Configured with a negative column. Got '${this.config.column}'.`);
-		else {
-			this.column = Math.floor(parseFloat(this.config.column));
-			if (!Number.isInteger(parseFloat(this.config.column)))
-				this.warning(`Configured with a non-integer column. Got '${this.config.column}', using ${this.column}.`);
-		}
-
+		this.numHeaderRows = this.getValidatedHeaderRows();
+		this.column = this.getValidatedColumnProperty();
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.ReportAlways || true;	// Should every occurrence be reported?
 	}

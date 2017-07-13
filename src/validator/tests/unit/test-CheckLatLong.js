@@ -45,7 +45,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number NumberOfHeaderRows", function( a
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-number numberOfHeaderRows. Got 'foo', using 0.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'numberOfHeaderRows'. Got 'foo', using 0.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative NumberOfHeaderRows", function( assert ) {
@@ -60,7 +60,7 @@ QUnit.test( "CheckLatLong: Check For Negative NumberOfHeaderRows", function( ass
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a negative numberOfHeaderRows. Got '-1', using 0.");
+	assert.equal(logResults[0].description, "Configured with a negative 'numberOfHeaderRows'. Got '-1', using 0.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
@@ -75,7 +75,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer NumberOfHeaderRows", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer numberOfHeaderRows. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'numberOfHeaderRows'. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckLatLong: Check For Absent LatitudeColumn Property", function( assert ) {
@@ -106,7 +106,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number LatitudeColumn Property", functi
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number latitudeColumn. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'latitudeColumn'. Got 'foo'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function( assert ) {
@@ -122,7 +122,7 @@ QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative latitudeColumn. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative 'latitudeColumn'. Got '-1'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", function( assert ) {
@@ -138,7 +138,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", funct
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer latitudeColumn. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'latitudeColumn'. Got '1.1', using 1.");
 });
 
 
@@ -172,7 +172,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", funct
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number longitudeColumn. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'longitudeColumn'. Got 'foo'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", function( assert ) {
@@ -189,7 +189,7 @@ QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", functio
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative longitudeColumn. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative 'longitudeColumn'. Got '-1'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", function( assert ) {
@@ -206,7 +206,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", func
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer longitudeColumn. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'longitudeColumn'. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Property Values", function( assert ) {
@@ -320,10 +320,14 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 	rule.on(RuleAPI.NEXT, (data) => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 2, `Expected two errors but got ${logResults.length}.`);
-		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Latitude is not a number in row 1. Got 'foo'.");
-		assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[1].description, "Longitude is not a number in row 1. Got 'bar'.");
+		if (logResults.length >= 1) {
+			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+			assert.equal(logResults[0].description, "Latitude is not a number in row 1. Got 'foo'.");
+			if (logResults.length >= 2) {
+				assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
+				assert.equal(logResults[1].description, "Longitude is not a number in row 1. Got 'bar'.");
+			}
+		}
 		done();
 	});
 
@@ -347,14 +351,22 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 	rule.on(RuleAPI.NEXT, (data) => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 4, `Expected four errors but got ${logResults.length}.`);
-		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Latitude is out of range in row 1. Got '-91'.");
-		assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[1].description, "Longitude is out of range in row 1. Got '-200'.");
-		assert.equal(logResults[2].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[2].description, "Latitude is out of range in row 2. Got '91'.");
-		assert.equal(logResults[3].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[3].description, "Longitude is out of range in row 2. Got '200'.");
+		if (logResults.length >= 1) {
+			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+			assert.equal(logResults[0].description, "Latitude is out of range in row 1. Got '-91'.");
+			if (logResults.length >= 2) {
+				assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
+				assert.equal(logResults[1].description, "Longitude is out of range in row 1. Got '-200'.");
+				if (logResults.length >= 3) {
+					assert.equal(logResults[2].type, "Error", "Expected an 'Error'.");
+					assert.equal(logResults[2].description, "Latitude is out of range in row 2. Got '91'.");
+					if (logResults.length >= 4) {
+						assert.equal(logResults[3].type, "Error", "Expected an 'Error'.");
+						assert.equal(logResults[3].description, "Longitude is out of range in row 2. Got '200'.");
+					}
+				}
+			}
+		}
 		done();
 	});
 

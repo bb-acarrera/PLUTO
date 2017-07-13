@@ -6,72 +6,21 @@ class MoveColumn extends CSVRuleAPI {
 
 		this.rowNumber = 0;
 
-		this.column = undefined;
-		if (!this.config)
-			this.error('No configuration specified.');
-		else if (this.config.column === undefined)
-			this.error("Configured without a 'column' property.");
-		else if (isNaN(this.config.column)) {
-			if (config.sharedData && config.sharedData.columnLabels) {
-				if (config.sharedData.columnLabels.length == undefined) {
-					this.error(`Shared 'columnLabels' is not an array.`);
-					return;
-				}
-				else if (config.sharedData.columnLabels.length == 0) {
-					this.error(`Shared 'columnLabels' has no content.`);
-					return;
-				}
-
-				// Found a column label not index.
-				let index = this.config.sharedData.columnLabels.indexOf(this.config.column);
-				if (index < 0)
-					this.error(`Configured with a 'column' label '${this.config.column}' that is not in sharedData.columnLabels.`);
-				else
-					this.column = index;
-			}
-			else
-				this.error(`Configured with a non-number 'column'. Got '${this.config.column}'.`);
-		}
-		else if (this.config.column < 0)
-			this.error(`Configured with a negative 'column'. Got '${config.column}'.`);
-		else if (!Number.isInteger(parseFloat(this.config.column)))
-			this.error(`Configured with a non-integer 'column'. Got '${config.column}'.`);
-		else
-			this.column = parseFloat(this.config.column);
-
-		let newLocation = this.config.before || this.config.after || undefined;
-		let moveType = this.config.before ? "before" : (this.config.after ? "after" : undefined);
-		if (newLocation === undefined)
-			this.error("Configured without a 'before' or 'after' property.");
-		else if (this.config.before && this.config.after)
+		this.column = this.getValidatedColumnProperty();
+		var newLocation = undefined;
+		if (this.config.before && this.config.after) {
 			this.error("Configured with both a 'before' and an 'after' property.");
-		else if (isNaN(newLocation)) {
-			if (config.sharedData && config.sharedData.columnLabels) {
-				if (config.sharedData.columnLabels.length == undefined) {
-					this.error(`Shared 'columnLabels' is not an array.`);
-					return;
-				}
-				else if (config.sharedData.columnLabels.length == 0) {
-					this.error(`Shared 'columnLabels' has no content.`);
-					return;
-				}
-
-				// Found a column label not index.
-				let index = this.config.sharedData.columnLabels.indexOf(newLocation);
-				if (index < 0)
-					this.error(`Configured with a ${moveType} column label '${newLocation}' that is not in sharedData.columnLabels.`);
-				else
-					newLocation = index;
-			}
-			else
-				this.error(`Configured with a non-number '${moveType}' column. Got '${newLocation}'.`);
+			return;
 		}
-		else if (newLocation < 0)
-			this.error(`Configured with a negative '${moveType}' column. Got '${newLocation}'.`);
-		else if (!Number.isInteger(parseFloat(newLocation)))
-			this.error(`Configured with a non-integer '${moveType}' column. Got '${newLocation}'.`);
-		else
-			newLocation = parseFloat(newLocation);
+		else if (this.config.before)
+			newLocation = this.getValidatedColumnProperty(this.config.before, 'before');
+		else if (this.config.after)
+			newLocation = this.getValidatedColumnProperty(this.config.after, 'after');
+		else {
+			this.error("Configured without a 'before' or 'after' property.");
+			return;
+		}
+		let moveType = this.config.before ? "before" : (this.config.after ? "after" : undefined);
 
 		if (newLocation == this.column)
 			this.error("Can't move a column relative to itself.");

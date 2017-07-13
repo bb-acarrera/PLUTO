@@ -50,7 +50,7 @@ QUnit.test( "CheckColumnType: Check For Absent NumberOfHeaderRows property", fun
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured without a 'NumberOfHeaderRows' property. Using 0.");
+	assert.equal(logResults[0].description, "Configured without a 'numberOfHeaderRows' property. Using 0.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Number NumberOfHeaderRows", function( assert ) {
@@ -66,7 +66,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number NumberOfHeaderRows", function
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-number NumberOfHeaderRows. Got 'foo', using 0.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'numberOfHeaderRows'. Got 'foo', using 0.");
 });
 
 QUnit.test( "CheckColumnType: Check For Negative NumberOfHeaderRows", function( assert ) {
@@ -82,7 +82,7 @@ QUnit.test( "CheckColumnType: Check For Negative NumberOfHeaderRows", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a negative NumberOfHeaderRows. Got '-1', using 0.");
+	assert.equal(logResults[0].description, "Configured with a negative 'numberOfHeaderRows'. Got '-1', using 0.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
@@ -98,7 +98,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer NumberOfHeaderRows", functio
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer NumberOfHeaderRows. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'numberOfHeaderRows'. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckColumnType: Check For Absent column Property", function( assert ) {
@@ -131,7 +131,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number column Property", function( a
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number column. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'column'. Got 'foo'.");
 });
 
 QUnit.test( "CheckColumnType: Check For Negative column Property", function( assert ) {
@@ -148,7 +148,7 @@ QUnit.test( "CheckColumnType: Check For Negative column Property", function( ass
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative column. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative 'column'. Got '-1'.");
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( assert ) {
@@ -165,7 +165,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer column. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
 });
 
 QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {

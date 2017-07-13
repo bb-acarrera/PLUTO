@@ -33,7 +33,7 @@ class BaseRuleAPI extends EventEmitter {
 	constructor(localConfig) {
 		super();
 
-		this.config = localConfig;
+		this.config = localConfig || {};
 	}
 
 	/**

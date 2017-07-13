@@ -9,84 +9,12 @@ class CheckLatLong extends CSVRuleAPI {
 			return;	// Might as well give up...
 		}
 
-		this.numHeaderRows = 0;
-		if (this.config.numberOfHeaderRows === undefined)
-			this.warning(`Configured without a 'numberOfHeaderRows' property. Using ${this.numHeaderRows}.`);
-		else if (isNaN(this.config.numberOfHeaderRows))
-			this.warning(`Configured with a non-number numberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		else if (this.config.numberOfHeaderRows < 0)
-			this.warning(`Configured with a negative numberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		else {
-			this.numHeaderRows = Math.floor(parseFloat(this.config.numberOfHeaderRows));
-			if (!Number.isInteger(parseFloat(this.config.numberOfHeaderRows)))
-				this.warning(`Configured with a non-integer numberOfHeaderRows. Got '${this.config.numberOfHeaderRows}', using ${this.numHeaderRows}.`);
-		}
+		this.numHeaderRows = this.getValidatedHeaderRows();
 
-		this.latitudeColumn = undefined;
-		if (this.config.latitudeColumn === undefined)
-			this.error(`Configured without a 'latitudeColumn' property.`);
-		else if (isNaN(this.config.latitudeColumn)) {
-			if (config.sharedData && config.sharedData.columnLabels) {
-				if (config.sharedData.columnLabels.length == undefined) {
-					this.error(`Shared 'columnLabels' is not an array.`);
-					return;
-				}
-				else if (config.sharedData.columnLabels.length == 0) {
-					this.error(`Shared 'columnLabels' has no content.`);
-					return;
-				}
+		this.latitudeColumn = this.getValidatedColumnProperty(this.config.latitudeColumn, 'latitudeColumn');
+		this.longitudeColumn = this.getValidatedColumnProperty(this.config.longitudeColumn, 'longitudeColumn');
 
-				// Found a column label not index.
-				let index = this.config.sharedData.columnLabels.indexOf(this.config.latitudeColumn);
-				if (index < 0)
-					this.error(`Configured with a 'latitudeColumn' label '${this.config.latitudeColumn}' that is not in sharedData.columnLabels.`);
-				else
-					this.latitudeColumn = index;
-			}
-			else
-				this.error(`Configured with a non-number latitudeColumn. Got '${this.config.latitudeColumn}'.`);
-		}
-		else if (this.config.latitudeColumn < 0)
-			this.error(`Configured with a negative latitudeColumn. Got '${this.config.latitudeColumn}'.`);
-		else {
-			this.latitudeColumn = Math.floor(parseFloat(this.config.latitudeColumn));
-			if (!Number.isInteger(parseFloat(this.config.latitudeColumn)))
-				this.warning(`Configured with a non-integer latitudeColumn. Got '${this.config.latitudeColumn}', using ${this.latitudeColumn}.`);
-		}
-
-		this.longitudeColumn = undefined;
-		if (this.config.longitudeColumn === undefined)
-			this.error(`Configured without a 'longitudeColumn' property.`);
-		else if (isNaN(this.config.longitudeColumn)) {
-			if (config.sharedData && config.sharedData.columnLabels) {
-				if (config.sharedData.columnLabels.length == undefined) {
-					this.error(`Shared 'columnLabels' is not an array.`);
-					return;
-				}
-				else if (config.sharedData.columnLabels.length == 0) {
-					this.error(`Shared 'columnLabels' has no content.`);
-					return;
-				}
-
-				// Found a column label not index.
-				let index = this.config.sharedData.columnLabels.indexOf(this.config.longitudeColumn);
-				if (index < 0)
-					this.error(`Configured with a 'longitudeColumn' label '${this.config.longitudeColumn}' that is not in sharedData.columnLabels.`);
-				else
-					this.longitudeColumn = index;
-			}
-			else
-				this.error(`Configured with a non-number longitudeColumn. Got '${this.config.longitudeColumn}'.`);
-		}
-		else if (this.config.longitudeColumn < 0)
-			this.error(`Configured with a negative longitudeColumn. Got '${this.config.longitudeColumn}'.`);
-		else {
-			this.longitudeColumn = Math.floor(parseFloat(this.config.longitudeColumn));
-			if (!Number.isInteger(parseFloat(this.config.longitudeColumn)))
-				this.warning(`Configured with a non-integer longitudeColumn. Got '${this.config.longitudeColumn}', using ${this.longitudeColumn}.`);
-		}
-
-		if (this.latitudeColumn === this.longitudeColumn)
+		if (this.latitudeColumn && this.latitudeColumn === this.longitudeColumn)
 			this.error(`Configured with identical latitudeColumn and longitudeColumn property values.`);
 
 		this.nullEpsilon = 0.01;
@@ -108,7 +36,7 @@ class CheckLatLong extends CSVRuleAPI {
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 	}
 
-        processRecord(record) {
+	processRecord(record) {
 		if (this.latitudeColumn !== undefined && this.longitudeColumn !== undefined && this.rowNumber >= this.numHeaderRows) {
 			if (this.latitudeColumn >= record.length || this.longitudeColumn >= record.length) {
 				if (this.reportAlways || !this.badColumnCountReported) {
