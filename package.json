@@ -5,10 +5,11 @@
   "main": "server.js",
   "scripts": {
     "test": "sh build/bin/runUnitTests.sh",
-    "docker_build" : "docker build -t pluto:develop .",
-    "docker_run" : "docker run -v $(pwd)/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto:develop",
+    "docker_build": "docker build -t pluto:develop .",
+    "docker_run": "docker run -v $(pwd)/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto:develop",
     "docker_run_bash": "docker run -v $(pwd)/test_config:/opt/PLUTO/config -p 3000:3000 -ti pluto:develop /bin/sh",
-    "docker_save": "docker save --output pluto.image.tar pluto:develop"
+    "docker_save": "docker save --output pluto.image.tar pluto:develop",
+    "start": "supervisor ./server/server -s ./src/server/debugServerConfig.json -v ./src/runtime/configs/validatorConfig.json"
   },
   "repository": {
     "type": "git",
@@ -26,10 +27,12 @@
     "csv": "^1.1.1",
     "express": "^4.15.2",
     "fs-extra": "^3.0.1",
+    "pg": "^6.4.0",
     "rimraf": "^2.6.1"
   },
   "devDependencies": {
     "jsdoc": "^3.4.3",
-    "qunitjs": "^2.3.2"
+    "qunitjs": "^2.3.2",
+    "supervisor": "^0.12.0"
   }
 }

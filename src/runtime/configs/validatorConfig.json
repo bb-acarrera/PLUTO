@@ -6,5 +6,10 @@
 	"InputDirectory" : "data",
 	"OutputDirectory" : "results",
 	"LogDirectory" : "results/logs",
-	"RunsDirectory" : "results/runs"
+	"RunsDirectory" : "results/runs",
+	"dbUser" : "pluto",
+	"dbPassword" : "password",
+	"dbDatabase" : "pluto",
+	"dbHost" : "localhost",
+	"dbPort" : "6543"
 }
