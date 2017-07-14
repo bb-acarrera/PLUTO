@@ -6,17 +6,12 @@ class LabelColumns extends MetadataRuleAPI {
 	}
 
 	updateMetadata() {
-		const sharedData = config.SharedData;
+		const sharedData = this.config.sharedData;
 		if (!sharedData)
 			return;
 
-		sharedData.ColumnLabels = config.ColumnLabels;
+		sharedData.columnLabels = this.config.columnLabels;
 	}
 }
 
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {LabelColumns}
- */
-module.exports = LabelColumns;	// Export this so derived classes can extend it.
-module.exports.instance = LabelColumns;	// Export this so the application can instantiate the class without knowing it's name.
+module.exports = LabelColumns;

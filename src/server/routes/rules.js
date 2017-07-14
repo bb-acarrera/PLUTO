@@ -11,12 +11,12 @@ class RulesRouter extends BaseRouter {
 	get(req, res, next) {
 		// Send generic rules. (i.e. not rule instances.)
 		const rules = [];
-		fs.readdirSync(this.config.validator.config.RulesDirectory).forEach(file => {
+		fs.readdirSync(this.config.validator.config.rulesDirectory).forEach(file => {
 			const extension = path.extname(file);
 			if (extension && extension == ".js") {
 				const basename = path.basename(file, extension);
 				const configName = basename + "Config.json";
-				const configFile = path.resolve(this.config.validator.config.RulesDirectory, configName);
+				const configFile = path.resolve(this.config.validator.config.rulesDirectory, configName);
 				var config = undefined;
 				if (fs.existsSync(configFile)) {
 					const contents = fs.readFileSync(configFile, 'utf8');

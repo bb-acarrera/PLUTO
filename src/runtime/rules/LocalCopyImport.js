@@ -1,10 +1,12 @@
 const fs = require('fs-extra');
 const path = require("path");
-const spawn = require('child_process').spawn;
 
-const LocalCopyImport = {
+class LocalCopyImport {
+	constructor(config) {
+		this.config = config;
+	}
 
-    importFile: function(targetFileName, config) {
+	importFile(targetFileName) {
 
         return new Promise((resolve, reject) => {
 
@@ -12,14 +14,14 @@ const LocalCopyImport = {
                 reject('No target file name');
             }
 
-            if(!config.file) {
+            if(!this.config.file) {
                 reject('No source file name');
             }
 
-            const sourceFileName = path.resolve(config.file);
+            const sourceFileName = path.resolve(this.config.file);
 
             if(!fs.existsSync(sourceFileName)) {
-                reject(config.file + ' does not exist');
+                reject(this.config.file + ' does not exist');
             }
 
             // Copy the file using internal JavaScript functions.
@@ -29,6 +31,6 @@ const LocalCopyImport = {
         });
     }
 
-};
+}
 
 module.exports = LocalCopyImport;

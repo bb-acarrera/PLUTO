@@ -1,6 +1,6 @@
 const CSVRuleAPI = require("../api/CSVRuleAPI");
 
-class CheckColumnType extends CSVRuleAPI {
+class CheckColumnRegEx extends CSVRuleAPI {
 	constructor(config) {
 		super(config);
 
@@ -8,36 +8,15 @@ class CheckColumnType extends CSVRuleAPI {
 			this.error('No configuration specified.');			// At the moment this does nothing since a config is required for reporting errors.
 			return;	// Might as well give up...
 		}
-		else if (!config.type) {
-			this.error(`Configured without a 'type' property.`);
-			return; // Ditto
+
+		if (!this.config.regex) {
+			this.error(`No 'regex' property defined'.`);
+			return;
 		}
 		else {
-			const type = config.type.toLowerCase();
-			switch (type) {
-				case 'string':
-					this.test = function (datum) {
-						return typeof datum === 'string'
-					};
-					break;
-				case 'float':
-				case 'number':
-					this.test = function (datum) {
-						return !isNaN(datum);
-					}
-					break;
-				case 'integer':
-					this.test = function (datum) {
-						if (isNaN(datum))
-							return false;
-						let i = parseInt(datum);		// parseInt("1.2") returns 1 so we need to go further to confirm
-						let f = parseFloat(datum);		// the value is an int. So also parseFloat() and check they are
-						return i == f;					// the same.
-					}
-					break;
-				default:
-					this.error(`Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got '${config.type}'.`);
-					break;
+			const regex = new RegExp(this.config.regex);
+			this.test = function (datum) {
+				return regex.test(datum);
 			}
 		}
 
@@ -57,7 +36,7 @@ class CheckColumnType extends CSVRuleAPI {
 				}
 			}
 			else if (this.test && !this.test(record[this.column]))	// Is the cell in the column valid?
-				this.error(`Row ${this.rowNumber}, Column ${this.column}: Expected a ${this.config.type} but got ${record[this.column]}.`);
+				this.error(`Row ${this.rowNumber}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
 		}
 
 		this.rowNumber++;
@@ -65,4 +44,4 @@ class CheckColumnType extends CSVRuleAPI {
 	}
 }
 
-module.exports = CheckColumnType;
+module.exports = CheckColumnRegEx;

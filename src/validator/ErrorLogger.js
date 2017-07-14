@@ -7,9 +7,6 @@ class ErrorLogger {
 		this.reports = [];
 	}
 
-	/** Use this when reporting information. */
-	static get LEVEL_INFO() { return "Info"; }
-
 	/*
 	 * This is called when the application has something to log. Derived classes can override this method
 	 * to send the log to a file, a database, etc. This is the only method derived classes need to implement. The

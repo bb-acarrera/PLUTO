@@ -7,7 +7,7 @@ class Util {
 	 * @param ruleDescriptor the object describing the rule.
 	 */
 	static getRuleName(ruleDescriptor) {
-		return ruleDescriptor.name || ruleDescriptor.Name || path.basename(ruleDescriptor.filename);
+		return ruleDescriptor.name || ruleDescriptor.name || path.basename(ruleDescriptor.filename);
 	}
 
 	static getRulesets(rootDir) {
@@ -28,8 +28,8 @@ class Util {
 
 		// Get the root directory for everything.
 		let rootDir = '.';	// Default is the current working directory.
-		if (config.RootDirectory) {
-			rootDir = path.resolve(config.RootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
+		if (config.rootDirectory) {
+			rootDir = path.resolve(config.rootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
 			if (!rootDir.endsWith(path.sep))
 				rootDir = rootDir + path.sep;
 		}
@@ -38,8 +38,8 @@ class Util {
 
 	static getRootTempDirectory(config, rootDir) {
 		let tmpDir;
-		if (config.TempDirectory)
-			tmpDir = config.TempDirectory;
+		if (config.tempDirectory)
+			tmpDir = config.tempDirectory;
 		else
 			tmpDir = "tmp";
 

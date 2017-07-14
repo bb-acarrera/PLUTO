@@ -1,78 +1,111 @@
 # validator.js
 ## 1. Overview
-The command line tool is run on a schedule by a system scheduler such as `cron`. Through plug-ins it finds changed
-files and runs them against a set of rules (a "ruleset") checking for invalid data and correcting it where possible.
+The validator is a command line tool run by the server. Through plug-ins called '[rules][rules]' it can validate
+and perform simple edits to input files.
 
-<span style="color:red">**_TODO_:** Flesh out...</span>
+It can also be run directly from the command line so that it can be launched from schedulers such as
+`cron` or from pipeline tools such as [Luigi](http://luigi.readthedocs.io).
+
 ## 2. Command Line Arguments
 ### 2.1. -c, --config \<configFile> _(Required)_
 The validator configuration file to use. By changing the configuration file the behavior of the
-validator can easily be changed. For example one configuration could allow the validator to retrieve data files from
-the local filesystem while a different configuration file could allow it to retrieve data from a database.
+validator can easily be changed. By changing the configuration file the validator can be pointed at
+different sets of rules, or output to different directories, etc.
 
-The given `configFile` should either be an absolute path on the local file system or a path relative to the directory
-containing the `validator.js` script.
+The given `configFile` argument should either be an absolute path on the local file system or a path
+relative to the working directory of the validator application.
 
-See the [Configuration](#Configuration) section for the contents of the configuration file.
+See the [Configuration File](#Configuration File) section for a description of the contents of the configuration file.
 
-### 2.2. -i, --input \<filename> _(Required)_
-The name of the input file to validate. The validator will use it's DataAPI plug-in to retrieve the file.
-
-### 2.3. -o, --output \<filename> _(Optional)_
-The name of the output file (the file after all the rules have been run). This is passed to the DataAPI plug-in to save
-upon completion.
-
-### 2.4. -e, --encoding \[encoding] _(Optional)_
-The encoding used by the input file. The default is `utf-8`. This valid is passed to the rules without verifying that
-it is a valid encoding. It is the responsibility for rules to decide if an encoding is valid and whether or not they
-can handle it.
-
-### 2.5. -r, --ruleset \<rulesetFile> _(Optional)_
+### 2.2. -r, --ruleset \<rulesetFile> _(Required)_
 The ruleset file to use to process the input file. If this is not set then the ruleset specified in the validator
 configuration file is used. If both are specified then the ruleset specified on the command line takes precedence over
 the one specified in the configuration file. This will be resolved against the RulesetDirectory specified in the
 validator configuration file.
 
-## 3. Configuration
-The validator configuration file is used by the validator to find resources such as plug-ins and rulesets. By using
-different configuration files the behavior of the validator can easily be changed. For example changing the plug-ins
-referenced in the configuration file can change how the validator retrieves data files.
+### 2.3. -i, --input \<filename> _(Optional)_
+The name of the input file to validate. This overrides the input file specified in the [ruleset][ruleset].
 
-The configuration file is a JSON file with the following properties. Only the `Plugins` property is required. The
-other properties have default values which are included in the descriptions below.
+### 2.4. -o, --output \<filename> _(Optional)_
+The name of the output file (the file after all the rules have been run). This is passed to the DataAPI plug-in to save
+upon completion. If no output file is specified on the command line nor in the [ruleset][ruleset] then
+the rules are run, error reports are generated, but no output file is produced.
 
-### 3.1. RootDirectory
-The directory used to locate other directories, configuration files, etc. If this is not set then the directory
-containing `validator.js` is used.
+### 2.5. -e, --encoding \[encoding] _(Optional)_
+The encoding used by the input file. The default is `utf-8`. This encoding is passed to the rules without
+verifying that it is a valid encoding. It is the responsibility for rules to decide if an encoding is
+valid and whether or not they can handle it.
 
-### 3.2. RulesetDirectory
-The directory used to locate the rulesets. Defaults to the `RootDirectory` if not set. If this is specified as a
-relative path it is resolved against the `RootDirectory`.
+### 2.6. -v, --rulesetoverride \<rulesetOverrideFile> _(Optional)_
+The ruleset override replaces properties on a default [ruleset][ruleset] allowing one ruleset file to
+be used to validate and edit many different files without changing the default ruleset file. Additionally
+it allows overriding properties on the importer and exporter used by the validator, for example,
+to use different authentication values for different files or databases or different file encodings.
+  
+## 3. Configuration File
 
-### 3.3. RulesDirectory
-The directory used to locate the rules used by the rulesets. This will default to the `RulesetDirectory` if not set.
-If this is a relative path it is resolved against the `RulesetDirectory` _not_ the `RootDirectory`.
+In the default Docker release, in the `config` directory should be a `validatorConfig.json` file that
+tells the validator where the folder required to operate properly can be found. (The name and location
+of the file is not significant and in other releases could be placed elsewhere and named something else.)
 
-### 3.4. TempDirectory
-The directory to use for temporary files created while running a ruleset. The validator creates a unique directory
-below this directory and deletes it when it is done. If this is not set then a directory called _`tmp`_ is created
-below the `RootDirectory`.
+The configuration file is a JSON file with the following properties.
 
-### 3.5. PluginsDirectory
-The directory that contains JavaScript plug-ins used by the validator. At present the only plug-in is a `DataAPI`
-plug-in used to load and save the data files.
+```json
+{
+	"RootDirectory" : "/opt/PLUTO/config",
+	"RulesetDirectory" : "/opt/PLUTO/config/rulesets",
+	"RulesDirectory" : "/opt/PLUTO/config/customRules",
+	"TempDirectory" : "/opt/PLUTO/config/tmp",
+	"InputDirectory" : "/opt/PLUTO/config",
+	"OutputDirectory" : "/opt/PLUTO/config/results",
+	"LogDirectory" : "/opt/PLUTO/config/results/logs",
+	"RunsDirectory" : "/opt/PLUTO/config/results/runs"
+}
 
-### 3.6. Plugins
-The plug-ins used by the validator. This is a map mapping the type of plug-in to specific settings. At present
-the only one is a `DataAPI` plug-in identified with `DataAPI` in `Plugins`. Plug-ins settings have two properties,
-- **FileName**  
-the filename of the plug-in (minus the “.js” suffix) relative to the `PluginsDirectory`.
-- **Config**  
-a set of configuration properties specific to the plug-in.
+```
+- **RootDirectory** the root of the `config` folder. This is _optional_ and if
+not specified defaults to the current working directory for the application. (When the validator is in
+a Docker container this would be the root of the mounted volume.)
+- **RulesetDirectory** the folder where all ruleset configurations are stored
+- **RulesDirectory** the folder where all custom rule scripts are stored
+- **TempDirectory** a folder to store temporary files
+- **InputDirectory** only needed when running the validator from the command line, the default folder where files to be
+processed files are stored. This is _optional_ and defaults to the current working directory of the application.
+- **OutputDirectory** the folder where processed files will be stored if no exporter is used.
+- **LogDirectory** the folder where the error logs of processing files will be stored
+- **RunsDirectory** the folder where the processing details will be stored
 
-### 3.7. RuleSet
-An optional reference to a specific ruleset file. This is used if no ruleset is specified on
-the application command line. If this is set and one is specified on the command line, the command line ruleset
-takes precedence. Generally it is best to specify rulesets on the command line rather than in validator configuration
-file. This allows one configuration to be run with many different rulesets.
+## 4. Validating Files
 
+To validate a file three things are required, a ruleset, a rule files, and an file to validate. The
+[ruleset] describes how the input file is retrieved from a remote location, a sequence of [rules] to
+run the input file through, and how to export the resulting file and log results to a potentially different
+remote location.
+
+*In the near future setting all this up will be possible with a dedicated UI but
+for now this is a manual process.*
+
+### 4.1 Validator Configuration
+
+Set up the validator configuration file as described above. The validator will use the values in this
+file to locate the ruleset and rules.
+
+### 4.2 Rules Directory
+
+Place your rule files in the rules directory as defined in the validator configuration.
+
+### 4.3 Importer and Exporter
+
+If you are using an importer and/or exporter script place it/them in the root directory.
+
+### 4.4 Ruleset File
+
+Define your [ruleset] file. For simplicity add rules one at a time testing the ruleset
+workflow after each addition. This will make debugging your ruleset easier.
+
+### 4.5 Run the Validator
+
+Run the validator from the command line passing in at least the validator configuration file and ruleset.
+
+[ruleset]: docs/ruleset.md
+[rules]: docs/rules.md

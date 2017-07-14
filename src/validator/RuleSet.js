@@ -19,7 +19,7 @@ class RuleSet {
 			this.name = ruleset.name;
 			this.id = ruleset.id || this.name;
 			this._filename = ruleset.filename;
-			this.addRules(ruleset.rules || ruleset.Rules);
+			this.addRules(ruleset.rules || ruleset.rules);
 			this.import = ruleset.import;
 			this.export = ruleset.export;
 		}
@@ -27,11 +27,14 @@ class RuleSet {
 
 	addRules(rules) {
 		this.rules = [];
+		if (!rules)
+			return;
+
 		for (var i = 0; i < rules.length; i++) {
 			const srcRule = rules[i];
 			const dstRule = {};
-			dstRule.config = srcRule.Config || srcRule.config;
-			dstRule.filename = srcRule.FileName || srcRule.filename;
+			dstRule.config = srcRule.config || srcRule.config;
+			dstRule.filename = srcRule.filename || srcRule.filename;
 			dstRule.id = srcRule.id;
 			this.rules.push(dstRule);
 		}

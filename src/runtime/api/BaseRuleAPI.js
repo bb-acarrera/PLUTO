@@ -33,7 +33,7 @@ class BaseRuleAPI extends EventEmitter {
 	constructor(localConfig) {
 		super();
 
-		this.config = localConfig;
+		this.config = localConfig || {};
 	}
 
 	/**
@@ -113,9 +113,4 @@ class BaseRuleAPI extends EventEmitter {
 	}
 }
 
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {RuleAPI}
- */
 module.exports = BaseRuleAPI;	// Export this so derived classes can extend it.
-module.exports.instance = BaseRuleAPI;	// Export this so the application can instantiate the class without knowing it's name.

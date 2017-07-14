@@ -19,14 +19,14 @@ QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
 	const logResults = logger.getLog();
 	assert.equal(logResults.length, 1, "Expect single result.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured without a Columns property.");
+	assert.equal(logResults[0].description, "Configured without a 'columns' property.");
 });
 
 QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "foo"
+		"columns" : "foo"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -36,14 +36,14 @@ QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function
 	const logResults = logger.getLog();
 	assert.equal(logResults.length, 1, "Expect single result.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number Columns. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number columns. Got 'foo'.");
 });
 
 QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "-1"
+		"columns" : "-1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -53,14 +53,14 @@ QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( 
 	const logResults = logger.getLog();
 	assert.equal(logResults.length, 1, "Expect single result.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative Columns. Got '-1'.");
+	assert.equal(logResults[0].description, "Configured with a negative columns. Got '-1'.");
 });
 
 QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1.1"
+		"columns" : "1.1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -70,14 +70,14 @@ QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", functio
 	const logResults = logger.getLog();
 	assert.equal(logResults.length, 1, "Expect single result.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer Columns. Got '1.1'.");
+	assert.equal(logResults[0].description, "Configured with a non-integer columns. Got '1.1'.");
 });
 
 QUnit.test( "CheckColumnCount: Check Valid Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -92,7 +92,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -113,7 +113,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -135,7 +135,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "2"
+		"columns" : "2"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -149,7 +149,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 0 has wrong number of columns.");
+		assert.equal(logResults[0].description, "Row 0 has wrong number of columns. Got 1.");
 		done();
 	});
 	rule.useMethod(data);
@@ -159,7 +159,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"Columns" : "1"
+		"columns" : "1"
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -173,7 +173,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 1 has wrong number of columns.");
+		assert.equal(logResults[0].description, "Row 1 has wrong number of columns. Got 2.");
 		done();
 	});
 	rule.useMethod(data);

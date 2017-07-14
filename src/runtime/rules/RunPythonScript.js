@@ -25,8 +25,8 @@ class RunPythonScript extends RuleAPI {
 			return;
 		}
 
-		if (!this.config.PythonScript) {
-			this.error('No PythonScript in the configuration.');
+		if (!this.config.pythonScript) {
+			this.error('No pythonScript in the configuration.');
 			setImmediate(() => {
 				this.emit(RuleAPI.NEXT, outputName);
 			});
@@ -34,7 +34,7 @@ class RunPythonScript extends RuleAPI {
 			return;
 		}
 
-		let pythonScript = path.resolve(this.config.PythonScript);
+		let pythonScript = path.resolve(this.config.pythonScript);
 		if (!fs.existsSync(pythonScript)) {
 			this.error(`${pythonScript} does not exist.`);
 			setImmediate(() => {
@@ -44,7 +44,7 @@ class RunPythonScript extends RuleAPI {
 			return;
 		}
 
-		let scriptName = path.basename(this.config.PythonScript);
+		let scriptName = path.basename(this.config.pythonScript);
 		try {
 			// Run the python script. This complains if the script doesn't exist.
 			const results = spawnSync('python', [pythonScript, inputName, outputName, this.config.encoding || 'utf8']);
@@ -86,9 +86,4 @@ class RunPythonScript extends RuleAPI {
 	}
 }
 
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {RuleAPI}
- */
 module.exports = RunPythonScript;	// Export this so derived classes can extend it.
-module.exports.instance = RunPythonScript;	// Export this so the application can instantiate the class without knowing it's name.

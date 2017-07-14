@@ -11,15 +11,15 @@ class data {
         this.rootDir = Util.getRootDirectory(this.config);
 
         if (this.rulesetDirectory)
-            this.rulesetDirectory = path.resolve(this.rootDir, this.config.RulesetDirectory);
+            this.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
         else
             this.rulesetDirectory = path.resolve('runtime/rulesets');
 
         if (!fs.existsSync(this.rulesetDirectory))
-            throw "Failed to find RulesetDirectory \"" + this.config.RulesetDirectory + "\".\n";
+            throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";
 
-        this.runsDirectory = path.resolve(this.rootDir, this.config.RunsDirectory);
-        this.logDirectory = path.resolve(this.rootDir, this.config.LogDirectory);
+        this.runsDirectory = path.resolve(this.rootDir, this.config.runsDirectory);
+        this.logDirectory = path.resolve(this.rootDir, this.config.logDirectory);
     }
 
     /**
@@ -160,13 +160,13 @@ class data {
                 throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
             }
 
-            if (!contents.RuleSet) {
-                throw("Ruleset file \"" + rulesetFile + "\" does not contain a RuleSet member.");
+            if (!contents.ruleset) {
+                throw("Ruleset file \"" + rulesetFile + "\" does not contain a 'ruleset' member.");
             }
 
-            contents.RuleSet.filename = ruleset;
-            contents.RuleSet.name = contents.RuleSet.name || contents.RuleSet.filename;
-            ruleset = contents.RuleSet;
+            contents.ruleset.filename = ruleset;
+            contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
+            ruleset = contents.ruleset;
         }
 
         if(rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
@@ -183,7 +183,7 @@ class data {
                     ruleset.import = {};
                 }
 
-                Object.assign(ruleset.import.Config, contents.import);
+                Object.assign(ruleset.import.config, contents.import);
             }
 
             if(contents.export) {
