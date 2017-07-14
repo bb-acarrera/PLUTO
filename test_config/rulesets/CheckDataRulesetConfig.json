@@ -26,6 +26,16 @@
 					"type" : "number",
 					"column" : 4
 				}
+			},
+			{
+				"FileName" : "CheckColumnType",
+				"Name" : "Check No Numbers in city name (RegEx)",
+				"Config" : {
+					"NumberOfHeaderRows" : 1,
+					"Type" : "regex",
+					"Column" : 2,
+					"RegEx" : "[^0-9\\s]*"
+				}
 			}
 		],
 		"import" : {

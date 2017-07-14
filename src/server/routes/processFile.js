@@ -1,5 +1,5 @@
 const BaseRouter = require('./baseRouter');
-const Util = require('../../utilities/Util');
+const Util = require('../../common/Util');
 
 const child_process = require('child_process');
 const fs = require('fs-extra');

@@ -1,64 +1,6 @@
 const path = require("path");
-const RuleSet = require("../validator/RuleSet");
 const fs = require('fs-extra');
 class Util {
-	/*
-	 * Retrieve a ruleset description.
-	 * @param rootDir the directory that may contain the ruleset file.
-	 * @param ruleset the name of the ruleset or a ruleset (which is then just returned).
-	 * @param rulesetOverrideFile the name of a file containing additional ruleset data which can override the
-	 * initial values in the ruleset.
-	 * @return an object describing a ruleset.
-	 */
-	static retrieveRuleset(rootDir, ruleset, rulesetOverrideFile) {
-		if (typeof ruleset === 'string') {
-			// Identifying a file to load.
-			const rulesetFile = path.resolve(rootDir, ruleset);
-			var contents;
-			try {
-				contents = require(rulesetFile);
-			}
-			catch (e) {
-				throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
-			}
-
-			if (!contents.ruleset) {
-				throw("Ruleset file \"" + rulesetFile + "\" does not contain a ruleset member.");
-			}
-
-			contents.ruleset.filename = ruleset;
-			contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-			ruleset = contents.ruleset;
-		}
-
-		if(rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-			var contents;
-			try {
-				contents = require(path.resolve(rootDir, rulesetOverrideFile));
-			}
-			catch (e) {
-				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
-			}
-
-			if(contents.import) {
-				if(!ruleset.import) {
-					ruleset.import = {};
-				}
-
-				Object.assign(ruleset.import.config, contents.import);
-			}
-
-			if(contents.export) {
-				if(!ruleset.export) {
-					ruleset.export = {};
-				}
-
-				Object.assign(ruleset.export, contents.export);
-			}
-		}
-
-		return new RuleSet(ruleset);
-	}
 
 	/*
 	 * Get the name of a rule given a rule description
