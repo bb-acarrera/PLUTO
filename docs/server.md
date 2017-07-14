@@ -31,4 +31,5 @@ The directory used to locate other directories, configuration files, etc. If thi
 containing `server.js` is used.
 
 ### 3.2 Port
-The TCP port the web server will listen on. This defaults to 8000 if not set.
+The TCP port the web server will listen on. This defaults to 3000 if not set. (If this is changed it needs to
+be changed in the docker command line as well.)

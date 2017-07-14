@@ -29,9 +29,10 @@ class RuleAPI extends BaseRuleAPI {
 	 * called {@link RuleAPI#useStreams RuleAPI.useStreams} this method should return true otherwise it should return false.
 	 * @abstract
 	 * @returns {boolean}
+	 * @private
 	 */
 	canUseStreams() {
-		return false;
+		return typeof this.useStreams == 'function';
 	}
 
 	/**
@@ -39,9 +40,10 @@ class RuleAPI extends BaseRuleAPI {
 	 * called {@link RuleAPI#useFiles RuleAPI.useFiles} this method should return true otherwise it should return false.
 	 * @abstract
 	 * @returns {boolean}
+	 * @private
 	 */
 	canUseFiles() {
-		return false;
+		return typeof this.useFiles == 'function';
 	}
 
 	/**
@@ -49,9 +51,10 @@ class RuleAPI extends BaseRuleAPI {
 	 * {@link RuleAPI#useMethod RuleAPI.useMethod} this method should return true otherwise it should return false.
 	 * @abstract
 	 * @returns {boolean}
+	 * @private
 	 */
 	canUseMethod() {
-		return false;
+		return typeof this.useMethod == 'function';
 	}
 
 	/**
@@ -64,13 +67,13 @@ class RuleAPI extends BaseRuleAPI {
 	 * rule will not be considered to have failed if it writes to this stream.
 	 * @abstract
 	 */
-	useStreams(inputStream, outputStream) {
-		this.error("canUseStreams() returned true but useStreams() not implemented.");
-
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, outputStream);
-		});
-	}
+	// useStreams(inputStream, outputStream) {
+	// 	this.error("canUseStreams() returned true but useStreams() not implemented.");
+	//
+	// 	setImmediate(() => {
+	// 		this.emit(RuleAPI.NEXT, outputStream);
+	// 	});
+	// }
 
 	/**
 	 * If the rule supports receiving and writing data through files this method must be implemented.
@@ -80,13 +83,13 @@ class RuleAPI extends BaseRuleAPI {
 	 * @param filename {string} the fully qualified name of the file to read. The rule must not delete this file.
 	 * @abstract
 	 */
-	useFiles(filename) {
-		this.error("canUseFiles() returned true but useFiles() not implemented.");
-
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, filename);
-		});
-	}
+	// useFiles(filename) {
+	// 	this.error("canUseFiles() returned true but useFiles() not implemented.");
+	//
+	// 	setImmediate(() => {
+	// 		this.emit(RuleAPI.NEXT, filename);
+	// 	});
+	// }
 
 	/**
 	 * If the rule supports receiving and writing data through a single method call this method must be implemented.
@@ -94,18 +97,13 @@ class RuleAPI extends BaseRuleAPI {
 	 * @param data {object|string} the data to apply the rule to.
 	 * @abstract
 	 */
-	useMethod(data) {
-		this.error("canUseMethod() returned true but useMethod() not implemented.");
-
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, data);
-		});
-	}
+	// useMethod(data) {
+	// 	this.error("canUseMethod() returned true but useMethod() not implemented.");
+	//
+	// 	setImmediate(() => {
+	// 		this.emit(RuleAPI.NEXT, data);
+	// 	});
+	// }
 }
 
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {RuleAPI}
- */
 module.exports = RuleAPI;	// Export this so derived classes can extend it.
-module.exports.instance = RuleAPI;	// Export this so the application can instantiate the class without knowing it's name.

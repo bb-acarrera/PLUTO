@@ -16,3 +16,4 @@ src/tmp
 /test build/
 test_config/tmp/*
 /pluto.image.tar
+Factories.csv

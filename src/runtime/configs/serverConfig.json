@@ -1,4 +1,4 @@
 {
-	"RootDirectory" : ".",
-	"Port" : "3000"
+	"rootDirectory" : ".",
+	"port" : "3000"
 }

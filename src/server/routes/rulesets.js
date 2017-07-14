@@ -43,7 +43,7 @@ class RulesetRouter extends BaseRouter {
 				}
 			});
 		} else {
-			const rawRulesets = Util.getRulesets(this.config.validator.config.RulesetDirectory);
+			const rawRulesets = Util.getRulesets(this.config.validator.config.rulesetDirectory);
 
 			const rulesets = [];
 
