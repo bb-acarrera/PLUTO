@@ -17,13 +17,14 @@ fi
 
 # Copy the files required to run the validator and server.
 echo "Copying runtime directories."
-for dir in runtime server utilities validator examples/data
+for dir in runtime server common validator examples/data
 do
     cp -r $SRC/$dir $DST
 done
 
 cp $SRC/../package.json $DST
 cp $DST/runtime/configs/serverConfig.json $DST/serverConfig.json
+cp $SRC/../Dockerfile $DST
 
 echo "install npm dependencies"
 cd $DST

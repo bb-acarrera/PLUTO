@@ -1,6 +1,18 @@
 # PLUTO
 Primary Layer Updating Tool
 
+## Building
+
+To build the docker container:
+
+```shell
+npm run build
+npm run docker_build
+```
+
+'npm run build' executes the build script, and puts the build into the "./Release" folder.
+'npm run docker_build' builds the docker container
+
 ## Ruleset Configuration
 [Ruleset][ruleset]
 
@@ -8,7 +20,7 @@ Primary Layer Updating Tool
 The container will listen on port 3000, and expects a configuration volume mounted to `/opt/PLUTO/config`.  For example:
 
 ```shell
-docker run -v $PWD/config:/opt/PLUTO/config -p 3000:3000 -d pluto
+docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto
 ```
 or call the shell script:
 ```shell
