@@ -77,18 +77,22 @@ class data {
      * @private
      */
     getRun(id) {
-        const runfile = path.resolve(this.runsDirectory, id);
-        var run;
-        if (fs.existsSync(runfile)) {
-            const contents = fs.readFileSync(runfile, 'utf8');
-            try {
-                run = JSON.parse(contents);
+
+        return new Promise((resolve, reject) => {
+
+            const runfile = path.resolve(this.runsDirectory, id);
+            var run;
+            if (fs.existsSync(runfile)) {
+                const contents = fs.readFileSync(runfile, 'utf8');
+                try {
+                    run = JSON.parse(contents);
+                }
+                catch (e) {
+                    console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
+                }
             }
-            catch (e) {
-                console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-            }
-        }
-        return run;
+            resolve(run);
+        });
     }
 
     /**
@@ -99,15 +103,29 @@ class data {
      */
     getRuns() {
 
-        var runs = [];
+        return new Promise((resolve, reject) => {
+            var runs = [];
 
-        fs.readdirSync(this.runsDirectory).forEach(file => {
-            if(file.substr(file.length-8) === 'run.json') {
-                runs.push(file);
-            }
+            fs.readdirSync(this.runsDirectory).forEach(file => {
+
+                const runfile = path.resolve(this.runsDirectory, file);
+                var run;
+                if (fs.existsSync(runfile)) {
+                    const contents = fs.readFileSync(runfile, 'utf8');
+                    try {
+                        run = JSON.parse(contents);
+                        runs.push(run);
+                    }
+                    catch (e) {
+                        console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
+                    }
+                }
+
+            });
+
+            resolve(runs);
         });
 
-        return runs;
     }
 
     /**
@@ -117,7 +135,10 @@ class data {
      * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
      * @private
      */
-    saveRunRecord(runId, logId, ruleSetId, inputFile, outputFile) {
+    saveRunRecord(runId, log, ruleSetId, inputFile, outputFile) {
+
+        let logId = this.saveLog(inputFile, log);
+
         try {
             if (!fs.existsSync(this.runsDirectory))
                 fs.mkdirSync(this.runsDirectory);	// Make sure the runsDirectory exists.
@@ -139,7 +160,6 @@ class data {
 
         fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
 
-        return run;
     }
 
     /**

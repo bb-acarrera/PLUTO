@@ -11,7 +11,7 @@ const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
 const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
 
 const Util = require("../common/Util");
-const Data = require("../common/dataFs");
+const Data = require("../common/dataDb");
 
 const ErrorLogger = require("./ErrorLogger");
 const MemoryWriterStream = require("../runtime/utilities/MemoryWriterStream");
@@ -415,20 +415,20 @@ class Validator {
 					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+					this.data.saveRunRecord(runId, this.logger.getLog(),
 						this.rulesetName, this.inputFileName, this.outputFileName);
 					this.cleanup();
 					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
-			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+			this.data.saveRunRecord(runId, this.logger.getLog(),
 				this.rulesetName, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");
 		}
 		else {
-			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+			this.data.saveRunRecord(runId, this.logger.getLog(),
 				this.rulesetName, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");

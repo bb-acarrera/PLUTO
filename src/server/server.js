@@ -12,7 +12,7 @@ const Router = require("./router");
 const version = '0.1'; //require("../../package.json").version;
 
 const Util = require('../common/Util');
-const Data = require('../common/dataFs');
+const Data = require('../common/dataDb');
 
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {
