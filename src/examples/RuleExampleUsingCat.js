@@ -26,7 +26,7 @@ class RuleExampleUsingCat extends RuleAPI {
 			inputStream.pipe(outputStream);
 		}
 
-		return outputStream;
+		return this.asStream(outputStream);
 	}
 }
 

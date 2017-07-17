@@ -6,7 +6,7 @@ class RuleExampleUsingFiles extends RuleAPI {
 	}
 
 	run() {
-		return this.inputFile;
+		return this.asFile(this.inputFile);
 	}
 }
 

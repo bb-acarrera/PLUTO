@@ -71,15 +71,31 @@ class RuleAPI extends BaseRuleAPI {
 	}
 
 	hasFilename() {
-		return typeof this._data == 'string';
+		return this._data && this._data.file;
 	}
 
 	hasStream() {
-		return this._data instanceof stream.Readable;
+		return this._data && this._data.stream && this._data.stream instanceof stream.Readable;
 	}
 
 	hasObject() {
-		return this._data && !this.hasFilename() && !this.hasStream();
+		return this._data && this._data.data;
+	}
+
+	asFile(filename) {
+		return { file : filename };
+	}
+
+	asObject(data) {
+		return { data : data };
+	}
+
+	asStream(stream) {
+		return { stream : stream };
+	}
+
+	asError(message) {
+		return new Error(message);
 	}
 
 	get object() {
@@ -89,7 +105,7 @@ class RuleAPI extends BaseRuleAPI {
 			return this._objectPromise;	// User really shouldn't query this more than once but we also don't want to create multiple Promises.
 
 		if (this.hasFilename())
-			this._object = this.config.validator.loadFile(this._data, this.config.encoding);
+			this._object = this.config.validator.loadFile(this._data.file, this.config.encoding);
 		else if (this.hasStream()) {
 			const writer = new MemoryWriterStream();
 			this._data.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
@@ -103,7 +119,7 @@ class RuleAPI extends BaseRuleAPI {
 			return this._objectPromise;
 		}
 		else
-			this._object = this._data;
+			this._object = this._data.data;
 
 		return this._object;
 	}
@@ -115,8 +131,8 @@ class RuleAPI extends BaseRuleAPI {
 			return this._inputPromise;	// User really shouldn't be doing this but don't want to create a new Promise.
 
 		if (this.hasFilename())
-			this._inputFile = this._data;
-		else if (hasStream()) {
+			this._inputFile = this._data.file;
+		else if (this.hasStream()) {
 			// The last rule output to a stream but the new rule requires the data in a file. So write the
 			// stream into a file and when done call the next rule.
 			const tempFileName = this.config.validator.getTempName();
@@ -131,7 +147,7 @@ class RuleAPI extends BaseRuleAPI {
 			return this._inputPromise;
 		}
 		else
-			this._inputFile = this.config.validator.saveLocalTempFile(this._data, this.config.encoding);
+			this._inputFile = this.config.validator.saveLocalTempFile(this._data.data, this.config.encoding);
 
 		return this._inputFile;
 	}
@@ -147,11 +163,11 @@ class RuleAPI extends BaseRuleAPI {
 			return this._inputStream;
 
 		if (this.hasStream())
-			this._inputStream = this._data;
+			this._inputStream = this._data.stream;
 		else if (this.hasFilename())
-			this._inputStream = fs.createReadStream(this._data);
+			this._inputStream = fs.createReadStream(this._data.file);
 		else
-			this._inputStream = new MemoryReaderStream(this._data);	// TODO: Put this class into the RuleAPI file.
+			this._inputStream = new MemoryReaderStream(this._data.data);
 
 		return this._inputStream;
 	}

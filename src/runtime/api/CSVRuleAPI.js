@@ -194,7 +194,7 @@ class CSVRuleAPI extends RuleAPI {
 
 	run() {
 		this._processCSV(this.inputStream, this.outputStream);
-		return this.outputStream;
+		return this.asStream(this.outputStream);
 	}
 }
 

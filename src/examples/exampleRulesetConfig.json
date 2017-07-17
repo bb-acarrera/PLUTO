@@ -4,6 +4,19 @@
 		"rules" : [
 			{
 				"filename" : "RuleExampleUsingMethod",
+				"config" : "RuleExampleUsingMethodConfig"
+			},
+			{
+				"filename" : "RuleExampleUsingFiles",
+				"config" : {}
+			},
+			{
+				"filename" : "RuleExampleUsingStreams",
+				"config" : {}
+			},
+			{
+				"filename" : "RuleExampleUsingCat",
+				"name" : "/bin/cat",
 				"config" : {}
 			}
 		]

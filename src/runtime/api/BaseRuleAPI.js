@@ -8,16 +8,6 @@ const EventEmitter = require('events');
  * {@link BaseRuleAPI.NEXT} value.
  */
 class BaseRuleAPI extends EventEmitter {
-	/**
-	 * Use this to signal that the next rule can be started. For synchronous rules this would be when the
-	 * rule completes and for asynchronous rules using streams this would be when data is ready on the output stream.
-	 * @example
-	 * 		setImmediate(() => {
-	 *			this.emit(RuleAPI.NEXT, filename);
-	 *		});
-	 * @static
-	 */
-	static get NEXT() { return "next"; }
 
 	/**
 	 * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object

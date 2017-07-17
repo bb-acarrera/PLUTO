@@ -6,7 +6,7 @@ class RuleExampleUsingMethod extends RuleAPI {
 	}
 
 	run() {
-		return this.object;
+		return this.asObject(this.object);
 	}
 }
 

@@ -89,7 +89,7 @@ class RunPythonScript extends RuleAPI {
 			});
 		}
 		else
-			return this.runPython(inputName);
+			return this.asFile(this.runPython(inputName));
 	}
 }
 

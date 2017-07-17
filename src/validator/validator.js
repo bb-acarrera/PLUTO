@@ -185,7 +185,7 @@ class Validator {
 		this.getFile(file, localFileName);
 
 		let validator = this;
-		Promise.resolve({ result : localFileName, index : 0}).then(function loop(lastResult) {
+		Promise.resolve({ result : { file : localFileName }, index : 0}).then(function loop(lastResult) {
 			if (lastResult.index < rules.length)
 				return validator.getRule(rulesDirectory, rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index+1).then(loop);
 			else
@@ -254,12 +254,12 @@ class Validator {
 	saveResults(results) {
 
 		if (results && this.outputFileName) {
-			if (typeof results == 'string')
-				this.saveFile(results, this.outputFileName, this.encoding);
-			else if (results instanceof stream.Readable)
-				this.putFile(results, this.outputFileName, this.encoding);
-			else
+			if (results.file)
 				this.putFile(results.file, this.outputFileName);
+			else if (results.stream)
+				this.putFile(results.stream, this.outputFileName);
+			else if (results.data)
+				this.saveFile(results.data, this.outputFileName, this.encoding);
 		}
 	}
 
@@ -279,16 +279,18 @@ class Validator {
 
 		if(this.currentRuleset.export) {
 			var resultsFile = null;
-			if (typeof results == 'string')
-				resultsFile = results;
-			else if (results instanceof stream.Readable) {
+			if (results.file)
+				resultsFile = results.file;
+			else if (results.stream) {
 				resultsFile = this.getTempName();
-				this.putFile(results, resultsFile, this.encoding);
+				this.putFile(results.stream, resultsFile, this.encoding);
 			}
-			else {
+			else if (results.data) {
 				resultsFile = this.getTempName();
-				this.saveFile(results, resultsFile, this.encoding);
+				this.saveFile(results.data, resultsFile, this.encoding);
 			}
+			else
+				this.error("Unrecognized results structure.");
 
 			this.exportFile(this.currentRuleset.export, resultsFile, runId)
 				.then(() => {},

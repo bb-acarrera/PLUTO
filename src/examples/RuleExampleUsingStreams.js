@@ -12,7 +12,7 @@ class RuleExampleUsingStreams extends RuleAPI {
 		// Simply pipe the contents of the input stream to the output stream.
 		inputStream.pipe(outputStream);
 
-		return outputStream;
+		return this.asStream(outputStream);
 	}
 }
 
