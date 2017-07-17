@@ -192,25 +192,25 @@ class Validator {
 				return lastResult;
 		}).catch((e) => {
 			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e}`;
-			if (rule.shouldRulesetFailOnError()) {
+			// if (rule.shouldRulesetFailOnError()) {
 				this.error(errorMsg);
 				throw errorMsg;	// Failed so bail.
-			}
-			else {
-				this.warning(errorMsg);
-				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);	// Failed but continue.
-			}
+			// }
+			// else {
+			// 	this.warning(errorMsg);
+			// 	this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);	// Failed but continue.
+			// }
 		}).then((lastResult) => {
 			// TODO: How should this.shouldAbort be handled?
 			if (lastResult.result.stream) {
 				// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
 				let p = new Promise((resolve, reject) => {
-					let resultsFile = this.putFile(lastResult.result.stream, this.getTempName());
-					lastResult.result.stream.on('finish', () => {
-						resolve(resultsFile);
+					let dest = this.putFile(lastResult.result.stream, this.getTempName());
+					dest.stream.on('finish', () => {
+						resolve(dest.path);
 					});
-					lastResult.result.stream.on('error', (e) => {
-						reject()
+					dest.stream.on('error', (e) => {
+						reject(e)
 					});
 				});
 				p.then((filename) => {
@@ -443,16 +443,17 @@ class Validator {
 			throw e;
 		}
 
+		let dst;
 		let dstPath = path.resolve(this.outputDirectory, remoteFileName);
 		if (typeof fileNameOrStream === 'string') {
 			fs.copySync(fileNameOrStream,dstPath);
 		}
 		else {
-			const dst = fs.createWriteStream(dstPath);
+			dst = fs.createWriteStream(dstPath);
 			fileNameOrStream.pipe(dst);
 		}
 
-		return dstPath;
+		return { path: dstPath, stream: dst };
 	}
 
 	/**
