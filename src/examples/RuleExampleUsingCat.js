@@ -15,7 +15,7 @@ class RuleExampleUsingCat extends RuleAPI {
 			const cat = spawn('cat');
 
 			cat.on('error', (e) => {
-				this.error(`RuleExampleUsingCat: ` + e);
+				this.error(`RuleExampleUsingCat: ` + e.message);
 				inputStream.pipe(outputStream);	// Pipe the input to the output without running through 'cat'.
 			});
 

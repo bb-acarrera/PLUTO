@@ -6,7 +6,14 @@ class RuleExampleUsingMethod extends RuleAPI {
 	}
 
 	run() {
-		return this.asObject(this.object);
+		let input = this.object;
+
+		if (input instanceof Promise)
+			return input.then((data) => {
+				return this.asObject(data);
+			});
+		else
+			return this.asObject(input);
 	}
 }
 

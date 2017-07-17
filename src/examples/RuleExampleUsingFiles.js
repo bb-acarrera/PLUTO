@@ -6,7 +6,14 @@ class RuleExampleUsingFiles extends RuleAPI {
 	}
 
 	run() {
-		return this.asFile(this.inputFile);
+		let input = this.inputFile;
+
+		if (input instanceof Promise)
+			return input.then((file) => {
+				return this.asFile(file);
+			});
+		else
+			return this.asFile(input);
 	}
 }
 
