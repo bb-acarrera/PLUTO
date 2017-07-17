@@ -162,9 +162,9 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Count", function( assert ) {
 	};
 
 	const rule = new CheckColumnRegEx(config);
-
+	const data = "Column 0\nfoo";
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
@@ -173,9 +173,6 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Count", function( assert ) {
 		}
 		done();
 	});
-
-	const data = "Column 0\nfoo";
-	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( assert ) {
@@ -188,9 +185,9 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 	};
 
 	const rule = new CheckColumnRegEx(config);
-
+	const data = "Column 0\nbbbb";
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -199,9 +196,6 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 		}
 		done();
 	});
-
-	const data = "Column 0\nbbbb";
-	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( assert ) {
@@ -217,12 +211,10 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 	const rule = new CheckColumnRegEx(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\naaaa";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-
-	const data = "Column 0\naaaa";
-	rule._run( { data: data });
 });

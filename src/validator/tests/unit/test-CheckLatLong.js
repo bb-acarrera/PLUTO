@@ -292,16 +292,14 @@ QUnit.test( "CheckLatLong: Check For Bad Column Count", function( assert ) {
 	const rule = new CheckLatLong(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Lat,Long\n1";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 		assert.equal(logResults[0].description, "Row 1 has insufficient columns.");
 		done();
 	});
-
-	const data = "Lat,Long\n1";
-	rule._run( { data: data });
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( assert ) {
@@ -317,7 +315,8 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 	const rule = new CheckLatLong(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Lat,Long\nfoo,bar";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 2, `Expected two errors but got ${logResults.length}.`);
 		if (logResults.length >= 1) {
@@ -330,9 +329,6 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 		}
 		done();
 	});
-
-	const data = "Lat,Long\nfoo,bar";
-	rule._run( { data: data });
 });
 
 QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( assert ) {
@@ -348,7 +344,8 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 	const rule = new CheckLatLong(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Lat,Long\n-91,-200\n91,200";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 4, `Expected four errors but got ${logResults.length}.`);
 		if (logResults.length >= 1) {
@@ -369,9 +366,6 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 		}
 		done();
 	});
-
-	const data = "Lat,Long\n-91,-200\n91,200";
-	rule._run( { data: data });
 });
 
 QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
@@ -387,12 +381,10 @@ QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
 	const rule = new CheckLatLong(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Lat,Long\n43.6532,79.3832\n41.2865,174.7762";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, `Expected no errors but got ${logResults.length}.`);
 		done();
 	});
-
-	const data = "Lat,Long\n43.6532,79.3832\n41.2865,174.7762";
-	rule._run( { data: data });
 });
