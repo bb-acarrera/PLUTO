@@ -175,7 +175,7 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Count", function( assert ) {
 	});
 
 	const data = "Column 0\nfoo";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( assert ) {
@@ -201,7 +201,7 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 	});
 
 	const data = "Column 0\nbbbb";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( assert ) {
@@ -224,5 +224,5 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 	});
 
 	const data = "Column 0\naaaa";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });

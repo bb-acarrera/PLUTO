@@ -106,7 +106,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
@@ -128,7 +128,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 		assert.equal(logResults.length, 0, "Expect no results.");
 		done();
 	});
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) {
@@ -152,7 +152,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 		assert.equal(logResults[0].description, "Row 0 has wrong number of columns. Got 1.");
 		done();
 	});
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
@@ -176,5 +176,5 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 		assert.equal(logResults[0].description, "Row 1 has wrong number of columns. Got 2.");
 		done();
 	});
-	rule.useMethod(data);
+	rule._run( { data: data });
 });

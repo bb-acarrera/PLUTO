@@ -191,7 +191,7 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 	});
 
 	const data = "Column 0\nfoo";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( assert ) {
@@ -217,7 +217,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 	});
 
 	const data = "Column 0\nfoo";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( assert ) {
@@ -239,7 +239,7 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 	});
 
 	const data = "Column 0\n3.14";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( assert ) {
@@ -265,7 +265,7 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 	});
 
 	const data = "Column 0\nfoo";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( assert ) {
@@ -287,7 +287,7 @@ QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( ass
 	});
 
 	const data = "Column 0\n3.14";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", function( assert ) {
@@ -309,7 +309,7 @@ QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", functio
 	});
 
 	const data = "Column 0\n3";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( assert ) {
@@ -335,7 +335,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 	});
 
 	const data = "Column 0\nfoo";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function( assert ) {
@@ -361,7 +361,7 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 	});
 
 	const data = "Column 0\n3.14";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( assert ) {
@@ -383,5 +383,5 @@ QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( a
 	});
 
 	const data = "Column 0\n3";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });

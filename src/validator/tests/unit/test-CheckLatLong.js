@@ -301,7 +301,7 @@ QUnit.test( "CheckLatLong: Check For Bad Column Count", function( assert ) {
 	});
 
 	const data = "Lat,Long\n1";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( assert ) {
@@ -332,7 +332,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 	});
 
 	const data = "Lat,Long\nfoo,bar";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( assert ) {
@@ -371,7 +371,7 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 	});
 
 	const data = "Lat,Long\n-91,-200\n91,200";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
 
 QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
@@ -394,5 +394,5 @@ QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
 	});
 
 	const data = "Lat,Long\n43.6532,79.3832\n41.2865,174.7762";
-	rule.useMethod(data);
+	rule._run( { data: data });
 });
