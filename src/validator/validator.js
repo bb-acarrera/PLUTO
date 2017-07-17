@@ -186,22 +186,14 @@ class Validator {
 
 		let validator = this;
 		Promise.resolve({ result : { file : localFileName }, index : 0}).then(function loop(lastResult) {
-			if (lastResult.index < rules.length)
+			if (lastResult.index < rules.length && !validator.shouldAbort )
 				return validator.getRule(rulesDirectory, rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index+1).then(loop);
 			else
 				return lastResult;
 		}).catch((e) => {
-			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e}`;
-			// if (rule.shouldRulesetFailOnError()) {
-				this.error(errorMsg);
-				throw errorMsg;	// Failed so bail.
-			// }
-			// else {
-			// 	this.warning(errorMsg);
-			// 	this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);	// Failed but continue.
-			// }
+			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
+			this.error(errorMsg);
 		}).then((lastResult) => {
-			// TODO: How should this.shouldAbort be handled?
 			if (lastResult.result.stream) {
 				// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
 				let p = new Promise((resolve, reject) => {
