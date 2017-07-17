@@ -30,6 +30,12 @@ class BaseRuleAPI extends EventEmitter {
 		return new Error("run() not implemented.");
 	}
 
+	/**
+	 *
+	 * @param data
+	 * @returns {Promise}
+	 * @private
+	 */
 	_run(data) {
 		// Called from validator.
 		this._data = data;

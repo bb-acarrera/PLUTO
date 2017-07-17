@@ -202,7 +202,23 @@ class Validator {
 			}
 		}).then((lastResult) => {
 			// TODO: How should this.shouldAbort be handled?
-			this.finishRun(lastResult.result);
+			if (lastResult.result.stream) {
+				// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
+				let p = new Promise((resolve, reject) => {
+					let resultsFile = this.putFile(lastResult.result.stream, this.getTempName());
+					lastResult.result.stream.on('finish', () => {
+						resolve(resultsFile);
+					});
+					lastResult.result.stream.on('error', (e) => {
+						reject()
+					});
+				});
+				p.then((filename) => {
+					this.finishRun({ file: filename });
+				});
+			}
+			else
+				this.finishRun(lastResult.result);
 		});
 	}
 
@@ -427,13 +443,16 @@ class Validator {
 			throw e;
 		}
 
+		let dstPath = path.resolve(this.outputDirectory, remoteFileName);
 		if (typeof fileNameOrStream === 'string') {
-			fs.copySync(fileNameOrStream, path.resolve(this.outputDirectory, remoteFileName));
+			fs.copySync(fileNameOrStream,dstPath);
 		}
 		else {
-			const dst = fs.createWriteStream(path.resolve(this.outputDirectory, remoteFileName));
+			const dst = fs.createWriteStream(dstPath);
 			fileNameOrStream.pipe(dst);
 		}
+
+		return dstPath;
 	}
 
 	/**
