@@ -20,17 +20,17 @@ class Router {
 		this.runsRouter = new RunsRouter(config);
 		this.processFileRouter = new ProcessFileRouter(config);
 
-		//this._router.get('/validation', (req, res) => this.validationRouter.get(req, res) );
-		this._router.get('/rulesets/:id', (req, res) => this.rulesetRouter.get(req, res) );
-		this._router.get('/rulesets', (req, res) => this.rulesetRouter.get(req, res) );
-		this._router.get('/logs/:id', (req, res) => this.logsRouter.get(req, res) );
-		this._router.get('/rules', (req, res) => this.rulesRouter.get(req, res));
-		this._router.get('/runs/:id', (req, res) => this.runsRouter.get(req, res));
-		this._router.get('/runs', (req, res) => this.runsRouter.get(req, res));
+		//this._router.get('/validation', (req, res, next) => this.validationRouter.get(req, res, next) );
+		this._router.get('/rulesets/:id', (req, res, next) => this.rulesetRouter.get(req, res, next) );
+		this._router.get('/rulesets', (req, res, next) => this.rulesetRouter.get(req, res, next) );
+		this._router.get('/logs/:id', (req, res, next) => this.logsRouter.get(req, res, next) );
+		this._router.get('/rules', (req, res, next) => this.rulesRouter.get(req, res, next));
+		this._router.get('/runs/:id', (req, res, next) => this.runsRouter.get(req, res, next));
+		this._router.get('/runs', (req, res, next) => this.runsRouter.get(req, res, next));
 
-		this._router.patch('/rulesets/:id', (req, res) => this.rulesetRouter.patch(req, res) );
+		this._router.patch('/rulesets/:id', (req, res, next) => this.rulesetRouter.patch(req, res, next) );
 
-		this._router.post('/processfile', (req, res) => this.processFileRouter.post(req, res))
+		this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next))
 	}
 
 	get router() {

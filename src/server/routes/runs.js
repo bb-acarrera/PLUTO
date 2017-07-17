@@ -6,7 +6,7 @@ class RunsRouter extends BaseRouter {
         super(config);
     }
 
-    get(req, res) {
+    get(req, res, next) {
         // Note that in general the server and validator can have different root directories.
         // The server's root directory points to the client code while the validator's root
         // directory points to rulesets, rule plugins and such. It can be configured such
@@ -15,7 +15,10 @@ class RunsRouter extends BaseRouter {
         if(req.params.id) {
             this.config.data.getRun(req.params.id).then((runInfo) => {
                 if (!runInfo)
-                    throw new Error(`Unable to retrieve the run '${req.params.id}'.`);
+                {
+                    res.status(404).send(`Unable to retrieve the run '${req.params.id}'.`);
+                    return;
+                }
 
                 res.json({
                     data:  {
@@ -25,8 +28,9 @@ class RunsRouter extends BaseRouter {
                     }
                 });
             }, (error) => {
-                throw new Error(error);
-            });
+                next(error);
+            })
+                .catch(next);
 
         } else {
 
@@ -50,7 +54,8 @@ class RunsRouter extends BaseRouter {
                 res.json({
                     data: data
                 });
-            });
+            }, next)
+                .catch(next);
 
         }
 

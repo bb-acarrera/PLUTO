@@ -16,17 +16,18 @@ npm run docker_build
 ## Ruleset Configuration
 [Ruleset][ruleset]
 
-## Executing Docker Container
-The container will listen on port 3000, and expects a configuration volume mounted to `/opt/PLUTO/config`.  For example:
 
-```shell
-docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto
-```
-or call the shell script:
+## Starting the services
+
 ```shell
 startPluto.sh
 ```
-The test_config folder at the source root contains a default valid configuration that can be used.
+It will create a docker volume for the Postgresql database (pgdata), start the database, and then start the web server.
+
+The Postgres database container is listening on port 5432, with user pluto.
+The web service container will listen on port 3000, and expects a configuration volume mounted to `/opt/PLUTO/config`.  
+
+The test_config folder at the source root contains a default valid configuration that is mounted to `/opt/PLUTO/config`.
 
 ## Calling the Service
 
