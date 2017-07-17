@@ -36,6 +36,24 @@ class BaseRuleAPI extends EventEmitter {
 		this.config = localConfig || {};
 	}
 
+	run() {
+		return new Error("run() not implemented.");
+	}
+
+	_run(data) {
+		// Called from validator.
+		this._data = data;
+		return new Promise((resolve, reject) => {
+			let runResult = this.run();
+			if (runResult instanceof Promise)
+				runResult.then((result) => resolve(result), (error) => reject(error));
+			else if (runResult instanceof Error)
+				reject(runResult);
+			else
+				resolve(runResult);
+		});
+	}
+
 	/**
 	 * This method indicates whether or not an entire run of a ruleset should fail if this rule fails. Rules which do
 	 * simple filtering can probably fail without breaking the entire run of the ruleset but rules which rearrange the

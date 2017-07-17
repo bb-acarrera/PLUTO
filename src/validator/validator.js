@@ -14,11 +14,16 @@ const Util = require("../common/Util");
 const Data = require("../common/dataFs");
 
 const ErrorLogger = require("./ErrorLogger");
-const MemoryWriterStream = require("../runtime/utilities/MemoryWriterStream");
-const MemoryReaderStream = require("../runtime/utilities/MemoryReaderStream");
 const RuleSet = require("./RuleSet");
 
 const version = '0.1'; //require("../../package.json").version;
+
+// Add a new method to Promises to help with running rules.
+Promise.prototype.thenReturn = function(value) {
+	return this.then(function(result) {
+		return {result: result, index: value};
+	})
+};
 
 
 /*
@@ -129,7 +134,7 @@ class Validator {
 					try {
 						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
 						if (!ruleset.rules || ruleset.rules.length == 0)
-							this.finishRun({file:this.inputFileName});	// If there are rules this will have been run asynchronously after the last run was run.
+							this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
 					}
 					catch (e) {
 						this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
@@ -145,7 +150,7 @@ class Validator {
 					throw e;
 				});
 		} else {
-			this.inputFileName = inputFile;
+			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
 			if (!this.inputFileName)
 				throw "No input file specified.";
 
@@ -178,37 +183,32 @@ class Validator {
 		// all run locally) and make sure the data is all available at the start of the process.
 		const localFileName = this.getTempName();
 		this.getFile(file, localFileName);
-		let currentResult = { file : localFileName };
 
-		function makeIterator(rules) {
-			var nextIndex = 0;
-
-			return {
-				next: function() {
-					return nextIndex < rules.length ? rules[nextIndex++] : null;
-				},
-				index: function() {
-					return nextIndex-1;
-				}
-			};
-		}
-		this.ruleIterator = makeIterator(rules);
-
-		this.runRule(rulesDirectory, this.ruleIterator.next(), currentResult);
+		let validator = this;
+		Promise.resolve({ result : localFileName, index : 0}).then(function loop(lastResult) {
+			if (lastResult.index < rules.length)
+				return validator.getRule(rulesDirectory, rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index+1).then(loop);
+			else
+				return lastResult;
+		}).catch((e) => {
+			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e}`;
+			if (rule.shouldRulesetFailOnError()) {
+				this.error(errorMsg);
+				throw errorMsg;	// Failed so bail.
+			}
+			else {
+				this.warning(errorMsg);
+				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);	// Failed but continue.
+			}
+		}).then((lastResult) => {
+			// TODO: How should this.shouldAbort be handled?
+			this.finishRun(lastResult.result);
+		});
 	}
 
-	runRule(rulesDirectory, ruleDescriptor, lastResult) {
-		if (!ruleDescriptor || this.shouldAbort) {	// "shouldAbort" is set in the "log" method.
-			// No more rules, so done.
-			this.finishRun(lastResult);
-
-
-			//TODO: track down why the process is still active when we hit this point in debugger
-			//console.log(process._getActiveHandles());
-
-			return;
-		}
-
+	getRule(rulesDirectory, ruleDescriptor) {
+		// TODO: Get all the rules before running them. This way if any rules are missing an error can be
+		// raised without affecting the later running of the rules.
 		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
 
 		// Load the default config, if it exists.
@@ -227,13 +227,10 @@ class Validator {
 		// Get the rule's config. If there isn't one use the default. The config from the ruleset file replaces
 		// the default. It does not amend it.
 		let config = ruleDescriptor.config || defaultConfig;
-		if (typeof config === 'string') {
+		if (typeof config === 'string' && config != defaultConfigPath) {
 			try {
 				config = path.resolve(rulesDirectory, config);
 				config = require(config);
-				if (!config.config)
-					throw(this.constructor.name, "Config file \"" + config + "\" does not contain a 'config' member.");
-				config = config.config;
 			}
 			catch (e) {
 				throw(this.constructor.name, "Failed to load rule config file \"" + config + "\".\n\tCause: " + e);
@@ -241,124 +238,12 @@ class Validator {
 		}
 
 		// Set the validator so that the rule can report errors and such.
+		// TODO: This would still have to be done when running the rules, not before.
 		this.updateConfig(config);
 		config.name = config.name || ruleDescriptor.filename;
 		this.ruleName = config.name;
 
-		const rule = new ruleClass(config);
-
-		// Try to match the input method to the data. i.e. a rule could support multiple import approaches
-		// so we don't want to unnecessarily convert the data.
-		try {
-			if (typeof rule.updateMetadata === 'function') {
-				rule.updateMetadata();
-				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);
-			}
-			else if (rule.canUseMethod() && lastResult.data)			// No conversion necessary.
-				this.runMethodsRule(rulesDirectory, rule, lastResult);
-			else if (rule.canUseStreams() && lastResult.stream)	// No conversion necessary.
-				this.runStreamsMethod(rulesDirectory, rule, lastResult);
-			else if (rule.canUseFiles() && lastResult.file)		// No conversion necessary.
-				this.runFilesRule(rulesDirectory, rule, lastResult);
-
-			else if (rule.canUseFiles())	// Conversion necessary.
-				this.runFilesRule(rulesDirectory, rule, lastResult);
-			else if (rule.canUseStreams())	// Conversion necessary.
-				this.runStreamsMethod(rulesDirectory, rule, lastResult);
-			else if (rule.canUseMethod())	// Conversion necessary.
-				this.runMethodsRule(rulesDirectory, rule, lastResult);
-
-			else
-				throw(`Rule '${this.ruleName}' will not accept the data from the last rule.`);	// Should never happen. All cases should be covered above.
-		}
-		catch (e) {
-			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e}`;
-			if (rule.shouldRulesetFailOnError()) {
-				this.error(errorMsg);
-				throw errorMsg;	// Failed so bail.
-			}
-			else {
-				this.warning(errorMsg);
-				this.runRule(rulesDirectory, this.ruleIterator.next(), lastResult);	// Failed but continue.
-			}
-		}
-	}
-
-	runMethodsRule(rulesDirectory, rule, lastResult) {
-		// Send the output on to the next rule.
-		rule.on(BaseRuleAPI.NEXT, (data) => {
-			// The rule may have changed the file encoding.
-			this.encoding = rule.config.encoding;
-
-			this.runRule(rulesDirectory, this.ruleIterator.next(), { data: data });
-		});
-
-		if (lastResult.data)
-			rule.useMethod(lastResult.data);
-		else if (lastResult.file) {	// Should always be true when the first case is false.
-			// Read the file and pass the data to the method.
-			const data = this.loadFile(lastResult.file, this.encoding);	// lastResult.file should always be an absolute path.
-			rule.useMethod(data);
-		}
-		else if (lastResult.stream) {
-			// The last rule output to a stream but the new rule requires the data in memory. So write the
-			// stream into memory and when done call the next rule.
-			const writer = new MemoryWriterStream();
-			writer.once("finish", () => {
-				rule.useMethod(writer.getData(this.encoding));
-			});
-			lastResult.stream.pipe(writer);
-		}
-		else
-			throw "Rule cannot read data.";
-	}
-
-	runFilesRule(rulesDirectory, rule, lastResult) {
-		// Send the output on to the next rule.
-		rule.on(BaseRuleAPI.NEXT, (filename) => {
-			// The rule may have changed the file encoding.
-			this.encoding = rule.config.encoding;
-
-			this.runRule(rulesDirectory, this.ruleIterator.next(), { file: filename });
-		});
-
-		if (lastResult.file)
-			rule.useFiles(lastResult.file);
-		else if (lastResult.data) {	// Should always be true when the first case is false.
-			// Write the data to a temporary file and pass the filename to the method.
-			rule.useFiles(this.saveLocalTempFile(lastResult.data, this.encoding))
-		}
-		else if (lastResult.stream) {
-			// The last rule output to a stream but the new rule requires the data in a file. So write the
-			// stream into a file and when done call the next rule.
-			const tempFileName = this.getTempName();
-			const writer = fs.createWriteStream(tempFileName);
-			writer.once("finish", () => {
-				rule.useFiles(tempFileName);
-			});
-			lastResult.stream.pipe(writer);
-		}
-		else
-			throw "Rule cannot read data.";
-	}
-
-	runStreamsMethod(rulesDirectory, rule, lastResult) {
-		// Send the output on to the next rule.
-		rule.on(BaseRuleAPI.NEXT, (stream) => {
-			// The rule may have changed the file encoding.
-			this.encoding = rule.config.encoding;
-
-			this.runRule(rulesDirectory, this.ruleIterator.next(), { stream: stream });
-		});
-
-		if (lastResult.stream)
-			rule.useStreams(lastResult.stream, new stream.PassThrough());
-		else if (lastResult.data)
-			rule.useStreams(new MemoryReaderStream(lastResult.data), new stream.PassThrough());
-		else if (lastResult.file)
-			rule.useStreams(fs.createReadStream(lastResult.file), new stream.PassThrough());
-		else
-			throw "Rule cannot read data.";
+		return new ruleClass(config);
 	}
 
 	/**
@@ -369,10 +254,10 @@ class Validator {
 	saveResults(results) {
 
 		if (results && this.outputFileName) {
-			if (results.data)
-				this.saveFile(results.data, this.outputFileName, this.encoding);
-			else if (results.stream)
-				this.putFile(results.stream, this.outputFileName, this.encoding);
+			if (typeof results == 'string')
+				this.saveFile(results, this.outputFileName, this.encoding);
+			else if (results instanceof stream.Readable)
+				this.putFile(results, this.outputFileName, this.encoding);
 			else
 				this.putFile(results.file, this.outputFileName);
 		}
@@ -394,16 +279,16 @@ class Validator {
 
 		if(this.currentRuleset.export) {
 			var resultsFile = null;
-			if (results && results.data) {
+			if (typeof results == 'string')
+				resultsFile = results;
+			else if (results instanceof stream.Readable) {
 				resultsFile = this.getTempName();
-				this.saveFile(results.data, resultsFile, this.encoding);
+				this.putFile(results, resultsFile, this.encoding);
 			}
-			else if (results && results.stream) {
+			else {
 				resultsFile = this.getTempName();
-				this.putFile(results.stream, resultsFile, this.encoding);
+				this.saveFile(results, resultsFile, this.encoding);
 			}
-			else if (results)
-				resultsFile = results.file;
 
 			this.exportFile(this.currentRuleset.export, resultsFile, runId)
 				.then(() => {},
@@ -802,7 +687,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 	}
 
 	// If the input or output are not set they'll be grabbed from the ruleset file later.
-	let inputFile = program.input ? path.resolve(program.input) : undefined;
+	let inputFile = program.input;	//  ? path.resolve(program.input) : undefined;
 	let outputFile = program.output;
 	let inputEncoding = program.encoding;
 

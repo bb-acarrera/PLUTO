@@ -5,10 +5,8 @@ class RuleExampleUsingMethod extends RuleAPI {
 		super(config)
 	}
 
-	useMethod(data) {
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, data);
-		});
+	run() {
+		return this.object;
 	}
 }
 

@@ -5,10 +5,8 @@ class RuleExampleUsingFiles extends RuleAPI {
 		super(config)
 	}
 
-	useFiles(filename) {
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, filename);
-		});
+	run() {
+		return this.inputFile;
 	}
 }
 

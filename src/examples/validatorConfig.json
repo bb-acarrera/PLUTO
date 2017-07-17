@@ -1,0 +1,10 @@
+{
+	"rootDirectory" : ".",
+	"rulesetDirectory" : "examples",
+	"rulesDirectory" : "examples",
+	"tempDirectory" : "./tmp",
+	"inputDirectory" : "examples/data",
+	"outputDirectory" : "results",
+	"logDirectory" : "results/logs",
+	"runsDirectory" : "results/runs"
+}
