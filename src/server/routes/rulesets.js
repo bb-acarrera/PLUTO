@@ -8,7 +8,7 @@ class RulesetRouter extends BaseRouter {
 		super(config);
 	}
 
-	get(req, res, next) {
+	get(req, res) {
 		// Note that in general the server and validator can have different root directories.
 		// The server's root directory points to the client code while the validator's root
 		// directory points to rulesets, rule plugins and such. It can be configured such
@@ -17,7 +17,7 @@ class RulesetRouter extends BaseRouter {
 		if(req.params.id) {
 			const ruleset = this.config.data.retrieveRuleset(req.params.id);
 			if (!ruleset)
-				return next(new Error("Unable to find ruleset."));
+				throw new Error("Unable to find ruleset.");
 
 			var rules = [];
 			for (var i = 0; i < ruleset.rules.length; i++) {
@@ -58,13 +58,13 @@ class RulesetRouter extends BaseRouter {
 		}
 	}
 
-	patch(req, res, next) {
+	patch(req, res) {
 		const ruleset = new RuleSet(req.body);
 		this.config.data.saveRuleSet(ruleset);
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
 
-	getAll(req, res, next) {
+	getAll(req, res) {
 
 	}
 }

@@ -5,16 +5,13 @@ CREATE TABLE runs (
     run_id varchar(512),
     inputfile varchar(512),
     outputfile varchar(512),
-    finishtime timestamp
-);
-
-CREATE TABLE logs (
-    id serial PRIMARY KEY,
+    finishtime timestamp,
     log json
 );
 
 CREATE TABLE rulesets (
     id serial PRIMARY KEY,
     name varchar(256),
-    version integer DEFAULT 0
+    version integer DEFAULT 0,
+    rules json
 )

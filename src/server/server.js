@@ -24,7 +24,7 @@ class Server {
 
 
 		this.port = this.config.Port || 3000;
-		this.rootDir = path.resolve(this.config.rootDirectory || this.config.Validator.rootDirectory || ".");
+		this.rootDir = path.resolve(this.config.rootDirectory || this.config.validator.rootDirectory || ".");
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
 		this.router = new Router(config);
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.AssetsDirectory || "public");
@@ -44,7 +44,7 @@ class Server {
 		// TODO: Basic error handling. Make it a little less basic?
 		if (app.get('env') === 'development') {
 
-			app.use(function(err, req, res, next) {
+			app.use(function(err, req, res) {
 				res.status(err.status || 500);
 				res.json({
 					message: err.message,
@@ -56,7 +56,7 @@ class Server {
 
 		// production error handler
 		// no stacktraces leaked to user
-		app.use(function(err, req, res, next) {
+		app.use(function(err, req, res) {
 			res.status(err.status || 500);
 			res.json({
 				message: err.message,

@@ -24,10 +24,18 @@ class RunsRouter extends BaseRouter {
                         attributes: runInfo
                     }
                 });
+            }, (error) => {
+                throw new Error(error);
             });
 
         } else {
-            this.config.data.getRuns().then((runs) => {
+
+            let page = 0;
+            if(req.query.page) {
+                page = req.query.page;
+            }
+
+            this.config.data.getRuns(page).then((runs) => {
                 var data = [];
 
                 runs.forEach(runInfo => {

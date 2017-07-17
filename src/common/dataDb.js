@@ -23,6 +23,8 @@ class data {
 
         this.runsDirectory = path.resolve(this.rootDir, this.config.runsDirectory);
         this.logDirectory = path.resolve(this.rootDir, this.config.logDirectory);
+
+        this.runsLimit = 50;
     }
 
     /**
@@ -36,43 +38,19 @@ class data {
     getLog(id) {
 
         return new Promise((resolve, reject) => {
+            this.db.query("SELECT log FROM runs where run_id = $1", [id])
+                .then((result) => {
 
-            const logfile = path.resolve(this.logDirectory, id);
-            var log;
-            if (fs.existsSync(logfile)) {
-                const contents = fs.readFileSync(logfile, 'utf8');
-                try {
-                    log = JSON.parse(contents);
-                }
-                catch (e) {
-                    console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-                }
-            }
-            resolve(log);
+                    if(result.rows.length > 0) {
+                        resolve(result.rows[0].log);
+                    } else {
+                        resolve(null);
+                    }
+
+                }, (error) => {
+                    reject(error);
+                });
         });
-    }
-
-    /**
-     * This method is used by the application to save the log of results for the given file synchronously.
-     * @param filename {string} the name of the file to save.
-     * @throws Throws an error if the directory cannot be found or the file saved.
-     * @private
-     */
-    saveLog(inputName, log) {
-        try {
-            if (!fs.existsSync(this.logDirectory))
-                fs.mkdirSync(this.logDirectory);	// Make sure the logDirectory exists.
-        }
-        catch (e) {
-            console.error(this.constructor.name + " failed to create \"" + this.logDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-            throw e;
-        }
-
-        const basename = path.basename(inputName, path.extname(inputName)) + '_' + Util.getCurrentDateTimeString() + ".log.json";
-
-        fs.writeFileSync(path.resolve(this.logDirectory, basename), JSON.stringify(log), 'utf8');
-
-        return basename;
     }
 
     /**
@@ -86,18 +64,28 @@ class data {
     getRun(id) {
         return new Promise((resolve, reject) => {
 
-            const runfile = path.resolve(this.runsDirectory, id);
-            var run;
-            if (fs.existsSync(runfile)) {
-                const contents = fs.readFileSync(runfile, 'utf8');
-                try {
-                    run = JSON.parse(contents);
-                }
-                catch (e) {
-                    console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-                }
-            }
-            resolve(run);
+            this.db.query("SELECT id, ruleset_id, run_id, inputfile, outputfile, finishtime, log FROM runs where run_id = $1", [id])
+                .then((result) => {
+
+                    if(result.rows.length > 0) {
+                        let row = result.rows[0];
+                        resolve({
+                            id: row.run_id,
+                            log: row.run_id,
+                            ruleset: row.ruleset_id,
+                            inputfilename: row.inputFile,
+                            outputfilename: row.outputFile,
+                            time: row.finishtime,
+                            log_results: row.log
+                        });
+                    } else {
+                        resolve(null);
+                    }
+
+                }, (error) => {
+                    reject(error);
+                });
+
         });
     }
 
@@ -107,77 +95,57 @@ class data {
      * @returns {array} list of the run file.
      * @private
      */
-    getRuns() {
+    getRuns(page) {
+
+        let offset;
+        if(!page) {
+            offset = 0;
+        } else {
+            offset = page * this.runsLimit;
+        }
 
         return new Promise((resolve, reject) => {
             var runs = [];
 
-            fs.readdirSync(this.runsDirectory).forEach(file => {
+            this.db.query("SELECT id, ruleset_id, run_id, inputfile, outputfile, finishtime FROM runs " + "" +
+                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2", [this.runsLimit, offset] )
+                .then((result) => {
 
-                const runfile = path.resolve(this.runsDirectory, file);
-                var run;
-                if (fs.existsSync(runfile)) {
-                    const contents = fs.readFileSync(runfile, 'utf8');
-                    try {
-                        run = JSON.parse(contents);
-                        runs.push(run);
-                    }
-                    catch (e) {
-                        console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-                    }
-                }
+                    result.rows.forEach((row) => {
+                        runs.push({
+                            id: row.run_id,
+                            log: row.id,
+                            ruleset: row.ruleset_id,
+                            inputfilename: row.inputFile,
+                            outputfilename: row.outputFile,
+                            time: row.finishtime
+                        });
+                    });
 
-            });
+                    resolve(runs);
 
-            resolve(runs);
+                }, (error) => {
+                    reject(error);
+                });
+
         });
     }
 
     /**
      * This method saves record which is used by the client code to reference files for any particular run.
-     * @param runId the unique ID of the run.
-     * @param logName the name of the log file
-     * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
+     * @returns undefined
      * @private
      */
     saveRunRecord(runId, log, ruleSetId, inputFile, outputFile) {
 
-        let logId = this.saveLog(inputFile, log);
-
-        try {
-            if (!fs.existsSync(this.runsDirectory))
-                fs.mkdirSync(this.runsDirectory);	// Make sure the runsDirectory exists.
-        }
-        catch (e) {
-            console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-            throw e;
-        }
-
-        const run = {
-            id: runId,
-            log: logId,
-            ruleset: ruleSetId,
-            inputfilename: inputFile,
-            outputfilename: outputFile,
-            time: new Date()
-        };
-
-
-        fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
-
-        this.db.query("INSERT INTO logs (log) VALUES($1) RETURNING id", [JSON.stringify(log)]).then((result) => {
-            this.db.query("INSERT INTO runs (run_id, log_id, ruleset_id, inputfile, outputfile, finishtime) VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
-                [runId, result.rows[0].id, 0, run.inputfilename, run.outputfilename, run.time])
-                .then((result) => {
-                    console.log(result);
-                }, (error) => {
-                    console.log(error);
-                });
-        }, (error) => {
-            console.log(error);
-        });
-
-
+        this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
+            "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
+            [runId, 0, inputFile, outputFile, new Date(), JSON.stringify(log)])
+            .then(() => {
+                return;
+            }, (error) => {
+                console.log(error);
+            });
 
     }
 
