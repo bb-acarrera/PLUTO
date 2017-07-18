@@ -1,5 +1,3 @@
-const MemoryReaderStream = require("../utilities/MemoryReaderStream");
-const MemoryWriterStream = require("../utilities/MemoryWriterStream");
 const RuleAPI = require("./RuleAPI");
 
 const fs = require("fs");
@@ -157,7 +155,7 @@ class CSVRuleAPI extends RuleAPI {
 	 * @param outputStream {stream} the stream to write to. (May be null/undefined.)
 	 * @private
 	 */
-	processCSV(inputStream, outputStream) {
+	_processCSV(inputStream, outputStream) {
 		const parser = parse(
 			{
 				delimiter: this.delimiter,
@@ -194,47 +192,9 @@ class CSVRuleAPI extends RuleAPI {
 			inputStream.pipe(parser).pipe(transformer);
 	}
 
-	/**
-	 * Add a notification onto the inputStream before moving on to processing the streams.
-	 * @param inputStream the stream containing the CSV to process.
-	 * @param outputStream the stream that will receive the processed results.
-	 * @private
-	 */
-	useStreams(inputStream, outputStream) {
-		inputStream.once('readable', () => {
-			// Note that this is done as soon as there is data rather than at the end. Otherwise the buffers would fill without any way to drain them.
-			this.emit(RuleAPI.NEXT, outputStream);
-		});
-		this.processCSV(inputStream, outputStream)
-	}
-
-	/**
-	 * Convert files to streams (the preferred solution) for processing a CSV file.
-	 * @param inputFile the file containing CSV data to process.
-	 * @private
-	 */
-	useFiles(inputFile) {
-		const tempFileName = this.config.validator.getTempName();
-		const writer = fs.createWriteStream(tempFileName);
-		writer.once("finish", () => {
-			this.emit(RuleAPI.NEXT, tempFileName);
-		});
-		const reader = fs.createReadStream(inputFile);
-		this.processCSV(reader, writer);
-	}
-
-	/**
-	 * Convert in-memory data to streams (the preferred solution) for processing a CSV file.
-	 * @param data the CSV data to process.
-	 * @private
-	 */
-	useMethod(data) {
-		const writer = new MemoryWriterStream();
-		writer.once("finish", () => {
-			this.emit(RuleAPI.NEXT, writer.getData(this.encoding));
-		});
-		const reader = new MemoryReaderStream(data);
-		this.processCSV(reader, writer);
+	run() {
+		this._processCSV(this.inputStream, this.outputStream);
+		return this.asStream(this.outputStream);
 	}
 }
 

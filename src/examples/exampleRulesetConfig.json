@@ -1,7 +1,5 @@
 {
-	"RuleSet" : {
-		"SourceFileName" : "simplemaps-worldcities-basic.csv",
-		"ResultsFileName" : "results.csv",
+	"ruleset" : {
 		"name" : "Example RuleSet",
 		"rules" : [
 			{

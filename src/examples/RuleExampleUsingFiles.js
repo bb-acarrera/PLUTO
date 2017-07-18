@@ -5,10 +5,15 @@ class RuleExampleUsingFiles extends RuleAPI {
 		super(config)
 	}
 
-	useFiles(filename) {
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, filename);
-		});
+	run() {
+		let input = this.inputFile;
+
+		if (input instanceof Promise)
+			return input.then((file) => {
+				return this.asFile(file);
+			});
+		else
+			return this.asFile(input);
 	}
 }
 

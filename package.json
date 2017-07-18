@@ -27,7 +27,8 @@
     "csv": "^1.1.1",
     "express": "^4.15.2",
     "fs-extra": "^3.0.1",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "stream-to-promise": "^2.2.0"
   },
   "devDependencies": {
     "jsdoc": "^3.4.3",

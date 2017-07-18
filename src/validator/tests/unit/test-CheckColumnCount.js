@@ -101,12 +101,11 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	rule.on(RuleAPI.NEXT, (data) => {
+	rule._run( { data: data } ).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
@@ -123,12 +122,11 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234";
-	rule.on(RuleAPI.NEXT, (data) => {
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no results.");
 		done();
 	});
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) {
@@ -145,14 +143,13 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234";
-	rule.on(RuleAPI.NEXT, (data) => {
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 		assert.equal(logResults[0].description, "Row 0 has wrong number of columns. Got 1.");
 		done();
 	});
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
@@ -169,12 +166,11 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234,5678";
-	rule.on(RuleAPI.NEXT, (data) => {
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 		assert.equal(logResults[0].description, "Row 1 has wrong number of columns. Got 2.");
 		done();
 	});
-	rule.useMethod(data);
 });

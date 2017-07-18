@@ -1,4 +1,50 @@
+const fs = require('fs-extra');
+const stream = require('stream');
+const streamToPromise = require('stream-to-promise');
 const BaseRuleAPI = require('./BaseRuleAPI');
+
+/*
+ * A trivial class which takes a data array and streams it.
+ */
+class MemoryReaderStream extends stream.Readable {
+	constructor(data) {
+		super();
+		this.data = Buffer.from(data);
+	}
+
+	_read(size) {
+		this.push(this.data);
+		this.push(null);
+	}
+}
+
+/*
+ * A trivial class which takes input from a stream and captures it in a buffer.
+ */
+class MemoryWriterStream extends stream.Writable {
+	constructor(options) {
+		super(options);
+		this.buffer = Buffer.from(''); // empty
+	}
+
+	_write(chunk, enc, cb) {
+		// our memory store stores things in buffers
+		const buffer = (Buffer.isBuffer(chunk)) ?
+			chunk :  // already is Buffer use it
+			new Buffer(chunk, enc);  // string, convert
+
+		// concat to the buffer already there
+		this.buffer = Buffer.concat([this.buffer, buffer]);
+
+		// console.log("MemoryWriterStream DEBUG: " + chunk.toString());
+
+		cb(null);
+	}
+
+	getData(encoding) {
+		return this.buffer.toString(encoding);
+	}
+}
 
 /**
  * This API class is used to describe the interface to rule operations. The methods indicate how the
@@ -24,86 +70,113 @@ class RuleAPI extends BaseRuleAPI {
 		super(localConfig);
 	}
 
-	/**
-	 * If the rule supports receiving and writing data through the STDIN and STDOUT streams by implementing a method
-	 * called {@link RuleAPI#useStreams RuleAPI.useStreams} this method should return true otherwise it should return false.
-	 * @abstract
-	 * @returns {boolean}
-	 * @private
-	 */
-	canUseStreams() {
-		return typeof this.useStreams == 'function';
+	hasFilename() {
+		return this._data && this._data.file;
 	}
 
-	/**
-	 * If the rule supports receiving and writing data through local file system files by implementing a method
-	 * called {@link RuleAPI#useFiles RuleAPI.useFiles} this method should return true otherwise it should return false.
-	 * @abstract
-	 * @returns {boolean}
-	 * @private
-	 */
-	canUseFiles() {
-		return typeof this.useFiles == 'function';
+	hasStream() {
+		return this._data && this._data.stream && this._data.stream instanceof stream.Readable;
 	}
 
-	/**
-	 * If the rule supports receiving and writing data through a method call by implementing a method called
-	 * {@link RuleAPI#useMethod RuleAPI.useMethod} this method should return true otherwise it should return false.
-	 * @abstract
-	 * @returns {boolean}
-	 * @private
-	 */
-	canUseMethod() {
-		return typeof this.useMethod == 'function';
+	hasObject() {
+		return this._data && this._data.data;
 	}
 
-	/**
-	 * If the rule supports receiving and writing data through streams this method must be implemented.
-	 * On completion the implementation should emit a {@link RuleAPI.NEXT} event with the output stream. (Note that there is no
-	 * error stream. It's expected that the rule will collect errors from any error stream and report them to
-	 * the validator.error() method. This allows the rule to properly parse any output before posting to the log.)
-	 * @param inputStream {stream} a stream from which the rule reads it's input.
-	 * @param outputStream {stream} a stream to which the rule writes it's output.
-	 * rule will not be considered to have failed if it writes to this stream.
-	 * @abstract
-	 */
-	// useStreams(inputStream, outputStream) {
-	// 	this.error("canUseStreams() returned true but useStreams() not implemented.");
-	//
-	// 	setImmediate(() => {
-	// 		this.emit(RuleAPI.NEXT, outputStream);
-	// 	});
-	// }
+	asFile(filename) {
+		return { file : filename };
+	}
 
-	/**
-	 * If the rule supports receiving and writing data through files this method must be implemented.
-	 * On completion the rule should emit a {@link RuleAPI.NEXT} event with the name of the resulting file as the single argument.
-	 * The application will delete the file when it is no longer required if
-	 * it is created in the TempDirectory.
-	 * @param filename {string} the fully qualified name of the file to read. The rule must not delete this file.
-	 * @abstract
-	 */
-	// useFiles(filename) {
-	// 	this.error("canUseFiles() returned true but useFiles() not implemented.");
-	//
-	// 	setImmediate(() => {
-	// 		this.emit(RuleAPI.NEXT, filename);
-	// 	});
-	// }
+	asObject(data) {
+		return { data : data };
+	}
 
-	/**
-	 * If the rule supports receiving and writing data through a single method call this method must be implemented.
-	 * On completion the rule should emit a {@link RuleAPI.NEXT} event with the resulting content as the single argument.
-	 * @param data {object|string} the data to apply the rule to.
-	 * @abstract
-	 */
-	// useMethod(data) {
-	// 	this.error("canUseMethod() returned true but useMethod() not implemented.");
-	//
-	// 	setImmediate(() => {
-	// 		this.emit(RuleAPI.NEXT, data);
-	// 	});
-	// }
+	asStream(stream) {
+		return { stream : stream };
+	}
+
+	asError(message) {
+		return new Error(message);
+	}
+
+	get object() {
+		if (this._object)
+			return this._object;
+		else if (this._objectPromise)
+			return this._objectPromise;	// User really shouldn't query this more than once but we also don't want to create multiple Promises.
+
+		if (this.hasFilename())
+			this._object = this.config.validator.loadFile(this._data.file, this.config.encoding);
+		else if (this.hasStream()) {
+			const writer = new MemoryWriterStream();
+			this._data.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+			this._object = writer.getData(this.config.encoding);
+
+			this._objectPromise = streamToPromise(writer).then(() => {
+				this._objectPromise = undefined;
+				this._object = writer.getData(this.config.encoding);
+				return this._object;
+			});
+			return this._objectPromise;
+		}
+		else
+			this._object = this._data.data;
+
+		return this._object;
+	}
+
+	get inputFile() {
+		if (this._inputFile)
+			return this._inputFile;
+		else if (this._inputPromise)
+			return this._inputPromise;	// User really shouldn't be doing this but don't want to create a new Promise.
+
+		if (this.hasFilename())
+			this._inputFile = this._data.file;
+		else if (this.hasStream()) {
+			// The last rule output to a stream but the new rule requires the data in a file. So write the
+			// stream into a file and when done call the next rule.
+			const tempFileName = this.config.validator.getTempName();
+			const writer = fs.createWriteStream(tempFileName);
+			this._data.stream.pipe(writer);
+
+			this._inputPromise = streamToPromise(writer).then(() => {
+				this._inputPromise = undefined;
+				this._inputFile = tempFileName;
+				return tempFileName;
+			});
+			return this._inputPromise;
+		}
+		else
+			this._inputFile = this.config.validator.saveLocalTempFile(this._data.data, this.config.encoding);
+
+		return this._inputFile;
+	}
+
+	get outputFile() {
+		if (!this._outputFile)
+			this._outputFile = this.config.validator.getTempName();
+		return this._outputFile;
+	}
+
+	get inputStream() {
+		if (this._inputStream)
+			return this._inputStream;
+
+		if (this.hasStream())
+			this._inputStream = this._data.stream;
+		else if (this.hasFilename())
+			this._inputStream = fs.createReadStream(this._data.file);
+		else
+			this._inputStream = new MemoryReaderStream(this._data.data);
+
+		return this._inputStream;
+	}
+
+	get outputStream() {
+		if (!this._outputStream)
+			this._outputStream = new stream.PassThrough();
+		return this._outputStream;
+	}
 }
 
 module.exports = RuleAPI;	// Export this so derived classes can extend it.

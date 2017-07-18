@@ -24,8 +24,20 @@ class MetadataRuleAPI extends BaseRuleAPI {
 		super(localConfig);
 	}
 
-	updateMetadata() {
-
+	_run(data) {
+		// Called from validator.
+		this._data = data;
+		return new Promise((resolve, reject) => {
+			let runResult = this.run();
+			if (runResult instanceof Promise)
+				runResult.then((result) => resolve(result), (error) => reject(error));
+			else if (runResult instanceof Error)
+				reject(runResult);
+			else if (runResult)
+				resolve(runResult);
+			else
+				resolve(data);
+		});
 	}
 }
 

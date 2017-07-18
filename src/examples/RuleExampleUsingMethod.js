@@ -5,10 +5,15 @@ class RuleExampleUsingMethod extends RuleAPI {
 		super(config)
 	}
 
-	useMethod(data) {
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, data);
-		});
+	run() {
+		let input = this.object;
+
+		if (input instanceof Promise)
+			return input.then((data) => {
+				return this.asObject(data);
+			});
+		else
+			return this.asObject(input);
 	}
 }
 

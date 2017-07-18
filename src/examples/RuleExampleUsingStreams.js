@@ -5,14 +5,14 @@ class RuleExampleUsingStreams extends RuleAPI {
 		super(config)
 	}
 
-	useStreams(inputStream, outputStream) {
-		inputStream.once('readable', () => {
-			// Note that this is done as soon as there is data rather than at the end. Otherwise the buffers would fill without any way to drain them.
-			this.emit(RuleAPI.NEXT, outputStream);
-		});
+	run() {
+		let inputStream = this.inputStream;
+		let outputStream = this.outputStream;
 
 		// Simply pipe the contents of the input stream to the output stream.
 		inputStream.pipe(outputStream);
+
+		return this.asStream(outputStream);
 	}
 }
 
