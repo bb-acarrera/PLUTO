@@ -2,7 +2,7 @@ FROM node:alpine
 
 RUN apk --no-cache add  python
 
-ADD ./Release /opt/PLUTO
+ADD . /opt/PLUTO
 
 VOLUME ["/opt/PLUTO/config"]
 EXPOSE 3000
