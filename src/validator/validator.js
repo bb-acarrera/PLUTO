@@ -194,7 +194,7 @@ class Validator {
 			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
 			this.error(errorMsg);
 		}).then((lastResult) => {
-			if (lastResult.result.stream) {
+			if (lastResult && lastResult.result && lastResult.result.stream) {
 				// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
 				let p = new Promise((resolve, reject) => {
 					let dest = this.putFile(lastResult.result.stream, this.getTempName());
@@ -210,7 +210,7 @@ class Validator {
 				});
 			}
 			else
-				this.finishRun(lastResult.result);
+				this.finishRun(lastResult ? lastResult.result : undefined);
 		});
 	}
 
@@ -285,7 +285,7 @@ class Validator {
 		
 		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
 
-		if(this.currentRuleset.export) {
+		if (results && this.currentRuleset.export) {
 			var resultsFile = null;
 			if (results.file)
 				resultsFile = results.file;
@@ -323,6 +323,9 @@ class Validator {
 			console.log("Done.");
 		}
 		else {
+			console.error("No results");
+			this.error("No results were produced.");
+
 			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
 				this.rulesetName, this.inputFileName, this.outputFileName);
 			this.cleanup();
@@ -562,7 +565,7 @@ class Validator {
 	 */
 	loadRule(filename, rulesDirectory) {
 		if (!filename)
-			throw("Rule has no filename.");
+			throw("Rule has no 'filename' property.");
 
 		// Find the rule file.
 
@@ -582,7 +585,7 @@ class Validator {
 	 */
 	loadImporterExporter(filename) {
 		if (!filename)
-			throw("Importer/Exporter has no filename.");
+			throw("Importer/Exporter has no 'filename' property.");
 
 		let porterFilename = path.resolve(filename);
 		return this.loadPlugin(porterFilename);
