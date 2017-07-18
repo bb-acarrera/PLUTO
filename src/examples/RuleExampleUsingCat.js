@@ -6,14 +6,16 @@ class RuleExampleUsingCat extends RuleAPI {
 		super(config)
 	}
 
-	useStreams(inputStream, outputStream) {
+	run() {
 		// Simply pipe the contents of the input stream to the output stream through the "cat" command.
+		let inputStream = this.inputStream;
+		let outputStream = this.outputStream;
 
 		try {
 			const cat = spawn('cat');
 
 			cat.on('error', (e) => {
-				this.error(`RuleExampleUsingCat: ` + e);
+				this.error(`RuleExampleUsingCat: ` + e.message);
 				inputStream.pipe(outputStream);	// Pipe the input to the output without running through 'cat'.
 			});
 
@@ -24,11 +26,7 @@ class RuleExampleUsingCat extends RuleAPI {
 			inputStream.pipe(outputStream);
 		}
 
-		inputStream.once('readable', () => {
-			// Note that this is done as soon as there is data (i.e. as soon as the input stream is 'readable')
-			// rather than at the end. Otherwise the buffers would fill without any way to drain them.
-			this.emit(RuleAPI.NEXT, outputStream);
-		});
+		return this.asStream(outputStream);
 	}
 }
 

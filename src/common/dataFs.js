@@ -10,7 +10,7 @@ class data {
 
         this.rootDir = Util.getRootDirectory(this.config);
 
-        if (this.rulesetDirectory)
+        if (this.config.rulesetDirectory)
             this.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
         else
             this.rulesetDirectory = path.resolve('runtime/rulesets');

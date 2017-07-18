@@ -180,7 +180,8 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\nfoo";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
@@ -189,9 +190,6 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 		}
 		done();
 	});
-
-	const data = "Column 0\nfoo";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( assert ) {
@@ -206,7 +204,8 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\nfoo";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -215,9 +214,6 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 		}
 		done();
 	});
-
-	const data = "Column 0\nfoo";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( assert ) {
@@ -232,14 +228,12 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\n3.14";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-
-	const data = "Column 0\n3.14";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( assert ) {
@@ -254,7 +248,8 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\nfoo";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -263,9 +258,6 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 		}
 		done();
 	});
-
-	const data = "Column 0\nfoo";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( assert ) {
@@ -280,14 +272,12 @@ QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( ass
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\n3.14";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-
-	const data = "Column 0\n3.14";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", function( assert ) {
@@ -302,14 +292,12 @@ QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", functio
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\n3";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-
-	const data = "Column 0\n3";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( assert ) {
@@ -324,7 +312,8 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\nfoo";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -333,9 +322,6 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 		}
 		done();
 	});
-
-	const data = "Column 0\nfoo";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function( assert ) {
@@ -350,7 +336,8 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\n3.14";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -359,9 +346,6 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 		}
 		done();
 	});
-
-	const data = "Column 0\n3.14";
-	rule.useMethod(data);
 });
 
 QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( assert ) {
@@ -376,12 +360,10 @@ QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( a
 	const rule = new CheckColumnType(config);
 
 	const done = assert.async();
-	rule.on(RuleAPI.NEXT, (data) => {
+	const data = "Column 0\n3";
+	rule._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
 	});
-
-	const data = "Column 0\n3";
-	rule.useMethod(data);
 });

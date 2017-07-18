@@ -9,12 +9,8 @@ class RunPythonScript extends RuleAPI {
 		super(config);
 	}
 
-	canUseFiles() {
-		return true;
-	}
-
-	useFiles(inputName) {
-		let outputName = this.config.validator.getTempName();
+	runPython(inputName) {
+		let outputName = this.outputFile;
 
 		if (!this.config) {
 			this.error(`No configuration specified.`);
@@ -80,9 +76,20 @@ class RunPythonScript extends RuleAPI {
 			this.error(`${scriptName}: ${e}`);
 		}
 
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, outputName);
-		});
+		return outputName;
+	}
+
+	run() {
+		let inputName = this.inputFile;
+		if (inputName instanceof Promise) {
+			return inputName.then((filename) => {
+				return this.runPython(filename);
+			}, (error) => {
+				return error;
+			});
+		}
+		else
+			return this.asFile(this.runPython(inputName));
 	}
 }
 
