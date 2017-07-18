@@ -1,10 +1,11 @@
 #!/bin/sh -c
 
 ROOT=`dirname $0`/../..
+ROOT=`cd $ROOT; echo $PWD`
 SRC=$ROOT/src
 BIN=$ROOT/node_modules/.bin
 DOCS=$ROOT/public/docs
-API=$SRC/api
+API=$SRC/runtime/api
 VAL=$SRC/validator
 
 if ! [ -e "$DOCS" ]; then
