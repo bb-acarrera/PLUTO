@@ -5,8 +5,8 @@ const BaseRuleAPI = require('./BaseRuleAPI');
  * data can be passed to and from the rule. Multiple input and output methods can return true. This allows the
  * application to select the best option for connecting two rules together.
  *
- * The class extends EventEmitter so that rules run asynchronously. When a rule completes it should post the static
- * {@link RuleAPI.NEXT} value.
+ * MetadataRuleAPI rules should implement a <code>run()</code> method that operates on <code>this.config.sharedData</code>
+ * the object that maintains the metadata.
  */
 class MetadataRuleAPI extends BaseRuleAPI {
 	/**
