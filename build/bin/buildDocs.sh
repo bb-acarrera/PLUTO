@@ -17,4 +17,10 @@ if ! [ -e "$DOCS" ]; then
 fi
 
 "$BIN/jsdoc" "$API" "$VAL" -r -d "$DOCS"
+if [ $? -eq 0 ]; then
+	echo "Done."
+else
+	echo "Build docs failed."
+	exit 1
+fi
 

@@ -9,7 +9,8 @@
     "docker_run" : "docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto:develop",
     "docker_run_bash": "docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -ti pluto:develop /bin/sh",
     "docker_save": "docker save --output pluto.image.tar pluto:develop",
-    "build" : "sh build/bin/testDeploy.sh"
+    "build" : "sh build/bin/testDeploy.sh",
+    "build_docs" : "sh build/bin/buildDocs.sh"
   },
   "repository": {
     "type": "git",
