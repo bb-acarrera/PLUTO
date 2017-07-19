@@ -52,28 +52,28 @@ The configuration file is a JSON file with the following properties.
 
 ```json
 {
-	"RootDirectory" : "/opt/PLUTO/config",
-	"RulesetDirectory" : "/opt/PLUTO/config/rulesets",
-	"RulesDirectory" : "/opt/PLUTO/config/customRules",
-	"TempDirectory" : "/opt/PLUTO/config/tmp",
-	"InputDirectory" : "/opt/PLUTO/config",
-	"OutputDirectory" : "/opt/PLUTO/config/results",
-	"LogDirectory" : "/opt/PLUTO/config/results/logs",
-	"RunsDirectory" : "/opt/PLUTO/config/results/runs"
+	"rootDirectory" : "/opt/PLUTO/config",
+	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
+	"rulesDirectory" : "/opt/PLUTO/config/customRules",
+	"tempDirectory" : "/opt/PLUTO/config/tmp",
+	"inputDirectory" : "/opt/PLUTO/config",
+	"outputDirectory" : "/opt/PLUTO/config/results",
+	"logDirectory" : "/opt/PLUTO/config/results/logs",
+	"runsDirectory" : "/opt/PLUTO/config/results/runs"
 }
 
 ```
-- **RootDirectory** the root of the `config` folder. This is _optional_ and if
+- **rootDirectory** the root of the `config` folder. This is _optional_ and if
 not specified defaults to the current working directory for the application. (When the validator is in
 a Docker container this would be the root of the mounted volume.)
-- **RulesetDirectory** the folder where all ruleset configurations are stored
-- **RulesDirectory** the folder where all custom rule scripts are stored
-- **TempDirectory** a folder to store temporary files
-- **InputDirectory** only needed when running the validator from the command line, the default folder where files to be
+- **rulesetDirectory** the folder where all ruleset configurations are stored
+- **rulesDirectory** the folder where all custom rule scripts are stored
+- **tempDirectory** a folder to store temporary files
+- **inputDirectory** only needed when running the validator from the command line, the default folder where files to be
 processed files are stored. This is _optional_ and defaults to the current working directory of the application.
-- **OutputDirectory** the folder where processed files will be stored if no exporter is used.
-- **LogDirectory** the folder where the error logs of processing files will be stored
-- **RunsDirectory** the folder where the processing details will be stored
+- **outputDirectory** the folder where processed files will be stored if no exporter is used.
+- **logDirectory** the folder where the error logs of processing files will be stored
+- **runsDirectory** the folder where the processing details will be stored
 
 ## 4. Validating Files
 
