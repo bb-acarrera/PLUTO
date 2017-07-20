@@ -70,12 +70,13 @@ class Importer {
     addRuleset(name, ruleset) {
         this.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
             .then((result) => {
-               if(result.rows.length === 0) {
+                if(result.rows.length === 0) {
                    this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
                        "VALUES($1, $2, $3, $4) RETURNING id", [name, name, 0, JSON.stringify(ruleset)]);
-               } else {
+                } else {
                    this.query("UPDATE rulesets SET rules = $2 WHERE id = $1", [result.rows[0].id, JSON.stringify(ruleset)])
-               }
+                }
+
             })
             .catch((e) => {
                 console.log('Error writing to database: ' + e.message);
@@ -91,25 +92,44 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .usage('[options]')
         .description('Import rulesets into the database from the ruleset folder. Must be run from the folder containing the rulesets')
         .option('-v, --validatorConfig <configFile>', 'The validator configuration file to use.')
+        .option('-h, --host <hostname>', 'database server host')
+        .option('-p, --port <port>', 'database server port')
+        .option('-U, --username <username>', 'database user name')
+        .option('-d, --dbname <database>', 'database to connect to')
+        .option('-W, --password <password>', 'user password')
         .parse(process.argv);
 
 
-    if (!program.validatorConfig)
+    if (!program.validatorConfig && !program.host)
         program.help((text) => {
-            return "A validator configuration file must be specified.\n" + text;
+            return "A validator configuration file or database connection information must be specified.\n" + text;
         });
 
-    let validatorConfigPath = path.resolve(program.validatorConfig);
+    let config = null;
 
-    if (!fs.existsSync(validatorConfigPath)) {
-        console.log("Failed to find validator configuration file \"" + program.validatorConfig + "\".\n");
-        process.exit(1);
+    if(program.validatorConfig) {
+        let validatorConfigPath = path.resolve(program.validatorConfig);
+
+        if (!fs.existsSync(validatorConfigPath)) {
+            console.log("Failed to find validator configuration file \"" + validatorConfigPath + "\".\n");
+            process.exit(1);
+        }
+
+        config = require(validatorConfigPath);
+
+    } else {
+        config = {
+            dbUser: program.username,
+            dbDatabase: program.dbname,
+            dbPassword: program.password,
+            dbHost: program.host,
+            dbPort: program.port
+        }
     }
 
-    let validatorConfig = require(validatorConfigPath);
-    validatorConfig.scriptName = scriptName;
+    config.scriptName = scriptName;
 
-    const importer = new Importer(validatorConfig);
+    const importer = new Importer(config);
     importer.run();
 }
 
