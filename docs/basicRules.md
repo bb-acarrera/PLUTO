@@ -51,131 +51,63 @@ For example:
 shouldRulesetFailOnError() { return false; }
 ```
 
-## 5. `use*()` methods
+## 5. `run()`
 
-To operate on the input file the rule implementation should include one or more of the following methods. The methods
-take the input from and return the results to different entities. This allows rules to use different approaches to
-examining the data. For example a rule could expect data to come and go via files on the local file system, while
-another may expect the data to be entirely in memory.
+Rules derived from `RuleAPI` or `MetadataRuleAPI` must implement a `run()` method. (Rules derived from
+`CSVRuleAPI` use a different approach.) This performs all the actions required of the rule. This method
+takes no arguments.
 
-Rules may implement any number of these methods. Doing so allows a rule to retrieve data from the previous rule in
-whatever form the previous rule produced it. This avoids having to convert the data from one form to another.
+For metadata rules this method should check `this.config.sharedData` for any metadata it requires and
+then modify it in place.
 
-### 5.1 this.emit(RuleAPI.NEXT, ...)
-
-Rules can run somewhat asynchronously so returning from one of these methods is not necessarily sufficient to know
-that the rule has completed. Instead when a rule completes its work it needs to send a message indicating that it is
-done. This is accomplished through emitting the `RuleAPI.NEXT` at completion.
-
-`this.emit()` takes two arguments. The first will always be `RuleAPI.NEXT` and the second will be the return value of the
-function.
-
-#### 5.1.1 Example
-
-```javascript
-setImmediate(() => {
-    this.emit(RuleAPI.NEXT, data);
-});
-```
-
-### 5.2 `useMethod(data)`
-
-If a rule implements this method it expects the entire data file to have been read into memory. For small data sets
-this can be the most efficient way for a rule to access the data. The `data` argument to the rule contains this data
-in an undefined form.
-
-#### 5.2.1 Example
-```javascript
-const RuleAPI = require("../runtime/api/RuleAPI");
-
-class RuleExampleUsingMethod extends RuleAPI {
-	constructor(config) {
-		super(config)
-	}
-
-	useMethod(data) {
-		// ... Do something with the data.
-		
-		// When done, tell the validator to kick off the next rule.
-		setImmediate(() => {
-			this.emit(RuleAPI.NEXT, data);
-		});
-	}
-}
-
-/*
- * Export "instance" so the application can instantiate instances of this class without knowing the name of the class.
- * @type {RuleAPI}
- */
-module.exports = RuleExampleUsingMethod;
-```
-
-### 5.3 `useFiles(filename)`
-
-This method assumes the data to be validated exists in the named file on the local file system. The rule must open
-the file, read and process the contents, either line by line or all at once, and then write it to a new file. The
-method then emits the name of the generated file.
-
-One of the properties in the configuration object passed to the rule's constructor is `tempDirectory`. The generated
-file should be placed here to ensure it is deleted when the run of the ruleset is complete.
-
-### 5.4 `useStreams(inputStream, outputStream)`
-
-The `useStreams` method might be the most efficient method for rules that do not need to see the entire file all
-at once. The data is not read into memory nor is it copied on the local file system.
-
-The method takes two JavaScript [streams](https://nodejs.org/api/stream.html). The rule will read the data from the
-input stream and write the resulting data to the output stream.
+See [BaseRuleAPI](generatedDocs/BaseRuleAPI.html) for details on the rules' base class. See
+[MetadataRuleAPI](generatedDocs/MetadataRuleAPI.html) for details on the metadata rule methods, and
+ see [RuleAPI](generatedDocs/RuleAPI.html) for details on the methods required for a rule. (Again, if
+ you are writing a rule to process CSV files you can ignore these files and see [CSV Rules](csvRules.md)
+ and [CSVRulesAPI](generatedDocs/CSVRuleAPI.html).)
 
 ## 6. Example
 
-This example demonstrates a rule which uses the `useStreams()` method and then shares those streams with an external
-process (`cat` in this case).
-
-Note that since it uses streams it emits the `RuleAPI.NEXT` message as soon as it starts reading data from the input
-stream. This allows the following rule to start listening on the output stream for data so it will be ready as soon
-as data is available.
-
-This example can easily be modified to allow a rule to call any sort of external process.
-
+This example demonstrates writing a `RuleAPI` rule. All it does it copy the input stream to the output
+stream passing it through the `*nix` `cat` command. 
 ```javascript
 const spawn = require('child_process').spawn;
-const RuleAPI = require("../runtime/api/RuleAPI");
+const RuleAPI = require("../api/RuleAPI");
 
 class RuleExampleUsingCat extends RuleAPI {
 	constructor(config) {
 		super(config)
 	}
 
-	useStreams(inputStream, outputStream) {
-		// Simply pipe the contents of the input stream to the output stream through the "cat" command.
+	run() {
+		// Get the input stream to read from.
+		let inputStream = this.inputStream;
+		
+		// Get an output stream to write to.
+		let outputStream = this.outputStream;
 
 		try {
+			// Spawn the 'cat' command which will copy input on STDIN to STDOUT.
 			const cat = spawn('cat');
 
+			// Check for errors from 'cat'.
 			cat.on('error', (e) => {
-				// Encountered an error so report it.
-				this.error(`RuleExampleUsingCat: ` + e);
-				
-				// Pipe the input to the output without running through 'cat'.
-				inputStream.pipe(outputStream);
+				this.error(`RuleExampleUsingCat: ` + e.message);
+				inputStream.pipe(outputStream);	// Pipe the input to the output without running through 'cat'.
 			});
 
-			// Attach the input stream to cat's stdin.
+			// Redirect the input stream into 'cat's STDIN. 
 			inputStream.pipe(cat.stdin);
 			
-			// Attach cat's stdout to the output stream.
+			// Redirect 'cat's STDOUT to the output stream.
 			cat.stdout.pipe(outputStream);
 		} catch (e) {
-			this.error(`RuleExampleUsingCat: ` + e);
+			this.error(`RuleExampleUsingCat: ` + (e.message ? e.message : e);
 			inputStream.pipe(outputStream);
 		}
 
-		inputStream.once('readable', () => {
-			// This is done as soon as there is data (i.e. as soon as the input stream is 'readable')
-			// rather than at the end. Otherwise the buffers would fill and overflow without any way to drain them.
-			this.emit(RuleAPI.NEXT, outputStream);
-		});
+		// Return the output stream to the validator indicating that a stream is being returned.
+		return this.asStream(outputStream);
 	}
 }
 

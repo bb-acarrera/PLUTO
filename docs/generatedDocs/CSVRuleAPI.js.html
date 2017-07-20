@@ -1,4 +1,32 @@
-const RuleAPI = require("./RuleAPI");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: CSVRuleAPI.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: CSVRuleAPI.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const RuleAPI = require("./RuleAPI");
 
 const fs = require("fs");
 const parse = require('csv-parse');
@@ -6,26 +34,26 @@ const stringify = require('csv-stringify');
 const transform = require('stream-transform');
 
 /**
- *  <p>This base class describes an API derived classes implement to add Javascript based CSV rules. The only method that
+ *  &lt;p>This base class describes an API derived classes implement to add Javascript based CSV rules. The only method that
  *  must be implemented is {@link CSVRuleAPI#processRecord CSVRuleAPI.processRecord()} which is called by the validator
  *  once for each record in the CSV file and is used to examine a record for problems or
  *  to modify it. If problems are detected in a record then {@link RuleAPI#error RuleAPI.error()},
  *  {@link RuleAPI#warning RuleAPI.warning()}, or
- *  {@link RuleAPI#info RuleAPI.info()} should be called with a description of the problem.</p>
- *  <p>Derived classes can also implement {@link CSVRuleAPI#start CSVRuleAPI.start()} which is called once by the validator before reading any
+ *  {@link RuleAPI#info RuleAPI.info()} should be called with a description of the problem.&lt;/p>
+ *  &lt;p>Derived classes can also implement {@link CSVRuleAPI#start CSVRuleAPI.start()} which is called once by the validator before reading any
  *  records. A derived class could implement this to initialize any resources. Similarly derived classes could
  *  implement {@link CSVRuleAPI#finish CSVRuleAPI.finish()} which is called once by the validator after the last call to
- *  {@link CSVRuleAPI#processRecord CSVRuleAPI.processRecord()}. A derived class could implement this to finalize any resources.</p>
- *  <p>This class supports several properties on the configuration object that affect the parsing of CSV files.</p>
- *  <ul>
- *      <li>Delimiter - the delimiter character separating fields in a record. Defaults to a commma.</li>
- *      <li>Comment - the comment character. Any text following this character is ignored. Ignored by default.</li>
- *      <li>Escape - the single character used to allow the delimiter character to be used in a field. Defaults to a double quote.</li>
- *      <li>Quote - the single character surrounding fields. Defaults to a double quote.</li>
- *  </ul>
- *  <p>These properties are shared when reading and writing records but if a rule wants to write rules differently than
+ *  {@link CSVRuleAPI#processRecord CSVRuleAPI.processRecord()}. A derived class could implement this to finalize any resources.&lt;/p>
+ *  &lt;p>This class supports several properties on the configuration object that affect the parsing of CSV files.&lt;/p>
+ *  &lt;ul>
+ *      &lt;li>Delimiter - the delimiter character separating fields in a record. Defaults to a commma.&lt;/li>
+ *      &lt;li>Comment - the comment character. Any text following this character is ignored. Ignored by default.&lt;/li>
+ *      &lt;li>Escape - the single character used to allow the delimiter character to be used in a field. Defaults to a double quote.&lt;/li>
+ *      &lt;li>Quote - the single character surrounding fields. Defaults to a double quote.&lt;/li>
+ *  &lt;/ul>
+ *  &lt;p>These properties are shared when reading and writing records but if a rule wants to write rules differently than
  *  they were read, for example changing the delimiter, prefixing any of these property names with "Output"
- *  (ex. "OutputDelimiter") will set the property on output only.</p>
+ *  (ex. "OutputDelimiter") will set the property on output only.&lt;/p>
  */
 class CSVRuleAPI extends RuleAPI {
 	/**
@@ -49,10 +77,10 @@ class CSVRuleAPI extends RuleAPI {
 
 	/**
 	 * Given the value of a property this validates whether the given value is a valid number of header rows
-	 * and if so returns it otherwise an error is posted to the log and <code>0</code> is
+	 * and if so returns it otherwise an error is posted to the log and &lt;code>0&lt;/code> is
 	 * returned.
-	 * @param {string} headerRowsProperty the value of a config header rows property. If this is <code>undefined</code>
-	 * then <code>this.config.numberOfHeaderRows</code> is used.
+	 * @param {string} headerRowsProperty the value of a config header rows property. If this is &lt;code>undefined&lt;/code>
+	 * then &lt;code>this.config.numberOfHeaderRows&lt;/code> is used.
 	 * @param {string} headerRowsPropertyName the name of the property to use in error messages. Defaults to 'numberOfHeaderRows'.
 	 * @returns {number|undefined} the number of header rows given by headerRowsProperty or 0 if the value is not valid.
 	 */
@@ -65,7 +93,7 @@ class CSVRuleAPI extends RuleAPI {
 			this.warning(`Configured without a '${headerRowsPropertyName}' property. Using ${result}.`);
 		else if (isNaN(headerRowsProperty))
 			this.warning(`Configured with a non-number '${headerRowsPropertyName}'. Got '${headerRowsProperty}', using ${result}.`);
-		else if (headerRowsProperty < 0)
+		else if (headerRowsProperty &lt; 0)
 			this.warning(`Configured with a negative '${headerRowsPropertyName}'. Got '${headerRowsProperty}', using ${result}.`);
 		else {
 			result = Math.floor(parseFloat(headerRowsProperty));
@@ -78,10 +106,10 @@ class CSVRuleAPI extends RuleAPI {
 
 	/**
 	 * Given the value of a property this validates whether the given value is a column label or column number
-	 * and if so returns the column number otherwise an error is posted to the log and <code>undefined</code> is
+	 * and if so returns the column number otherwise an error is posted to the log and &lt;code>undefined&lt;/code> is
 	 * returned.
-	 * @param {string} propertyValue the value of a config column property. If this is <code>undefined</code> then
-	 * <code>this.config.column</code> is used.
+	 * @param {string} propertyValue the value of a config column property. If this is &lt;code>undefined&lt;/code> then
+	 * &lt;code>this.config.column&lt;/code> is used.
 	 * @param {string} propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
 	 * @returns {number|undefined} the column number represented by the propertyValue or undefined if the value is not valid.
 	 */
@@ -94,7 +122,7 @@ class CSVRuleAPI extends RuleAPI {
 			this.error(`Configured without a '${propertyName}' property.`);
 		else if (isNaN(propertyValue)) {
 			let sharedData = this.config.sharedData;
-			if (sharedData && sharedData.columnLabels) {
+			if (sharedData &amp;&amp; sharedData.columnLabels) {
 				let columnLabels = sharedData.columnLabels;
 				if (columnLabels.length == undefined) {
 					this.error(`Shared 'columnLabels' is not an array.`);
@@ -107,7 +135,7 @@ class CSVRuleAPI extends RuleAPI {
 
 				// Found a column label not index.
 				let index = columnLabels.indexOf(propertyValue);
-				if (index < 0)
+				if (index &lt; 0)
 					this.error(`Configured with a column label '${propertyValue}' that is not in sharedData.columnLabels.`);
 				else
 					result = index;
@@ -115,7 +143,7 @@ class CSVRuleAPI extends RuleAPI {
 			else
 				this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
 		}
-		else if (propertyValue < 0)
+		else if (propertyValue &lt; 0)
 			this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
 		else {
 			result = Math.floor(parseFloat(propertyValue));
@@ -127,10 +155,10 @@ class CSVRuleAPI extends RuleAPI {
 
 	/**
 	 * Derived classes should override this method if they need to do anything before the processing of the data starts.
-	 * <br/>Note that rules that use streams and modify the metadata, because of their asynchronous nature, should do so
-	 * in a <code>start()</code> method. Modifying the metdata any later could mean that the changes are not
+	 * &lt;br/>Note that rules that use streams and modify the metadata, because of their asynchronous nature, should do so
+	 * in a &lt;code>start()&lt;/code> method. Modifying the metdata any later could mean that the changes are not
 	 * applied until after the next rule needs the changes. However rules that use data objects or files are safe
-	 * to modify metadata at any point, in the <code>start()</code> or <code>finish()</code> methods since these
+	 * to modify metadata at any point, in the &lt;code>start()&lt;/code> or &lt;code>finish()&lt;/code> methods since these
 	 * rules would run synchronously.
 	 */
 	start() {
@@ -205,3 +233,26 @@ class CSVRuleAPI extends RuleAPI {
 }
 
 module.exports = CSVRuleAPI;	// Export this so derived classes can extend it.
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseRuleAPI.html">BaseRuleAPI</a></li><li><a href="CSVRuleAPI.html">CSVRuleAPI</a></li><li><a href="MetadataRuleAPI.html">MetadataRuleAPI</a></li><li><a href="RuleAPI.html">RuleAPI</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Jul 18 2017 16:16:23 GMT-0400 (EDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

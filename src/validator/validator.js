@@ -110,21 +110,12 @@ class Validator {
 			this.currentRuleset = ruleset;
 			this.rulesDirectory = rulesDirectory;
 
-			if (!this.outputFileName && (!ruleset.export || !ruleset.export.config || !ruleset.export.config.file)) {
+			if (!this.outputFileName && !ruleset.export) {
 				this.warning("No output file specified.");
 			}
-
-			if (ruleset.export) {
-				// Override the file in the ruleset with the one specified on the command line.
-				if (outputFile && ruleset.export.config)
-					ruleset.export.config.file = outputFile;
-			}
-
+			
 			if(ruleset.import) {
-				// Override the file in the ruleset with the one specified on the command line.
-				if (inputFile && ruleset.import.config)
-					ruleset.import.config.file = inputFile;
-
+			
 				this.inputFileName = this.getTempName();
 
 				this.importFile(ruleset.import, this.inputFileName).then( () => {
@@ -313,14 +304,14 @@ class Validator {
 				})
 				.then(() => {
 					this.data.saveRunRecord(runId, this.logger.getLog(),
-						this.rulesetName, this.inputFileName, this.outputFileName);
+						this.config.ruleset, this.inputFileName, this.outputFileName);
 					this.cleanup();
 					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
 			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.rulesetName, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");
 		}
@@ -329,7 +320,7 @@ class Validator {
 			this.error("No results were produced.");
 
 			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.rulesetName, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");
 		}

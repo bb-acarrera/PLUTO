@@ -28,13 +28,12 @@
 				}
 			},
 			{
-				"filename" : "CheckColumnType",
+				"filename" : "CheckColumnRegEx",
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
 					"numberOfHeaderRows" : 1,
-					"type" : "regex",
 					"column" : 2,
-					"regEx" : "[^0-9\\s]*"
+					"regex" : "[^0-9\\s]*"
 				}
 			},
 			{

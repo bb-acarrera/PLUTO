@@ -208,13 +208,13 @@ class data {
                     Object.assign(ruleset.import.config, contents.import);
                 }
 
-                if (contents.export) {
-                    if (!ruleset.export) {
-                        ruleset.export = {};
-                    }
+            	if(contents.export) {
+                	if(!ruleset.export) {
+                    	ruleset.export = {};
+                	}
 
-                    Object.assign(ruleset.export, contents.export);
-                }
+                	Object.assign(ruleset.export.config, contents.export);
+            	}
             }
 
             resolve(new RuleSet(ruleset));
