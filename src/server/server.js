@@ -24,10 +24,10 @@ class Server {
 
 
 		this.port = this.config.Port || 3000;
-		this.rootDir = path.resolve(this.config.rootDirectory || this.config.Validator.rootDirectory || ".");
+		this.rootDir = path.resolve(this.config.rootDirectory || this.config.validator.rootDirectory || ".");
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
 		this.router = new Router(config);
-		this.assetsDirectory = path.resolve(this.rootDir, this.config.AssetsDirectory || "public");
+		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
 
 		this.config.data = Data(this.config.validatorConfig);
 
