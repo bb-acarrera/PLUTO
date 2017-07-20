@@ -5,7 +5,7 @@ export function showRuleEditor(params, {ruleInstance}) {
 
   if (ruleInstance && ruleInstance.config) {
     // Place the name prompt at the top, always.
-    var name = ruleInstance.config.Name || ruleInstance.filename;
+    var name = ruleInstance.config.Name || ruleInstance.fileName;
     content += `<div>Name <input id="Name" type="text" value="${name}"/></div><br/>`;
 
     for (var key in ruleInstance.config) {

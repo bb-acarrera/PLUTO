@@ -3,7 +3,7 @@ import Ember from 'ember';
 export function ruleLogIcons(params, {rule, log, tagName}) {
   let tag = tagName === undefined ? 'i' : tagName;
 
-  const ruleFileName = typeof rule === 'string' ? rule : rule.filename;
+  const ruleFileName = typeof rule === 'string' ? rule : rule.fileName;
   let hasInfo = false, hasWarnings = false, hasErrors = false;
 
   if(log && log.get) {
