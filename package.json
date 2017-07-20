@@ -9,7 +9,8 @@
     "docker_run_bash": "sh startPlutoInteractive.sh",
     "docker_save": "docker save --output pluto.image.tar pluto:develop",
     "build" : "sh build/bin/testDeploy.sh",
-    "start": "sh startPluto.sh"
+    "start": "sh startPluto.sh",
+    "start_devdb": "sh src/start_dev_db.sh"
   },
   "repository": {
     "type": "git",
