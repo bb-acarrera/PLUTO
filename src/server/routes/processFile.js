@@ -60,7 +60,6 @@ class ProcessFileRouter extends BaseRouter {
             };
 
             var cmd = 'node validator/validator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
-            cmd += ' -o ' + ruleset;
             if(overrideFile) {
                 cmd += ' -v "' + overrideFile + '"';
             }

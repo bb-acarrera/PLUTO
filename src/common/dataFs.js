@@ -191,7 +191,7 @@ class data {
                     ruleset.export = {};
                 }
 
-                Object.assign(ruleset.export, contents.export);
+                Object.assign(ruleset.export.config, contents.export);
             }
         }
 
