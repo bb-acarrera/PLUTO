@@ -311,14 +311,14 @@ class Validator {
 				})
 				.then(() => {
 					this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
-						this.rulesetName, this.inputFileName, this.outputFileName);
+						this.config.ruleset, this.inputFileName, this.outputFileName);
 					this.cleanup();
 					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
 			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
-				this.rulesetName, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");
 		}
@@ -327,7 +327,7 @@ class Validator {
 			this.error("No results were produced.");
 
 			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
-				this.rulesetName, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");
 		}
