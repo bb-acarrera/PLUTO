@@ -11,6 +11,7 @@ CREATE TABLE runs (
 
 CREATE TABLE rulesets (
     id serial PRIMARY KEY,
+    ruleset_id varchar(256),
     name varchar(256),
     version integer DEFAULT 0,
     rules json
