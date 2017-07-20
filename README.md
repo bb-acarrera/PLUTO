@@ -22,6 +22,13 @@ npm run docker_build
 ```shell
 startPluto.sh
 ```
+
+OR
+
+```shell
+npm run start
+```
+
 It will create a docker volume for the Postgresql database (pgdata), start the database, and then start the web server.
 
 The Postgres database container is listening on port 5432, with user pluto.
