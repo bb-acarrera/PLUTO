@@ -164,58 +164,61 @@ class data {
 
     /**
      * Retrieve a ruleset description.
-     * @param rootDir the directory that may contain the ruleset file.
      * @param ruleset the name of the ruleset or a ruleset (which is then just returned).
-     * @return an object describing a ruleset.
+     * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
+     * @return a promise to an object describing a ruleset.
      */
     retrieveRuleset(ruleset, rulesetOverrideFile) {
-        if (typeof ruleset === 'string') {
-            // Identifying a file to load.
-            const rulesetFile = path.resolve(this.rulesetDirectory, ruleset);
-            var contents;
-            try {
-                contents = require(rulesetFile);
-            }
-            catch (e) {
-                throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
-            }
+        return new Promise((resolve, reject) => {
 
-            if (!contents.ruleset) {
-                throw("Ruleset file \"" + rulesetFile + "\" does not contain a 'ruleset' member.");
-            }
-
-            contents.ruleset.filename = ruleset;
-            contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-            ruleset = contents.ruleset;
-        }
-
-        if(rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-            var contents;
-            try {
-                contents = require(rulesetOverrideFile);
-            }
-            catch (e) {
-                throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
-            }
-
-            if(contents.import) {
-                if(!ruleset.import) {
-                    ruleset.import = {};
+            if (typeof ruleset === 'string') {
+                // Identifying a file to load.
+                const rulesetFile = path.resolve(this.rulesetDirectory, ruleset);
+                var contents;
+                try {
+                    contents = require(rulesetFile);
+                }
+                catch (e) {
+                    throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
                 }
 
-                Object.assign(ruleset.import.config, contents.import);
-            }
-
-            if(contents.export) {
-                if(!ruleset.export) {
-                    ruleset.export = {};
+                if (!contents.ruleset) {
+                    throw("Ruleset file \"" + rulesetFile + "\" does not contain a 'ruleset' member.");
                 }
 
-                Object.assign(ruleset.export, contents.export);
+                contents.ruleset.filename = ruleset;
+                contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
+                ruleset = contents.ruleset;
             }
-        }
 
-        return new RuleSet(ruleset);
+            if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
+                var contents;
+                try {
+                    contents = require(rulesetOverrideFile);
+                }
+                catch (e) {
+                    throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
+                }
+
+                if (contents.import) {
+                    if (!ruleset.import) {
+                        ruleset.import = {};
+                    }
+
+                    Object.assign(ruleset.import.config, contents.import);
+                }
+
+                if (contents.export) {
+                    if (!ruleset.export) {
+                        ruleset.export = {};
+                    }
+
+                    Object.assign(ruleset.export, contents.export);
+                }
+            }
+
+            resolve(new RuleSet(ruleset));
+        });
     }
 
     /**
@@ -226,7 +229,31 @@ class data {
      * @private
      */
     saveRuleSet(ruleset) {
-        fs.writeFileSync(path.resolve(this.rulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
+        return new Promise((resolve, reject) => {
+
+            let name = ruleset.filename + ".json";
+
+            fs.writeFileSync(path.resolve(this.rulesetDirectory, name), JSON.stringify(ruleset.toJSON()), 'utf8');
+
+            resolve(name);
+        });
+    }
+
+    getRulesets() {
+
+        return new Promise((resolve) => {
+            var rulesets = [];
+
+            fs.readdirSync(this.rulesetDirectory).forEach(file => {
+                if(file.substr(file.length-5) === '.json') {
+                    rulesets.push(file);
+                }
+            });
+
+            resolve(rulesets);
+        });
+
+
     }
 }
 

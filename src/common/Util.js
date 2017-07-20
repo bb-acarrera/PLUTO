@@ -10,20 +10,6 @@ class Util {
 		return ruleDescriptor.name || ruleDescriptor.name || path.basename(ruleDescriptor.filename);
 	}
 
-	static getRulesets(rootDir) {
-		var rulesets = [];
-
-		fs.readdirSync(rootDir).forEach(file => {
-			if(file.substr(file.length-5) === '.json') {
-				rulesets.push(file);
-			}
-		});
-
-		return rulesets;
-	}
-
-
-
 	static getRootDirectory(config) {
 
 		// Get the root directory for everything.

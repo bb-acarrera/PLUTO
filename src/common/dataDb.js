@@ -25,13 +25,14 @@ class data {
         this.logDirectory = path.resolve(this.rootDir, this.config.logDirectory);
 
         this.runsLimit = 50;
+        this.rulesetLimit = 50;
     }
 
     /**
      * This method is used by the application to get an in-memory copy of a log file managed by
      * the plugin.
-     * @param logFileName {string} the name of the log file to retrieve.
-     * @returns {string} the contents of the log file.
+     * @param id {string} the id of the log file to retrieve.
+     * @returns a promise to the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
      * @private
      */
@@ -56,8 +57,8 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of a run managed by
      * the plugin.
-     * @param runFileName {string} the name of the run file to retrieve.
-     * @returns {string} the contents of the run file.
+     * @param id {string} the id of the run file to retrieve.
+     * @returns a promise to the contents of the run file.
      * @throws Throws an error if the copy cannot be completed successfully.
      * @private
      */
@@ -92,7 +93,7 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of all runs managed by
      * the plugin.
-     * @returns {array} list of the run file.
+     * @returns a promise to a list of the run file.
      * @private
      */
     getRuns(page) {
@@ -136,73 +137,102 @@ class data {
      * @returns undefined
      * @private
      */
-    saveRunRecord(runId, log, ruleSetId, inputFile, outputFile) {
+     saveRunRecord(runId, log, ruleSetName, inputFile, outputFile) {
 
-        this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
-            "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
-            [runId, 0, inputFile, outputFile, new Date(), JSON.stringify(log)])
-            .then(() => {
-                return;
-            }, (error) => {
-                console.log(error);
-            });
+        this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1", [ruleSetName]).then((result) => {
+
+            if(result.rows.length > 0) {
+                this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
+                        "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
+                    [runId, result.rows[0].id, inputFile, outputFile, new Date(), JSON.stringify(log)])
+                    .then(() => {
+                        return;
+                    }, (error) => {
+                        console.log(error);
+                    });
+            } else {
+                console.log("Cannot find rule " + ruleSetName + " in database");
+
+                this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
+                        "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
+                    [runId, null, inputFile, outputFile, new Date(), JSON.stringify(log)])
+                    .then(() => {
+                        return;
+                    }, (error) => {
+                        console.log(error);
+                    });
+            }
+        });
+
+
 
     }
 
     /**
      * Retrieve a ruleset description.
-     * @param rootDir the directory that may contain the ruleset file.
      * @param ruleset the name of the ruleset or a ruleset (which is then just returned).
-     * @return an object describing a ruleset.
+     * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
+     * @return a promise to an object describing a ruleset.
      */
-    retrieveRuleset(ruleset, rulesetOverrideFile) {
-        if (typeof ruleset === 'string') {
-            // Identifying a file to load.
-            const rulesetFile = path.resolve(this.rulesetDirectory, ruleset);
-            var contents;
-            try {
-                contents = require(rulesetFile);
-            }
-            catch (e) {
-                throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
-            }
+    retrieveRuleset(ruleset_id, rulesetOverrideFile, version) {
 
-            if (!contents.ruleset) {
-                throw("Ruleset file \"" + rulesetFile + "\" does not contain a 'ruleset' member.");
-            }
-
-            contents.ruleset.filename = ruleset;
-            contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-            ruleset = contents.ruleset;
+        if(!version) {
+            version = 0;
         }
 
-        if(rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-            var contents;
-            try {
-                contents = require(rulesetOverrideFile);
-            }
-            catch (e) {
-                throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
-            }
+        return new Promise((resolve, reject) => {
 
-            if(contents.import) {
-                if(!ruleset.import) {
-                    ruleset.import = {};
-                }
+            this.db.query("SELECT rules FROM rulesets " +
+                "where ruleset_id = $1 AND version = $2",
+                [ruleset_id, version])
+                .then((result) => {
 
-                Object.assign(ruleset.import.config, contents.import);
-            }
+                    if(result.rows.length > 0) {
+                        let row = result.rows[0];
 
-            if(contents.export) {
-                if(!ruleset.export) {
-                    ruleset.export = {};
-                }
+                        contents = row.rules;
 
-                Object.assign(ruleset.export, contents.export);
-            }
-        }
+                        contents.ruleset.filename = ruleset_id;
+                        contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
+                        let ruleset = contents.ruleset;
 
-        return new RuleSet(ruleset);
+                        if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
+                            var contents;
+                            try {
+                                contents = require(rulesetOverrideFile);
+                            }
+                            catch (e) {
+                                throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
+                            }
+
+                            if (contents.import) {
+                                if (!ruleset.import) {
+                                    ruleset.import = {};
+                                }
+
+                                Object.assign(ruleset.import.config, contents.import);
+                            }
+
+                            if (contents.export) {
+                                if (!ruleset.export) {
+                                    ruleset.export = {};
+                                }
+
+                                Object.assign(ruleset.export, contents.export);
+                            }
+                        }
+
+                        resolve(new RuleSet(ruleset));
+
+                    } else {
+                        resolve(null);
+                    }
+
+                }, (error) => {
+                    reject(error);
+                });
+
+        });
     }
 
     /**
@@ -213,7 +243,62 @@ class data {
      * @private
      */
     saveRuleSet(ruleset) {
-        fs.writeFileSync(path.resolve(this.rulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
+
+        return new Promise((resolve, reject) => {
+
+            let name = ruleset.filename + ".json";
+
+            this.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+                .then((result) => {
+                    if(result.rows.length === 0) {
+                        this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
+                            "VALUES($1, $2, $3, $4) RETURNING id", [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
+                    } else {
+                        this.query("UPDATE rulesets SET rules = $2, SET name = $3 WHERE id = $1",
+                            [result.rows[0].id, JSON.stringify(ruleset), ruleset.name]);
+                    }
+
+                    resolve(name);
+                });
+        });
+
+
+    }
+
+    getRulesets(page) {
+
+        return new Promise((resolve) => {
+
+            let offset;
+            if(!page) {
+                offset = 0;
+            } else {
+                offset = page * this.runsLimit;
+            }
+
+            this.db.query("SELECT ruleset_id, version, name FROM rulesets " +
+                    "ORDER BY name ASC LIMIT $1 OFFSET $2", [this.rulesetLimit, offset] )
+                .then((result) => {
+
+                    var rulesets = [];
+
+                    result.rows.forEach((row) => {
+                        rulesets.push({
+                            id: row.ruleset_id,
+                            version: row.version,
+                            name: row.name
+                        });
+                    });
+
+                    resolve(rulesets);
+
+                }, (error) => {
+                    reject(error);
+                });
+
+        });
+
+
     }
 }
 

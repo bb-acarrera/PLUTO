@@ -90,78 +90,80 @@ class Validator {
 		var ruleset;
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
-
-			ruleset = this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride);
 		}
 		catch (e) {
 			this.error(e);
 			throw e;
 		}
 
-		let rulesDirectory;
-		if (ruleset.rulesDirectory)
-			rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
-		else
-			rulesDirectory = this.config.rulesDirectory;
+		this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride).then((ruleset) => {
+			let rulesDirectory;
+			if (ruleset.rulesDirectory)
+				rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
+			else
+				rulesDirectory = this.config.rulesDirectory;
 
+			this.rulesetName = ruleset.name || "Unnamed";
 
+			this.outputFileName = outputFile;
+			this.encoding = inputEncoding || 'utf8';
+			this.currentRuleset = ruleset;
+			this.rulesDirectory = rulesDirectory;
 
-		this.rulesetName = ruleset.name || "Unnamed";
+			if (!this.outputFileName && (!ruleset.export || !ruleset.export.config || !ruleset.export.config.file)) {
+				this.warning("No output file specified.");
+			}
 
-		this.outputFileName = outputFile;
-		this.encoding = inputEncoding || 'utf8';
-		this.currentRuleset = ruleset;
-		this.rulesDirectory = rulesDirectory;
+			if (ruleset.export) {
+				// Override the file in the ruleset with the one specified on the command line.
+				if (outputFile && ruleset.export.config)
+					ruleset.export.config.file = outputFile;
+			}
 
-		if (!this.outputFileName && (!ruleset.export || !ruleset.export.config || !ruleset.export.config.file)) {
-			this.warning("No output file specified.");
-		}
+			if(ruleset.import) {
+				// Override the file in the ruleset with the one specified on the command line.
+				if (inputFile && ruleset.import.config)
+					ruleset.import.config.file = inputFile;
 
-		if (ruleset.export) {
-			// Override the file in the ruleset with the one specified on the command line.
-			if (outputFile && ruleset.export.config)
-				ruleset.export.config.file = outputFile;
-		}
+				this.inputFileName = this.getTempName();
 
-		if(ruleset.import) {
-			// Override the file in the ruleset with the one specified on the command line.
-			if (inputFile && ruleset.import.config)
-				ruleset.import.config.file = inputFile;
+				this.importFile(ruleset.import, this.inputFileName).then( () => {
+						try {
+							this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+							if (!ruleset.rules || ruleset.rules.length == 0)
+								this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
+						}
+						catch (e) {
+							this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+							throw e;
+						}
 
-			this.inputFileName = this.getTempName();
+					},error => {
+						this.error("Failed to import file: " + error);
+						this.finishRun();
+					})
+					.catch(() => {
+						this.finishRun();
+					});
+			} else {
+				this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
+				if (!this.inputFileName)
+					throw "No input file specified.";
 
-			this.importFile(ruleset.import, this.inputFileName).then( () => {
-					try {
-						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
-						if (!ruleset.rules || ruleset.rules.length == 0)
-							this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
-					}
-					catch (e) {
-						this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
-						throw e;
-					}
-
-				},error => {
-					this.error("Failed to import file: " + error);
-					this.finishRun();
-				})
-				.catch((e) => {
-					this.finishRun();
+				try {
+					this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+				}
+				catch (e) {
+					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e.message);
 					throw e;
-				});
-		} else {
-			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
-			if (!this.inputFileName)
-				throw "No input file specified.";
+				}
+			}
+		}).catch((e) => {
+			this.error(e.message);
+			this.finishRun();
+		});
 
-			try {
-				this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
-			}
-			catch (e) {
-				this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
-				throw e;
-			}
-		}
+
 
 	}
 
