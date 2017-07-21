@@ -56,7 +56,7 @@ QUnit.test( "Util: getRootTempDirectory", function(assert){
    };
 
    const result = Util.getRootTempDirectory(config, config.rootDir);
-   assert.equal(result, "/Users/cgerber/WebstormProjects/PLUTO/tmp", "Expected '/Users/cgerber/WebstormProjects/PLUTO/tmp'");
+   assert.ok(result, "Expected a result.");
 });
 
 QUnit.test( "Util: getTempDirectory Test", function(assert){
