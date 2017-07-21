@@ -191,33 +191,14 @@ class data {
                 ruleset = contents.ruleset;
             }
 
+
+            let rulesetObj = new RuleSet(ruleset);
+
             if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-                var contents;
-                try {
-                    contents = require(rulesetOverrideFile);
-                }
-                catch (e) {
-                    throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
-                }
-
-                if (contents.import) {
-                    if (!ruleset.import) {
-                        ruleset.import = {};
-                    }
-
-                    Object.assign(ruleset.import.config, contents.import);
-                }
-
-            	if(contents.export) {
-                	if(!ruleset.export) {
-                    	ruleset.export = {};
-                	}
-
-                	Object.assign(ruleset.export.config, contents.export);
-            	}
+                rulesetObj.applyOverride(rulesetOverrideFile);
             }
 
-            resolve(new RuleSet(ruleset));
+            resolve(rulesetObj);
         });
     }
 

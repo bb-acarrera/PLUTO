@@ -188,41 +188,17 @@ class data {
                 .then((result) => {
 
                     if(result.rows.length > 0) {
-                        let row = result.rows[0];
-
-                        contents = row.rules;
+                        let contents = result.rows[0].rules;
 
                         contents.ruleset.filename = ruleset_id;
                         contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-                        let ruleset = contents.ruleset;
+                        let ruleset = new RuleSet(contents.ruleset);
 
                         if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-                            var contents;
-                            try {
-                                contents = require(rulesetOverrideFile);
-                            }
-                            catch (e) {
-                                throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
-                            }
-
-                            if (contents.import) {
-                                if (!ruleset.import) {
-                                    ruleset.import = {};
-                                }
-
-                                Object.assign(ruleset.import.config, contents.import);
-                            }
-
-                            if (contents.export) {
-                                if (!ruleset.export) {
-                                    ruleset.export = {};
-                                }
-
-                                Object.assign(ruleset.export, contents.export);
-                            }
+                            ruleset.applyOverride(rulesetOverrideFile);
                         }
 
-                        resolve(new RuleSet(ruleset));
+                        resolve(ruleset);
 
                     } else {
                         resolve(null);
