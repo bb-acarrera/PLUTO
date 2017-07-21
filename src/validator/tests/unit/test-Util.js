@@ -8,45 +8,33 @@ const Util = require("../../../common/Util");
 const CheckColumnCount = require("../../../runtime/rules/CheckColumnCount");
 
 QUnit.test( "Util: getRootDirectory w/ empty config Test", function(assert){
-   const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger,
-       "rootDir" : null
-   };
-
    const result = Util.getRootDirectory(null);
-   //const logResults = logger.getLog();
 
    assert.equal(result, ".", "Expected '.'");
 });
 
 
 QUnit.test( "Util: getRuleName Test", function(assert){
-   const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger,
        "filename" : "TestRuleSetName",
        "config" : {
            "columns" : 9
        }
    };
 
-   //const rule = new CheckColumnCount(config);
    const result = Util.getRuleName(config);
 
    assert.equal(result, "TestRuleSetName", "Expected 'TestRuleSetName");
 });
 
-QUnit.test( "Util: getRuleSets Test", function(assert){
-   const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger,
-       "rootDir" : "."
-   }
-
-   const result = Util.getRulesets(config.rootDir);
-   assert.equal(result, "package.json", "Expected");
-});
+// QUnit.test( "Util: getRuleSets Test", function(assert){
+//    const config = {
+//        "rootDir" : "."
+//    }
+//
+//    const result = Util.getRulesets(config.rootDir);
+//    assert.equal(result, "package.json", "Expected");
+// });
 
 QUnit.test( "Util: getRootTempDirectory", function(assert){
    const logger = new ErrorLogger();

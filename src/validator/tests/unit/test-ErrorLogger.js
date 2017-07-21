@@ -14,9 +14,6 @@ QUnit.test( "ErrorLogger: Creation Test", function(assert) {
 
 QUnit.test( "ErrorLogger: Level Test", function(assert){
    const logger = new ErrorLogger();
-   const config = {
-       "_debuglogger" : logger
-   };
 
    assert.ok(logger, "Logger was created");
 
@@ -28,9 +25,6 @@ QUnit.test( "ErrorLogger: Level Test", function(assert){
 
 QUnit.test( "ErrorLogger: ProblemFileName Test", function(assert){
    const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger
-   };
 
    assert.ok(logger, "Logger was created");
 
@@ -42,9 +36,6 @@ QUnit.test( "ErrorLogger: ProblemFileName Test", function(assert){
 
 QUnit.test( "ErrorLogger: RuleID Test", function(assert){
    const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger
-   };
 
    assert.ok(logger, "Logger was created");
 
@@ -56,9 +47,6 @@ QUnit.test( "ErrorLogger: RuleID Test", function(assert){
 
 QUnit.test( "ErrorLogger: ProblemDescription Test", function(assert){
     const logger = new ErrorLogger();
-    const config = {
-        "_debugLogger" : logger
-    };
 
     assert.ok(logger, "Logger was created");
 

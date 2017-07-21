@@ -7,11 +7,7 @@ const RuleAPI = require("../../../runtime/api/RuleAPI");
 const RuleSet = require("../../../validator/RuleSet")
 
 QUnit.test( "RuleSet: Creation Test", function(assert){
-   const logger = new ErrorLogger();
    const config = {
-       "_debuglLogger" : logger,
-
-       "ruleset" : {
            "name": "testRuleSet",
            "rules": [
                {
@@ -22,22 +18,18 @@ QUnit.test( "RuleSet: Creation Test", function(assert){
                     }
                }
            ]
-       }
 
-   }
+   };
 
-   const rules = new RuleSet(config.ruleset);
+   const rules = new RuleSet(config);
 
    assert.ok(rules, "RuleSet was created");
 
 });
 
 QUnit.test( "RuleSet: Creation Test no name", function(assert){
-   const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger,
-       "ruleset" : {
-           "rules": [
+       "rules": [
                {
                    "filename" : "CheckColumnCount",
                    "name" : "Test RuleSet creation using CheckColumnCount",
@@ -46,7 +38,6 @@ QUnit.test( "RuleSet: Creation Test no name", function(assert){
                    }
                }
            ]
-       }
    };
 
    const rules = new RuleSet(config);
@@ -56,12 +47,8 @@ QUnit.test( "RuleSet: Creation Test no name", function(assert){
 });
 
 QUnit.test( "RuleSet: Creation Test no rules", function(assert){
-   const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger,
-       "ruleset" : {
            "name" : "testRuleSet"
-       }
    };
 
    const rules = new RuleSet(config);
@@ -71,10 +58,7 @@ QUnit.test( "RuleSet: Creation Test no rules", function(assert){
 });
 
 QUnit.test( "RuleSet: Import Creation Test", function(assert){
-    const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "ruleset" : {
             "name" : "Test RuleSet Import",
             "rules" : [
                 {
@@ -91,7 +75,6 @@ QUnit.test( "RuleSet: Import Creation Test", function(assert){
                     "file" : "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
                 }
             }
-        }
     };
 
     const rules = new RuleSet(config);
@@ -101,10 +84,7 @@ QUnit.test( "RuleSet: Import Creation Test", function(assert){
 });
 
 QUnit.test( "RuleSet: Export Creation Test", function(assert){
-    const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "ruleset" : {
             "name" : "Test RuleSet Export",
             "rules" : [
                 {
@@ -121,7 +101,6 @@ QUnit.test( "RuleSet: Export Creation Test", function(assert){
                     "file" : "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv.out"
                 }
             }
-        }
     };
 
     const rules = new RuleSet(config);
@@ -131,10 +110,7 @@ QUnit.test( "RuleSet: Export Creation Test", function(assert){
 });
 
 QUnit.test( "RuleSet: Creation Test with all four properties", function(assert){
-    const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "ruleset" : {
             "name" : "Test RuleSet All Properties",
             "rules" : [
                 {
@@ -157,20 +133,21 @@ QUnit.test( "RuleSet: Creation Test with all four properties", function(assert){
                     "file" : "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv.out"
                 }
             }
-        }
     };
 
-    const rules = new RuleSet(config);
+    const ruleset = new RuleSet(config);
 
-    assert.ok(rules, "RuleSet was created with all properties");
-
+    assert.ok(ruleset, "RuleSet was created with all properties");
+    assert.ok(ruleset.name, "RuleSet has a name");
+	assert.ok(ruleset.id, "RuleSet has a id");
+	assert.ok(ruleset.filename, "RuleSet has a filename");
+	assert.ok(ruleset.rules, "RuleSet has rules");
+	assert.ok(ruleset.import, "RuleSet has an importer");
+	assert.ok(ruleset.export, "RuleSet has an exporter");
 })
 
 QUnit.test( "RuleSet: toJSON Check", function(assert){
-    const logger = new ErrorLogger();
     const config = {
-        "_debuglLogger" : logger,
-        "ruleset" : {
             "name": "testRuleSet",
             "rules": [
                 {
@@ -181,22 +158,16 @@ QUnit.test( "RuleSet: toJSON Check", function(assert){
                     }
                 }
             ]
-        }
 
     };
 
-    const ruleSetVar = new RuleSet(config.ruleset);
+    const ruleSetVar = new RuleSet(config);
     const rulesJSON = ruleSetVar.toJSON();
 
-    const logResults = logger.getLog();
     assert.equal(ruleSetVar.name, rulesJSON.ruleset.name, "Expected 'testRuleSet' in JSON file");
     assert.equal(ruleSetVar.filename, rulesJSON.ruleset.filename, "Expected matching filename in JSON file");
-    assert.equal(ruleSetVar.rules.columns, rulesJSON.ruleset.columns, "Expected matching columns in JSON file");
+    assert.ok(rulesJSON.ruleset.rules, "Expected some rules.");
+    if (rulesJSON.ruleset.rules)
+        assert.equal(1, rulesJSON.ruleset.rules.length, "Expected one rule.");
 
 });
-
-
-//QUnit.test( "RuleSet: addRules Test", function(assert){
-
-
-//});
