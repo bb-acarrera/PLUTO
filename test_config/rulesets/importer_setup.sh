@@ -1,1 +1,1 @@
-npm install -g pg
+npm install pg@^6.4.0 commander@^2.9.0

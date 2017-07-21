@@ -24,12 +24,6 @@ npm run docker_build
 ## Starting the services
 
 ```shell
-./startPluto.sh
-```
-
-OR
-
-```shell
 npm run start
 ```
 
@@ -75,9 +69,9 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
 
 ```shell
-./src/start_dev_db.sh
+npm run start_devdb
 ```
-This will start the dev database and import/update the rulesets from the src/runtime/rulesets folder.
+This will start the dev database on port 6543 and import/update the rulesets from the src/runtime/rulesets folder.
 
 There are debug configurations also set up in the src folder. To start the web service locally:
 
@@ -100,9 +94,13 @@ cd src
 node validator\validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
 ```
 
+## Deploying
+
+After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
+
 ## More..
 
-Additional iformation can be found in the following documents.
+Additional information can be found in the following documents.
 
 [Server][server] <span style="color: red">Needs updating</span>
 
