@@ -22,7 +22,7 @@ QUnit.test( "ErrorLogger: Level Test", function(assert){
 
    logger.log("LEVEL_WARNING", "", 0, "");
    const logResults = logger.getLog();
-   assert.equal(logResults[0], "LEVEL_WARNING", "Expect null");
+   assert.equal(logResults[0].type, 'LEVEL_WARNING', "Expect 'LEVEL_WARNING'");
 
 });
 
@@ -36,7 +36,7 @@ QUnit.test( "ErrorLogger: ProblemFileName Test", function(assert){
 
    logger.log(null, "TEST_FILE", 0, "");
    const logResults = logger.getLog();
-   assert.equal(logResults[1], "TEST_FILE", "Expect TEST_FILE.");
+   assert.equal(logResults[0].problemFile, "TEST_FILE", "Expect TEST_FILE.");
 
 });
 
@@ -50,7 +50,7 @@ QUnit.test( "ErrorLogger: RuleID Test", function(assert){
 
    logger.log(null, "", 1, "");
    const logResults = logger.getLog();
-   assert.equal(logResults[2], 1, "Expect 1");
+   assert.equal(logResults[0].ruleID, 1, "Expect 1");
 
 });
 
@@ -64,6 +64,6 @@ QUnit.test( "ErrorLogger: ProblemDescription Test", function(assert){
 
     logger.log(null, "", 0, "Test Description");
     const logResults = logger.getLog();
-    assert.equal(logResults[3], "Test Description", "Expect \"Test Description\"");
+    assert.equal(logResults[0].description, "Test Description", "Expect \"Test Description\"");
 
 });

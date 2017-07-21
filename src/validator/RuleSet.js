@@ -48,7 +48,7 @@ class RuleSet {
 		ruleset.rules = this.rules;
 
 		const response = {};
-		response.RuleSet = ruleset;
+		response.ruleset = ruleset;
 
 		return response;
 	}

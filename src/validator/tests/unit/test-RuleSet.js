@@ -4,11 +4,13 @@
 
 const ErrorLogger = require("../../ErrorLogger");
 const RuleAPI = require("../../../runtime/api/RuleAPI");
+const RuleSet = require("../../../validator/RuleSet")
 
 QUnit.test( "RuleSet: Creation Test", function(assert){
    const logger = new ErrorLogger();
    const config = {
        "_debuglLogger" : logger,
+
        "ruleset" : {
            "name": "testRuleSet",
            "rules": [
@@ -24,7 +26,7 @@ QUnit.test( "RuleSet: Creation Test", function(assert){
 
    }
 
-   const rules = new RuleSet(config);
+   const rules = new RuleSet(config.ruleset);
 
    assert.ok(rules, "RuleSet was created");
 
@@ -45,7 +47,7 @@ QUnit.test( "RuleSet: Creation Test no name", function(assert){
                }
            ]
        }
-   }
+   };
 
    const rules = new RuleSet(config);
 
@@ -60,7 +62,7 @@ QUnit.test( "RuleSet: Creation Test no rules", function(assert){
        "ruleset" : {
            "name" : "testRuleSet"
        }
-   }
+   };
 
    const rules = new RuleSet(config);
 
@@ -90,7 +92,7 @@ QUnit.test( "RuleSet: Import Creation Test", function(assert){
                 }
             }
         }
-    }
+    };
 
     const rules = new RuleSet(config);
 
@@ -120,7 +122,7 @@ QUnit.test( "RuleSet: Export Creation Test", function(assert){
                 }
             }
         }
-    }
+    };
 
     const rules = new RuleSet(config);
 
@@ -156,7 +158,7 @@ QUnit.test( "RuleSet: Creation Test with all four properties", function(assert){
                 }
             }
         }
-    }
+    };
 
     const rules = new RuleSet(config);
 
@@ -181,18 +183,20 @@ QUnit.test( "RuleSet: toJSON Check", function(assert){
             ]
         }
 
-    }
+    };
 
-    const rules = new RuleSet(config);
-    const rulesJSON = rules.toJSON();
+    const ruleSetVar = new RuleSet(config.ruleset);
+    const rulesJSON = ruleSetVar.toJSON();
 
     const logResults = logger.getLog();
-    assert.equal(rulesJSON.name, rules.name, "Expected 'testRuleSet' in JSON file");
-    assert.equal(rulesJSON.rules, rules.rules, "Expected matching rules in JSON file");
+    assert.equal(ruleSetVar.name, rulesJSON.ruleset.name, "Expected 'testRuleSet' in JSON file");
+    assert.equal(ruleSetVar.filename, rulesJSON.ruleset.filename, "Expected matching filename in JSON file");
+    assert.equal(ruleSetVar.rules.columns, rulesJSON.ruleset.columns, "Expected matching columns in JSON file");
 
 });
 
-QUnit.test( "RuleSet: addRules Test", function(assert){
+
+//QUnit.test( "RuleSet: addRules Test", function(assert){
 
 
-});
+//});
