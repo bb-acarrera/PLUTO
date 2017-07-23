@@ -1,0 +1,20 @@
+src/client/.idea
+src/client/node_modules
+.idea
+node_modules
+*.swp
+public
+results
+/tmp/
+src/runtime/python/virtualEnvironment
+src/runtime/python/Luigi/tasks/__pycache__
+src/runtime/python/Luigi/tests/__pycache__
+simplemaps-worldcities-basic.csv.log.json
+simplemaps-worldcities-basic.csv.out
+Release
+src/tmp
+/test build/
+test_config/tmp/*
+/pluto.image.tar
+Factories.csv
+/root/

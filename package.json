@@ -1,0 +1,38 @@
+{
+  "name": "pluto",
+  "version": "0.0.1",
+  "description": "A data validation framework.",
+  "main": "server.js",
+  "scripts": {
+    "test": "sh build/bin/runUnitTests.sh",
+    "docker_build" : "docker build -t pluto:develop ./Release",
+    "docker_run" : "docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto:develop",
+    "docker_run_bash": "docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -ti pluto:develop /bin/sh",
+    "docker_save": "docker save --output pluto.image.tar pluto:develop",
+    "build" : "sh build/bin/testDeploy.sh",
+    "build_docs" : "sh build/bin/buildDocs.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unchartedsoftware/PLUTO.git"
+  },
+  "author": "Uncharted Software",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/unchartedsoftware/PLUTO/issues"
+  },
+  "homepage": "https://github.com/unchartedsoftware/PLUTO#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "commander": "^2.9.0",
+    "csv": "^1.1.1",
+    "express": "^4.15.2",
+    "fs-extra": "^3.0.1",
+    "rimraf": "^2.6.1",
+    "stream-to-promise": "^2.2.0"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.4.3",
+    "qunitjs": "^2.3.2"
+  }
+}

@@ -1,0 +1,53 @@
+{
+	"ruleset" : {
+		"name" : "Test Data RuleSet",
+		"rules" : [
+			{
+				"filename" : "CheckColumnCount",
+				"name" : "Validate column count",
+				"config" : {
+					"columns" : 9
+				}
+			},
+			{
+				"filename" : "CheckLatLong",
+				"name" : "Validate Lat & Long",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"latitudeColumn"  : 2,
+					"longitudeColumn" : 3
+				}
+			},
+			{
+				"filename" : "CheckColumnType",
+				"name" : "Validate Population Column",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"type" : "number",
+					"column" : 4
+				}
+			},
+			{
+				"filename" : "CheckColumnRegEx",
+				"name" : "Check No Numbers in city name (RegEx)",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"column" : 2,
+					"regex" : "[^0-9\\s]*"
+				}
+			}
+		],
+		"import" : {
+			"scriptPath": "/opt/PLUTO/config/import.js",
+			"config": {
+				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"export" : {
+			"scriptPath": "/opt/PLUTO/config/export.js",
+			"config" : {
+				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
+			}
+		}
+	}
+}

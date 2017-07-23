@@ -1,0 +1,5 @@
+{
+	"rootDirectory" : ".",
+	"port" : "3000",
+	"assetsDirectory": "client/dist"
+}

@@ -1,0 +1,25 @@
+{
+	"ruleset" : {
+		"name" : "Python Example RuleSet",
+		"rules" : [
+			{
+				"filename" : "RunPythonScript",
+				"config" : {
+					"pythonScript" : "/opt/PLUTO/config/copy.py"
+				}
+			}
+		],
+		"import" : {
+			"scriptPath": "/opt/PLUTO/config/import.js",
+			"config": {
+				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"export" : {
+			"scriptPath": "/opt/PLUTO/config/export.js",
+			"config" : {
+				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
+			}
+		}
+	}
+}

@@ -1,0 +1,62 @@
+button.show-add-rule {
+  margin:5px 5px 5px 5px;
+}
+
+button.save-ruleset {
+  margin:5px 5px 5px 5px;
+}
+
+div.column {
+  border:1px solid black;
+  float: left;
+  width:33%;
+  margin:2px 2px 2px 2px;
+  background: #F8F8F8;
+}
+
+div.section-header {
+  padding: 3px 3px 0px 3px;
+}
+
+div.section-content {
+  border:1px solid black;
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
+}
+
+input.text-input {
+  width:  98%;
+}
+
+table.error-table {
+  border-collapse: collapse;
+  border: 1px solid black;
+  width:  auto;
+}
+
+table.ruleset-table {
+  border-spacing: 0;
+}
+
+td.error-cell {
+  border: 1px solid black;
+  /* width:  auto; */
+}
+
+tr.error-row {
+  border: 1px solid black;
+  /* width:  auto; */
+}
+
+tr.selected {
+  background: lightcyan;
+}
+
+tr:hover {
+  background-color: #f0f0f0;
+}
+
+/* Conflicts with the selection background coloring.
+/* tr:nth-child(even) {
+  background-color: #f2f2f2;
+} */

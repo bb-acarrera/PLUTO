@@ -1,0 +1,53 @@
+<div>
+  <h2>PLUTO</h2>
+  <div>
+    <div class="column">
+      <div class="section-header">Filename</div>
+      <div class="section-content">{{model.file}}</div>
+      <div class="section-header">Process Template</div>
+      <div class="section-content"><input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
+      <div class="section-header">Sequence</div>
+      <table id="rulesTable" class="ruleset-table">
+        {{#each model.ruleset.rules as |ruleInstance index|}}
+          <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
+            {{rule-log-icons rule=ruleInstance log=model.log}}
+            <td>{{ruleInstance.config.Name}}</td>
+            <td><button {{action "editRule" ruleInstance}}>Edit</button></td>
+            <td><button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up" aria-hidden="true"></i></button></td>
+            <td><button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
+          </tr>
+        {{/each}}
+        <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) "Validator"}}>
+          {{rule-log-icons rule="Validator" log=model.log}}
+          <td>Global Errors</td><td/><td/><td/>
+        </tr>
+        {{#if showAddRule}}
+          <td/><td/><td/><td>
+            <select id="selectRule">
+              <option value="None" selected>None</option>
+              {{#each model.rules as |rule|}}
+                <option value="{{rule.filename}}">{{rule.name}}</option>
+              {{/each}}
+            </select>
+          </td>
+          <td><button {{action "hideAddRule"}}>Cancel</button><button {{action "addRule" model.ruleset model.rules}}>Add</button></td>
+        {{/if}}
+      </table>
+      <button class="show-add-rule" style="float: left" {{action "showAddRule"}}>+</button>
+      <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}>-</button>
+      <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
+    </div>
+    <div class="column">
+      <!-- The column for editting rule properties. -->
+      {{show-rule-editor ruleInstance=this.ruleToEdit}}
+      <button class="save-ruleset" style="float: right" {{action "updateRule" model.ruleset this.ruleToEdit}}>Apply</button>
+    </div>
+    <div class="column">
+      <!-- The column for showing rule errors. -->
+      <div class="section-header">Errors:</div>
+        {{#if showErrors}}
+          {{show-errors rule=this.showErrors log=model.log}}
+        {{/if}}
+    </div>
+  </div>
+</div>
