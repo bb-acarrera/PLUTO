@@ -86,3 +86,13 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     });
 
 });
+
+QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "column" : -1
+    };
+
+
+});
