@@ -77,21 +77,21 @@ There are debug configurations also set up in the src folder. To start the web s
 
 ```shell
 cd src
-node server\server.js -s $PWD/server/debugServerConfig.json -v $PWD/runtime/configs/validatorConfig.json
+node server/server.js -s $PWD/server/debugServerConfig.json -v $PWD/runtime/configs/validatorConfig.json
 ```
 
 To run the validator manually:
 
 ```shell
 cd src
-node validator\validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -v $PWD/runtime/rulesets/override.json"
+node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -v $PWD/runtime/rulesets/override.json"
 ```
 
 or
 
 ```shell
 cd src
-node validator\validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
+node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
 ```
 
 ## Deploying

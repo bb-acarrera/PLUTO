@@ -6,4 +6,5 @@ docker run -v pgdata:/var/lib/postgresql/data -v $PWD/database/initdb.d:/docker-
 docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 --net=plutonet --name pluto_ws -d pluto:develop
 
 cd test_config/rulesets
-./run_importer.sh
+sh ./run_importer.sh
+
