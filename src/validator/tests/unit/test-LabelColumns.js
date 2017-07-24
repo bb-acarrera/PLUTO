@@ -65,7 +65,7 @@ QUnit.test( "LabelColumns: Label Column Test", function(assert){
         "sharedData" : {}
     };
 
-    const data = "Column 1,Column 2\na,b";
+    //const data = "Column 1,Column 2\na,b";
     const rule = new LabelColumns(config);
     rule.run();
 
