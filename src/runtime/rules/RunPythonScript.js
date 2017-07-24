@@ -14,18 +14,12 @@ class RunPythonScript extends RuleAPI {
 
 		if (!this.config) {
 			this.error(`No configuration specified.`);
-			setImmediate(() => {
-				this.emit(RuleAPI.NEXT, outputName);
-			});
 
 			return;
 		}
 
 		if (!this.config.pythonScript) {
 			this.error('No pythonScript in the configuration.');
-			setImmediate(() => {
-				this.emit(RuleAPI.NEXT, outputName);
-			});
 
 			return;
 		}
@@ -33,9 +27,6 @@ class RunPythonScript extends RuleAPI {
 		let pythonScript = path.resolve(this.config.pythonScript);
 		if (!fs.existsSync(pythonScript)) {
 			this.error(`${pythonScript} does not exist.`);
-			setImmediate(() => {
-				this.emit(RuleAPI.NEXT, outputName);
-			});
 
 			return;
 		}
