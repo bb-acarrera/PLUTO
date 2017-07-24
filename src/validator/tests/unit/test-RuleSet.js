@@ -23,7 +23,7 @@ QUnit.test( "RuleSet: Creation Test", function(assert){
 
    const rules = new RuleSet(config);
 
-   assert.ok(rules, "RuleSet was created");
+   assert.ok(rules, "RuleSet was not created");
 
 });
 
@@ -42,7 +42,7 @@ QUnit.test( "RuleSet: Creation Test no name", function(assert){
 
    const rules = new RuleSet(config);
 
-   assert.ok(rules, "RuleSet was created with no name property");
+   assert.ok(rules, "RuleSet was not created with no name property");
 
 });
 
@@ -53,7 +53,7 @@ QUnit.test( "RuleSet: Creation Test no rules", function(assert){
 
    const rules = new RuleSet(config);
 
-   assert.ok(rules, "RuleSet was created with no rules property");
+   assert.ok(rules, "RuleSet was not created with no rules property");
 
 });
 
@@ -79,7 +79,7 @@ QUnit.test( "RuleSet: Import Creation Test", function(assert){
 
     const rules = new RuleSet(config);
 
-    assert.ok(rules, "RuleSet was created with import property");
+    assert.ok(rules, "RuleSet was not created with import property");
 
 });
 
@@ -105,7 +105,7 @@ QUnit.test( "RuleSet: Export Creation Test", function(assert){
 
     const rules = new RuleSet(config);
 
-    assert.ok(rules, "RuleSet was created with export property");
+    assert.ok(rules, "RuleSet was not created with export property");
 
 });
 

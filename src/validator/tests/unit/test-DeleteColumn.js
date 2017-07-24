@@ -35,14 +35,14 @@ class MemoryWriterStream extends stream.Writable {
 	}
 }
 
-QUnit.test( "DeleteColumn: Creation Test", function(assert){
+QUnit.test( "DeleteColumn: Deletion Test", function(assert){
    const logger = new ErrorLogger();
    const config = {
        "_debugLogger" : logger,
        "column" : 0
    }
 
-   const data = "Column 0, Column 1\na, b";
+   const data = "Column 0,Column 1\na,b";
    const rule = new DeleteColumn(config);
    const done = assert.async();
    rule._run( { data: data }).then((result) => {
@@ -51,9 +51,9 @@ QUnit.test( "DeleteColumn: Creation Test", function(assert){
 		const writer = new MemoryWriterStream();
 		writer.on('finish', () => {
 			const dataVar = writer.getData();
-			console.log("dataVar = " + dataVar);
+			//console.log("dataVar = " + dataVar);
 
-			assert.equal(dataVar, "Column 1\nb", "Expected only column 1");
+			assert.equal(dataVar, "Column 1\nb\n", "Expected only column 1");
 			done();
 		})
 	   	result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
@@ -61,24 +61,28 @@ QUnit.test( "DeleteColumn: Creation Test", function(assert){
 
 });
 
-/*
-QUnit.test( "DeleteColumn: Column Delete Test", function(assert){
+QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "rowNumber" : 1,
         "column" : 1
     }
 
-    const deleter = new DeleteColumn(config);
-    assert.ok(deleter, "Column was deleted");
+    const data = "Column 0,Column 1\na,b";
+    const rule = new DeleteColumn(config);
+    const done = assert.async();
+    rule._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
+
+            assert.equal(dataVar, "Column 0\na\n", "Expected only column 1");
+            done();
+        })
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    });
 
 });
-*/
-
-/*
-QUnit.test( "DeleteColumn: processRecord test", function(assert){
-
-
-});
-*/
