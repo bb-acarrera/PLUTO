@@ -95,12 +95,12 @@ function addRule(ruleset, rules) {
     return;
 
   rules.forEach(rule => {
-    if (rule.get("N") == newRuleFilename) {
+    if (rule.get("filename") == newRuleFilename) {
       const newRule = {};
-      newRule.fileName = rule.get("fileName");
+      newRule.filename = rule.get("filename");
       newRule.id = createGUID();
       newRule.config = Object.assign({}, rule.get("config") || {});  // Clone the config. Don't want to reference the original.
-      newRule.config.name = newRule.fileName;
+      newRule.config.Name = newRule.filename;
 
       ruleset.get("rules").push(newRule);
       ruleset.notifyPropertyChange("rules");
@@ -131,7 +131,7 @@ function deleteRule(tableID, ruleset) {
 
   const rules = ruleset.get('rules');
   const rule = rules[ruleToDelete];
-  if (confirm(`Delete rule "${rule.config.n}"?`)) {
+  if (confirm(`Delete rule "${rule.config.Name}"?`)) {
     rules.splice(ruleToDelete, 1); // Remove the rule.
     ruleset.notifyPropertyChange("rules");
   }
