@@ -71,7 +71,7 @@ class data {
                         let row = result.rows[0];
                         resolve({
                             id: row.run_id,
-                            log: row.run_id,
+                            log: row.id,
                             ruleset: row.ruleset_id,
                             inputfilename: row.inputFile,
                             outputfilename: row.outputFile,
