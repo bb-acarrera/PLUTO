@@ -8,13 +8,13 @@ class MoveColumn extends CSVRuleAPI {
 
 		this.column = this.getValidatedColumnProperty();
 		var newLocation = undefined;
-		if (this.config.before && this.config.after) {
+		if ((this.config.before !== undefined && this.config.before !== null) && (this.config.after !== undefined && this.config.after !== null)) {
 			this.error("Configured with both a 'before' and an 'after' property.");
 			return;
 		}
-		else if (this.config.before)
+		else if ((this.config.before !== undefined && this.config.before !== null))
 			newLocation = this.getValidatedColumnProperty(this.config.before, 'before');
-		else if (this.config.after)
+		else if ((this.config.after !== undefined && this.config.after !== null))
 			newLocation = this.getValidatedColumnProperty(this.config.after, 'after');
 		else {
 			this.error("Configured without a 'before' or 'after' property.");

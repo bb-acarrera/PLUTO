@@ -32,7 +32,7 @@ class MemoryWriterStream extends stream.Writable {
     }
 }
 
-QUnit.test( "LabelColumns: Creation Test", function(assert){
+QUnit.test( "LabelColumns: No sharedData Creation Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,

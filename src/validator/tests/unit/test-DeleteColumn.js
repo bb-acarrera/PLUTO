@@ -94,5 +94,46 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
         "column" : -1
     };
 
+    const data = "Column 0,Column 1\na,b";
+    const rule = new DeleteColumn(config);
+    const done = assert.async();
+    rule._run( { data: data }).then((result) => {
+        assert.ok(rule, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            assert.equal(logResults.length, 1, "Expected 1 result.");
+            assert.equal(logResults[0].type, "Error", "Expected \"Error\".");
+            done();
+        });
+        result.stream.pipe(writer);
+
+    });
+
+});
+
+QUnit.test( "DeleteColumn: No Column Property test", function(assert){
+   const logger = new ErrorLogger();
+   const config = {
+       "_debugLogger" : logger
+   };
+
+    const data = "Column 0,Column 1\na,b";
+    const rule = new DeleteColumn(config);
+    const done = assert.async();
+    rule._run( { data: data }).then((result) => {
+        assert.ok(rule, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            assert.equal(logResults.length, 1, "Expected 1 result.");
+            assert.equal(logResults[0].type, "Error", "Expected \"Error\".");
+            done();
+        });
+        result.stream.pipe(writer);
+
+    });
 
 });

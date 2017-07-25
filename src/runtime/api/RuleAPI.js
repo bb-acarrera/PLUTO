@@ -147,7 +147,7 @@ class RuleAPI extends BaseRuleAPI {
 			return this._inputPromise;
 		}
 		else
-			this._inputFile = this.config.validator.saveLocalTempFile(this._data.data, this.config.encoding);
+			this._inputFile = this.config.validator.saveLocalTempFile(this._data.data, this.config.encoding || "utf8");
 
 		return this._inputFile;
 	}
