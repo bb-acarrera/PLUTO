@@ -51,10 +51,10 @@ class CSVRuleAPI extends RuleAPI {
 	 * Given the value of a property this validates whether the given value is a valid number of header rows
 	 * and if so returns it otherwise an error is posted to the log and <code>0</code> is
 	 * returned.
-	 * @param headerRowsProperty the value of a config header rows property. If this is <code>undefined</code>
+	 * @param {string} headerRowsProperty the value of a config header rows property. If this is <code>undefined</code>
 	 * then <code>this.config.numberOfHeaderRows</code> is used.
-	 * @param headerRowsPropertyName the name of the property to use in error messages. Defaults to 'numberOfHeaderRows'.
-	 * @returns the number of header rows given by headerRowsProperty or 0 if the value is not valid.
+	 * @param {string} headerRowsPropertyName the name of the property to use in error messages. Defaults to 'numberOfHeaderRows'.
+	 * @returns {number|undefined} the number of header rows given by headerRowsProperty or 0 if the value is not valid.
 	 */
 	getValidatedHeaderRows(headerRowsProperty, headerRowsPropertyName) {
 		headerRowsProperty = headerRowsProperty == undefined ? this.config.numberOfHeaderRows : headerRowsProperty;
@@ -80,10 +80,10 @@ class CSVRuleAPI extends RuleAPI {
 	 * Given the value of a property this validates whether the given value is a column label or column number
 	 * and if so returns the column number otherwise an error is posted to the log and <code>undefined</code> is
 	 * returned.
-	 * @param propertyValue the value of a config column property. If this is <code>undefined</code> then
+	 * @param {string} propertyValue the value of a config column property. If this is <code>undefined</code> then
 	 * <code>this.config.column</code> is used.
-	 * @param propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
-	 * @returns the column number represented by the propertyValue or undefined if the value is not valid.
+	 * @param {string} propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
+	 * @returns {number|undefined} the column number represented by the propertyValue or undefined if the value is not valid.
 	 */
 	getValidatedColumnProperty(propertyValue, propertyName) {
 		propertyValue = propertyValue == undefined ? this.config.column : propertyValue;
@@ -127,6 +127,11 @@ class CSVRuleAPI extends RuleAPI {
 
 	/**
 	 * Derived classes should override this method if they need to do anything before the processing of the data starts.
+	 * <br/>Note that rules that use streams and modify the metadata, because of their asynchronous nature, should do so
+	 * in a <code>start()</code> method. Modifying the metdata any later could mean that the changes are not
+	 * applied until after the next rule needs the changes. However rules that use data objects or files are safe
+	 * to modify metadata at any point, in the <code>start()</code> or <code>finish()</code> methods since these
+	 * rules would run synchronously.
 	 */
 	start() {
 		// Do any pre-processing.
@@ -134,6 +139,7 @@ class CSVRuleAPI extends RuleAPI {
 
 	/**
 	 * Derived classes should override this method if they need to do anything after the processing of records is complete.
+	 * @see {@link CSVRuleAPI#start|start}
 	 */
 	finish() {
 		// Do any post-processing.

@@ -40,6 +40,34 @@ class RuleSet {
 		}
 	}
 
+	applyOverride(rulesetOverrideFile) {
+		if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
+			var contents;
+			try {
+				contents = require(rulesetOverrideFile);
+			}
+			catch (e) {
+				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
+			}
+
+			if (contents.import) {
+				if (!this.import) {
+					this.import = {};
+				}
+
+				Object.assign(this.import.config, contents.import);
+			}
+
+			if(contents.export) {
+				if(!this.export) {
+					this.export = {};
+				}
+
+				Object.assign(this.export.config, contents.export);
+			}
+		}
+	}
+
 	toJSON() {
 		const ruleset = {};
 		ruleset.name = this.name;

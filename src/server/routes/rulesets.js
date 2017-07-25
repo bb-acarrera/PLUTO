@@ -15,56 +15,69 @@ class RulesetRouter extends BaseRouter {
 		// that these two root directories are the same.
 
 		if(req.params.id) {
-			const ruleset = this.config.data.retrieveRuleset(req.params.id);
-			if (!ruleset)
-				return next(new Error("Unable to find ruleset."));
 
-			var rules = [];
-			for (var i = 0; i < ruleset.rules.length; i++) {
-				const rule = ruleset.rules[i];
-				const ruleFilename = rule.filename;
-				if (rule.hasOwnProperty('config') && !rule.config.hasOwnProperty('Name'))
-					rule.config.Name = ruleFilename;	// Make sure the rule has a name.
-				rules.push(
-					{
-						filename: ruleFilename,
-						config: rule.config
-					});
-			}
-
-			res.json({
-				data: {
-					type: "ruleset",
-					id: req.params.id,	// The filename is used for the id.
-					attributes: {
-						name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
-						rules: rules
-					}
+			this.config.data.retrieveRuleset(req.params.id).then((ruleset) => {
+				if (!ruleset) {
+					res.status(404).send(`Unable to retrieve ruleset '${req.params.id}'.`);
+					return;
 				}
-			});
+
+				var rules = [];
+				for (var i = 0; i < ruleset.rules.length; i++) {
+					const rule = ruleset.rules[i];
+					const ruleFilename = rule.filename;
+					if (rule.hasOwnProperty('config') && !rule.config.hasOwnProperty('Name'))
+						rule.config.Name = ruleFilename;	// Make sure the rule has a name.
+					rules.push(
+						{
+							filename: ruleFilename,
+							config: rule.config
+						});
+				}
+
+				res.json({
+					data: {
+						type: "ruleset",
+						id: req.params.id,	// The filename is used for the id.
+						attributes: {
+							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
+							rules: rules
+						}
+					}
+				});
+			}, (error) => {
+				throw new Error(error);
+			}).catch(next);
+
+
 		} else {
-			const rawRulesets = Util.getRulesets(this.config.validator.config.rulesetDirectory);
 
-			const rulesets = [];
+			this.config.data.getRulesets().then((rawRulesets) => {
+				const rulesets = [];
 
-			rawRulesets.forEach(rulesetFileName => {
-				rulesets.push({
-					type: "ruleset",
-					id: rulesetFileName
-				})
-			});
+				rawRulesets.forEach(rulesetFileName => {
+					rulesets.push({
+						type: "ruleset",
+						id: rulesetFileName
+					})
+				});
 
-			res.json(rulesets);
+				res.json(rulesets);
+
+			}, (error) => {
+				throw new Error(error);
+			}).catch(next);
+
 		}
 	}
 
-	patch(req, res, next) {
+	patch(req, res) {
 		const ruleset = new RuleSet(req.body);
 		this.config.data.saveRuleSet(ruleset);
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 	}
 
-	getAll(req, res, next) {
+	getAll(req, res) {
 
 	}
 }

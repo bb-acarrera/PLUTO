@@ -1,5 +1,5 @@
 {
-	"RootDirectory" : ".",
-	"Port" : "3000",
-	"AssetsDirectory": "client/dist"
+	"rootDirectory" : ".",
+	"port" : "3000",
+	"assetsDirectory": "client/dist"
 }

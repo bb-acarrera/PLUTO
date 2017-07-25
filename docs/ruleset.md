@@ -21,7 +21,7 @@ as well.
 
 ```json
 {
-	"RuleSet" : {
+	"ruleset" : {
 		"name" : "...",
 		"rules" : [
 		    ...
@@ -36,7 +36,7 @@ as well.
 }
 ```
 
-A ruleset has a single base property called `RuleSet` (capitalization is significant) which contains the
+A ruleset has a single base property called `ruleset` (capitalization is significant) which contains the
 properties of the ruleset. The included properties are `name`, `rules`, `import`, and `export`. 
 
 ## 2. Ruleset Properties
@@ -59,27 +59,27 @@ Following is an example of a rule description included in the ruleset `rules`.
 
 ```json
 {
-    "FileName" : "CheckColumnCount",
-    "Name" : "Validate column count",
-    "Config" : {
-        "Columns" : 9
+    "filename" : "CheckColumnCount",
+    "name" : "Validate column count",
+    "config" : {
+        "columns" : 9
     }
 }
 ```
-The rules have three required properties, `FileName`, `Name`, and `Config`.
+The rules have three required properties, `filename`, `name`, and `config`.
 
-#### 2.2.1. FileName
+#### 2.2.1. `filename`
 
 This is the file name of the JavaScript plug-in rule. If no suffix is specified `.js` is assumed.
-The rule file must exist in the `RulesDirectory` as set in the [validator][validator] configuration file.
+The rule file must exist in the `rulesDirectory` as set in the [validator][validator] configuration file.
 
-#### 2.2.2. Name
+#### 2.2.2. `name`
 
 This is a human readable and unique name that should describe what the rule does. It will be displayed
 in the client allowing users to associate validation failures back to a rule and to select rules to
 add to a ruleset when they are editing the ruleset.
 
-#### 2.2.3. Config
+#### 2.2.3. `config`
 
 This section of the rule description is used to specify any configuration properties that are specific
 to the rule. This property can either include the name of a configuration file or a `JSON` object. 
@@ -96,7 +96,7 @@ Generally including the rule configuration in the ruleset is preferable over hav
  The only time you would want it in a file is if several rulesets require the same rule with the same
  properties.
  
-### 2.3. import _(Optional)_
+### 2.3. `import` _(Optional)_
 
 The `import` section is used to describe a custom importer. Custom importers
  allow retrieving input files from some location other than the local
@@ -106,29 +106,29 @@ Following is an example of an `import` property.
  
 ```json
 "import" : {
-    "ScriptPath": "/opt/PLUTO/config/import.js",
-    "Config": {
+    "scriptPath": "/opt/PLUTO/config/import.js",
+    "config": {
         "file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
     }
 }
 ```
 
-This section has two required properties `ScriptPath` and `Config`.
+This section has two required properties `scriptPath` and `config`.
  
-#### 2.3.1. ScriptPath
+#### 2.3.1. `scriptPath`
 
 This property identifies the JavaScript plug-in implementing the custom importer that should be loaded.
 This can either be an absolute path or a relative path relative to the applications working directory.
 
-#### 2.3.2 Config
+#### 2.3.2 `config`
 
-This property contains properties specific to the importer plug-in. Unlike the `Config` for
+This property contains properties specific to the importer plug-in. Unlike the `config` for
 [rules](#2.2.3.-config) this cannot reference a separate file.
 
 If the `config` includes an `encoding` property this will be taken as the encoding to be used when
 importing the file.
 
-### 2.4. export _(Optional)_
+### 2.4. `export` _(Optional)_
 
 The `export` section is used to describe a custom exporter. Custom exporters, similar to custom importers,
 allow saving generated files and logs to a location other than the local file system.
@@ -137,8 +137,8 @@ This is an example of an `export` property.
 
 ```json
 "export" : {
-    "ScriptPath": "/opt/PLUTO/config/export.js",
-    "Config" : {
+    "scriptPath": "/opt/PLUTO/config/export.js",
+    "config" : {
         "file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
     }
 }
@@ -154,7 +154,7 @@ that references one file
 but you want it to operate on a different file, or output a different file, or use different credentials, etc.
 
 An override has two properties `import` and `export`. Both are optional. If specified they should contain
- overriding `Config` properties for the `import` and `export` properties in the ruleset.
+ overriding `config` properties for the `import` and `export` properties in the ruleset.
  
 For example:
 ```json
@@ -174,44 +174,44 @@ Below is an example ruleset demonstrating all the properties of a ruleset and it
 
 ```json
 {
-	"RuleSet" : {
+	"ruleset" : {
 		"name" : "Test Data RuleSet",
 		"rules" : [
 			{
-				"FileName" : "CheckColumnCount",
-				"Name" : "Validate column count",
-				"Config" : {
-					"Columns" : 9
+				"filename" : "CheckColumnCount",
+				"name" : "Validate column count",
+				"config" : {
+					"columns" : 9
 				}
 			},
 			{
-				"FileName" : "CheckLatLong",
-				"Name" : "Validate Lat & Long",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"LatitudeColumn"  : 2,
-					"LongitudeColumn" : 3
+				"filename" : "CheckLatLong",
+				"name" : "Validate Lat & Long",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"latitudeColumn"  : 2,
+					"longitudeColumn" : 3
 				}
 			},
 			{
-				"FileName" : "CheckColumnType",
-				"Name" : "Validate Population Column",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"Type" : "number",
-					"Column" : 4
+				"filename" : "CheckColumnType",
+				"name" : "Validate Population Column",
+				"config" : {
+					"numberOfHeaderRows" : 1,
+					"type" : "number",
+					"column" : 4
 				}
 			}
 		],
 		"import" : {
-			"ScriptPath": "/opt/PLUTO/config/import.js",
-			"Config": {
+			"scriptPath": "/opt/PLUTO/config/import.js",
+			"config": {
 				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"ScriptPath": "/opt/PLUTO/config/export.js",
-			"Config" : {
+			"scriptPath": "/opt/PLUTO/config/export.js",
+			"config" : {
 				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
 			}
 		}

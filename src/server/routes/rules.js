@@ -8,7 +8,7 @@ class RulesRouter extends BaseRouter {
 		super(config);
 	}
 
-	get(req, res, next) {
+	get(req, res) {
 		// Send generic rules. (i.e. not rule instances.)
 		const rules = [];
 		fs.readdirSync(this.config.validator.config.rulesDirectory).forEach(file => {

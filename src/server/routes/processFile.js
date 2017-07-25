@@ -22,7 +22,7 @@ class ProcessFileRouter extends BaseRouter {
         super(config);
     }
 
-    post(req, res, next) {
+    post(req, res) {
         // Note that in general the server and validator can have different root directories.
         // The server's root directory points to the client code while the validator's root
         // directory points to rulesets, rule plugins and such. It can be configured such
@@ -60,7 +60,6 @@ class ProcessFileRouter extends BaseRouter {
             };
 
             var cmd = 'node validator/validator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
-            cmd += ' -o ' + ruleset;
             if(overrideFile) {
                 cmd += ' -v "' + overrideFile + '"';
             }
