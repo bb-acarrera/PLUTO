@@ -62,7 +62,9 @@ class data {
     getRun(id) {
         return new Promise((resolve, reject) => {
 
-            this.db.query("SELECT id, ruleset_id, run_id, inputfile, outputfile, finishtime, log FROM runs where run_id = $1", [id])
+            this.db.query("SELECT runs.id, rulesets.ruleset_id, run_id, inputfile, outputfile, finishtime, log FROM runs " +
+                "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
+                "where run_id = $1", [id])
                 .then((result) => {
 
                     if(result.rows.length > 0) {
