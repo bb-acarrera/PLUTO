@@ -38,6 +38,5 @@
     "karma-qunit": "^1.2.1",
     "qunitjs": "^2.3.2",
     "supervisor": "^0.12.0"
->>>>>>> refs/heads/develop
   }
 }
