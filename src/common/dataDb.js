@@ -104,7 +104,8 @@ class data {
         return new Promise((resolve, reject) => {
             var runs = [];
 
-            this.db.query("SELECT id, ruleset_id, run_id, inputfile, outputfile, finishtime FROM runs " +
+            this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, runs.finishtime FROM runs " +
+                "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
                 "ORDER BY finishtime DESC LIMIT $1 OFFSET $2", [this.runsLimit, offset] )
                 .then((result) => {
 
@@ -219,7 +220,7 @@ class data {
 
         return new Promise((resolve, reject) => {
 
-            let name = ruleset.filename + ".json";
+            let name = ruleset.filename;
 
             this.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
                 .then((result) => {

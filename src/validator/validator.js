@@ -276,7 +276,7 @@ class Validator {
 
 		this.running = false;
 		
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
+		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString();
 
 		if (results && this.currentRuleset.export) {
 			var resultsFile = null;
