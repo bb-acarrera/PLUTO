@@ -13,36 +13,50 @@ class RunsRouter extends BaseRouter {
         // that these two root directories are the same.
 
         if(req.params.id) {
-            const runInfo = this.config.data.getRun(req.params.id);
-            if (!runInfo)
-                return next(new Error(`Unable to retrieve the run '${req.params.id}'.`));
-
-
-            res.json({
-                data:  {
-                    id: req.params.id,
-                    type: 'run',
-                    attributes: runInfo
+            this.config.data.getRun(req.params.id).then((runInfo) => {
+                if (!runInfo)
+                {
+                    res.status(404).send(`Unable to retrieve the run '${req.params.id}'.`);
+                    return;
                 }
-            });
+
+                res.json({
+                    data:  {
+                        id: req.params.id,
+                        type: 'run',
+                        attributes: runInfo
+                    }
+                });
+            }, (error) => {
+                next(error);
+            })
+                .catch(next);
+
         } else {
-            const runs = this.config.data.getRuns();
-            var data = [];
 
-            runs.forEach(runId => {
-                const runInfo = this.config.data.getRun(runId);
-                //var run = Object.assign({id: runId}, runInfo);
-                var run = {
-                    id: runId,
-                    type: 'run',
-                    attributes: runInfo
-                };
-                data.push(run);
-            });
+            let page = 0;
+            if(req.query.page) {
+                page = req.query.page;
+            }
 
-            res.json({
-                data: data
-            });
+            this.config.data.getRuns(page).then((runs) => {
+                var data = [];
+
+                runs.forEach(runInfo => {
+                    var run = {
+                        id: runInfo.id,
+                        type: 'run',
+                        attributes: runInfo
+                    };
+                    data.push(run);
+                });
+
+                res.json({
+                    data: data
+                });
+            }, next)
+                .catch(next);
+
         }
 
 

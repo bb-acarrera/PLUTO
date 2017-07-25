@@ -1,0 +1,17 @@
+startpluto.sh will start the pluto database and the "pluto" container using the sample_config configuration
+
+To import the sample rulesets into the database:
+
+1. install node if it is not already installed
+
+2. cd to the rulests folder:
+  $ cd {PLUTO}/sample_config/rulesets
+
+3. if this is the first time running the importer, install some dependencies:
+  $ ./importer_setup.sh
+
+4. import the rulesets:
+  $ ./run_importer.sh
+
+
+To extend the pluto container to include dependencies for plugins, see the Dockerfile to extend the pluto container and run that extended container the same way

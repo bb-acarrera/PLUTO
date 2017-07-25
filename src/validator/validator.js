@@ -11,7 +11,7 @@ const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
 const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
 
 const Util = require("../common/Util");
-const Data = require("../common/dataFs");
+const Data = require("../common/dataDb");
 
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
@@ -90,69 +90,71 @@ class Validator {
 		var ruleset;
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
-
-			ruleset = this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride);
 		}
 		catch (e) {
 			this.error(e);
 			throw e;
 		}
 
-		let rulesDirectory;
-		if (ruleset.rulesDirectory)
-			rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
-		else
-			rulesDirectory = this.config.rulesDirectory;
+		this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride).then((ruleset) => {
+			let rulesDirectory;
+			if (ruleset.rulesDirectory)
+				rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
+			else
+				rulesDirectory = this.config.rulesDirectory;
 
+			this.rulesetName = ruleset.name || "Unnamed";
 
+			this.outputFileName = outputFile;
+			this.encoding = inputEncoding || 'utf8';
+			this.currentRuleset = ruleset;
+			this.rulesDirectory = rulesDirectory;
 
-		this.rulesetName = ruleset.name || "Unnamed";
+			if (!this.outputFileName && !ruleset.export) {
+				this.warning("No output file specified.");
+			}
+			
+			if(ruleset.import) {
+			
+				this.inputFileName = this.getTempName();
 
-		this.outputFileName = outputFile;
-		this.encoding = inputEncoding || 'utf8';
-		this.currentRuleset = ruleset;
-		this.rulesDirectory = rulesDirectory;
+				this.importFile(ruleset.import, this.inputFileName).then( () => {
+						try {
+							this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+							if (!ruleset.rules || ruleset.rules.length == 0)
+								this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
+						}
+						catch (e) {
+							this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+							throw e;
+						}
 
-		if (!this.outputFileName && !ruleset.export) {
-			this.warning("No output file specified.");
-		}
+					},error => {
+						this.error("Failed to import file: " + error);
+						this.finishRun();
+					})
+					.catch(() => {
+						this.finishRun();
+					});
+			} else {
+				this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
+				if (!this.inputFileName)
+					throw "No input file specified.";
 
-		if(ruleset.import) {
-
-			this.inputFileName = this.getTempName();
-
-			this.importFile(ruleset.import, this.inputFileName).then( () => {
-					try {
-						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
-						if (!ruleset.rules || ruleset.rules.length == 0)
-							this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
-					}
-					catch (e) {
-						this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
-						throw e;
-					}
-
-				},error => {
-					this.error("Failed to import file: " + error);
-					this.finishRun();
-				})
-				.catch((e) => {
-					this.finishRun();
+				try {
+					this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
+				}
+				catch (e) {
+					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e.message);
 					throw e;
-				});
-		} else {
-			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
-			if (!this.inputFileName)
-				throw "No input file specified.";
+				}
+			}
+		}).catch((e) => {
+			this.error(e.message);
+			this.finishRun();
+		});
 
-			try {
-				this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
-			}
-			catch (e) {
-				this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
-				throw e;
-			}
-		}
+
 
 	}
 
@@ -274,7 +276,7 @@ class Validator {
 
 		this.running = false;
 		
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
+		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString();
 
 		if (results && this.currentRuleset.export) {
 			var resultsFile = null;
@@ -301,14 +303,14 @@ class Validator {
 					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+					this.data.saveRunRecord(runId, this.logger.getLog(),
 						this.config.ruleset, this.inputFileName, this.outputFileName);
 					this.cleanup();
 					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
-			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+			this.data.saveRunRecord(runId, this.logger.getLog(),
 				this.config.ruleset, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");
@@ -317,7 +319,7 @@ class Validator {
 			console.error("No results");
 			this.error("No results were produced.");
 
-			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
+			this.data.saveRunRecord(runId, this.logger.getLog(),
 				this.config.ruleset, this.inputFileName, this.outputFileName);
 			this.cleanup();
 			console.log("Done.");

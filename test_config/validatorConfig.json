@@ -6,5 +6,10 @@
 	"inputDirectory" : "/opt/PLUTO/config",
 	"outputDirectory" : "/opt/PLUTO/config/results",
 	"logDirectory" : "/opt/PLUTO/config/results/logs",
-	"runsDirectory" : "/opt/PLUTO/config/results/runs"
+	"runsDirectory" : "/opt/PLUTO/config/results/runs",
+	"dbUser" : "pluto",
+	"dbPassword" : "password",
+	"dbDatabase" : "pluto",
+	"dbHost" : "192.168.0.1",
+	"dbPort" : "5432"
 }
