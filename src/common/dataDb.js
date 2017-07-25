@@ -32,9 +32,8 @@ class data {
      * This method is used by the application to get an in-memory copy of a log file managed by
      * the plugin.
      * @param id {string} the id of the log file to retrieve.
-     * @returns a promise to the contents of the log file.
+     * @returns {Promise} resolves {object} the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
-     * @private
      */
     getLog(id) {
 
@@ -57,10 +56,8 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of a run managed by
      * the plugin.
-     * @param id {string} the id of the run file to retrieve.
-     * @returns a promise to the contents of the run file.
-     * @throws Throws an error if the copy cannot be completed successfully.
-     * @private
+     * @param id {string} the name of the run file to retrieve.
+     * @returns {Promise} resolves {object} the contents of the run file.
      */
     getRun(id) {
         return new Promise((resolve, reject) => {
@@ -93,8 +90,7 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of all runs managed by
      * the plugin.
-     * @returns a promise to a list of the run file.
-     * @private
+     * @returns {Promise} resolves {array} list of the runs.
      */
     getRuns(page) {
 
@@ -134,8 +130,11 @@ class data {
 
     /**
      * This method saves record which is used by the client code to reference files for any particular run.
-     * @returns undefined
-     * @private
+     * @param runId the unique ID of the run.
+     * @param log the log
+     * @param ruleSetId the id of the ruleset
+     * @param inputFile the name of the input file
+     * @param outputFile the name of the output file
      */
      saveRunRecord(runId, log, ruleSetName, inputFile, outputFile) {
 
@@ -212,9 +211,7 @@ class data {
     }
 
     /**
-     * This file saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
-     * taken from the ruleset's 'filename' property with '.json' appended to it by this function and if a file with
-     * that name already exists it will be overwritten. The file is written using 'utf8'.
+     * This file saves the given ruleset to the database
      * @param ruleset the ruleset to write.
      * @private
      */
@@ -241,6 +238,10 @@ class data {
 
     }
 
+    /**
+     * This gets the list of rulesets.
+     * @return a promise to an array of ruleset ids.
+     */
     getRulesets(page) {
 
         return new Promise((resolve) => {

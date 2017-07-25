@@ -25,29 +25,33 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of a log file managed by
      * the plugin.
-     * @param logFileName {string} the name of the log file to retrieve.
-     * @returns {string} the contents of the log file.
+     * @param id {string} the id of the log file to retrieve.
+     * @returns {Promise} resolves {object} the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
-     * @private
      */
     getLog(id) {
-        const logfile = path.resolve(this.logDirectory, id);
-        var log;
-        if (fs.existsSync(logfile)) {
-            const contents = fs.readFileSync(logfile, 'utf8');
-            try {
-                log = JSON.parse(contents);
+
+        return new Promise((resolve) => {
+            const logfile = path.resolve(this.logDirectory, id);
+            var log;
+            if (fs.existsSync(logfile)) {
+                const contents = fs.readFileSync(logfile, 'utf8');
+                try {
+                    log = JSON.parse(contents);
+                }
+                catch (e) {
+                    console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
+                }
             }
-            catch (e) {
-                console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-            }
-        }
-        return log;
+            return resolve(log);
+        });
+
     }
 
     /**
      * This method is used by the application to save the log of results for the given file synchronously.
-     * @param filename {string} the name of the file to save.
+     * @param inputName {string} the name of the file to save.
+     * @param log {object} the log.
      * @throws Throws an error if the directory cannot be found or the file saved.
      * @private
      */
@@ -71,10 +75,9 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of a run managed by
      * the plugin.
-     * @param runFileName {string} the name of the run file to retrieve.
-     * @returns {string} the contents of the run file.
+     * @param id {string} the name of the run file to retrieve.
+     * @returns {Promise} resolves {object} the contents of the run file.
      * @throws Throws an error if the copy cannot be completed successfully.
-     * @private
      */
     getRun(id) {
 
@@ -98,8 +101,7 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of all runs managed by
      * the plugin.
-     * @returns {array} list of the run file.
-     * @private
+     * @returns {Promise} resolves {array} list of the runs.
      */
     getRuns() {
 
@@ -131,9 +133,10 @@ class data {
     /**
      * This method saves record which is used by the client code to reference files for any particular run.
      * @param runId the unique ID of the run.
-     * @param logName the name of the log file
-     * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
-     * @private
+     * @param log the log
+     * @param ruleSetId the id of the ruleset
+     * @param inputFile the name of the input file
+     * @param outputFile the name of the output file
      */
     saveRunRecord(runId, log, ruleSetId, inputFile, outputFile) {
 
@@ -203,11 +206,10 @@ class data {
     }
 
     /**
-     * This file saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
+     * This saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
      * taken from the ruleset's 'filename' property with '.json' appended to it by this function and if a file with
      * that name already exists it will be overwritten. The file is written using 'utf8'.
      * @param ruleset the ruleset to write.
-     * @private
      */
     saveRuleSet(ruleset) {
         return new Promise((resolve, reject) => {
@@ -220,6 +222,10 @@ class data {
         });
     }
 
+    /**
+     * This gets the list of rulesets.
+     * @return a promise to an array of ruleset ids.
+     */
     getRulesets() {
 
         return new Promise((resolve) => {
