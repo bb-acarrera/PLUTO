@@ -35,6 +35,10 @@ class Importer {
 
         });
 
+        this.config = config;
+
+
+
     }
 
     query(text, values, callback) {
@@ -43,11 +47,38 @@ class Importer {
 
     run() {
 
+        this.testConnection();
+    }
+
+    testConnection() {
+
+        let client = new pg.Client(this.config);
+        client.on('error', function (err, client) {
+            console.error('connect test error: ', err.message);
+        });
+
+        client.connect()
+            .then(() => {
+                client.end();
+                this.addRulesets();
+            }).catch(e => {
+                client.end();
+                console.error('connection error: ', e.message);
+                setTimeout(() => {
+                    this.testConnection();
+                }, 2000);
+            });
+    }
+
+    addRulesets() {
+
+        let promises = [];
+
         fs.readdirSync('.').forEach(file => {
 
-            if(file.substr(file.length-5) === '.json') {
+            if (file.substr(file.length - 5) === '.json') {
 
-                let name = file.substr(0, file.length-5);
+                let name = file.substr(0, file.length - 5);
 
                 let contents = null;
 
@@ -61,33 +92,45 @@ class Importer {
                 if (!contents || !contents.ruleset) {
                     console.log("Ruleset file \"" + file + "\" does not contain a 'ruleset' member.");
                 } else {
-                    this.addRuleset(name, contents, file);
+                    promises.push(this.addRuleset(name, contents, file));
                 }
             }
+        });
+
+        Promise.all(promises).then(() => {
+            process.exit(0);
         });
     }
 
     addRuleset(name, ruleset, file) {
-        this.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
-            .then((result) => {
-                if(result.rows.length === 0) {
-                    this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
-                       "VALUES($1, $2, $3, $4) RETURNING id", [name, name, 0, JSON.stringify(ruleset)])
-                        .then(() => {
-                            console.log('Inserted ' + file);
-                        });
 
-                } else {
-                    this.query("UPDATE rulesets SET rules = $2 WHERE id = $1", [result.rows[0].id, JSON.stringify(ruleset)])
-                        .then(() => {
-                            console.log('Updated ' + file);
-                        });
-                }
+        return new Promise((resolve) => {
+            this.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+                .then((result) => {
+                    if(result.rows.length === 0) {
+                        this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
+                                "VALUES($1, $2, $3, $4) RETURNING id", [name, name, 0, JSON.stringify(ruleset)])
+                            .then(() => {
+                                console.log('Inserted ' + file);
+                                resolve();
+                            });
 
-            })
-            .catch((e) => {
-                console.log('Error writing to database: ' + e.message);
-            });
+                    } else {
+                        this.query("UPDATE rulesets SET rules = $2 WHERE id = $1", [result.rows[0].id, JSON.stringify(ruleset)])
+                            .then(() => {
+                                console.log('Updated ' + file);
+                                resolve();
+                            });
+                    }
+
+                })
+                .catch((e) => {
+                    console.log('Error writing to database: ' + e.message);
+                    resolve();
+                });
+        });
+
+
     }
 }
 
