@@ -5,7 +5,7 @@
     <table id="rulesTable" class="ruleset-table">
       {{#each model as |runInstance index|}}
           <tr id="{{concat 'rulesetTableRow' index}}">
-            <td>{{runInstance.log}}</td>
+            <td>{{runInstance.id}}</td>
             <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
           </tr>
       {{/each}}
