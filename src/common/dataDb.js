@@ -116,8 +116,8 @@ class data {
                             id: row.run_id,
                             log: row.id,
                             ruleset: row.ruleset_id,
-                            inputfilename: row.inputFile,
-                            outputfilename: row.outputFile,
+                            inputfilename: row.inputfile,
+                            outputfilename: row.outputfile,
                             time: row.finishtime
                         });
                     });
@@ -139,9 +139,9 @@ class data {
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetName, inputFile, outputFile) {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile) {
 
-        this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1", [ruleSetName]).then((result) => {
+        this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1", [ruleSetID]).then((result) => {
 
             if(result.rows.length > 0) {
                 this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
@@ -153,7 +153,7 @@ class data {
                         console.log(error);
                     });
             } else {
-                console.log("Cannot find rule " + ruleSetName + " in database");
+                console.log("Cannot find ruleset " + ruleSetID + " in database");
 
                 this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
                         "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
@@ -181,6 +181,12 @@ class data {
         if(!version) {
             version = 0;
         }
+
+        if (!ruleset_id)
+            return;
+
+        if (ruleset_id.endsWith(".json"))
+            ruleset_id = ruleset_id.substr(0, ruleset_id.length - 5);
 
         return new Promise((resolve, reject) => {
 

@@ -30,7 +30,7 @@ class Router {
 
 		this._router.patch('/rulesets/:id', (req, res, next) => this.rulesetRouter.patch(req, res, next) );
 
-		this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next))
+		this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
 	}
 
 	get router() {
