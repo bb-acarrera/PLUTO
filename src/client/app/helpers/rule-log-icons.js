@@ -3,13 +3,12 @@ import Ember from 'ember';
 export function ruleLogIcons(params, {rule, log, tagName}) {
   let tag = tagName === undefined ? 'i' : tagName;
 
-  const ruleFileName = typeof rule === 'string' ? rule : rule.filename;
+  const ruleID = typeof rule === 'string' ? undefined : rule.config.id;
   let hasInfo = false, hasWarnings = false, hasErrors = false;
 
   if(log && log.get) {
     log.get('reports').forEach((report) => {
-      const reportFile = report.get('problemFile');
-      if (reportFile == ruleFileName) {
+      if (ruleID && ruleID == report.get("ruleID")) {
         switch (report.get('logType').toLowerCase()) {
           case 'error':
             hasErrors = true;

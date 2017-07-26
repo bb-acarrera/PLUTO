@@ -4,15 +4,15 @@
 		"rules" : [
 			{
 				"filename" : "CheckColumnCount",
-				"name" : "Validate column count",
 				"config" : {
+					"id" : 1,
 					"columns" : 9
 				}
 			},
 			{
 				"filename" : "CheckLatLong",
-				"name" : "Validate Lat & Long",
 				"config" : {
+					"id" : 2,
 					"numberOfHeaderRows" : 1,
 					"latitudeColumn"  : 2,
 					"longitudeColumn" : 3
@@ -22,6 +22,7 @@
 				"filename" : "CheckColumnType",
 				"name" : "Validate Population Column",
 				"config" : {
+					"id" : 3,
 					"numberOfHeaderRows" : 1,
 					"type" : "number",
 					"column" : 4
@@ -31,19 +32,21 @@
 				"filename" : "CheckColumnRegEx",
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
+					"id" : 4,
 					"numberOfHeaderRows" : 1,
 					"column" : 2,
 					"regex" : "[^0-9\\s]*"
 				}
 			},
 			{
-				"FileName" : "CheckColumnType",
-				"Name" : "Check No Numbers in city name (RegEx)",
-				"Config" : {
-					"NumberOfHeaderRows" : 1,
-					"Type" : "regex",
-					"Column" : 2,
-					"RegEx" : "[^0-9\\s]*"
+				"filename": "CheckColumnType",
+				"name": "Check No Numbers in city name (RegEx)",
+				"config": {
+					"id" : 5,
+					"numberOfHeaderRows": 1,
+					"type": "regex",
+					"column": 2,
+					"regex": "[^0-9\\s]*"
 				}
 			}
 		],

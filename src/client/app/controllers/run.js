@@ -114,9 +114,9 @@ function addRule(ruleset, rules) {
     if (rule.get("filename") == newRuleFilename) {
       const newRule = {};
       newRule.filename = rule.get("filename");
-      newRule.id = createGUID();
       newRule.config = Object.assign({}, rule.get("config") || {});  // Clone the config. Don't want to reference the original.
-      newRule.config.Name = newRule.filename;
+      newRule.config.name = newRule.filename;
+      newRule.config.id = createGUID();
 
       ruleset.get("rules").push(newRule);
       ruleset.notifyPropertyChange("rules");

@@ -26,8 +26,12 @@ class RulesetRouter extends BaseRouter {
 				for (var i = 0; i < ruleset.rules.length; i++) {
 					const rule = ruleset.rules[i];
 					const ruleFilename = rule.filename;
-					if (rule.hasOwnProperty('config') && !rule.config.hasOwnProperty('Name'))
-						rule.config.Name = ruleFilename;	// Make sure the rule has a name.
+					if (rule.hasOwnProperty('config')) {
+                        if (!rule.config.hasOwnProperty('name'))
+                        	rule.config.name = ruleFilename;	// Make sure the rule has a name.
+                        if (!rule.config.hasOwnProperty('id'))
+                            rule.config.id = Util.createGUID();	// Make sure the rule has an ID.
+                    }
 					rules.push(
 						{
 							filename: ruleFilename,
@@ -78,10 +82,6 @@ class RulesetRouter extends BaseRouter {
 		const ruleset = new RuleSet(req.body);
 		this.config.data.saveRuleSet(ruleset);
 		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
-	}
-
-	getAll(req, res) {
-
 	}
 }
 
