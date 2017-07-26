@@ -38,8 +38,6 @@ class Validator {
 	constructor(config) {
 		this.config = config || {};
 
-		this.data = Data(this.config);
-
 		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
@@ -67,9 +65,7 @@ class Validator {
 		if (!fs.existsSync(this.outputDirectory))
 			fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 
-
 		this.logger = new ErrorLogger(config);
-		this.ruleIterator = null;
 
 		// Remember the name of the current ruleset and rule for error reporting.
 		this.rulesetName = undefined;
@@ -79,7 +75,10 @@ class Validator {
 		this.sharedData = {};
 
 		this.updateConfig(this.config);
-	}
+
+		// This needs to be done after the above tests and setting of the global config object.
+        this.data = Data(this.config);
+    }
 
 	/*
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
@@ -87,7 +86,6 @@ class Validator {
 	runRuleset(inputFile, outputFile, inputEncoding) {
 		this.running = true;	// Used by finishRun() to determine if it should clean up. Avoids issues with finishRun() being called twice.
 
-		var ruleset;
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
 		}
