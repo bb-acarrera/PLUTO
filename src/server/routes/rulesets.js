@@ -26,15 +26,16 @@ class RulesetRouter extends BaseRouter {
 				for (var i = 0; i < ruleset.rules.length; i++) {
 					const rule = ruleset.rules[i];
 					const ruleFilename = rule.filename;
+                    if (!rule.hasOwnProperty('name'))
+                        rule.name = ruleFilename;	// Make sure the rule has a name.
 					if (rule.hasOwnProperty('config')) {
-                        if (!rule.config.hasOwnProperty('name'))
-                        	rule.config.name = ruleFilename;	// Make sure the rule has a name.
                         if (!rule.config.hasOwnProperty('id'))
                             rule.config.id = Util.createGUID();	// Make sure the rule has an ID.
                     }
 					rules.push(
 						{
 							filename: ruleFilename,
+							name: rule.name,
 							config: rule.config
 						});
 				}
