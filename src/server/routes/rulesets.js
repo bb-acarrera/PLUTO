@@ -41,6 +41,7 @@ class RulesetRouter extends BaseRouter {
 						id: req.params.id,	// The filename is used for the id.
 						attributes: {
 							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
+							filename: ruleset.filename,
 							rules: rules
 						}
 					}

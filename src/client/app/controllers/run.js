@@ -91,9 +91,12 @@ function save(ruleset) {
   }
 
   let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+  let theJSON = ruleset.toJSON();
+  theJSON.id = ruleset.id;
+
   xmlHttp.open("PATCH", theUrl, true); // true for asynchronous
   xmlHttp.setRequestHeader("Content-Type", "application/json");
-  xmlHttp.send(JSON.stringify(ruleset.toJSON()));
+  xmlHttp.send(JSON.stringify(theJSON));
 
   // ruleset.save().then(() => {
   //   alert("Successfully saved.");
