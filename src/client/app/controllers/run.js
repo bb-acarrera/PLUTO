@@ -27,9 +27,6 @@ export default Ember.Controller.extend({
     deleteRule(tableID, ruleset) {
       deleteRule(tableID, ruleset);
     },
-    editRule(rule) {
-      this.set('ruleToEdit', rule);
-    },
 
     updateRule(ruleset, rule) {
       updateRule(ruleset, rule);
@@ -71,6 +68,7 @@ export default Ember.Controller.extend({
 
       row.classList.add('selected');
 
+      this.set('ruleToEdit', rule);
       this.set('showErrors', rule);
     }
   },
