@@ -72,6 +72,7 @@ export default Ember.Controller.extend({
       row.classList.add('selected');
 
       this.set('showErrors', rule);
+      this.set('ruleToEdit', rule);
     }
   },
   init: function() {

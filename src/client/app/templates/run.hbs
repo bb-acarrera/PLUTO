@@ -12,7 +12,6 @@
                   <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
                     {{rule-log-icons rule=ruleInstance log=model.log}}
                       <td>{{ruleInstance.config.Name}}</td>
-                      <td><button {{action "editRule" ruleInstance}}>Edit</button></td>
                       <td><button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up" aria-hidden="true"></i></button></td>
                       <td><button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
                   </tr>
