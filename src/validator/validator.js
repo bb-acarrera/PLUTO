@@ -69,7 +69,6 @@ class Validator {
 
 
 		this.logger = new ErrorLogger(config);
-		this.ruleIterator = null;
 
 		// Remember the name of the current ruleset and rule for error reporting.
 		this.rulesetName = undefined;
@@ -87,7 +86,6 @@ class Validator {
 	runRuleset(inputFile, outputFile, inputEncoding) {
 		this.running = true;	// Used by finishRun() to determine if it should clean up. Avoids issues with finishRun() being called twice.
 
-		var ruleset;
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
 		}
