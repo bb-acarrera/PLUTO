@@ -38,8 +38,6 @@ class Validator {
 	constructor(config) {
 		this.config = config || {};
 
-		this.data = Data(this.config);
-
 		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
@@ -67,7 +65,6 @@ class Validator {
 		if (!fs.existsSync(this.outputDirectory))
 			fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 
-
 		this.logger = new ErrorLogger(config);
 
 		// Remember the name of the current ruleset and rule for error reporting.
@@ -78,7 +75,10 @@ class Validator {
 		this.sharedData = {};
 
 		this.updateConfig(this.config);
-	}
+
+		// This needs to be done after the above tests and setting of the global config object.
+        this.data = Data(this.config);
+    }
 
 	/*
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
