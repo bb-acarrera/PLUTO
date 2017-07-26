@@ -42,6 +42,8 @@ class RulesetRouter extends BaseRouter {
 						attributes: {
 							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
 							filename: ruleset.filename,
+							import: ruleset.import,
+							export: ruleset.export,
 							rules: rules
 						}
 					}
