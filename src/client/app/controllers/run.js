@@ -79,11 +79,27 @@ export default Ember.Controller.extend({
 function save(ruleset) {
   var name = document.getElementById("rulesetName").value;
   ruleset.set("name", name);
-  ruleset.save().then(() => {
-    alert("Successfully saved.");
-  }, () => {
-    alert("Failed to save.");
-  });
+
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function() {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+      alert("Successfully saved.");
+    }
+    else if (xmlHttp.readyState == 4) {
+      alert(`Failed to save. Status = ${xmlHttp.status}`);
+    }
+  }
+
+  let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+  xmlHttp.open("PATCH", theUrl, true); // true for asynchronous
+  xmlHttp.setRequestHeader("Content-Type", "application/json");
+  xmlHttp.send(JSON.stringify(ruleset.toJSON()));
+
+  // ruleset.save().then(() => {
+  //   alert("Successfully saved.");
+  // }, () => {
+  //   alert("Failed to save.");
+  // });
 }
 
 function addRule(ruleset, rules) {
