@@ -55,12 +55,18 @@ function addProperties(instance, properties, columnLabels) {
       case 'column':
         content += addColumnProperty(instance, property, columnLabels);
         break;
+      case 'date':
+        content += addDateProperty(instance, property);
+        break;
       case 'float':
       case 'number':
         content += addFloatProperty(instance, property);
         break;
       case 'integer':
         content += addIntegerProperty(instance, property);
+        break;
+      case 'time':
+        content += addTimeProperty(instance, property);
         break;
       case 'validator':
         content += addValidator(instance, property);
@@ -112,6 +118,19 @@ function addColumnProperty(instance, property, columnLabels) {
   return content;
 }
 
+function addDateProperty(instance, property) {
+  var today = new Date();
+  let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || (today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate());
+  let content = `<div>${property.label || property.name} <input id="${property.name}" type="date" value="${initialValue}"`;
+  if (property.minimum)
+    content += ` min="${property.minimum}"`;
+  if (property.maximum)
+    content += ` max="${property.maximum}"`;
+  content += `/></div>`;
+  return content;
+
+}
+
 function addFloatProperty(instance, property) {
   let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || 0;
   let content = `<div>${property.label || property.name} <input id="${property.name}" type="number" value="${initialValue}" step="0.01"`;  // TODO: Calculate a better step value?
@@ -137,6 +156,19 @@ function addIntegerProperty(instance, property) {
 function addStringProperty(instance, property) {
   let initialValue = instance.config[property.name] || property.default || "";
   return `<div>${property.label || property.name} <input id="${property.name}" type="text" value="${initialValue}"/></div>`;
+}
+
+function addTimeProperty(instance, property) {
+  var today = new Date();
+  let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || (today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds());
+  let content = `<div>${property.label || property.name} <input id="${property.name}" type="time" value="${initialValue}"`;
+  if (property.minimum)
+    content += ` min="${property.minimum}"`;
+  if (property.maximum)
+    content += ` max="${property.maximum}"`;
+  content += `/></div>`;
+  return content;
+
 }
 
 function addValidator(instance, property) {
