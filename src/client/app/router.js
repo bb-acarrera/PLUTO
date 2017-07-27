@@ -10,7 +10,6 @@ Router.map(function() {
   this.route('index', { path: '/' });
 
   this.route('run', {path: '/run/:run_id'});
-  this.route('validation');
 });
 
 Router.reopen({
