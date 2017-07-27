@@ -35,7 +35,7 @@ class Validator {
 	 * @param config
 	 * @private
 	 */
-	constructor(config) {
+	constructor(config, Data) {
 		this.config = config || {};
 
 		this.rootDir = Util.getRootDirectory(this.config);
@@ -46,7 +46,7 @@ class Validator {
 		if (this.config.rulesetDirectory)
 			this.config.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
 		else
-			this.config.rulesetDirectory = path.resolve('runtime/rulesets');
+			this.config.rulesetDirectory = path.resolve(this.rootDir, 'runtime/rulesets');
 
 		if (!fs.existsSync(this.config.rulesetDirectory))
 			throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";
@@ -54,13 +54,13 @@ class Validator {
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
 		else
-			this.config.rulesDirectory = path.resolve('runtime/rulesets');	// By default rules live with the rulesets.
+			this.config.rulesDirectory = path.resolve(this.rootDir, 'runtime/rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
 			throw "Failed to find RulesDirectory \"" + this.config.rulesDirectory + "\".\n";
 
 		this.inputDirectory  = path.resolve(this.rootDir, this.config.inputDirectory || "");
-		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory);
+		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory || "");
 
 		if (!fs.existsSync(this.outputDirectory))
 			fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
@@ -700,7 +700,7 @@ if (__filename == scriptName) {	// Are we running this as the validator or the s
 	let inputEncoding = program.encoding;
 
 	config.scriptName = scriptName;
-	const validator = new Validator(config);
+	const validator = new Validator(config, Data);
 
 	process.on('uncaughtException', (err) => {
 		// Caught an uncaught exception so something went extraordinarily wrong.
