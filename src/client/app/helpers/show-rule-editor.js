@@ -88,7 +88,7 @@ function addChoiceProperty(instance, property) {
   if (!property.choices || property.choices.length == 0)
     return "";
 
-  let content=`<div>${property.label || property.name} <select>`
+  let content=`<div>${property.label || property.name} <select id="${property.name}">`
   let initialValue = instance.config[property.name] || property.default || property.choices[0];
   for (var i = 0; i < property.choices.length; i++) {
     let choice = property.choices[i];
@@ -105,7 +105,7 @@ function addColumnProperty(instance, property, columnLabels) {
   if (!columnLabels || columnLabels.length == 0)
     return "";
 
-  let content=`<div>${property.label || property.name} <select>`
+  let content=`<div>${property.label || property.name} <select id="${property.name}">`
   let initialValue = instance.config[property.name] || property.default || columnLabels[0];
   for (var i = 0; i < columnLabels.length; i++) {
     let choice = columnLabels[i];
