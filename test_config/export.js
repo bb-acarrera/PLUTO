@@ -20,7 +20,6 @@ class LocalCopyExport {
                 const targetFileName = path.resolve(this.config.file);
 
                 // Copy using a spawned process.
-
                 child_process.exec('python /opt/PLUTO/config/copy.py ' + fileName + ' ' + targetFileName, (error, stdout, stderr) => {
 
                     if (error) {
@@ -29,44 +28,8 @@ class LocalCopyExport {
                         reject("Failed to copy file.");
                         return;
                     }
-                    //call out to external REST API
-                    var body = JSON.stringify({
-                        foo: "bar"
-                    });
 
-                    try {
-                        var request = new http.ClientRequest({
-                            hostname: "localhost",
-                            port: 3000,
-                            path: "/get_stuff",
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Content-Length": Buffer.byteLength(body)
-                            }
-                        });
-
-                        request.end(body);
-
-                        request.on('response', function (response) {
-
-                            //log the response to stdout for now
-
-                            console.log('STATUS: ' + response.statusCode);
-                            console.log('HEADERS: ' + JSON.stringify(response.headers));
-                            response.setEncoding('utf8');
-                            response.on('data', function (chunk) {
-                                console.log('BODY: ' + chunk);
-                            });
-                        });
-
-                        request.on('error', function(err) {
-                            console.log('REST error: ' + err);
-                        });
-
-                    } catch (e) {
-                        console.log('Error calling REST API: ' + e);
-                    }
+                    this.callRestAPI();
 
                     //resolve this promise
                     resolve();
@@ -75,6 +38,47 @@ class LocalCopyExport {
 
 
         });
+    }
+
+    callRestAPI() {
+        //call out to external REST API
+        var body = JSON.stringify({
+            foo: "bar"
+        });
+
+        try {
+            var request = new http.ClientRequest({
+                hostname: "localhost",
+                port: 3000,
+                path: "/get_stuff",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Content-Length": Buffer.byteLength(body)
+                }
+            });
+
+            request.end(body);
+
+            request.on('response', function (response) {
+
+                //log the response to stdout for now
+
+                console.log('STATUS: ' + response.statusCode);
+                console.log('HEADERS: ' + JSON.stringify(response.headers));
+                response.setEncoding('utf8');
+                response.on('data', function (chunk) {
+                    console.log('BODY: ' + chunk);
+                });
+            });
+
+            request.on('error', function (err) {
+                console.log('REST error: ' + err);
+            });
+
+        } catch (e) {
+            console.log('Error calling REST API: ' + e);
+        }
     }
 
 };
