@@ -45,7 +45,7 @@ class CheckColumnType extends CSVRuleAPI {
 		this.numHeaderRows = this.getValidatedHeaderRows();
 		this.column = this.getValidatedColumnProperty();
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
-		this.reportAlways = this.config.ReportAlways || true;	// Should every occurrence be reported?
+		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 	}
 
 	processRecord(record) {
