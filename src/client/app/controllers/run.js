@@ -165,8 +165,11 @@ function updateRule(ruleset, rule) {
 
   // Get the properties.
   for (var key in rule.config) {
-    const value = document.getElementById(key).value;
-    Ember.set(rule.config, key, value);
+    let element = document.getElementById(key);
+    if (element) {
+      const value = element.value;
+      Ember.set(rule.config, key, value);
+    }
   }
 
   ruleset.notifyPropertyChange("rules");
