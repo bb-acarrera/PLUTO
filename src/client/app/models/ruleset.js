@@ -5,5 +5,6 @@ export default DS.Model.extend({
     filename : DS.attr('string'),
     rules : DS.attr(),
     import : DS.attr(),
-    export : DS.attr()
+    export : DS.attr(),
+    config : DS.attr()
 });

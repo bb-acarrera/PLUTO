@@ -49,7 +49,8 @@ class RulesetRouter extends BaseRouter {
 							filename: ruleset.filename,
 							import: ruleset.import,
 							export: ruleset.export,
-							rules: rules
+							rules: rules,
+							config: ruleset.config
 						}
 					}
 				});
