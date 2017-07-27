@@ -22,6 +22,8 @@ class RuleSet {
 			this.addRules(ruleset.rules || ruleset.rules);
 			this.import = ruleset.import;
 			this.export = ruleset.export;
+
+			this.config = ruleset.config;
 		}
 	}
 

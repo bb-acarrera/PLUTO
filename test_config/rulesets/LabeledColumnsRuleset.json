@@ -51,16 +51,16 @@
 			}
 		],
 		"import" : {
-			"scriptPath": "./runtime/rules/LocalCopyImport",
+			"scriptPath": "/opt/PLUTO/config/import.js",
 			"config": {
-				"file": "./examples/data/simplemaps-worldcities-basic.csv"
+				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"scriptPath": "./runtime/rules/LocalCopyExport",
+			"scriptPath": "/opt/PLUTO/config/export.js",
 			"config" : {
-				"file": "./results/labeledColumnsOutput.csv"
+				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
 			}
-		}
+		},
 	}
 }

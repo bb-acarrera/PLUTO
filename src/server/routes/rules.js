@@ -15,7 +15,7 @@ class RulesRouter extends BaseRouter {
 			const extension = path.extname(file);
 			if (extension && extension == ".js") {
 				const basename = path.basename(file, extension);
-				const uiConfigName = basename + "ui.json";
+				const uiConfigName = basename + ".ui.json";
 				const configFile = path.resolve(this.config.validator.config.rulesDirectory, uiConfigName);
 				var uiConfig = undefined;
 				if (fs.existsSync(configFile)) {

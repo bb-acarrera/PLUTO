@@ -71,9 +71,6 @@ class Validator {
 		this.rulesetName = undefined;
 		this.ruleName = undefined;
 
-		// Data that can be shared between rules.
-		this.sharedData = {};
-
 		this.updateConfig(this.config);
 
 		// This needs to be done after the above tests and setting of the global config object.
@@ -117,7 +114,10 @@ class Validator {
 				this.inputFileName = this.getTempName();
 
 				this.importFile(ruleset.import, this.inputFileName).then( () => {
-						try {
+                    // Data that can be shared between rules.
+                    this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
+
+                    try {
 							this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
 							if (!ruleset.rules || ruleset.rules.length == 0)
 								this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
@@ -135,6 +135,7 @@ class Validator {
 						this.finishRun();
 					});
 			} else {
+                this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
 				this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
 				if (!this.inputFileName)
 					throw "No input file specified.";
