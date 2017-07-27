@@ -38,7 +38,7 @@
         </div>
         <div class="column">
             <!-- The column for editting rule properties. -->
-          {{show-rule-editor ruleInstance=this.ruleToEdit}}
+          {{show-rule-editor ruleInstance=this.ruleToEdit rules=model.rules}}
             <button class="save-ruleset" style="float: right" {{action "updateRule" model.ruleset this.ruleToEdit}}>Apply</button>
         </div>
         <div class="column">
