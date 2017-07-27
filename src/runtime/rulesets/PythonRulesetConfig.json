@@ -5,6 +5,7 @@
 			{
 				"filename" : "RunPythonScript",
 				"config" : {
+					"id" : 1,
 					"pythonScript" : "../test_config/copy.py"
 				}
 			}
