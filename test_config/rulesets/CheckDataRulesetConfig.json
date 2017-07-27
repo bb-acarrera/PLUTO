@@ -4,6 +4,7 @@
 		"rules" : [
 			{
 				"filename" : "CheckColumnCount",
+				"name" : "Validate column count",
 				"config" : {
 					"id" : 1,
 					"columns" : 9
@@ -11,6 +12,7 @@
 			},
 			{
 				"filename" : "CheckLatLong",
+				"name" : "Validate Lat & Long",
 				"config" : {
 					"id" : 2,
 					"numberOfHeaderRows" : 1,
@@ -36,17 +38,6 @@
 					"numberOfHeaderRows" : 1,
 					"column" : 2,
 					"regex" : "[^0-9\\s]*"
-				}
-			},
-			{
-				"filename": "CheckColumnType",
-				"name": "Check No Numbers in city name (RegEx)",
-				"config": {
-					"id" : 5,
-					"numberOfHeaderRows": 1,
-					"type": "regex",
-					"column": 2,
-					"regex": "[^0-9\\s]*"
 				}
 			}
 		],
