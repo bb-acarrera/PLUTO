@@ -109,7 +109,7 @@ class Importer {
                 .then((result) => {
                     if(result.rows.length === 0) {
                         this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
-                                "VALUES($1, $2, $3, $4) RETURNING id", [name, name, 0, JSON.stringify(ruleset)])
+                                "VALUES($1, $2, $3, $4) RETURNING id", [name, ruleset.ruleset.name || name, 0, JSON.stringify(ruleset)])
                             .then(() => {
                                 console.log('Inserted ' + file);
                                 resolve();
