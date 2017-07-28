@@ -196,11 +196,11 @@ class data {
                 .then((result) => {
 
                     if(result.rows.length > 0) {
-                        let contents = result.rows[0].rules;
+                        let dbRuleset = result.rows[0].rules;
 
-                        contents.ruleset.filename = ruleset_id;
-                        contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-                        let ruleset = new RuleSet(contents.ruleset);
+                        dbRuleset.filename = ruleset_id;
+                        dbRuleset.name = dbRuleset.name || dbRuleset.filename;
+                        let ruleset = new RuleSet(dbRuleset);
 
                         if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
                             ruleset.applyOverride(rulesetOverrideFile);
