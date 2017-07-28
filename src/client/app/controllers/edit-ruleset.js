@@ -143,7 +143,7 @@ function deleteRule(tableID, ruleset) {
 
   const rules = ruleset.get('rules');
   const rule = rules[ruleToDelete];
-  if (confirm(`Delete rule "${rule.config.Name}"?`)) {
+  if (confirm(`Delete rule "${rule.name}"?`)) {
     rules.splice(ruleToDelete, 1); // Remove the rule.
     ruleset.notifyPropertyChange("rules");
   }
