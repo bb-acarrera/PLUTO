@@ -153,11 +153,11 @@ function updateRule(ruleset, rule) {
   if (!rule)
     return;
 
-  // Get the initial name.
-  // if (!rule.config.hasOwnProperty("name")) {
-  //   const value = document.getElementById('name').value;
-  //   rule.config['name'] = value;
-  // }
+  // Update the name.
+  if (rule.hasOwnProperty("name")) {
+    const value = document.getElementById('name').value;
+    Ember.set(rule, 'name', value);
+  }
 
   // Get the properties.
   for (var key in rule.config) {

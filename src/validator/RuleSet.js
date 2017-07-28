@@ -35,9 +35,11 @@ class RuleSet {
 		for (var i = 0; i < rules.length; i++) {
 			const srcRule = rules[i];
 			const dstRule = {};
-			dstRule.config = srcRule.config || srcRule.config;
-			dstRule.filename = srcRule.filename || srcRule.filename;
+			dstRule.config = srcRule.config;
+			dstRule.filename = srcRule.filename;
 			dstRule.id = srcRule.id;
+			dstRule.name = srcRule.name || srcRule.filename;
+			dstRule.ui = srcRule.ui;
 			this.rules.push(dstRule);
 		}
 	}
