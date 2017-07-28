@@ -236,7 +236,7 @@ class data {
                         this.db.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
                             "VALUES($1, $2, $3, $4) RETURNING id", [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
                     } else {
-                        this.db.query("UPDATE rulesets SET rules = $2, SET name = $3 WHERE id = $1",
+                        this.db.query("UPDATE rulesets SET rules = $2, name = $3 WHERE id = $1",
                             [result.rows[0].id, JSON.stringify(ruleset), ruleset.name]);
                     }
 
