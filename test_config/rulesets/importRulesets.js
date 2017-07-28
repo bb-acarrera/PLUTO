@@ -132,6 +132,13 @@ class Importer {
 
 
     }
+
+    exportTable(tableName) {
+        this.query("SELECT * FROM " + tableName, []).then((results) => {
+            console.log(JSON.stringify(results.rows));
+            process.exit(0);
+        });
+    }
 }
 
 
@@ -147,6 +154,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .option('-U, --username <username>', 'database user name')
         .option('-d, --dbname <database>', 'database to connect to')
         .option('-W, --password <password>', 'user password')
+        .option('-e, --export <tablename>', 'table name to export')
         .parse(process.argv);
 
 
@@ -180,7 +188,14 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
     config.scriptName = scriptName;
 
     const importer = new Importer(config);
-    importer.run();
+
+    if(program.export) {
+        importer.exportTable(program.export);
+    } else {
+        importer.run();
+    }
+
+
 }
 
 module.exports = Importer;
