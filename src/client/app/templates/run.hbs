@@ -34,7 +34,8 @@
             </table>
             <button class="show-add-rule" style="float: left" {{action "showAddRule"}}>+</button>
             <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}>-</button>
-            <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
+            <!-- <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button> -->
+            {{#link-to 'editRuleset' model.ruleset}}Edit Current Ruleset{{/link-to}}
         </div>
         <div class="column">
             <!-- The column for editting rule properties. -->
