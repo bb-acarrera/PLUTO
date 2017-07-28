@@ -7,24 +7,14 @@ class RuleSet {
 	}
 
 	constructor(ruleset) {
-		if (ruleset.data) {
-			this.name = ruleset.data.attributes.name;
-			this._filename = ruleset.filename;
-			this.id = ruleset.data.id || this._filename || this.name;
-			this.addRules(ruleset.data.attributes.rules);
-			this.import = ruleset.data.import;
-			this.export = ruleset.data.export
-		}
-		else {
-			this.name = ruleset.name;
-			this._filename = ruleset.filename;
-			this.id = ruleset.id || this._filename || this.name;
-			this.addRules(ruleset.rules || ruleset.rules);
-			this.import = ruleset.import;
-			this.export = ruleset.export;
+		this.name = ruleset.name;
+		this._filename = ruleset.filename;
+		this.id = ruleset.id || this._filename || this.name;
+		this.addRules(ruleset.rules);
+		this.import = ruleset.import;
+		this.export = ruleset.export;
 
-			this.config = ruleset.config;
-		}
+		this.config = ruleset.config;
 	}
 
 	addRules(rules) {
