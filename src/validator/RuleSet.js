@@ -49,12 +49,20 @@ class RuleSet {
 					this.import = {};
 				}
 
+				if(!this.import.config) {
+					this.import.config = {}
+				}
+
 				Object.assign(this.import.config, contents.import);
 			}
 
 			if(contents.export) {
 				if(!this.export) {
 					this.export = {};
+				}
+
+				if(!this.export.config) {
+					this.export.config = {}
 				}
 
 				Object.assign(this.export.config, contents.export);
