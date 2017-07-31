@@ -550,7 +550,7 @@ class Validator {
 	 * @param filename the name of the rule file to load.
 	 * @param rulesDirectory the directory rules are kept in. If this is <code>null</code> then an attempt is made
 	 * to resolve the filename against the current working directory. If the rule does not exist in either location
-	 * then an attempt is made to load the plugin from '../runtime/rules' relative to the current working directory.
+	 * then an attempt is made to load the plugin from '../rules' relative to the current working directory.
 	 * @returns {*} the executable rule if it could be loaded.
 	 * @private
 	 */
@@ -562,7 +562,7 @@ class Validator {
 
 		let ruleFilename = rulesDirectory === undefined ? path.resolve(filename) : path.resolve(rulesDirectory, filename);
 		if (!fs.existsSync(ruleFilename) && !fs.existsSync(ruleFilename + '.js')) {
-			ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
+			ruleFilename = path.resolve(path.resolve(__dirname, '../rules'), filename);
 		}
 
 		return this.loadPlugin(ruleFilename);
