@@ -70,18 +70,18 @@ class RuleSet {
 		}
 	}
 
-	toJSON() {
-		const ruleset = {};
-		ruleset.name = this.name;
-		ruleset.id = this.id;
-		ruleset.filename = this.filename;
-		ruleset.rules = this.rules;
-
-		const response = {};
-		response.ruleset = ruleset;
-
-		return response;
-	}
+	// toJSON() {
+	// 	const ruleset = {};
+	// 	ruleset.name = this.name;
+	// 	ruleset.id = this.id;
+	// 	ruleset.filename = this.filename;
+	// 	ruleset.rules = this.rules;
+    //
+	// 	const response = {};
+	// 	response.ruleset = ruleset;
+    //
+	// 	return response;
+	// }
 }
 
 module.exports = RuleSet;
