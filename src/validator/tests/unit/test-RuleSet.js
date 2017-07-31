@@ -144,30 +144,4 @@ QUnit.test( "RuleSet: Creation Test with all four properties", function(assert){
 	assert.ok(ruleset.rules, "RuleSet has rules");
 	assert.ok(ruleset.import, "RuleSet has an importer");
 	assert.ok(ruleset.export, "RuleSet has an exporter");
-})
-
-QUnit.test( "RuleSet: toJSON Check", function(assert){
-    const config = {
-            "name": "testRuleSet",
-            "rules": [
-                {
-                    "filename": "CheckColumnCount",
-                    "name": "Test RuleSet Creation using CheckColumnCount",
-                    "config": {
-                        "columns": 9
-                    }
-                }
-            ]
-
-    };
-
-    const ruleSetVar = new RuleSet(config);
-    const rulesJSON = ruleSetVar.toJSON();
-
-    assert.equal(ruleSetVar.name, rulesJSON.ruleset.name, "Expected 'testRuleSet' in JSON file");
-    assert.equal(ruleSetVar.filename, rulesJSON.ruleset.filename, "Expected matching filename in JSON file");
-    assert.ok(rulesJSON.ruleset.rules, "Expected some rules.");
-    if (rulesJSON.ruleset.rules)
-        assert.equal(1, rulesJSON.ruleset.rules.length, "Expected one rule.");
-
 });
