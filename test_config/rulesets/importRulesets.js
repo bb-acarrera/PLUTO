@@ -92,7 +92,7 @@ class Importer {
                 if (!contents || !contents.ruleset) {
                     console.log("Ruleset file \"" + file + "\" does not contain a 'ruleset' member.");
                 } else {
-                    promises.push(this.addRuleset(name, contents, file));
+                    promises.push(this.addRuleset(name, contents.ruleset, file));
                 }
             }
         });
@@ -109,7 +109,7 @@ class Importer {
                 .then((result) => {
                     if(result.rows.length === 0) {
                         this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
-                                "VALUES($1, $2, $3, $4) RETURNING id", [name, name, 0, JSON.stringify(ruleset)])
+                                "VALUES($1, $2, $3, $4) RETURNING id", [name, ruleset.name || name, 0, JSON.stringify(ruleset)])
                             .then(() => {
                                 console.log('Inserted ' + file);
                                 resolve();
@@ -132,6 +132,13 @@ class Importer {
 
 
     }
+
+    exportTable(tableName) {
+        this.query("SELECT * FROM " + tableName, []).then((results) => {
+            console.log(JSON.stringify(results.rows));
+            process.exit(0);
+        });
+    }
 }
 
 
@@ -147,6 +154,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .option('-U, --username <username>', 'database user name')
         .option('-d, --dbname <database>', 'database to connect to')
         .option('-W, --password <password>', 'user password')
+        .option('-e, --export <tablename>', 'table name to export')
         .parse(process.argv);
 
 
@@ -180,7 +188,14 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
     config.scriptName = scriptName;
 
     const importer = new Importer(config);
-    importer.run();
+
+    if(program.export) {
+        importer.exportTable(program.export);
+    } else {
+        importer.run();
+    }
+
+
 }
 
 module.exports = Importer;

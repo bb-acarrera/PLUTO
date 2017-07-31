@@ -7,24 +7,14 @@ class RuleSet {
 	}
 
 	constructor(ruleset) {
-		if (ruleset.data) {
-			this.name = ruleset.data.attributes.name;
-			this._filename = ruleset.filename;
-			this.id = ruleset.data.id || this._filename || this.name;
-			this.addRules(ruleset.data.attributes.rules);
-			this.import = ruleset.data.import;
-			this.export = ruleset.data.export
-		}
-		else {
-			this.name = ruleset.name;
-			this._filename = ruleset.filename;
-			this.id = ruleset.id || this._filename || this.name;
-			this.addRules(ruleset.rules || ruleset.rules);
-			this.import = ruleset.import;
-			this.export = ruleset.export;
+		this.name = ruleset.name;
+		this._filename = ruleset.filename;
+		this.id = ruleset.id || this._filename || this.name;
+		this.addRules(ruleset.rules);
+		this.import = ruleset.import;
+		this.export = ruleset.export;
 
-			this.config = ruleset.config;
-		}
+		this.config = ruleset.config;
 	}
 
 	addRules(rules) {
@@ -35,9 +25,11 @@ class RuleSet {
 		for (var i = 0; i < rules.length; i++) {
 			const srcRule = rules[i];
 			const dstRule = {};
-			dstRule.config = srcRule.config || srcRule.config;
-			dstRule.filename = srcRule.filename || srcRule.filename;
+			dstRule.config = srcRule.config;
+			dstRule.filename = srcRule.filename;
 			dstRule.id = srcRule.id;
+			dstRule.name = srcRule.name || srcRule.filename;
+			dstRule.ui = srcRule.ui;
 			this.rules.push(dstRule);
 		}
 	}
@@ -57,6 +49,10 @@ class RuleSet {
 					this.import = {};
 				}
 
+				if(!this.import.config) {
+					this.import.config = {}
+				}
+
 				Object.assign(this.import.config, contents.import);
 			}
 
@@ -65,23 +61,27 @@ class RuleSet {
 					this.export = {};
 				}
 
+				if(!this.export.config) {
+					this.export.config = {}
+				}
+
 				Object.assign(this.export.config, contents.export);
 			}
 		}
 	}
 
-	toJSON() {
-		const ruleset = {};
-		ruleset.name = this.name;
-		ruleset.id = this.id;
-		ruleset.filename = this.filename;
-		ruleset.rules = this.rules;
-
-		const response = {};
-		response.ruleset = ruleset;
-
-		return response;
-	}
+	// toJSON() {
+	// 	const ruleset = {};
+	// 	ruleset.name = this.name;
+	// 	ruleset.id = this.id;
+	// 	ruleset.filename = this.filename;
+	// 	ruleset.rules = this.rules;
+    //
+	// 	const response = {};
+	// 	response.ruleset = ruleset;
+    //
+	// 	return response;
+	// }
 }
 
 module.exports = RuleSet;

@@ -196,11 +196,11 @@ class data {
                 .then((result) => {
 
                     if(result.rows.length > 0) {
-                        let contents = result.rows[0].rules;
+                        let dbRuleset = result.rows[0].rules;
 
-                        contents.ruleset.filename = ruleset_id;
-                        contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-                        let ruleset = new RuleSet(contents.ruleset);
+                        dbRuleset.filename = ruleset_id;
+                        dbRuleset.name = dbRuleset.name || dbRuleset.filename;
+                        let ruleset = new RuleSet(dbRuleset);
 
                         if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
                             ruleset.applyOverride(rulesetOverrideFile);
@@ -230,17 +230,22 @@ class data {
 
             let name = ruleset.filename;
 
-            this.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+            this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
                 .then((result) => {
                     if(result.rows.length === 0) {
-                        this.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
+                        this.db.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
                             "VALUES($1, $2, $3, $4) RETURNING id", [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
                     } else {
-                        this.query("UPDATE rulesets SET rules = $2, SET name = $3 WHERE id = $1",
+                        this.db.query("UPDATE rulesets SET rules = $2, name = $3 WHERE id = $1",
                             [result.rows[0].id, JSON.stringify(ruleset), ruleset.name]);
                     }
 
                     resolve(name);
+                }, (error) => {
+                    console.log(error);
+                })
+                .catch((error) => {
+                    console.log(error);
                 });
         });
 

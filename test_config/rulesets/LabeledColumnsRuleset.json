@@ -61,6 +61,6 @@
 			"config" : {
 				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
 			}
-		},
+		}
 	}
 }

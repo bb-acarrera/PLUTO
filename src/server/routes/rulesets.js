@@ -82,8 +82,9 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res) {
 		const ruleset = new RuleSet(req.body);
-		this.config.data.saveRuleSet(ruleset);
-		res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+		this.config.data.saveRuleSet(ruleset).then(() => {
+            res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+		});
 	}
 }
 
