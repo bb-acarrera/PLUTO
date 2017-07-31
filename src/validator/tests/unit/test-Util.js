@@ -5,7 +5,7 @@
 const ErrorLogger = require("../../ErrorLogger");
 const RuleAPI = require("../../../api/RuleAPI");
 const Util = require("../../../common/Util");
-const CheckColumnCount = require("../../../runtime/rules/CheckColumnCount");
+const CheckColumnCount = require("../../../rules/CheckColumnCount");
 
 QUnit.test( "Util: getRootDirectory w/ empty config Test", function(assert){
    const result = Util.getRootDirectory(null);

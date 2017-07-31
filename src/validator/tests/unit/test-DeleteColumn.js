@@ -5,7 +5,7 @@ const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
 const RuleAPI = require("../../../api/RuleAPI");
-const DeleteColumn = require("../../../runtime/rules/DeleteColumn");
+const DeleteColumn = require("../../../rules/DeleteColumn");
 
 /*
  * A trivial class which takes input from a stream and captures it in a buffer.

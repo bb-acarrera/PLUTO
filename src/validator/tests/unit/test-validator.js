@@ -60,7 +60,7 @@ QUnit.test( "Validator: No rulesDirectory Test", function(assert){
    };
 
    const vldtr = new validator(config, () => {});
-   assert.ok(vldtr.config.rulesDirectory, "runtime/rules");
+   assert.ok(vldtr.config.rulesDirectory, "rules");
 
 });
 

@@ -53,7 +53,7 @@ class Validator {
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
 		else
-			this.config.rulesDirectory = path.resolve(this.rootDir, 'runtime/rules');	// By default rules live with the rulesets.
+			this.config.rulesDirectory = path.resolve(this.rootDir, 'rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
 			throw "Failed to find RulesDirectory \"" + this.config.rulesDirectory + "\".\n";

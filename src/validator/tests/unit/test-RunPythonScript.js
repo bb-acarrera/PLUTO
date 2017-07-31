@@ -6,7 +6,7 @@ const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
 const RuleAPI = require("../../../api/RuleAPI");
-const RunPythonScript = require("../../../runtime/rules/RunPythonScript");
+const RunPythonScript = require("../../../rules/RunPythonScript");
 
 QUnit.test( "RunPythonScript: Run test", function(assert) {
     const logger = new ErrorLogger();
