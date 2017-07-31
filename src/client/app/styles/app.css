@@ -7,7 +7,7 @@ button.save-ruleset {
 }
 
 div.column {
-  border:1px solid black;
+  /*border:1px solid black;*/
   float: left;
   width:49%;
   margin:2px 2px 2px 2px;
@@ -16,12 +16,14 @@ div.column {
 
 div.section-header {
   padding: 3px 3px 0px 3px;
+  font-size: 125%;
 }
 
 div.section-content {
-  border:1px solid black;
+  /*border:1px solid black;*/
   margin:5px 5px 5px 5px;
   padding: 3px 3px 3px 3px;
+  background: #E8E8E8;
 }
 
 input.text-input {
@@ -29,22 +31,29 @@ input.text-input {
 }
 
 table.error-table {
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
   border-collapse: collapse;
-  border: 1px solid black;
-  width:  auto;
+  /*border: 1px solid black; */
+  width:  98%;
+  background: #E8E8E8;
 }
 
 table.ruleset-table {
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
   border-spacing: 0;
+  background: #E8E8E8;
+  width:  98%;
 }
 
 td.error-cell {
-  border: 1px solid black;
+  border: 1px solid white;
   /* width:  auto; */
 }
 
 tr.error-row {
-  border: 1px solid black;
+  border: 1px solid white;
   /* width:  auto; */
 }
 
