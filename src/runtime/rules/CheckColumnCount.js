@@ -1,4 +1,4 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const CSVRuleAPI = require("../../api/CSVRuleAPI");
 
 class CheckColumnCount extends CSVRuleAPI {
 	constructor(config) {

@@ -1,4 +1,4 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const CSVRuleAPI = require("../../api/CSVRuleAPI");
 
 class DeleteColumn extends CSVRuleAPI {
 	constructor(config) {

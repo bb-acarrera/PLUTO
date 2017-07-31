@@ -3,7 +3,7 @@
  */
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const RuleAPI = require("../../../api/RuleAPI");
 const validator = require("../../../validator/validator");
 const Data = require("../../../common/dataDb");
 

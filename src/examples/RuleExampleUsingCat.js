@@ -1,5 +1,5 @@
 const spawn = require('child_process').spawn;
-const RuleAPI = require("../runtime/api/RuleAPI");
+const RuleAPI = require("../api/RuleAPI");
 
 class RuleExampleUsingCat extends RuleAPI {
 	constructor(config) {

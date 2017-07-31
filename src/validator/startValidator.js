@@ -9,9 +9,6 @@ const rimraf = require('rimraf');
 const stream = require('stream');
 const Validator = require('../validator/validator');
 
-const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
-const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
-
 const Util = require("../common/Util");
 const Data = require("../common/dataDb");
 

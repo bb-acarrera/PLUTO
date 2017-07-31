@@ -7,8 +7,7 @@ const program = require("commander");
 const rimraf = require('rimraf');
 const stream = require('stream');
 
-const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
-const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
+const BaseRuleAPI = require("../api/BaseRuleAPI");
 
 const Util = require("../common/Util");
 const Data = require("../common/dataDb");

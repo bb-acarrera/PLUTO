@@ -3,7 +3,7 @@
  */
 const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnType = require("../../../runtime/rules/CheckColumnType");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
