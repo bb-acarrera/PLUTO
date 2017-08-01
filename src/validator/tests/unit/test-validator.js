@@ -107,7 +107,7 @@ QUnit.test( "Validator: End to End Test", function(assert) {
    const config = {
        "_debugLogger" : logger,
        "rootDirectory" : "./src",
-       "rulesDirectory" : "runtime/rules",
+       "rulesDirectory" : "rules",
        "tempDirectory" : "./tmp",
        "inputDirectory" : ".",
        "outputDirectory" : "results"
@@ -142,7 +142,7 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
    const config = {
        "_debugLogger" : logger,
        "rootDirectory" : "./src",
-       "rulesDirectory" : "runtime/rules",
+       "rulesDirectory" : "rules",
        "tempDirectory" : "./tmp",
        "inputDirectory" : "",
        "outputDirectory" : "results",
@@ -187,7 +187,7 @@ QUnit.test( "Validator: End to End no ruleset Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "rootDirectory" : "./src",
-        "rulesDirectory" : "runtime/rules",
+        "rulesDirectory" : "rules",
         "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
@@ -221,7 +221,7 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
     const config = {
         "_debugLogger" : logger,
         "rootDirectory" : "./src",
-        "rulesDirectory" : "runtime/rules",
+        "rulesDirectory" : "rules",
         "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
@@ -267,7 +267,7 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "rootDirectory" : "./src",
-        "rulesDirectory" : "runtime/rules",
+        "rulesDirectory" : "rules",
         "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
@@ -316,7 +316,7 @@ QUnit.test( "Validator: End to End Null Promise Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "rootDirectory" : "./src",
-        "rulesDirectory" : "runtime/rules",
+        "rulesDirectory" : "rules",
         "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
@@ -351,7 +351,7 @@ QUnit.test( "Validator: End to End Throw Error Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "rootDirectory" : "./src",
-        "rulesDirectory" : "runtime/rules",
+        "rulesDirectory" : "rules",
         "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
@@ -386,7 +386,7 @@ QUnit.test( "Validator: End to End Promise Rejection Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "rootDirectory" : "./src",
-        "rulesDirectory" : "runtime/rules",
+        "rulesDirectory" : "rules",
         "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
