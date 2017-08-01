@@ -307,14 +307,14 @@ class Validator {
 				})
 				.then(() => {
 					this.data.saveRunRecord(runId, this.logger.getLog(),
-						this.config.ruleset, this.inputFileName, this.outputFileName);
+						this.config.ruleset, this.inputFileName, this.outputFileName, this.logger.getCounts());
 					this.cleanup();
 					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
 			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.inputFileName, this.outputFileName, this.logger.getCounts());
 			this.cleanup();
 			console.log("Done.");
 		}
@@ -323,7 +323,7 @@ class Validator {
 			this.error("No results were produced.");
 
 			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.inputFileName, this.outputFileName, this.logger.getCounts());
 			this.cleanup();
 			console.log("Done.");
 		}

@@ -2,12 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
+
 class ErrorLogger {
 	constructor() {
 		this.reports = [];
-		this.errorCount = 0;
-		this.warningCount = 0;
-		this.infoCount = 0;
+		this.counts = {};
 	}
 
 	/*
@@ -29,6 +28,12 @@ class ErrorLogger {
 		const report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription };
 		this.reports.push(report);
 
+		if(!this.counts.hasOwnProperty(level)) {
+			this.counts[level] = 1;
+		} else {
+			this.counts[level] += 1;
+		}
+
 		//console.log(util.inspect(report, {showHidden: false, depth: null}))
 	}
 
@@ -37,6 +42,13 @@ class ErrorLogger {
 	 */
 	getLog() {
 		return this.reports;
+	}
+
+	/**
+	 * Get the counts of report types
+	 */
+	getCounts() {
+		return this.counts;
 	}
 }
 
