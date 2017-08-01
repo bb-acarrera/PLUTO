@@ -2,8 +2,8 @@
  * Tests errors and successes of the CheckColumnRegEx rule.
  */
 const ErrorLogger = require("../../ErrorLogger");
-const CheckColumnRegEx = require("../../../runtime/rules/CheckColumnRegEx");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const CheckColumnRegEx = require("../../../rules/CheckColumnRegEx");
+const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();

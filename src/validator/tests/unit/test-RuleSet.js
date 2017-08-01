@@ -3,7 +3,7 @@
  */
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const RuleAPI = require("../../../api/RuleAPI");
 const RuleSet = require("../../../validator/RuleSet")
 
 QUnit.test( "RuleSet: Creation Test", function(assert){
