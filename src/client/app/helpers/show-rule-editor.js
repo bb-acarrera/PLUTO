@@ -12,7 +12,7 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset}) {
       uiConfig = rule.get("ui");
   });
 
-  var rulesetConfig = ruleset.get("config");
+  var rulesetConfig = ruleset.get("config") || {};
   var sharedData = rulesetConfig.sharedData || {};
   var columnLabels = sharedData.columnLabels || [];
 
