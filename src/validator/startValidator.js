@@ -11,6 +11,7 @@ const Validator = require('../validator/validator');
 
 const Util = require("../common/Util");
 const Data = require("../common/dataDb");
+const DataFS = require("../common/dataFS");
 
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
@@ -26,8 +27,9 @@ program
     .option('-e, --encoding [encoding]', 'The encoding to use to load the input file. [utf8]', 'utf8')
     .option('-i, --input <filename>', 'The name of the input file.')
     .option('-o, --output <filename>', 'The name of the output file.')
-    .option('-r, --ruleset <rulesetFile>', 'The ruleset file to use.')
+    .option('-r, --ruleset <ruleset>', 'The ruleset to use.')
     .option('-v, --rulesetoverride <rulesetOverrideFile>', 'The ruleset overrides file to use.')
+    .option('-l, --local', 'Run the validator locally (no database, run rulesets from disk, write outputs to results folder)')
     .parse(process.argv);
 
 if (!program.config)
@@ -59,13 +61,19 @@ if(program.rulesetoverride) {
     config.rulesetOverride = program.rulesetoverride;
 }
 
+let dataAccess = Data;
+
+if(program.local) {
+    dataAccess = DataFS;
+}
+
     // If the input or output are not set they'll be grabbed from the ruleset file later.
 let inputFile = program.input;	//  ? path.resolve(program.input) : undefined;
 let outputFile = program.output;
 let inputEncoding = program.encoding;
 
 //config.scriptName = scriptName;
-const validator = new Validator(config, Data);
+const validator = new Validator(config, dataAccess);
 
 process.on('uncaughtException', (err) => {
         // Caught an uncaught exception so something went extraordinarily wrong.
