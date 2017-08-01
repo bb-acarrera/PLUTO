@@ -2,15 +2,27 @@
 <div>
     <h2>PLUTO Runs</h2>
 
-    <table id="rulesTable" class="ruleset-table">
+    <table id="runsTable" class="runs-table">
       {{#each model.runs as |runInstance index|}}
-          <tr id="{{concat 'rulesetTableRow' index}}">
+          <tr id="{{concat 'runsTableRow' index}}">
             <td>{{runInstance.id}}</td>
             <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
           </tr>
       {{/each}}
-
-
     </table>
+
+</div>
+<div>
+  <h2>PLUTO Rulesets</h2>
+
+  <table id="rulesetTable" class="ruleset-table">
+    {{#each model.rulesets as |rulesetInstance index|}}
+      <tr id="{{concat 'rulesetTableRow' index}}">
+        <td>{{index}}</td>
+        <td>{{rulesetInstance.filename}}</td>
+        <!-- <td>{{#link-to "run" rulesetInstance}}Details{{/link-to}}</td> -->
+      </tr>
+    {{/each}}
+  </table>
 
 </div>

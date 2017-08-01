@@ -267,18 +267,15 @@ class data {
                 offset = page * this.runsLimit;
             }
 
-            this.db.query("SELECT ruleset_id, version, name FROM rulesets " +
+            this.db.query("SELECT * FROM rulesets " +
                     "ORDER BY name ASC LIMIT $1 OFFSET $2", [this.rulesetLimit, offset] )
                 .then((result) => {
 
                     var rulesets = [];
 
-                    result.rows.forEach((row) => {
-                        rulesets.push({
-                            id: row.ruleset_id,
-                            version: row.version,
-                            name: row.name
-                        });
+                    result.rows.forEach((ruleset) => {
+                        ruleset.filename = ruleset.filename || ruleset.ruleset_id;
+                        rulesets.push(ruleset);
                     });
 
                     resolve(rulesets);

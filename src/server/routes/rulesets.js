@@ -64,10 +64,11 @@ class RulesetRouter extends BaseRouter {
 			this.config.data.getRulesets().then((rawRulesets) => {
 				const rulesets = [];
 
-				rawRulesets.forEach(rulesetFileName => {
+				rawRulesets.forEach(ruleset => {
 					rulesets.push({
 						type: "ruleset",
-						id: rulesetFileName
+						id: ruleset.filename || ruleset.ruleset_id,
+						attributes: ruleset
 					})
 				});
 
