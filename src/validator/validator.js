@@ -91,6 +91,11 @@ class Validator {
 		}
 
 		this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride).then((ruleset) => {
+
+			if(!ruleset){
+				throw new Error("No Ruleset found for: " + this.config.ruleset);
+			}
+
 			let rulesDirectory;
 			if (ruleset.rulesDirectory)
 				rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
@@ -147,13 +152,17 @@ class Validator {
 					throw e;
 				}
 			}
-		}).catch((e) => {
-
-			if(!this.inputFileName) {
-				this.inputFileName = 'unknown';
+		},
+			(error)=>{
+				this.error(error);
+				this.finishRun();
+			}).catch((e) => {
+			if(!e.message){
+				this.error(e);
 			}
-
-			this.error(e.message);
+			else {
+                this.error(e.message);
+            }
 			this.finishRun();
 		});
 
@@ -172,6 +181,7 @@ class Validator {
 
 		if (!rules || rules.length == 0) {
 			this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
+			this.finishRun();
 			return;
 		}
 
@@ -278,7 +288,9 @@ class Validator {
 			return;
 
 		this.running = false;
-		
+		if(!this.inputFileName){
+			this.inputFileName = "";
+		}
 		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString();
 
 		if (results && this.currentRuleset.export) {
