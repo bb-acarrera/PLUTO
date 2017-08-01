@@ -2,8 +2,8 @@
  * Tests errors and successes of the CheckColumnCount rule.
  */
 const ErrorLogger = require("../../ErrorLogger");
-const CheckColumnCount = require("../../../runtime/rules/CheckColumnCount");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const CheckColumnCount = require("../../../rules/CheckColumnCount");
+const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();

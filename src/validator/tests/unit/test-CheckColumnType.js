@@ -2,8 +2,8 @@
  * Tests errors and successes of the CheckColumnType rule.
  */
 const ErrorLogger = require("../../ErrorLogger");
-const CheckColumnType = require("../../../runtime/rules/CheckColumnType");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const CheckColumnType = require("../../../rules/CheckColumnType");
+const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
