@@ -22,7 +22,9 @@
         <td align="right">
           <button {{action "deleteRuleset" rulesetInstance model.rulesets}}><i class="fa fa-trash"></i></button>
           <button {{action "cloneRuleset" rulesetInstance}}><i class="fa fa-clone"></i></button>
-          <button {{action "editRuleset" rulesetInstance}}><i class="fa fa-pencil"></i></button>
+          <!-- <button {{action "editRuleset" rulesetInstance}}><i class="fa fa-pencil"></i></button> -->
+          {{#link-to 'editRuleset' rulesetInstance tagName='button'}}<i class="fa fa-pencil"></i>{{/link-to}}
+
         </td>
       </tr>
     {{/each}}
