@@ -102,20 +102,6 @@ QUnit.test( "Validator: Nonexistent rulesDirectory Test", function(assert){
     );
 });
 
-let dataAccess = {
-    retrieveRuleset: function(ruleset_id, rulesetOverrideFile, version) {
-        return new Promise((resolve) => {
-            resolve({
-                //rulest config
-            });
-        })
-    },
-    saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
-        assert.ok(log, "Expected log to be created");
-    }
-
-};
-
 QUnit.test( "Validator: End to End Test", function(assert) {
    const logger = new ErrorLogger();
    const config = {
@@ -226,11 +212,7 @@ QUnit.test( "Validator: End to End no ruleset Test", function(assert){
         };
     });
 
-
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
-    //onst logResults = logger.getLog();
-
-   // assert.ok(logResults, "Expected log to be created.");
 
 });
 
