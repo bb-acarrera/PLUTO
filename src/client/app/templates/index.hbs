@@ -5,7 +5,10 @@
     <table id="rulesTable" class="ruleset-table">
       {{#each model as |runInstance index|}}
           <tr id="{{concat 'rulesetTableRow' index}}">
-            <td>{{runInstance.id}}</td>
+            <td>{{run-error runInstance.errorcount runInstance.warningcount}}</td>
+            <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
+            <td>{{runInstance.inputfilename}}</td>
+            <td>{{runInstance.ruleset}}</td>
             <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
           </tr>
       {{/each}}

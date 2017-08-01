@@ -78,8 +78,8 @@ class data {
                             inputfilename: row.inputFile,
                             outputfilename: row.outputFile,
                             time: row.finishtime,
-                            errorCount: row.num_errors,
-                            warningCount: row.num_warnings,
+                            errorcount: row.num_errors,
+                            warningcount: row.num_warnings,
                             log_results: row.log
                         });
                     } else {
@@ -125,8 +125,8 @@ class data {
                             inputfilename: row.inputfile,
                             outputfilename: row.outputfile,
                             time: row.finishtime,
-                            errorCount: row.num_errors,
-                            warningCount: row.num_warnings,
+                            errorcount: row.num_errors,
+                            warningcount: row.num_warnings
                         });
                     });
 
