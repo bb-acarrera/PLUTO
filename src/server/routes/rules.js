@@ -21,7 +21,7 @@ class RulesRouter extends BaseRouter {
             }
 		});
 
-		dir = path.resolve(__dirname, '../../runtime/rules');
+		dir = path.resolve(__dirname, '../../rules');
         fs.readdirSync(dir).forEach(file => {
             let rule = this.loadRule(dir, file);
             if (rule) {

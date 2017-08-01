@@ -7,8 +7,7 @@ const program = require("commander");
 const rimraf = require('rimraf');
 const stream = require('stream');
 
-const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
-const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
+const BaseRuleAPI = require("../api/BaseRuleAPI");
 
 const Util = require("../common/Util");
 const Data = require("../common/dataDb");
@@ -54,7 +53,7 @@ class Validator {
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
 		else
-			this.config.rulesDirectory = path.resolve(this.rootDir, 'runtime/rules');	// By default rules live with the rulesets.
+			this.config.rulesDirectory = path.resolve(this.rootDir, 'rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
 			throw "Failed to find RulesDirectory \"" + this.config.rulesDirectory + "\".\n";
@@ -149,6 +148,11 @@ class Validator {
 				}
 			}
 		}).catch((e) => {
+
+			if(!this.inputFileName) {
+				this.inputFileName = 'unknown';
+			}
+
 			this.error(e.message);
 			this.finishRun();
 		});
@@ -551,7 +555,7 @@ class Validator {
 	 * @param filename the name of the rule file to load.
 	 * @param rulesDirectory the directory rules are kept in. If this is <code>null</code> then an attempt is made
 	 * to resolve the filename against the current working directory. If the rule does not exist in either location
-	 * then an attempt is made to load the plugin from '../runtime/rules' relative to the current working directory.
+	 * then an attempt is made to load the plugin from '../rules' relative to the current working directory.
 	 * @returns {*} the executable rule if it could be loaded.
 	 * @private
 	 */
@@ -563,7 +567,7 @@ class Validator {
 
 		let ruleFilename = rulesDirectory === undefined ? path.resolve(filename) : path.resolve(rulesDirectory, filename);
 		if (!fs.existsSync(ruleFilename) && !fs.existsSync(ruleFilename + '.js')) {
-			ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
+			ruleFilename = path.resolve(path.resolve(__dirname, '../rules'), filename);
 		}
 
 		return this.loadPlugin(ruleFilename);

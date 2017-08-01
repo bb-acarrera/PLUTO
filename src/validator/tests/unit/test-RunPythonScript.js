@@ -5,8 +5,8 @@ const fs = require('fs-extra');
 const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
-const RunPythonScript = require("../../../runtime/rules/RunPythonScript");
+const RuleAPI = require("../../../api/RuleAPI");
+const RunPythonScript = require("../../../rules/RunPythonScript");
 
 QUnit.test( "RunPythonScript: Run test", function(assert) {
     const logger = new ErrorLogger();

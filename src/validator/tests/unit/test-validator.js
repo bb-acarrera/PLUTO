@@ -3,7 +3,7 @@
  */
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const RuleAPI = require("../../../api/RuleAPI");
 const validator = require("../../../validator/validator");
 const Data = require("../../../common/dataDb");
 
@@ -60,7 +60,7 @@ QUnit.test( "Validator: No rulesDirectory Test", function(assert){
    };
 
    const vldtr = new validator(config, () => {});
-   assert.ok(vldtr.config.rulesDirectory, "runtime/rules");
+   assert.ok(vldtr.config.rulesDirectory, "rules");
 
 });
 

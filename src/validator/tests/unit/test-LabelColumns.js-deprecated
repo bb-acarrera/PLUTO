@@ -4,7 +4,7 @@
 const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
-const LabelColumns = require("../../../runtime/rules/LabelColumns");
+const LabelColumns = require("../../../rules/LabelColumns");
 const RuleAPI = require("../../../runtime/api/RuleAPI");
 
 class MemoryWriterStream extends stream.Writable {
