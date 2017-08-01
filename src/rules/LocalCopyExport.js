@@ -19,7 +19,7 @@ class LocalCopyExport {
                 const targetFileName = path.resolve(this.config.file);
 
                 fs.copySync(sourceFileName, targetFileName);
-				resolve();
+				resolve(path.basename(targetFileName));
 			}
         });
     }

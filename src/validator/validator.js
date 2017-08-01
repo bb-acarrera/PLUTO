@@ -117,9 +117,10 @@ class Validator {
 			
 				this.inputFileName = this.getTempName();
 
-				this.importFile(ruleset.import, this.inputFileName).then( () => {
+				this.importFile(ruleset.import, this.inputFileName).then( (displayInputFileName) => {
                     // Data that can be shared between rules.
                     this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
+					this.displayInputFileName = displayInputFileName;
 
                     try {
 							this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
@@ -143,6 +144,8 @@ class Validator {
 				this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
 				if (!this.inputFileName)
 					throw "No input file specified.";
+
+				this.displayInputFileName = path.basename(this.inputFileName);
 
 				try {
 					this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
@@ -319,14 +322,14 @@ class Validator {
 				})
 				.then(() => {
 					this.data.saveRunRecord(runId, this.logger.getLog(),
-						this.config.ruleset, this.inputFileName, this.outputFileName);
+						this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
 					this.cleanup();
 					console.log("Done.");
 				});
 		} else if (results) {
 			this.saveResults(results);
 			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
 			this.cleanup();
 			console.log("Done.");
 		}
@@ -335,7 +338,7 @@ class Validator {
 			this.error("No results were produced.");
 
 			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.inputFileName, this.outputFileName);
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
 			this.cleanup();
 			console.log("Done.");
 		}
@@ -502,10 +505,10 @@ class Validator {
 				return;
 			}
 
-			importer.importFile(targetFilename).then(function() {
+			importer.importFile(targetFilename).then(function(displayInputFileName) {
 					// Save the encoding set by the importer.
 					validator.encoding = importConfig.config.encoding || 'utf8';
-					resolve();
+					resolve(displayInputFileName);
 				}, error => {
 					reject("Importer " + importConfig.scriptPath + " failed: " + error);
 				})

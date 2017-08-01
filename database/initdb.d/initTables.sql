@@ -6,7 +6,9 @@ CREATE TABLE runs (
     inputfile varchar(512),
     outputfile varchar(512),
     finishtime timestamp,
-    log json
+    log json,
+    num_errors integer,
+    num_warnings integer
 );
 
 CREATE TABLE rulesets (
