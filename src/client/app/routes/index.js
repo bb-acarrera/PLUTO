@@ -10,8 +10,15 @@ export default Ember.Route.extend({
     const store = this.get('store');
 
     return store.findAll('run').then(
-      run => {
-        return run;
+      runs => {
+        return store.findAll('ruleset').then(
+          rulesets => {
+            return { runs : runs, rulesets : rulesets };
+          },
+          error => {
+            return { runs : runs, error : error };
+          }
+        );
       },
       error => {
         return {error: error};

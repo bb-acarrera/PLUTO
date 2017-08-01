@@ -11,14 +11,14 @@
 	 * Implement the Ember.Router callback used by router.get().
 	 */
 	get(req, res, next) {
- 		throw(this.constructor.name + " does not implement the get() method.");
+ 		next(new Error(this.constructor.name + " does not implement the get() method."));
 	}
 
 	 /*
 	  * Implement the Ember.Router callback used by router.patch().
 	  */
 	 patch(req, res, next) {
-		 throw(this.constructor.name + " does not implement the patch() method.");
+         next(new Error(this.constructor.name + " does not implement the patch() method."));
 	 }
  }
 

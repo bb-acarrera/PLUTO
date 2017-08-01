@@ -55,7 +55,7 @@ class RulesetRouter extends BaseRouter {
 					}
 				});
 			}, (error) => {
-				throw new Error(error);
+				next(error);
 			}).catch(next);
 
 
@@ -71,10 +71,10 @@ class RulesetRouter extends BaseRouter {
 					})
 				});
 
-				res.json(rulesets);
+				res.json({ data: rulesets});
 
 			}, (error) => {
-				throw new Error(error);
+				next(error);
 			}).catch(next);
 
 		}

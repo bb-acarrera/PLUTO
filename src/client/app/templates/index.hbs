@@ -3,7 +3,7 @@
     <h2>PLUTO Runs</h2>
 
     <table id="rulesTable" class="ruleset-table">
-      {{#each model as |runInstance index|}}
+      {{#each model.runs as |runInstance index|}}
           <tr id="{{concat 'rulesetTableRow' index}}">
             <td>{{runInstance.id}}</td>
             <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
