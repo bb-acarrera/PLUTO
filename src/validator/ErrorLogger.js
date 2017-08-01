@@ -5,6 +5,9 @@ const util = require('util');
 class ErrorLogger {
 	constructor() {
 		this.reports = [];
+		this.errorCount = 0;
+		this.warningCount = 0;
+		this.infoCount = 0;
 	}
 
 	/*
