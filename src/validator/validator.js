@@ -148,6 +148,11 @@ class Validator {
 				}
 			}
 		}).catch((e) => {
+
+			if(!this.inputFileName) {
+				this.inputFileName = 'unknown';
+			}
+
 			this.error(e.message);
 			this.finishRun();
 		});
