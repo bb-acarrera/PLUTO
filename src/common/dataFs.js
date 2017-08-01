@@ -230,14 +230,21 @@ class data {
 
         return new Promise((resolve) => {
             var rulesets = [];
-
+            var promises = [];
             fs.readdirSync(this.rulesetDirectory).forEach(file => {
                 if(file.substr(file.length-5) === '.json') {
-                    rulesets.push(file);
+                    let p = this.retrieveRuleset(file);
+                    let t = p.then((ruleset) => {
+                        ruleset.filename = path.basename(file, '.json');
+                        rulesets.push(ruleset);
+                    });
+                    promises.push(t);
                 }
             });
 
-            resolve(rulesets);
+            Promises.all(promises).then(() => {
+                resolve(rulesets);
+            });
         });
 
 

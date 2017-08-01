@@ -257,6 +257,31 @@ class data {
     }
 
     /**
+     * This deletes the given ruleset from the database
+     * @param ruleset the ruleset to delete.
+     * @private
+     */
+    deleteRuleSet(ruleset) {
+
+        return new Promise((resolve, reject) => {
+
+            let name = ruleset.filename;
+
+            this.db.query("DELETE FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+                .then(() => {
+                    resolve(name);
+                }, (error) => {
+                    console.log(error);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        });
+
+
+    }
+
+    /**
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
@@ -271,18 +296,15 @@ class data {
                 offset = page * this.runsLimit;
             }
 
-            this.db.query("SELECT ruleset_id, version, name FROM rulesets " +
+            this.db.query("SELECT * FROM rulesets " +
                     "ORDER BY name ASC LIMIT $1 OFFSET $2", [this.rulesetLimit, offset] )
                 .then((result) => {
 
                     var rulesets = [];
 
-                    result.rows.forEach((row) => {
-                        rulesets.push({
-                            id: row.ruleset_id,
-                            version: row.version,
-                            name: row.name
-                        });
+                    result.rows.forEach((ruleset) => {
+                        ruleset.filename = ruleset.filename || ruleset.ruleset_id;
+                        rulesets.push(ruleset);
                     });
 
                     resolve(rulesets);

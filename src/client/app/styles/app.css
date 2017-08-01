@@ -39,6 +39,14 @@ table.error-table {
   background: #E8E8E8;
 }
 
+table.runs-table {
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
+  border-spacing: 0;
+  background: #E8E8E8;
+  width:  98%;
+}
+
 table.ruleset-table {
   margin:5px 5px 5px 5px;
   padding: 3px 3px 3px 3px;

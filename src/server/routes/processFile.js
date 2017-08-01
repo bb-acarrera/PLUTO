@@ -74,6 +74,7 @@ class ProcessFileRouter extends BaseRouter {
 
                 if (error) {
                     console.error(`exec error: ${error}`);
+                    next(error);
                     return;
                 }
                 console.log(`stdout: ${stdout}`);
