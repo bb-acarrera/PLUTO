@@ -18,11 +18,15 @@
   <table id="rulesetTable" class="ruleset-table">
     {{#each model.rulesets as |rulesetInstance index|}}
       <tr id="{{concat 'rulesetTableRow' index}}">
-        <td>{{index}}</td>
         <td>{{rulesetInstance.filename}}</td>
-        <!-- <td>{{#link-to "run" rulesetInstance}}Details{{/link-to}}</td> -->
+        <td align="right">
+          <button {{action "deleteRuleset" rulesetInstance model.rulesets}}><i class="fa fa-trash"></i></button>
+          <button {{action "cloneRuleset" rulesetInstance}}><i class="fa fa-clone"></i></button>
+          <button {{action "editRuleset" rulesetInstance}}><i class="fa fa-pencil"></i></button>
+        </td>
       </tr>
     {{/each}}
   </table>
+  <button {{action "addRuleset" model.rulesets}}><i class="fa fa-plus"></i></button>
 
 </div>

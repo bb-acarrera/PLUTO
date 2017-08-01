@@ -9,8 +9,8 @@
         {{#each model.ruleset.rules as |ruleInstance index|}}
           <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
             <td>{{ruleInstance.name}}</td>
-            <td><button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up" aria-hidden="true"></i></button></td>
-            <td><button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
+            <td><button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up"></i></button></td>
+            <td><button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down"></i></button></td>
           </tr>
         {{/each}}
         {{#if showAddRule}}
@@ -22,11 +22,11 @@
             {{/each}}
           </select>
         </td>
-          <td><button {{action "hideAddRule"}}>Cancel</button><button {{action "addRule" model.ruleset model.rules}}>Add</button></td>
+          <td><button {{action "hideAddRule"}}>Cancel</button><button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button></td>
         {{/if}}
       </table>
       <button class="show-add-rule" style="float: left" {{action "showAddRule"}}>+</button>
-      <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}>-</button>
+      <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i class="fa fa-trash"></i></button>
       <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
     </div>
     <div class="column">

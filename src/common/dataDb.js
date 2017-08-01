@@ -253,6 +253,31 @@ class data {
     }
 
     /**
+     * This deletes the given ruleset from the database
+     * @param ruleset the ruleset to delete.
+     * @private
+     */
+    deleteRuleSet(ruleset) {
+
+        return new Promise((resolve, reject) => {
+
+            let name = ruleset.filename;
+
+            this.db.query("DELETE FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+                .then(() => {
+                    resolve(name);
+                }, (error) => {
+                    console.log(error);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        });
+
+
+    }
+
+    /**
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
