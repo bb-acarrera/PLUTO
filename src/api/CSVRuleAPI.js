@@ -1,4 +1,4 @@
-const OperatorAPI = require("./RuleAPI");
+const RuleAPI = require("./RuleAPI");
 
 const fs = require("fs");
 const parse = require('csv-parse');
@@ -27,7 +27,7 @@ const transform = require('stream-transform');
  *  they were read, for example changing the delimiter, prefixing any of these property names with "Output"
  *  (ex. "OutputDelimiter") will set the property on output only.</p>
  */
-class CSVRuleAPI extends OperatorAPI {
+class CSVRuleAPI extends RuleAPI {
 	/**
 	 * Derived classes must call this from their constructor.
 	 * @constructor

@@ -1,8 +1,8 @@
 const ErrorHandlerAPI = require('./errorHandlerAPI');
 
 /**
- * This API class is used to describe the interface to rule operations. This base class can be used by operators that
- * do noy interact with the data, for example metadata operators.
+ * This API class is used to describe the interface to rule operations. This base class can be used by rules that
+ * do noy interact with the data, for example metadata rules.
  */
 class BaseRuleAPI extends ErrorHandlerAPI {
 
