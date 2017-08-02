@@ -194,13 +194,22 @@ class data {
 
         return new Promise((resolve, reject) => {
 
-            this.db.query("SELECT rules FROM rulesets " +
+            this.db.query("SELECT rules, id FROM rulesets " +
                 "where ruleset_id = $1 AND version = $2",
                 [ruleset_id, version])
                 .then((result) => {
 
                     if(result.rows.length > 0) {
                         let dbRuleset = result.rows[0].rules;
+
+                        // PJT 17/09/01 - Unfortunately at the moment there are three senses for an ID on a ruleset.
+                        // They are the database row number, the "filename" (which till now has also been the "id")
+                        // and the "ruleset_id". We want to simplify this to just two, the database row number (henceforth
+                        // the "id") which uniquely identifies a ruleset by ruleset_id & version, and the ruleset_id which
+                        // excludes the version (and will eventually be used to get the most up-to-date version of a ruleset.)
+                        // Here we get rid of the sense that the id is the same as the filename and instead make it the
+                        // same as the database row.
+                        dbRuleset.id = result.rows[0].id;
 
                         dbRuleset.filename = ruleset_id;
                         dbRuleset.name = dbRuleset.name || dbRuleset.filename;

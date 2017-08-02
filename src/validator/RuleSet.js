@@ -9,7 +9,7 @@ class RuleSet {
 	constructor(ruleset) {
 		this.name = ruleset.name;
 		this._filename = ruleset.filename;
-		this.id = ruleset.id || this._filename || this.name;
+		this.id = ruleset.database_id != undefined ? ruleset.database_id : ruleset.id || this._filename || this.name;	// Yes, the database_id should take precedence over "id". "id" is set by Ember.
 		this.addRules(ruleset.rules);
 		this.import = ruleset.import;
 		this.export = ruleset.export;
