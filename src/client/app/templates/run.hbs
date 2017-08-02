@@ -5,7 +5,8 @@
             <div class="section-header">Input Filename</div>
             <div class="section-content">{{model.file}}</div>
             <div class="section-header">Ruleset</div>
-            <div class="section-content">{{model.ruleset.name}}</div>
+            <div class="section-content">ID: {{model.ruleset.ruleset_id}}</div>
+            <div class="section-content">Description: {{model.ruleset.name}}</div>
             <div class="section-header">Rules</div>
             <table id="rulesTable" class="ruleset-table">
               {{#each model.ruleset.rules as |ruleInstance index|}}
