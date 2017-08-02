@@ -6,6 +6,9 @@ export default Ember.Helper.extend({
 
   compute(/*params, hash*/) {
     let store = this.get('store');
+
+    // Instead of createRecord() perhaps use XMLHTTPRequest to get a new ruleset and populate it from here.
+
     let newRuleset = store.createRecord('ruleset');
     newRuleset.set("id", "NEW");
     newRuleset.set("name", "Fred");
