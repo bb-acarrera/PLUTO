@@ -6,7 +6,7 @@
       {{#each model as |runInstance index|}}
           <tr id="{{concat 'rulesetTableRow' index}}">
             <td>{{runInstance.id}}</td>
-            <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
+            <td>{{#link-to 'run' runInstance.id}}Details{{/link-to}}</td>
           </tr>
       {{/each}}
 

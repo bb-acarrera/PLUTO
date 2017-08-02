@@ -7,17 +7,7 @@ export default Ember.Route.extend({
   },
 
   model() {
-    const store = this.get('store');
-
-    return store.findAll('run').then(
-      run => {
-        return run;
-      },
-      error => {
-        return {error: error};
-      }
-    );
-
+    return this.store.findAll('run');
   }
 
 });
