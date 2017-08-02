@@ -212,7 +212,7 @@ class data {
                         dbRuleset.id = result.rows[0].id;
 
                         dbRuleset.filename = ruleset_id;
-                        dbRuleset.name = dbRuleset.name || dbRuleset.filename;
+                        dbRuleset.name = dbRuleset.name || ruleset_id;
                         let ruleset = new RuleSet(dbRuleset);
 
                         if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
@@ -274,11 +274,11 @@ class data {
 
         return new Promise((resolve, reject) => {
 
-            let name = ruleset.filename;
+            let ruleset_id = ruleset.ruleset_id || ruleset.filename;
 
-            this.db.query("DELETE FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+            this.db.query("DELETE FROM rulesets WHERE ruleset_id = $1 AND version = 0", [ruleset_id])
                 .then(() => {
-                    resolve(name);
+                    resolve(ruleset_id);
                 }, (error) => {
                     console.log(error);
                 })
