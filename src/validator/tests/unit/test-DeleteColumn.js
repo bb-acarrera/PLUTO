@@ -4,7 +4,6 @@
 const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../api/RuleAPI");
 const DeleteColumn = require("../../../rules/DeleteColumn");
 
 /*
@@ -39,7 +38,8 @@ QUnit.test( "DeleteColumn: Deletion Test", function(assert){
    const logger = new ErrorLogger();
    const config = {
        "_debugLogger" : logger,
-       "column" : 0
+       "column" : 0,
+       "numberOfHeaderRows" : 1
    }
 
    const data = "Column 0,Column 1\na,b";
@@ -55,7 +55,7 @@ QUnit.test( "DeleteColumn: Deletion Test", function(assert){
 
 			assert.equal(dataVar, "Column 1\nb\n", "Expected only column 1");
 			done();
-		})
+		});
 	   	result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
     });
 
@@ -65,7 +65,8 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "column" : 1
+        "column" : 1,
+        "numberOfHeaderRows" : 1
     }
 
     const data = "Column 0,Column 1\na,b";
@@ -91,7 +92,8 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "column" : -1
+        "column" : -1,
+        "numberOfHeaderRows" : 1
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -116,7 +118,8 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
 QUnit.test( "DeleteColumn: No Column Property test", function(assert){
    const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger
+       "_debugLogger" : logger,
+       "numberOfHeaderRows" : 1
    };
 
     const data = "Column 0,Column 1\na,b";

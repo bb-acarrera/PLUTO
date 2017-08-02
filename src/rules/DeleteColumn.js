@@ -4,7 +4,6 @@ class DeleteColumn extends CSVRuleAPI {
 	constructor(config) {
 		super(config);
 
-		this.rowNumber = 0;
 		this.column = this.getValidatedColumnProperty();
 	}
 
@@ -15,7 +14,6 @@ class DeleteColumn extends CSVRuleAPI {
 				record.splice(this.column, 1);
 		}
 
-		this.rowNumber++;
 		return record;
 	}
 
@@ -31,6 +29,10 @@ class DeleteColumn extends CSVRuleAPI {
 			&& this.config.sharedData.columnLabels.length != undefined
 			&& this.config.sharedData.columnLabels.length >= this.column)
 			this.config.sharedData.columnLabels.splice(this.column, 1);
+	}
+
+	get processHeaderRows() {
+		return true;
 	}
 }
 

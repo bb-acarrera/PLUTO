@@ -2,7 +2,7 @@
  * This API class is used to describe the interface to rule operations. This base class can be used by rules that
  * do noy interact with the data, for example metadata rules.
  */
-class BaseRuleAPI {
+class ErrorHandlerAPI {
 
 	/**
 	 * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object
@@ -71,12 +71,12 @@ class BaseRuleAPI {
 	}
 
 	/**
-	 * Add an error to the log. If this is called and {@link OperatorAPI#shouldRulesetFailOnError} returns
+	 * Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
 	 * <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	error(problemDescription) {
-		this.log(BaseRuleAPI.ERROR, this.constructor.name, this.config.id, problemDescription, this.shouldRulesetFailOnError());
+		this.log(ErrorHandlerAPI.ERROR, this.constructor.name, this.config.id, problemDescription, this.shouldRulesetFailOnError());
 	}
 
 	/**
@@ -84,7 +84,7 @@ class BaseRuleAPI {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	warning(problemDescription) {
-		this.log(BaseRuleAPI.WARNING, this.constructor.name, this.config.id, problemDescription);
+		this.log(ErrorHandlerAPI.WARNING, this.constructor.name, this.config.id, problemDescription);
 	}
 
 	/**
@@ -92,8 +92,8 @@ class BaseRuleAPI {
 	 * @param problemDescription {string} a description of the problem encountered.
 	 */
 	info(problemDescription) {
-		this.log(BaseRuleAPI.INFO, this.constructor.name, this.config.id, problemDescription);
+		this.log(ErrorHandlerAPI.INFO, this.constructor.name, this.config.id, problemDescription);
 	}
 }
 
-module.exports = BaseRuleAPI;	// Export this so derived classes can extend it.
+module.exports = ErrorHandlerAPI;	// Export this so derived classes can extend it.

@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const path = require("path");
 const stream = require('stream');
 const streamToPromise = require('stream-to-promise');
-const BaseOperatorAPI = require('./BaseRuleAPI');
+const BaseRuleAPI = require('./BaseRuleAPI');
 
 /*
  * A trivial class which takes a data array and streams it.
@@ -82,13 +82,13 @@ class _MemoryWriterStream extends stream.Writable {
  * data can be passed to and from the rule. Multiple input and output methods can return true. This allows the
  * application to select the best option for connecting two rules together.
  *
- * Classes derived from this class must implement {@link BaseOperatorAPI#run BaseOperatorAPI.run()}. The implementation
+ * Classes derived from this class must implement {@link BaseRuleAPI#run BaseRuleAPI.run()}. The implementation
  * should use the methods in this class to get the input data to the rule and set the output results using the
  * <code>as*()</code> methods. A rule may return a <code>{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise|Promise}
  * </code> and if so must ensure that the <code>resolve()</code>
  * methods returns via one of the <code>as*()</code> methods.
  */
-class OperatorAPI extends BaseOperatorAPI {
+class RuleAPI extends BaseRuleAPI {
 	/**
 	 * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object
 	 * will be the rule's individual configuration (if any) and additionally contain <code>RootDirectory</code> which defaults to
@@ -312,8 +312,8 @@ run() {
 	 * A <code>run()</code> implementation calls this when it wants to get the data through a stream.
 	 * If the rule was initialized with a stream it is returned. If it was initialized with a data object
 	 * then that data is written into a stream which is returned. Finally, if the rule was initialized with
-	 * a file then a stream is opened up reading the file and that stream is returned. Unlike {@link OperatorAPI#object|object}
-	 * and {@link OperatorAPI#inputFile|inputFile} this property will never return a Promise it will only ever return a readable stream.<br/>
+	 * a file then a stream is opened up reading the file and that stream is returned. Unlike {@link RuleAPI#object|object}
+	 * and {@link RuleAPI#inputFile|inputFile} this property will never return a Promise it will only ever return a readable stream.<br/>
 	 * Rules may return Promises. However that promise must resolve() to an actual result. It cannot resolve to another
 	 * Promise.
 	 * @returns {*}
@@ -354,4 +354,4 @@ run() {
 	}
 }
 
-module.exports = OperatorAPI;	// Export this so derived classes can extend it.
+module.exports = RuleAPI;	// Export this so derived classes can extend it.

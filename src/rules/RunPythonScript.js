@@ -2,9 +2,9 @@ const fs = require('fs-extra');
 const path = require("path");
 const spawnSync = require('child_process').spawnSync;
 
-const RuleAPI = require("../api/RuleAPI");
+const OperatorAPI = require("../api/RuleAPI");
 
-class RunPythonScript extends RuleAPI {
+class RunPythonScript extends OperatorAPI {
 	constructor(config) {
 		super(config);
 	}

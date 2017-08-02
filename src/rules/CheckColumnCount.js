@@ -4,8 +4,6 @@ class CheckColumnCount extends CSVRuleAPI {
 	constructor(config) {
 		super(config);
 
-		this.rowNumber = 0;
-
 		this.columns = undefined;
 		if (!this.config)
 			this.error('No configuration specified.');
@@ -24,18 +22,23 @@ class CheckColumnCount extends CSVRuleAPI {
 		this.reportAlways = this.config && this.config.reportAlways ? this.config.reportAlways : false;	// Should every occurrence be reported?
 	}
 
-	processRecord(record) {
+	processRecord(record, rowId) {
+
 		if (this.columns !== undefined) {
 			if (record.length !== this.columns) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${this.rowNumber} has wrong number of columns. Got ${record.length}.`);
+					this.error(`Row ${rowId} has wrong number of columns. Got ${record.length}.`);
 					this.badColumnCountReported = true;
 				}
 			}
 		}
 
-		this.rowNumber++;
 		return record;
+	}
+
+
+	get processHeaderRows() {
+		return true;
 	}
 }
 

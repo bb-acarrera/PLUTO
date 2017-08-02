@@ -1,10 +1,10 @@
-const BaseRuleAPI = require('./BaseRuleAPI');
+const ErrorHandlerAPI = require('./errorHandlerAPI');
 
 /**
  * This API class is used to describe the interface to rule operations. This base class can be used by rules that
  * interact with operators.
  */
-class RuleAPI extends BaseRuleAPI {
+class TableRuleAPI extends ErrorHandlerAPI {
 
     /**
      * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object
@@ -43,15 +43,24 @@ class RuleAPI extends BaseRuleAPI {
 
     /**
      * Derived classes should implement this method to process individual records.
-     * @param record {array} one record from the csv file. Headers are not skipped.
+     * @param record {array} one record from the csv file.
+     * @param rowId {object or number} row indicator, usually the row number
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
-    processRecord(record) {
+    processRecord(record, rowId) {
         // Process the record and return the new record.
         return record;
     }
 
+    /**
+     * Derived classes can implement this method to return true if they need the header rows
+     * @returns {boolean} true if header rows should be passed to the processRecord method
+     */
+    get processHeaderRows() {
+        return false;
+    }
+
 }
 
-module.exports = RuleAPI;	// Export this so derived classes can extend it.
+module.exports = TableRuleAPI;	// Export this so derived classes can extend it.
 

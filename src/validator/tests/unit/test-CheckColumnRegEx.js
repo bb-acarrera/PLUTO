@@ -3,12 +3,12 @@
  */
 const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnRegEx = require("../../../rules/CheckColumnRegEx");
-const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger
+		"_debugLogger" : logger,
+		"numberOfHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnRegEx(config);
@@ -26,7 +26,7 @@ QUnit.test( "CheckColumnRegEx: Check For Absent NumberOfHeaderRows property", fu
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"regex" : "^a+$",
+		"regex" : "^a+$"
 	};
 
 	const rule = new CheckColumnRegEx(config);

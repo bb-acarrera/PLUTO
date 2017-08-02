@@ -7,7 +7,7 @@ const program = require("commander");
 const rimraf = require('rimraf');
 const stream = require('stream');
 
-const BaseRuleAPI = require("../api/BaseRuleAPI");
+const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 const Util = require("../common/Util");
 const Data = require("../common/dataDb");
@@ -635,7 +635,7 @@ class Validator {
 		if (this.logger)
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
 		else {
-			level = level || BaseRuleAPI.INFO;
+			level = level || ErrorHandlerAPI.INFO;
 			problemFileName = problemFileName || "";
 			problemDescription = problemDescription || "";
 			const dateStr = new Date().toLocaleString();
@@ -649,7 +649,7 @@ class Validator {
 	 * @private
 	 */
 	error(problemDescription) {
-		this.log(BaseRuleAPI.ERROR, this.constructor.name, undefined, problemDescription);
+		this.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined, problemDescription);
 	}
 
 	/**
@@ -658,7 +658,7 @@ class Validator {
 	 * @private
 	 */
 	warning(problemDescription) {
-		this.log(BaseRuleAPI.WARNING, this.constructor.name, undefined, problemDescription);
+		this.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, problemDescription);
 	}
 
 	/**
@@ -667,7 +667,7 @@ class Validator {
 	 * @private
 	 */
 	info(problemDescription) {
-		this.log(BaseRuleAPI.INFO, this.constructor.name, undefined, problemDescription);
+		this.log(ErrorHandlerAPI.INFO, this.constructor.name, undefined, problemDescription);
 	}
 }
 //search for processfile

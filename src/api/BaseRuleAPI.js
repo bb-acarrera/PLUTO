@@ -4,7 +4,7 @@ const ErrorHandlerAPI = require('./errorHandlerAPI');
  * This API class is used to describe the interface to rule operations. This base class can be used by operators that
  * do noy interact with the data, for example metadata operators.
  */
-class BaseOperatorAPI extends ErrorHandlerAPI {
+class BaseRuleAPI extends ErrorHandlerAPI {
 
     /**
      * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object
@@ -22,11 +22,11 @@ class BaseOperatorAPI extends ErrorHandlerAPI {
     }
 
     /**
-     * All rules derived from {@link BaseOperatorAPI}, {@link OperatorAPI}, or {@link MetadataRuleAPI} must implement this method.
+     * All rules derived from {@link BaseRuleAPI}, {@link RuleAPI}, or {@link MetadataRuleAPI} must implement this method.
      * This method is the heart of the rule doing whatever is required.
      * @returns {Error} if the rule cannot perform it's actions at all, otherwise the return value is specific to the base
-     * class of the rule. (MetadataRuleAPI rules should return nothing. OperatorAPI methods should call a method, defined
-     * in OperatorAPI, to return a filename, stream, or object. The {@link OperatorAPI} documentation describes these in more
+     * class of the rule. (MetadataRuleAPI rules should return nothing. RuleAPI methods should call a method, defined
+     * in RuleAPI, to return a filename, stream, or object. The {@link RuleAPI} documentation describes these in more
      * detail.
      */
     run() {
@@ -58,5 +58,5 @@ class BaseOperatorAPI extends ErrorHandlerAPI {
 
 }
 
-module.exports = BaseOperatorAPI;	// Export this so derived classes can extend it.
+module.exports = BaseRuleAPI;	// Export this so derived classes can extend it.
 

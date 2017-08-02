@@ -3,7 +3,6 @@
  */
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../api/RuleAPI");
 const validator = require("../../../validator/validator");
 const Data = require("../../../common/dataDb");
 
@@ -161,7 +160,8 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
                                     filename : "CheckColumnCount",
                                     config : {
                                         id : 1,
-                                        columns : 9
+                                        columns : 9,
+                                        numberOfHeaderRows : 1
                                     }
                                 }
                             ]
@@ -240,7 +240,8 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                                 filename : "CheckColumnCount",
                                 config : {
                                     id : 1,
-                                    columns : 4
+                                    columns : 4,
+                                    numberOfHeaderRows : 1
                                 }
                             }
                         ]

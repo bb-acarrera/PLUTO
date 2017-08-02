@@ -3,12 +3,12 @@
  */
 const ErrorLogger = require("../../ErrorLogger");
 const CheckLatLong = require("../../../rules/CheckLatLong");
-const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckLatLong: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger
+		"_debugLogger" : logger,
+		"numberOfHeaderRows" : 1
 	};
 
 	const rule = new CheckLatLong(config);

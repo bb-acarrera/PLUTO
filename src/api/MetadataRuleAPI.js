@@ -1,4 +1,4 @@
-const BaseOperatorAPI = require('./BaseRuleAPI');
+const BaseRuleAPI = require('./BaseRuleAPI');
 
 /**
  * This API class is used to describe the interface to rule operations. The methods indicate how the
@@ -8,7 +8,7 @@ const BaseOperatorAPI = require('./BaseRuleAPI');
  * MetadataRuleAPI rules should implement a <code>run()</code> method that operates on <code>this.config.sharedData</code>
  * the object that maintains the metadata.
  */
-class MetadataRuleAPI extends BaseOperatorAPI {
+class MetadataRuleAPI extends BaseRuleAPI {
 	/**
 	 * The base constructor. This simply sets <code>this.config</code> to the passed in configuration object. This config object
 	 * will be the rule's individual configuration (if any) and additionally contain <code>RootDirectory</code> which defaults to

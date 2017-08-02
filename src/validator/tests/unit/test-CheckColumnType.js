@@ -3,12 +3,13 @@
  */
 const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnType = require("../../../rules/CheckColumnType");
-const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger
+		"_debugLogger" : logger,
+		"numberOfHeaderRows" : 1,
+		"column" : 1
 	};
 
 	const rule = new CheckColumnType(config);
@@ -26,7 +27,9 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"type" : "foo"
+		"type" : "foo",
+		"numberOfHeaderRows" : 1,
+		"column" : 1
 	};
 
 	const rule = new CheckColumnType(config);
@@ -42,7 +45,8 @@ QUnit.test( "CheckColumnType: Check For Absent NumberOfHeaderRows property", fun
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"type" : "number"
+		"type" : "number",
+		"column" : 1
 	};
 
 	const rule = new CheckColumnType(config);
@@ -58,7 +62,8 @@ QUnit.test( "CheckColumnType: Check For Non-Number NumberOfHeaderRows", function
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : "foo"
+		"numberOfHeaderRows" : "foo",
+		"column" : 1
 	};
 
 	const rule = new CheckColumnType(config);
@@ -74,6 +79,7 @@ QUnit.test( "CheckColumnType: Check For Negative NumberOfHeaderRows", function( 
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
+		"column" : 1,
 		"numberOfHeaderRows" : -1
 	};
 
@@ -90,6 +96,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer NumberOfHeaderRows", functio
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
+		"column" : 1,
 		"numberOfHeaderRows" : 1.1
 	};
 

@@ -41,26 +41,23 @@ class CheckColumnType extends CSVRuleAPI {
 			}
 		}
 
-		this.rowNumber = 0;
-		this.numHeaderRows = this.getValidatedHeaderRows();
 		this.column = this.getValidatedColumnProperty();
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 	}
 
-	processRecord(record) {
-		if (this.column !== undefined && this.rowNumber >= this.numHeaderRows) {
+	processRecord(record, rowId) {
+		if (this.column !== undefined) {
 			if (this.column >= record.length) {	// Does the record have the correct number of columns?
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${this.rowNumber} has insufficient columns.`);
+					this.error(`Row ${rowId} has insufficient columns.`);
 					this.badColumnCountReported = true;
 				}
 			}
 			else if (this.test && !this.test(record[this.column]))	// Is the cell in the column valid?
-				this.error(`Row ${this.rowNumber}, Column ${this.column}: Expected a ${this.config.type} but got ${record[this.column]}.`);
+				this.error(`Row ${rowId}, Column ${this.column}: Expected a ${this.config.type} but got ${record[this.column]}.`);
 		}
 
-		this.rowNumber++;
 		return record;
 	}
 }
