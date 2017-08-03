@@ -28,8 +28,9 @@ class TableRuleAPI extends ErrorHandlerAPI {
      * applied until after the next rule needs the changes. However rules that use data objects or files are safe
      * to modify metadata at any point, in the <code>start()</code> or <code>finish()</code> methods since these
      * rules would run synchronously.
+     * @param tableParser {TableParserAPI} the parser for this rule
      */
-    start() {
+    start(tableParser) {
         // Do any pre-processing.
     }
 
@@ -44,7 +45,7 @@ class TableRuleAPI extends ErrorHandlerAPI {
     /**
      * Derived classes should implement this method to process individual records.
      * @param record {array} one record from the csv file.
-     * @param rowId {object or number} row indicator, usually the row number
+     * @param rowId {object | number} row indicator, usually the row number
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
     processRecord(record, rowId) {
@@ -60,6 +61,17 @@ class TableRuleAPI extends ErrorHandlerAPI {
         return false;
     }
 
+    static get Type() {
+        return "table_rule";
+    }
+
+    static get Parser() {
+        return "table_parser";
+    }
+
+    static get NeedsParser() {
+        return true;
+    }
 }
 
 module.exports = TableRuleAPI;	// Export this so derived classes can extend it.

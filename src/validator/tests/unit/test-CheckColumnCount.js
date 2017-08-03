@@ -2,6 +2,7 @@
  * Tests errors and successes of the CheckColumnCount rule.
  */
 const ErrorLogger = require("../../ErrorLogger");
+const CSVParser = require("../../../rules/CSVParser");
 const CheckColumnCount = require("../../../rules/CheckColumnCount");
 
 QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
@@ -102,11 +103,13 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 
 	const rule = new CheckColumnCount(config);
 
+	const parser = new CSVParser(config, rule);
+
 	assert.ok(rule, "Rule was created.");
 
 	const done = assert.async();
 	const data = "Column1";
-	rule._run( { data: data } ).then(() => {
+	parser._run( { data: data } ).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -122,13 +125,14 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	};
 
 	const rule = new CheckColumnCount(config);
+	const parser = new CSVParser(config, rule);
 
 	assert.ok(rule, "Rule was created.");
 
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no results.");
 		done();
@@ -144,13 +148,14 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 	};
 
 	const rule = new CheckColumnCount(config);
+	const parser = new CSVParser(config, rule);
 
 	assert.ok(rule, "Rule was created.");
 
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -168,13 +173,14 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	};
 
 	const rule = new CheckColumnCount(config);
+	const parser = new CSVParser(config, rule);
 
 	assert.ok(rule, "Rule was created.");
 
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234,5678";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");

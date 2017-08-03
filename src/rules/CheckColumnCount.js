@@ -1,6 +1,6 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class CheckColumnCount extends CSVRuleAPI {
+class CheckColumnCount extends TableRuleAPI {
 	constructor(config) {
 		super(config);
 
@@ -20,6 +20,10 @@ class CheckColumnCount extends CSVRuleAPI {
 
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config && this.config.reportAlways ? this.config.reportAlways : false;	// Should every occurrence be reported?
+	}
+
+	start(parser) {
+		this.parser = parser;
 	}
 
 	processRecord(record, rowId) {

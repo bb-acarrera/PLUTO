@@ -50,6 +50,12 @@
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
 			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numberOfHeaderRows" : 1
+			}
 		}
 	}
 }

@@ -31,20 +31,7 @@ class data {
      */
     getLog(id) {
 
-        return new Promise((resolve) => {
-            const logfile = path.resolve(this.logDirectory, id);
-            var log;
-            if (fs.existsSync(logfile)) {
-                const contents = fs.readFileSync(logfile, 'utf8');
-                try {
-                    log = JSON.parse(contents);
-                }
-                catch (e) {
-                    console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-                }
-            }
-            return resolve(log);
-        });
+        throw("Not implemented");
 
     }
 
@@ -81,21 +68,7 @@ class data {
      */
     getRun(id) {
 
-        return new Promise((resolve, reject) => {
-
-            const runfile = path.resolve(this.runsDirectory, id);
-            var run;
-            if (fs.existsSync(runfile)) {
-                const contents = fs.readFileSync(runfile, 'utf8');
-                try {
-                    run = JSON.parse(contents);
-                }
-                catch (e) {
-                    console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-                }
-            }
-            resolve(run);
-        });
+        throw('Not implemented');
     }
 
     /**
@@ -105,28 +78,7 @@ class data {
      */
     getRuns() {
 
-        return new Promise((resolve, reject) => {
-            var runs = [];
-
-            fs.readdirSync(this.runsDirectory).forEach(file => {
-
-                const runfile = path.resolve(this.runsDirectory, file);
-                var run;
-                if (fs.existsSync(runfile)) {
-                    const contents = fs.readFileSync(runfile, 'utf8');
-                    try {
-                        run = JSON.parse(contents);
-                        runs.push(run);
-                    }
-                    catch (e) {
-                        console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-                    }
-                }
-
-            });
-
-            resolve(runs);
-        });
+        throw('Not implemented');
 
     }
 
@@ -212,14 +164,7 @@ class data {
      * @param ruleset the ruleset to write.
      */
     saveRuleSet(ruleset) {
-        return new Promise((resolve, reject) => {
-
-            let name = ruleset.filename + ".json";
-
-            fs.writeFileSync(path.resolve(this.rulesetDirectory, name), JSON.stringify(ruleset.toJSON()), 'utf8');
-
-            resolve(name);
-        });
+        throw("Not implemented");
     }
 
     /**
@@ -228,24 +173,7 @@ class data {
      */
     getRulesets() {
 
-        return new Promise((resolve) => {
-            var rulesets = [];
-            var promises = [];
-            fs.readdirSync(this.rulesetDirectory).forEach(file => {
-                if(file.substr(file.length-5) === '.json') {
-                    let p = this.retrieveRuleset(file);
-                    let t = p.then((ruleset) => {
-                        ruleset.filename = path.basename(file, '.json');
-                        rulesets.push(ruleset);
-                    });
-                    promises.push(t);
-                }
-            });
-
-            Promises.all(promises).then(() => {
-                resolve(rulesets);
-            });
-        });
+        throw("Not implemented");
 
 
     }

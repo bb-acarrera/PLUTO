@@ -30,26 +30,7 @@
     
         <h2>CSVRuleAPI</h2>
         
-            <div class="class-description"><p>This base class describes an API derived classes implement to add Javascript based CSV rules. The only method that
- must be implemented is <a href="CSVRuleAPI.html#processRecord">CSVRuleAPI.processRecord()</a> which is called by the validator
- once for each record in the CSV file and is used to examine a record for problems or
- to modify it. If problems are detected in a record then RuleAPI.error(),
- RuleAPI.warning(), or
- RuleAPI.info() should be called with a description of the problem.</p>
- <p>Derived classes can also implement <a href="CSVRuleAPI.html#start">CSVRuleAPI.start()</a> which is called once by the validator before reading any
- records. A derived class could implement this to initialize any resources. Similarly derived classes could
- implement <a href="CSVRuleAPI.html#finish">CSVRuleAPI.finish()</a> which is called once by the validator after the last call to
- <a href="CSVRuleAPI.html#processRecord">CSVRuleAPI.processRecord()</a>. A derived class could implement this to finalize any resources.</p>
- <p>This class supports several properties on the configuration object that affect the parsing of CSV files.</p>
- <ul>
-     <li>Delimiter - the delimiter character separating fields in a record. Defaults to a commma.</li>
-     <li>Comment - the comment character. Any text following this character is ignored. Ignored by default.</li>
-     <li>Escape - the single character used to allow the delimiter character to be used in a field. Defaults to a double quote.</li>
-     <li>Quote - the single character surrounding fields. Defaults to a double quote.</li>
- </ul>
- <p>These properties are shared when reading and writing records but if a rule wants to write rules differently than
- they were read, for example changing the delimiter, prefixing any of these property names with "Output"
- (ex. "OutputDelimiter") will set the property on output only.</p></div>
+            <div class="class-description"><p>This base class describes an API derived classes implement to add Javascript based CSV rules. The only method that must be implemented is <a href="CSVRuleAPI.html#processRecord">CSVRuleAPI.processRecord()</a> which is called by the validator once for each record in the CSV file and is used to examine a record for problems or to modify it. If problems are detected in a record then RuleAPI.error(), RuleAPI.warning(), or RuleAPI.info() should be called with a description of the problem.</p> <p>Derived classes can also implement <a href="CSVRuleAPI.html#start">CSVRuleAPI.start()</a> which is called once by the validator before reading any records. A derived class could implement this to initialize any resources. Similarly derived classes could implement <a href="CSVRuleAPI.html#finish">CSVRuleAPI.finish()</a> which is called once by the validator after the last call to <a href="CSVRuleAPI.html#processRecord">CSVRuleAPI.processRecord()</a>. A derived class could implement this to finalize any resources.</p> <p>This class supports several properties on the configuration object that affect the parsing of CSV files.</p> <ul>     <li>Delimiter - the delimiter character separating fields in a record. Defaults to a commma.</li>     <li>Comment - the comment character. Any text following this character is ignored. Ignored by default.</li>     <li>Escape - the single character used to allow the delimiter character to be used in a field. Defaults to a double quote.</li>     <li>Quote - the single character surrounding fields. Defaults to a double quote.</li> </ul> <p>These properties are shared when reading and writing records but if a rule wants to write rules differently than they were read, for example changing the delimiter, prefixing any of these property names with "Output" (ex. "OutputDelimiter") will set the property on output only.</p></div>
         
     
 </header>
@@ -163,7 +144,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CSVRuleAPI.js.html">CSVRuleAPI.js</a>, <a href="CSVRuleAPI.js.html#line30">line 30</a>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -202,6 +183,72 @@
 
     
 
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="processHeaderRows"><span class="type-signature"></span>processHeaderRows<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Derived classes can implement this method to return true if they need the header rows
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line224">line 224</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
     
 
     
@@ -263,7 +310,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CSVRuleAPI.js.html">CSVRuleAPI.js</a>, <a href="CSVRuleAPI.js.html#line144">line 144</a>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line146">line 146</a>
     </li></ul></dd>
     
 
@@ -308,9 +355,7 @@
 
 
 <div class="description">
-    Given the value of a property this validates whether the given value is a column label or column number
-and if so returns the column number otherwise an error is posted to the log and <code>undefined</code> is
-returned.
+    Given the value of a property this validates whether the given value is a column label or column numberand if so returns the column number otherwise an error is posted to the log and <code>undefined</code> isreturned.
 </div>
 
 
@@ -362,8 +407,7 @@ returned.
 
             
 
-            <td class="description last">the value of a config column property. If this is <code>undefined</code> then
-<code>this.config.column</code> is used.</td>
+            <td class="description last">the value of a config column property. If this is <code>undefined</code> then<code>this.config.column</code> is used.</td>
         </tr>
 
     
@@ -427,7 +471,7 @@ returned.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CSVRuleAPI.js.html">CSVRuleAPI.js</a>, <a href="CSVRuleAPI.js.html#line88">line 88</a>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line90">line 90</a>
     </li></ul></dd>
     
 
@@ -490,9 +534,7 @@ returned.
 
 
 <div class="description">
-    Given the value of a property this validates whether the given value is a valid number of header rows
-and if so returns it otherwise an error is posted to the log and <code>0</code> is
-returned.
+    Given the value of a property this validates whether the given value is a valid number of header rowsand if so returns it otherwise an error is posted to the log and <code>0</code> isreturned.
 </div>
 
 
@@ -544,8 +586,7 @@ returned.
 
             
 
-            <td class="description last">the value of a config header rows property. If this is <code>undefined</code>
-then <code>this.config.numberOfHeaderRows</code> is used.</td>
+            <td class="description last">the value of a config header rows property. If this is <code>undefined</code>then <code>this.config.numberOfHeaderRows</code> is used.</td>
         </tr>
 
     
@@ -609,7 +650,7 @@ then <code>this.config.numberOfHeaderRows</code> is used.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CSVRuleAPI.js.html">CSVRuleAPI.js</a>, <a href="CSVRuleAPI.js.html#line59">line 59</a>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line61">line 61</a>
     </li></ul></dd>
     
 
@@ -665,7 +706,7 @@ then <code>this.config.numberOfHeaderRows</code> is used.</td>
 
     
 
-    <h4 class="name" id="processRecord"><span class="type-signature"></span>processRecord<span class="signature">(record)</span><span class="type-signature"> &rarr; {array}</span></h4>
+    <h4 class="name" id="processRecord"><span class="type-signature"></span>processRecord<span class="signature">(record, rowNumber)</span><span class="type-signature"> &rarr; {array}</span></h4>
 
     
 
@@ -728,6 +769,29 @@ then <code>this.config.numberOfHeaderRows</code> is used.</td>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>rowNumber</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the row number</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -765,7 +829,7 @@ then <code>this.config.numberOfHeaderRows</code> is used.</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CSVRuleAPI.js.html">CSVRuleAPI.js</a>, <a href="CSVRuleAPI.js.html#line153">line 153</a>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line156">line 156</a>
     </li></ul></dd>
     
 
@@ -825,12 +889,7 @@ then <code>this.config.numberOfHeaderRows</code> is used.</td>
 
 
 <div class="description">
-    Derived classes should override this method if they need to do anything before the processing of the data starts.
-<br/>Note that rules that use streams and modify the metadata, because of their asynchronous nature, should do so
-in a <code>start()</code> method. Modifying the metdata any later could mean that the changes are not
-applied until after the next rule needs the changes. However rules that use data objects or files are safe
-to modify metadata at any point, in the <code>start()</code> or <code>finish()</code> methods since these
-rules would run synchronously.
+    Derived classes should override this method if they need to do anything before the processing of the data starts.<br/>Note that rules that use streams and modify the metadata, because of their asynchronous nature, should do soin a <code>start()</code> method. Modifying the metdata any later could mean that the changes are notapplied until after the next rule needs the changes. However rules that use data objects or files are safeto modify metadata at any point, in the <code>start()</code> or <code>finish()</code> methods since theserules would run synchronously.
 </div>
 
 
@@ -874,7 +933,7 @@ rules would run synchronously.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="CSVRuleAPI.js.html">CSVRuleAPI.js</a>, <a href="CSVRuleAPI.js.html#line136">line 136</a>
+        <a href="api_CSVRuleAPI.js.html">api/CSVRuleAPI.js</a>, <a href="api_CSVRuleAPI.js.html#line138">line 138</a>
     </li></ul></dd>
     
 
@@ -916,13 +975,13 @@ rules would run synchronously.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseRuleAPI.html">BaseRuleAPI</a></li><li><a href="CSVRuleAPI.html">CSVRuleAPI</a></li><li><a href="MetadataRuleAPI.html">MetadataRuleAPI</a></li><li><a href="RuleAPI.html">RuleAPI</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseRuleAPI.html">BaseRuleAPI</a></li><li><a href="CSVRuleAPI.html">CSVRuleAPI</a></li><li><a href="ErrorHandlerAPI.html">ErrorHandlerAPI</a></li><li><a href="MetadataRuleAPI.html">MetadataRuleAPI</a></li><li><a href="RuleAPI.html">RuleAPI</a></li><li><a href="TableParserAPI.html">TableParserAPI</a></li><li><a href="TableRuleAPI.html">TableRuleAPI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ErrorLogger">ErrorLogger</a></li><li><a href="global.html#fs">fs</a></li><li><a href="global.html#stream">stream</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Jul 18 2017 16:16:23 GMT-0400 (EDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Aug 03 2017 17:05:38 GMT-0400 (DST)
 </footer>
 
 <script> prettyPrint(); </script>

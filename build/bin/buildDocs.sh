@@ -5,7 +5,7 @@ ROOT=`cd $ROOT; echo $PWD`
 SRC=$ROOT/src
 BIN=$ROOT/node_modules/.bin
 DOCS=$ROOT/docs/generatedDocs
-API=$SRC/runtime/api
+API=$SRC/api
 VAL=$SRC/validator
 
 if ! [ -e "$DOCS" ]; then

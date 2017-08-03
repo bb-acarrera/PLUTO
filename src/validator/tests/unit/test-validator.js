@@ -240,11 +240,16 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                                 filename : "CheckColumnCount",
                                 config : {
                                     id : 1,
-                                    columns : 4,
-                                    numberOfHeaderRows : 1
+                                    columns : 4
                                 }
                             }
-                        ]
+                        ],
+                        parser: {
+                            filename: "CSVParser",
+                            config: {
+                                numberOfHeaderRows : 1
+                            }
+                        }
                     });
                 })
             },

@@ -3,185 +3,147 @@
  */
 const ErrorLogger = require("../../ErrorLogger");
 const CSVParser = require("../../../rules/CSVParser");
-const CheckColumnCount = require("../../../rules/CheckColumnCount");
+const TableRuleAPI = require("../../../api/TableRuleAPI");
 
-QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
+class TestTableRule extends TableRuleAPI {
+	constructor(config) {
+		super(config);
+
+	}
+
+	start(parser) {
+		this.parser = parser;
+		this.rowCount = 0;
+	}
+
+	processRecord(record, rowId) {
+		this.rowCount++;
+
+		return record;
+	}
+
+	finish() {
+		this.finished = true;
+	}
+
+	get processHeaderRows() {
+		return true;
+	}
+}
+
+QUnit.test( "CSVParser: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
 		"numberOfHeaderRows" : 1
 	};
 
-	const rule = new CheckColumnCount(config);
+	const rule = new CSVParser(config, new TestTableRule());
+
+	// Check general rule creation and as well as absent "Columns" property.
+	assert.ok(rule, "Rule was created.");
+
+	const logResults = logger.getLog();
+	assert.equal(logResults.length, 0, "Expect no errors or warnings");
+});
+
+QUnit.test( "CSVParser: Creation Test No Rule", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"numberOfHeaderRows" : 1
+	};
+
+	const rule = new CSVParser(config);
 
 	// Check general rule creation and as well as absent "Columns" property.
 	assert.ok(rule, "Rule was created.");
 
 	const logResults = logger.getLog();
 	assert.equal(logResults.length, 1, "Expect single result.");
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured without a 'columns' property.");
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
 });
 
-QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function( assert ) {
+QUnit.test( "CSVParser: Check For Absent NumberOfHeaderRows property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
-		"columns" : "foo",
-		"numberOfHeaderRows" : 1
+		"_debugLogger" : logger
 	};
 
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
+	const rule = new CSVParser(config, new TestTableRule());
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 1, "Expect single result.");
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number columns. Got 'foo'.");
+	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+	assert.equal(logResults[0].description, "Configured without a 'numberOfHeaderRows' property. Using 0.");
 });
 
-QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( assert ) {
+QUnit.test( "CSVParser: Check For Non-Number NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"columns" : "-1",
-		"numberOfHeaderRows" : 1
+		"numberOfHeaderRows" : "foo"
 	};
 
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
+	const rule = new CSVParser(config, new TestTableRule());
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 1, "Expect single result.");
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative columns. Got '-1'.");
+	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'numberOfHeaderRows'. Got 'foo', using 0.");
 });
 
-QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", function( assert ) {
+QUnit.test( "CSVParser: Check For Negative NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"columns" : "1.1",
-		"numberOfHeaderRows" : 1
+		"numberOfHeaderRows" : -1
 	};
 
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
+	const rule = new CSVParser(config, new TestTableRule());
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 1, "Expect single result.");
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer columns. Got '1.1'.");
+	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+	assert.equal(logResults[0].description, "Configured with a negative 'numberOfHeaderRows'. Got '-1', using 0.");
 });
 
-QUnit.test( "CheckColumnCount: Check Valid Columns Property Test", function( assert ) {
+QUnit.test( "CSVParser: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"columns" : "1",
-		"numberOfHeaderRows" : 1
+		"numberOfHeaderRows" : 1.1
 	};
 
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
+	const rule = new CSVParser(config, new TestTableRule());
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 0, "Expect no errors.");
+	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'numberOfHeaderRows'. Got '1.1', using 1.");
 });
 
-QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
+QUnit.test( "CSVParser: Check Valid Rows processed Exluding Header", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"columns" : "1",
 		"numberOfHeaderRows" : 1
 	};
 
-	const rule = new CheckColumnCount(config);
+	const rule = new TestTableRule(config);
 
 	const parser = new CSVParser(config, rule);
 
 	assert.ok(rule, "Rule was created.");
 
 	const done = assert.async();
-	const data = "Column1";
+	const data = "Column1\n1234";
 	parser._run( { data: data } ).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.equal(rule.finished, true, "Rule finished.");
+		assert.equal(rule.rowCount, 2, "2 rows processed.")
 		done();
 	});
 });
 
-QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"columns" : "1",
-		"numberOfHeaderRows" : 1
-	};
-
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
-
-	// Same as previous test but now with 2 rows.
-	const done = assert.async();
-	const data = "Column1\n1234";
-	rule._run( { data: data }).then(() => {
-		const logResults = logger.getLog();
-		assert.equal(logResults.length, 0, "Expect no results.");
-		done();
-	});
-});
-
-QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"columns" : "2",
-		"numberOfHeaderRows" : 1
-	};
-
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
-
-	// Same as previous test but now with 2 rows.
-	const done = assert.async();
-	const data = "Column1\n1234";
-	rule._run( { data: data }).then(() => {
-		const logResults = logger.getLog();
-		assert.equal(logResults.length, 1, "Expect single result.");
-		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 0 has wrong number of columns. Got 1.");
-		done();
-	});
-});
-
-QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"columns" : "1",
-		"numberOfHeaderRows" : 1
-	};
-
-	const rule = new CheckColumnCount(config);
-
-	assert.ok(rule, "Rule was created.");
-
-	// Same as previous test but now with 2 rows.
-	const done = assert.async();
-	const data = "Column1\n1234,5678";
-	rule._run( { data: data }).then(() => {
-		const logResults = logger.getLog();
-		assert.equal(logResults.length, 1, "Expect single result.");
-		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 1 has wrong number of columns. Got 2.");
-		done();
-	});
-});

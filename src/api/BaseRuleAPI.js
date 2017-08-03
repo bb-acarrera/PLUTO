@@ -56,6 +56,11 @@ class BaseRuleAPI extends ErrorHandlerAPI {
         });
     }
 
+    static get Type() {
+        return "rule";
+    }
+
+
 }
 
 module.exports = BaseRuleAPI;	// Export this so derived classes can extend it.

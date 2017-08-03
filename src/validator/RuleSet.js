@@ -13,6 +13,7 @@ class RuleSet {
 		this.addRules(ruleset.rules);
 		this.import = ruleset.import;
 		this.export = ruleset.export;
+		this.parser = ruleset.parser;
 
 		this.config = ruleset.config;
 	}
