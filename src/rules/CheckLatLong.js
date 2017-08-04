@@ -1,6 +1,6 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class CheckLatLong extends CSVRuleAPI {
+class CheckLatLong extends TableRuleAPI {
 	constructor(config) {
 		super(config);
 

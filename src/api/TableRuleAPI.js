@@ -72,6 +72,55 @@ class TableRuleAPI extends ErrorHandlerAPI {
     static get NeedsParser() {
         return true;
     }
+
+    /**
+     * Given the value of a property this validates whether the given value is a column label or column number
+     * and if so returns the column number otherwise an error is posted to the log and <code>undefined</code> is
+     * returned.
+     * @param {string} propertyValue the value of a config column property. If this is <code>undefined</code> then
+     * <code>this.config.column</code> is used.
+     * @param {string} propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
+     * @returns {number|undefined} the column number represented by the propertyValue or undefined if the value is not valid.
+     */
+    getValidatedColumnProperty(propertyValue, propertyName) {
+        propertyValue = propertyValue == undefined ? this.config.column : propertyValue;
+        propertyName = propertyName == undefined ? 'column' : propertyName;
+
+        var result = undefined;
+        if (propertyValue === undefined)
+            this.error(`Configured without a '${propertyName}' property.`);
+        else if (isNaN(propertyValue)) {
+            let sharedData = this.config.sharedData;
+            if (sharedData && sharedData.columnLabels) {
+                let columnLabels = sharedData.columnLabels;
+                if (columnLabels.length == undefined) {
+                    this.error(`Shared 'columnLabels' is not an array.`);
+                    return result;
+                }
+                else if (columnLabels.length == 0) {
+                    this.error(`Shared 'columnLabels' has no content.`);
+                    return result;
+                }
+
+                // Found a column label not index.
+                let index = columnLabels.indexOf(propertyValue);
+                if (index < 0)
+                    this.error(`Configured with a column label '${propertyValue}' that is not in sharedData.columnLabels.`);
+                else
+                    result = index;
+            }
+            else
+                this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
+        }
+        else if (propertyValue < 0)
+            this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
+        else {
+            result = Math.floor(parseFloat(propertyValue));
+            if (!Number.isInteger(parseFloat(propertyValue)))
+                this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
+        }
+        return result;
+    }
 }
 
 module.exports = TableRuleAPI;	// Export this so derived classes can extend it.

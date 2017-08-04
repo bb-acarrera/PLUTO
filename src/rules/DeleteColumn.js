@@ -1,6 +1,6 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class DeleteColumn extends CSVRuleAPI {
+class DeleteColumn extends TableRuleAPI {
 	constructor(config) {
 		super(config);
 

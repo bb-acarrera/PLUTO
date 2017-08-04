@@ -1,6 +1,6 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class CheckColumnRegEx extends CSVRuleAPI {
+class CheckColumnRegEx extends TableRuleAPI {
 	constructor(config) {
 		super(config);
 

@@ -3,12 +3,12 @@
  */
 const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnType = require("../../../rules/CheckColumnType");
+const CSVParser = require("../../../rules/CSVParser");
 
 QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1,
 		"column" : 1
 	};
 
@@ -28,7 +28,6 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "foo",
-		"numberOfHeaderRows" : 1,
 		"column" : 1
 	};
 
@@ -41,79 +40,11 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 		"Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got 'foo'.");
 });
 
-QUnit.test( "CheckColumnType: Check For Absent NumberOfHeaderRows property", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"type" : "number",
-		"column" : 1
-	};
-
-	const rule = new CheckColumnType(config);
-
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured without a 'numberOfHeaderRows' property. Using 0.");
-});
-
-QUnit.test( "CheckColumnType: Check For Non-Number NumberOfHeaderRows", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"type" : "number",
-		"numberOfHeaderRows" : "foo",
-		"column" : 1
-	};
-
-	const rule = new CheckColumnType(config);
-
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-number 'numberOfHeaderRows'. Got 'foo', using 0.");
-});
-
-QUnit.test( "CheckColumnType: Check For Negative NumberOfHeaderRows", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"type" : "number",
-		"column" : 1,
-		"numberOfHeaderRows" : -1
-	};
-
-	const rule = new CheckColumnType(config);
-
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a negative 'numberOfHeaderRows'. Got '-1', using 0.");
-});
-
-QUnit.test( "CheckColumnType: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
-	const logger = new ErrorLogger();
-	const config = {
-		"_debugLogger" : logger,
-		"type" : "number",
-		"column" : 1,
-		"numberOfHeaderRows" : 1.1
-	};
-
-	const rule = new CheckColumnType(config);
-
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer 'numberOfHeaderRows'. Got '1.1', using 1.");
-});
-
 QUnit.test( "CheckColumnType: Check For Absent column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"type" : "number",
-		"numberOfHeaderRows" : 1
+		"type" : "number"
 	};
 
 	const rule = new CheckColumnType(config);
@@ -129,7 +60,6 @@ QUnit.test( "CheckColumnType: Check For Non-Number column Property", function( a
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : 1,
 		"column" : "foo"
 	};
 
@@ -146,7 +76,6 @@ QUnit.test( "CheckColumnType: Check For Negative column Property", function( ass
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : 1,
 		"column" : -1
 	};
 
@@ -163,7 +92,6 @@ QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( 
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : 1,
 		"column" : 1.1
 	};
 
@@ -185,10 +113,10 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
@@ -209,10 +137,10 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -233,10 +161,10 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3.14";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -253,10 +181,10 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -277,10 +205,10 @@ QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( ass
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3.14";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -297,10 +225,10 @@ QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", functio
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -317,10 +245,10 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -341,10 +269,10 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3.14";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -365,10 +293,10 @@ QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( a
 	};
 
 	const rule = new CheckColumnType(config);
-
+	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3";
-	rule._run( { data: data }).then(() => {
+	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();

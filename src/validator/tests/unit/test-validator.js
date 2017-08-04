@@ -164,7 +164,13 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
                                         numberOfHeaderRows : 1
                                     }
                                 }
-                            ]
+                            ],
+                            parser: {
+                                filename: "CSVParser",
+                                config: {
+                                    numberOfHeaderRows : 1
+                                }
+                            }
                     });
                 })
             },
@@ -297,7 +303,13 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
                                     nullIslandEpsilon : 0
                                 }
                             }
-                        ]
+                        ],
+                        parser: {
+                            filename: "CSVParser",
+                            config: {
+                                numberOfHeaderRows : 1
+                            }
+                        }
                     });
                     //throw new Exception('this is an exception');
                 })
