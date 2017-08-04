@@ -18,7 +18,7 @@ const Data = require('../common/dataDb');
 class Server {
 	constructor(config, validatorConfig, validatorConfigPath) {
 		this.config = config;
-		this.config.validator = new Validator(validatorConfig);
+		this.config.validator = new Validator(validatorConfig, Data);
 		this.config.validatorConfigPath = validatorConfigPath;
 		this.config.validatorConfig = validatorConfig;
 

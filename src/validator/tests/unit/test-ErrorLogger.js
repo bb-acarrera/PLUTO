@@ -3,7 +3,7 @@
  */
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../runtime/api/RuleAPI");
+const RuleAPI = require("../../../api/RuleAPI");
 
 QUnit.test( "ErrorLogger: Creation Test", function(assert) {
     const logger = new ErrorLogger();

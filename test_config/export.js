@@ -32,7 +32,7 @@ class LocalCopyExport {
                     this.callRestAPI();
 
                     //resolve this promise
-                    resolve();
+                    resolve(path.basename(targetFileName));
                 });
 			}
 

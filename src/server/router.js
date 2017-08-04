@@ -2,7 +2,6 @@
 // makes it easier to add new routes.
 const express = require('express');
 
-const ValidationRouter = require('./routes/validation');
 const RulesetRouter = require('./routes/rulesets');
 const LogsRouter = require('./routes/logs');
 const RulesRouter = require('./routes/rules');
@@ -13,14 +12,12 @@ class Router {
 	constructor(config) {
 		this._router = express.Router();
 
-		this.validationRouter = new ValidationRouter(config);
 		this.rulesetRouter = new RulesetRouter(config);
 		this.logsRouter = new LogsRouter(config);
 		this.rulesRouter = new RulesRouter(config);
 		this.runsRouter = new RunsRouter(config);
 		this.processFileRouter = new ProcessFileRouter(config);
 
-		//this._router.get('/validation', (req, res, next) => this.validationRouter.get(req, res, next) );
 		this._router.get('/rulesets/:id', (req, res, next) => this.rulesetRouter.get(req, res, next) );
 		this._router.get('/rulesets', (req, res, next) => this.rulesetRouter.get(req, res, next) );
 		this._router.get('/logs/:id', (req, res, next) => this.logsRouter.get(req, res, next) );
@@ -30,7 +27,9 @@ class Router {
 
 		this._router.patch('/rulesets/:id', (req, res, next) => this.rulesetRouter.patch(req, res, next) );
 
-		this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
+        this._router.delete('/rulesets/:id', (req, res, next) => this.rulesetRouter.delete(req, res, next) );
+
+        this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
 	}
 
 	get router() {

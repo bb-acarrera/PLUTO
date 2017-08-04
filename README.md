@@ -98,6 +98,19 @@ node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/confi
 
 After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
 
+## building the client for development
+
+first time:
+```shell
+cd src/client
+npm install
+```
+
+to build:
+```shell
+cd src/client
+ember build
+```
 ## More..
 
 Additional information can be found in the following documents.

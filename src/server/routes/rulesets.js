@@ -55,7 +55,7 @@ class RulesetRouter extends BaseRouter {
 					}
 				});
 			}, (error) => {
-				throw new Error(error);
+				next(error);
 			}).catch(next);
 
 
@@ -64,17 +64,18 @@ class RulesetRouter extends BaseRouter {
 			this.config.data.getRulesets().then((rawRulesets) => {
 				const rulesets = [];
 
-				rawRulesets.forEach(rulesetFileName => {
+				rawRulesets.forEach(ruleset => {
 					rulesets.push({
 						type: "ruleset",
-						id: rulesetFileName
+						id: ruleset.filename || ruleset.ruleset_id,
+						attributes: ruleset
 					})
 				});
 
-				res.json(rulesets);
+				res.json({ data: rulesets});
 
 			}, (error) => {
-				throw new Error(error);
+				next(error);
 			}).catch(next);
 
 		}
@@ -85,6 +86,13 @@ class RulesetRouter extends BaseRouter {
 		this.config.data.saveRuleSet(ruleset).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 		});
+	}
+
+	delete(req, res) {
+        const ruleset = new RuleSet(req.body);
+        this.config.data.deleteRuleSet(ruleset).then(() => {
+            res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+        });
 	}
 }
 

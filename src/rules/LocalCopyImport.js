@@ -26,7 +26,7 @@ class LocalCopyImport {
 
             // Copy the file using internal JavaScript functions.
             fs.copySync(sourceFileName, targetFileName);
-			resolve();
+			resolve(path.basename(sourceFileName));
 
         });
     }

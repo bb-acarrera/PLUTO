@@ -38,7 +38,7 @@ class LocalCopyImport {
                 }
 
                 // Tell the Promise that it has been properly resolved.
-                resolve();
+                resolve(path.basename(sourceFileName));
             });
         });
     }

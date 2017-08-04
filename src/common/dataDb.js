@@ -4,6 +4,7 @@ const path = require("path");
 const Util = require("./Util");
 const RuleSet = require("../validator/RuleSet");
 const DB = require("./db");
+const BaseRuleAPI = require('../api/BaseRuleAPI');
 
 class data {
     constructor(config) {
@@ -62,7 +63,8 @@ class data {
     getRun(id) {
         return new Promise((resolve, reject) => {
 
-            this.db.query("SELECT runs.id, rulesets.ruleset_id, run_id, inputfile, outputfile, finishtime, log FROM runs " +
+            this.db.query("SELECT runs.id, rulesets.ruleset_id, run_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings " +
+                "FROM runs " +
                 "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
                 "where run_id = $1", [id])
                 .then((result) => {
@@ -76,6 +78,8 @@ class data {
                             inputfilename: row.inputFile,
                             outputfilename: row.outputFile,
                             time: row.finishtime,
+                            errorcount: row.num_errors,
+                            warningcount: row.num_warnings,
                             log_results: row.log
                         });
                     } else {
@@ -106,7 +110,9 @@ class data {
         return new Promise((resolve, reject) => {
             var runs = [];
 
-            this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, runs.finishtime FROM runs " +
+            this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, " +
+                "runs.finishtime, runs.num_errors, runs.num_warnings " +
+                "FROM runs " +
                 "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
                 "ORDER BY finishtime DESC LIMIT $1 OFFSET $2", [this.runsLimit, offset] )
                 .then((result) => {
@@ -118,7 +124,9 @@ class data {
                             ruleset: row.ruleset_id,
                             inputfilename: row.inputfile,
                             outputfilename: row.outputfile,
-                            time: row.finishtime
+                            time: row.finishtime,
+                            errorcount: row.num_errors,
+                            warningcount: row.num_warnings
                         });
                     });
 
@@ -139,31 +147,27 @@ class data {
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile) {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
 
         this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1", [ruleSetID]).then((result) => {
 
+            let rulesetId = null;
             if(result.rows.length > 0) {
-                this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
-                        "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
-                    [runId, result.rows[0].id, inputFile, outputFile, new Date(), JSON.stringify(log)])
-                    .then(() => {
-                        return;
-                    }, (error) => {
-                        console.log(error);
-                    });
-            } else {
-                console.log("Cannot find ruleset " + ruleSetID + " in database");
-
-                this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log) " +
-                        "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
-                    [runId, null, inputFile, outputFile, new Date(), JSON.stringify(log)])
-                    .then(() => {
-                        return;
-                    }, (error) => {
-                        console.log(error);
-                    });
+                rulesetId = result.rows[0].id
             }
+
+            let numErrors = logCounts[BaseRuleAPI.ERROR] || 0;
+            let numWarnings = logCounts[BaseRuleAPI.WARNING] || 0;
+
+            this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
+                    "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
+                [runId, rulesetId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
+                .then(() => {
+                    return;
+                }, (error) => {
+                    console.log(error);
+                });
+
         });
 
 
@@ -253,6 +257,31 @@ class data {
     }
 
     /**
+     * This deletes the given ruleset from the database
+     * @param ruleset the ruleset to delete.
+     * @private
+     */
+    deleteRuleSet(ruleset) {
+
+        return new Promise((resolve, reject) => {
+
+            let name = ruleset.filename;
+
+            this.db.query("DELETE FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+                .then(() => {
+                    resolve(name);
+                }, (error) => {
+                    console.log(error);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        });
+
+
+    }
+
+    /**
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
@@ -267,18 +296,15 @@ class data {
                 offset = page * this.runsLimit;
             }
 
-            this.db.query("SELECT ruleset_id, version, name FROM rulesets " +
+            this.db.query("SELECT * FROM rulesets " +
                     "ORDER BY name ASC LIMIT $1 OFFSET $2", [this.rulesetLimit, offset] )
                 .then((result) => {
 
                     var rulesets = [];
 
-                    result.rows.forEach((row) => {
-                        rulesets.push({
-                            id: row.ruleset_id,
-                            version: row.version,
-                            name: row.name
-                        });
+                    result.rows.forEach((ruleset) => {
+                        ruleset.filename = ruleset.filename || ruleset.ruleset_id;
+                        rulesets.push(ruleset);
                     });
 
                     resolve(rulesets);
