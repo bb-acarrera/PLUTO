@@ -3,7 +3,8 @@
   <div>
     <div class="column">
       <div class="section-header">Ruleset</div>
-      <div class="section-content"><input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
+      <div class="section-content">ID: {{model.ruleset.ruleset_id}}</div>
+      <div class="section-content">Description: <input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
       <div class="section-header">Rules</div>
       <table id="rulesTable" class="ruleset-table">
         {{#each model.ruleset.rules as |ruleInstance index|}}

@@ -24,7 +24,7 @@ export default Ember.Controller.extend({
           }
         }
 
-        let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+        let theUrl = document.location.origin + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
         let theJSON = ruleset.toJSON();
         theJSON.id = ruleset.id;
 
