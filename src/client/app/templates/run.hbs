@@ -1,33 +1,45 @@
 <div>
-    <h2>PLUTO</h2>
-    <div>
-        <div class="column">
-            <div class="section-header">Input Filename</div>
-            <div class="section-content">{{model.file}}</div>
-            <div class="section-header">Ruleset</div>
-            <div class="section-content">ID: {{model.ruleset.ruleset_id}}</div>
-            <div class="section-content">Description: {{model.ruleset.name}}</div>
-            <div class="section-header">Rules</div>
-            <table id="rulesTable" class="ruleset-table">
-              {{#each model.ruleset.rules as |ruleInstance index|}}
-                  <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
-                    {{rule-log-icons rule=ruleInstance log=model.log}}
-                      <td>{{ruleInstance.name}}</td>
-                  </tr>
-              {{/each}}
-                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) "Validator"}}>
-                  {{rule-log-icons rule="Validator" log=model.log}}
-                    <td>Global Errors</td><td/><td/><td/>
-                </tr>
-            </table>
-            {{#link-to 'editRuleset' model.ruleset}}Edit Current Ruleset{{/link-to}}
-        </div>
-        <div class="column">
-            <!-- The column for showing rule errors. -->
-            <div class="section-header">Errors:</div>
-          {{#if showErrors}}
-            {{show-errors rule=this.showErrors log=model.log}}
-          {{/if}}
-        </div>
-    </div>
+	<h2>PLUTO</h2>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-6 col-md-6 col-sm-8">
+				<div class="row">
+					<div class="section-header">Input Filename</div>
+					<div class="section-content">{{model.file}}</div>
+					<div class="section-header">Ruleset</div>
+					<div class="section-content">{{model.ruleset.name}}</div>
+					<div class="section-header">Rules</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12 col-md-12 col-lg-12">
+						<table id="rulesTable" class="table table-hover">
+							<tbody>
+							{{#each model.ruleset.rules as |ruleInstance index|}}
+								<tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight"
+																					 (concat 'rulesetTableRow' index)
+																					 ruleInstance}}>
+									{{rule-log-icons rule=ruleInstance log=model.log}}
+									<td>{{ruleInstance.name}}</td>
+								</tr>
+							{{/each}}
+							<tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight"
+																				 (concat 'rulesetTableRow' index) "Validator"}}>
+								{{rule-log-icons rule="Validator" log=model.log}}
+								<td>Global Errors</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				{{#link-to 'editRuleset' model.ruleset}}Edit Current Ruleset{{/link-to}}
+			</div>
+			<div class="col-lg-6 col-md-6 col-sm-4">
+				<!-- The column for showing rule errors. -->
+				<div class="section-header">Errors:</div>
+				{{#if showErrors}}
+					{{show-errors rule=this.showErrors log=model.log}}
+				{{/if}}
+			</div>
+		</div>
+	</div>
 </div>

@@ -21,6 +21,7 @@ div.section-header {
 
 div.section-content {
   /*border:1px solid black;*/
+  display: inline;
   margin:5px 5px 5px 5px;
   padding: 3px 3px 3px 3px;
   background: #E8E8E8;
@@ -30,48 +31,48 @@ input.text-input {
   width:  98%;
 }
 
-table.error-table {
-  margin:5px 5px 5px 5px;
-  padding: 3px 3px 3px 3px;
-  border-collapse: collapse;
-  /*border: 1px solid black; */
-  width:  98%;
-  background: #E8E8E8;
-}
+/*table.error-table {*/
+  /*margin:5px 5px 5px 5px;*/
+  /*padding: 3px 3px 3px 3px;*/
+  /*border-collapse: collapse;*/
+  /*!*border: 1px solid black; *!*/
+  /*width:  98%;*/
+  /*background: #E8E8E8;*/
+/*}*/
 
-table.runs-table {
-  margin:5px 5px 5px 5px;
-  padding: 3px 3px 3px 3px;
-  border-spacing: 0;
-  background: #E8E8E8;
-  width:  98%;
-}
+/*table.runs-table {*/
+  /*margin:5px 5px 5px 5px;*/
+  /*padding: 3px 3px 3px 3px;*/
+  /*border-spacing: 0;*/
+  /*background: #E8E8E8;*/
+  /*width:  98%;*/
+/*}*/
 
-table.ruleset-table {
-  margin:5px 5px 5px 5px;
-  padding: 3px 3px 3px 3px;
-  border-spacing: 0;
-  background: #E8E8E8;
-  width:  98%;
-}
+/*table.ruleset-table {*/
+  /*margin:5px 5px 5px 5px;*/
+  /*padding: 3px 3px 3px 3px;*/
+  /*border-spacing: 0;*/
+  /*background: #E8E8E8;*/
+  /*width:  98%;*/
+/*}*/
 
-td.error-cell {
-  border: 1px solid white;
-  /* width:  auto; */
-}
+/*td.error-cell {*/
+  /*border: 1px solid white;*/
+  /*!* width:  auto; *!*/
+/*}*/
 
-tr.error-row {
-  border: 1px solid white;
-  /* width:  auto; */
-}
+/*tr.error-row {*/
+  /*border: 1px solid white;*/
+  /*!* width:  auto; *!*/
+/*}*/
 
-tr.selected {
-  background: lightcyan;
-}
+/*tr.selected {*/
+  /*background: lightcyan;*/
+/*}*/
 
-tr:hover {
-  background-color: #f0f0f0;
-}
+/*tr:hover {*/
+  /*background-color: #f0f0f0;*/
+/*}*/
 
 /* Conflicts with the selection background coloring.
 /* tr:nth-child(even) {
