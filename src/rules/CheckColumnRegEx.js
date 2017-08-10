@@ -40,6 +40,38 @@ class CheckColumnRegEx extends TableRuleAPI {
 		return record;
 	}
 
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'column',
+				label: 'Column',
+				type: 'column',
+				minimum: '0',
+				tooltip: 'The column to run the regular expression against.'
+			},
+			{
+				name: 'regex',
+				label: 'Regular Expression',
+				type: 'string',
+				tooltip: 'The regular expression to use to validate the given column.'
+			},
+			{
+				name: 'reportAlways',
+				label: 'Report All Errors?',
+				type: 'boolean',
+				tooltip: 'Report all errors encountered or just the first.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {
+			reportAlways: false
+		};
+	}
+
 }
 
 module.exports = CheckColumnRegEx;

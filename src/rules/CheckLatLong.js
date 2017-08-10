@@ -63,5 +63,43 @@ class CheckLatLong extends TableRuleAPI {
 
 		return record;
 	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'latitudeColumn',
+				label: 'Latitude Column',
+				type: 'column',
+				tooltip: 'The column label for the latitude data.'
+			},
+			{
+				name: 'longitudeColumn',
+				label: 'Longitude Column',
+				type: 'column',
+				tooltip: 'The column label for the longitude data.'
+			},
+			{
+				name: 'nullEpsilon',
+				label: 'Null Island Epsilon',
+				type: 'float',
+				minimum: '0',
+				tooltip: 'The amount of error permitted around the null island test.'
+			},
+			{
+				name: 'reportAlways',
+				label: 'Report All Errors?',
+				type: 'boolean',
+				tooltip: 'Report all errors encountered or just the first.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {
+			nullEpsilon: 0.01,
+			reportAlways: false
+		};
+	}
 }
 module.exports = CheckLatLong;

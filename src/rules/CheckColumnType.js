@@ -60,6 +60,42 @@ class CheckColumnType extends TableRuleAPI {
 
 		return record;
 	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'column',
+				label: 'Column',
+				type: 'column',
+				tooltip: 'The column label to run the regular expression against.'
+			},
+			{
+				name: 'type',
+				label: 'Column Type',
+				type: 'choice',
+				choices: [
+					'string',
+					'float',
+					'integer',
+					'number'
+				],
+				tooltip: 'The expected data type of the given column.'
+			},
+			{
+				name: 'reportAlways',
+				label: 'Report All Errors?',
+				type: 'boolean',
+				tooltip: 'Report all errors encountered or just the first.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {
+			reportAlways: false
+		};
+	}
 }
 
 module.exports = CheckColumnType;

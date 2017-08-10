@@ -131,6 +131,54 @@ class CSVParser extends TableParserAPI {
         return "table_parser";
     }
 
+    static get ConfigProperties() {
+        return [
+            {
+                name: 'numHeaderRows',
+                label: 'Number of Header Rows',
+                type: 'integer',
+                minimum: '0',
+                tooltip: 'The expected number of rows making up the input file header.'
+            },
+            {
+                name: 'delimiter',
+                label: 'Delimiter',
+                type: 'string',
+                tooltip: 'Field delimiter of the file. One character only. Defaults to \',\' (comma)'
+            },
+            {
+                name: 'comment',
+                label: 'Comment character',
+                type: 'string',
+                tooltip: 'Treat all the characters after this one as a comment. Defaults to \'\' (disabled)'
+            },
+            {
+                name: 'escape',
+                label: 'Escape character',
+                type: 'string',
+                tooltip: 'The string escape character. One character only. Defaults to \'"\' (double quote)'
+            },
+            {
+                name: 'quote',
+                label: 'Quote character',
+                type: 'string',
+                'default': '"',
+                tooltip: 'Optional character surrounding a field. One character only. Disabled if empty. Defaults to \'"\' (double quote)'
+            }
+        ];
+    }
+
+
+    static get ConfigDefaults() {
+        return {
+            numHeaderRows: 1,
+            delimiter: ',',
+            comment: '',
+            escape: '"',
+            quote: '"'
+        };
+    }
+
 }
 
 module.exports = CSVParser;	// Export this so derived classes can extend it.

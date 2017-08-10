@@ -21,18 +21,10 @@ class TableParserAPI extends RuleAPI {
     }
 
     /**
-     * Given the value of a property this validates whether the given value is a column label or column number
-     * and if so returns the column number otherwise an error is posted to the log and <code>undefined</code> is
-     * returned.
-     * @param {string} propertyValue the value of a config column property. If this is <code>undefined</code> then
-     * <code>this.config.column</code> is used.
-     * @param {string} propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
-     * @returns {number|undefined} the column number represented by the propertyValue or undefined if the value is not valid.
+     * The rule type.  Used by parser rules to determine if there is a match on the required type.
+     * @returns {string}
+     * @constructor
      */
-    getValidatedColumnProperty(propertyValue, propertyName) {
-        throw "not implemented"
-    }
-
     static get Type() {
         return "table_parser";
     }

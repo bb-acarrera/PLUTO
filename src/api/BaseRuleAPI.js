@@ -56,8 +56,31 @@ class BaseRuleAPI extends ErrorHandlerAPI {
         });
     }
 
+    /**
+     * The rule type.  Used by parser rules to determine if there is a match on the required type.
+     * @returns {string}
+     * @constructor
+     */
     static get Type() {
         return "rule";
+    }
+
+    /**
+     * The list of config properties.  Used by the UI for display.
+     * @returns {Array}
+     * @constructor
+     */
+    static get ConfigProperties() {
+        return [];
+    }
+
+    /**
+     * The default values for configuration.
+     * @returns {{}}
+     * @constructor
+     */
+    static get ConfigDefaults() {
+        return {};
     }
 
 

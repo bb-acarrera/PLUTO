@@ -34,6 +34,22 @@ class DeleteColumn extends TableRuleAPI {
 	get processHeaderRows() {
 		return true;
 	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'column',
+				label: 'Column To Delete',
+				type: 'column',
+				tooltip: 'The column label for the column to delete.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {};
+	}
 }
 
 module.exports = DeleteColumn;

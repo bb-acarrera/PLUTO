@@ -82,6 +82,22 @@ class RunPythonScript extends OperatorAPI {
 		else
 			return this.asFile(this.runPython(inputName));
 	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'pythonScript',
+				type: 'string',
+				label: 'Python Script Path',
+				tooltip: 'The path to the python script to run.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {};
+	}
 }
 
 module.exports = RunPythonScript;	// Export this so derived classes can extend it.

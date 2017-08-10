@@ -6,7 +6,6 @@ SRC=$ROOT/src
 BIN=$ROOT/node_modules/.bin
 DOCS=$ROOT/docs/generatedDocs
 API=$SRC/api
-VAL=$SRC/validator
 
 if ! [ -e "$DOCS" ]; then
 	mkdir -p "$DOCS"
@@ -16,7 +15,7 @@ if ! [ -e "$DOCS" ]; then
 # 	(cd "$DOCS" && rm -r *)
 fi
 
-"$BIN/jsdoc" "$API" "$VAL" -r -d "$DOCS"
+"$BIN/jsdoc" "$API" -r -d "$DOCS"
 if [ $? -eq 0 ]; then
 	echo "Done."
 else

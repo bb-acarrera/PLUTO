@@ -144,7 +144,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_TableRuleAPI.js.html">api/TableRuleAPI.js</a>, <a href="api_TableRuleAPI.js.html#line7">line 7</a>
+        <a href="TableRuleAPI.js.html">TableRuleAPI.js</a>, <a href="TableRuleAPI.js.html#line7">line 7</a>
     </li></ul></dd>
     
 
@@ -232,7 +232,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_TableRuleAPI.js.html">api/TableRuleAPI.js</a>, <a href="api_TableRuleAPI.js.html#line60">line 60</a>
+        <a href="TableRuleAPI.js.html">TableRuleAPI.js</a>, <a href="TableRuleAPI.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -310,7 +310,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_TableRuleAPI.js.html">api/TableRuleAPI.js</a>, <a href="api_TableRuleAPI.js.html#line41">line 41</a>
+        <a href="TableRuleAPI.js.html">TableRuleAPI.js</a>, <a href="TableRuleAPI.js.html#line41">line 41</a>
     </li></ul></dd>
     
 
@@ -340,6 +340,185 @@
 
 
 
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getValidatedColumnProperty"><span class="type-signature"></span>getValidatedColumnProperty<span class="signature">(propertyValue, propertyName)</span><span class="type-signature"> &rarr; {number|undefined}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Given the value of a property this validates whether the given value is a column label or column numberand if so returns the column number otherwise an error is posted to the log and <code>undefined</code> isreturned.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>propertyValue</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the value of a config column property. If this is <code>undefined</code> then<code>this.config.column</code> is used.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>propertyName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the name of the property - used in error messages. Defaults to 'column' if not set.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="TableRuleAPI.js.html">TableRuleAPI.js</a>, <a href="TableRuleAPI.js.html#line85">line 85</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the column number represented by the propertyValue or undefined if the value is not valid.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -474,7 +653,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_TableRuleAPI.js.html">api/TableRuleAPI.js</a>, <a href="api_TableRuleAPI.js.html#line51">line 51</a>
+        <a href="TableRuleAPI.js.html">TableRuleAPI.js</a>, <a href="TableRuleAPI.js.html#line51">line 51</a>
     </li></ul></dd>
     
 
@@ -627,7 +806,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_TableRuleAPI.js.html">api/TableRuleAPI.js</a>, <a href="api_TableRuleAPI.js.html#line33">line 33</a>
+        <a href="TableRuleAPI.js.html">TableRuleAPI.js</a>, <a href="TableRuleAPI.js.html#line33">line 33</a>
     </li></ul></dd>
     
 
@@ -669,13 +848,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseRuleAPI.html">BaseRuleAPI</a></li><li><a href="CSVRuleAPI.html">CSVRuleAPI</a></li><li><a href="ErrorHandlerAPI.html">ErrorHandlerAPI</a></li><li><a href="MetadataRuleAPI.html">MetadataRuleAPI</a></li><li><a href="RuleAPI.html">RuleAPI</a></li><li><a href="TableParserAPI.html">TableParserAPI</a></li><li><a href="TableRuleAPI.html">TableRuleAPI</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ErrorLogger">ErrorLogger</a></li><li><a href="global.html#fs">fs</a></li><li><a href="global.html#stream">stream</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BaseRuleAPI.html">BaseRuleAPI</a></li><li><a href="CSVRuleAPI.html">CSVRuleAPI</a></li><li><a href="ErrorHandlerAPI.html">ErrorHandlerAPI</a></li><li><a href="MetadataRuleAPI.html">MetadataRuleAPI</a></li><li><a href="RuleAPI.html">RuleAPI</a></li><li><a href="TableParserAPI.html">TableParserAPI</a></li><li><a href="TableRuleAPI.html">TableRuleAPI</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Aug 03 2017 17:05:38 GMT-0400 (DST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Aug 09 2017 14:01:20 GMT-0400 (DST)
 </footer>
 
 <script> prettyPrint(); </script>
