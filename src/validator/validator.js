@@ -56,7 +56,7 @@ class Validator {
 			this.config.rulesDirectory = path.resolve(this.rootDir, 'rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
-			console.log("Failed to find RulesDirectory \"" + this.config.rulesDirectory + "\".\n");
+			console.log("Failed to find custom RulesDirectory \"" + this.config.rulesDirectory + "\".\n");
 
 		this.inputDirectory  = path.resolve(this.rootDir, this.config.inputDirectory || "");
 		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory || "");
@@ -71,6 +71,10 @@ class Validator {
 		this.ruleName = undefined;
 
 		this.updateConfig(this.config);
+
+		if(!Data) {
+			throw "No data accessor supplied";
+		}
 
 		// This needs to be done after the above tests and setting of the global config object.
         this.data = Data(this.config);
