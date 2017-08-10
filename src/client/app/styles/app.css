@@ -65,11 +65,11 @@ tr.error-row {
   /* width:  auto; */
 }
 
-tr.selected {
+.rule-selectable.selected {
   background: lightcyan;
 }
 
-tr:hover {
+.rule-selectable:hover {
   background-color: #f0f0f0;
 }
 

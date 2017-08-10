@@ -18,15 +18,19 @@ class Router {
 		this.runsRouter = new RunsRouter(config);
 		this.processFileRouter = new ProcessFileRouter(config);
 
-		this._router.get('/rulesets/:id', (req, res, next) => this.rulesetRouter.get(req, res, next) );
-		this._router.get('/rulesets', (req, res, next) => this.rulesetRouter.get(req, res, next) );
+
+
 		this._router.get('/logs/:id', (req, res, next) => this.logsRouter.get(req, res, next) );
-		this._router.get('/rules', (req, res, next) => this.rulesRouter.get(req, res, next));
+
+		this._router.get('/rules', (req, res, next) => this.rulesRouter.getRules(req, res, next));
+		this._router.get('/parsers', (req, res, next) => this.rulesRouter.getParsers(req, res, next));
+
 		this._router.get('/runs/:id', (req, res, next) => this.runsRouter.get(req, res, next));
 		this._router.get('/runs', (req, res, next) => this.runsRouter.get(req, res, next));
 
+		this._router.get('/rulesets', (req, res, next) => this.rulesetRouter.get(req, res, next) );
+		this._router.get('/rulesets/:id', (req, res, next) => this.rulesetRouter.get(req, res, next) );
 		this._router.patch('/rulesets/:id', (req, res, next) => this.rulesetRouter.patch(req, res, next) );
-
         this._router.delete('/rulesets/:id', (req, res, next) => this.rulesetRouter.delete(req, res, next) );
 
         this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));

@@ -8,5 +8,6 @@ export default DS.Model.extend({
     rules : DS.attr(),
     import : DS.attr(),
     export : DS.attr(),
-    config : DS.attr()
+    config : DS.attr(),
+    parser: DS.attr()
 });

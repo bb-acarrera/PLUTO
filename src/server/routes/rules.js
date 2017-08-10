@@ -17,7 +17,7 @@ class RulesRouter extends BaseRouter {
         this.loadManifests();
 	}
 
-    get(req, res) {
+    getRules(req, res) {
         // Send generic rules. (i.e. not rule instances.)
 
         res.json({
@@ -25,64 +25,29 @@ class RulesRouter extends BaseRouter {
         });
     }
 
-	get_old(req, res) {
-		// Send generic rules. (i.e. not rule instances.)
-		const rules = [];
-		const rulesMap = {};
-		let dir = this.config.validator.config.rulesDirectory;
-		fs.readdirSync(dir).forEach(file => {
-			let rule = this.loadRule(dir, file);
-			if (rule) {
-                rules.push(rule);
-                rulesMap[rule.filename] = rule;
-            }
-		});
+    getParsers(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
 
-		dir = path.resolve(__dirname, '../../rules');
-        fs.readdirSync(dir).forEach(file => {
-            let rule = this.loadRule(dir, file);
-            if (rule) {
-            	if (!rulesMap[rule.filename])
-                	rules.push(rule);
-            }
+        res.json({
+            data: this.parsers
         });
+    }
 
-		res.json({
-			data: rules
-		});
-	}
+    getParsers(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
 
-	loadRule(dir, file) {
-        const extension = path.extname(file);
-        if (extension && extension == ".js") {
-            const basename = path.basename(file, extension);
-            const uiConfigName = basename + ".ui.json";
-            const configFile = path.resolve(dir, uiConfigName);
-            var uiConfig = undefined;
-            if (fs.existsSync(configFile)) {
-                const contents = fs.readFileSync(configFile, 'utf8');
-                try {
-                    uiConfig = JSON.parse(contents);
-                }
-                catch (e) {
-                    console.log(`Failed to load ${uiConfigName}. Attempt threw:\n${e}\n`);
-                }
-            }
-            else
-                console.log(`No ${uiConfigName} for ${file}.`);
+        res.json({
+            data: this.parsers
+        });
+    }
 
-            return {
-                id: basename,
-                type: 'rule',
-                attributes: {
-                    name: basename,
-                    filename: basename,
-                    ui: uiConfig
-                }
-            };
-        }
-        return;
-	}
+    getExporters(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
+
+        res.json({
+            data: this.exporters
+        });
+    }
 
     loadManifests() {
         let dir = this.config.validator.config.rulesDirectory;
@@ -111,25 +76,43 @@ class RulesRouter extends BaseRouter {
             return;
         }
 
-        if(manifest.rules) {
-            manifest.rules.forEach((ruleItem) => {
+        let loadItem = (item, type, target) => {
+            if(!this.classMap[item.filename]) {
+                const properties = this.loadFromManifest(dir, item.filename, type);
 
-                if(!this.classMap[ruleItem]) {
-                    const ruleProperties = this.loadRuleFromManifest(dir, ruleItem.filename);
-
-                    if(ruleProperties) {
-                        this.rules.push(ruleProperties);
-                    }
+                if(properties) {
+                    target.push(properties);
                 }
+            }
+        };
 
+        if(manifest.rules) {
+            manifest.rules.forEach((item) => {
+                loadItem(item, 'rule', this.rules);
+            });
+        }
 
+        if(manifest.parsers) {
+            manifest.parsers.forEach((item) => {
+                loadItem(item, 'parser', this.parsers);
+            });
+        }
 
+        if(manifest.importers) {
+            manifest.importers.forEach((item) => {
+                loadItem(item, 'importer', this.importers);
+            });
+        }
+
+        if(manifest.exporters) {
+            manifest.exporters.forEach((item) => {
+                loadItem(item, 'exporter', this.exporters);
             });
         }
 
     }
 
-    loadRuleFromManifest(dir, file) {
+    loadFromManifest(dir, file, type) {
         try {
 
             var ruleClass = null;
@@ -142,23 +125,8 @@ class RulesRouter extends BaseRouter {
 
                 this.classMap[file] = ruleClass;
 
-                const uiConfig = {
-                    properties: null
-                }
-
-                if(ruleClass.ConfigProperties) {
-
-                    //do a deep clone
-
-                    uiConfig.properties = JSON.parse(JSON.stringify(ruleClass.ConfigProperties));
-
-                    if(ruleClass.ConfigDefaults) {
-                        uiConfig.properties.forEach((prop) => {
-                           if(ruleClass.ConfigDefaults.hasOwnProperty(prop.name)) {
-                               prop.default = ruleClass.ConfigDefaults[prop.name];
-                           }
-                        });
-                    }
+                var properties = this.getClassProperties(ruleClass);
+                if(properties) {
 
                     return {
                         id: file,
@@ -166,23 +134,40 @@ class RulesRouter extends BaseRouter {
                         attributes: {
                             name: file,
                             filename: file,
-                            ui: uiConfig
+                            ui: {
+                                properties: properties
+                            }
                         }
                     };
 
                 } else {
-                    console.log(`Rule ${ruleFile} does not have ConfigProperties.`);
+                    console.log(`${type} ${ruleFile} does not have ConfigProperties.`);
                 }
-
-
-
             }
             else
-                console.log(`No ${ruleFile} for ${file}.`);
+                console.log(`No ${ruleFile} for ${type} ${file}.`);
 
 
         } catch (e) {
-            console.log('Error loading rule ' + file + ' from manifest in ' + dir +': ' + e);
+            console.log(`Error loading ${type} ${file} from manifest in ${dir}: ${e}`);
+        }
+        return null;
+    }
+
+    getClassProperties(ruleClass) {
+
+        if(ruleClass.ConfigProperties) {
+            //do a deep clone
+            let properties = JSON.parse(JSON.stringify(ruleClass.ConfigProperties));
+
+            if (ruleClass.ConfigDefaults) {
+                properties.forEach((prop) => {
+                    if (ruleClass.ConfigDefaults.hasOwnProperty(prop.name)) {
+                        prop.default = ruleClass.ConfigDefaults[prop.name];
+                    }
+                });
+            }
+            return properties;
         }
         return null;
     }
