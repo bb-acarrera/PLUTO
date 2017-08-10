@@ -47,6 +47,8 @@ class RulesetRouter extends BaseRouter {
 						attributes: {
 							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
 							filename: ruleset.filename,
+							"ruleset-id": ruleset.ruleset_id,
+							"database-id": ruleset.id,
 							import: ruleset.import,
 							export: ruleset.export,
 							rules: rules,
@@ -65,9 +67,15 @@ class RulesetRouter extends BaseRouter {
 				const rulesets = [];
 
 				rawRulesets.forEach(ruleset => {
+					ruleset["ruleset-id"] = ruleset.ruleset_id;
+					delete ruleset.ruleset_id;
+
+					ruleset["database-id"] = ruleset.id;
+					delete ruleset.id;
+
 					rulesets.push({
 						type: "ruleset",
-						id: ruleset.filename || ruleset.ruleset_id,
+						id: ruleset.ruleset_id || ruleset.filename,
 						attributes: ruleset
 					})
 				});
