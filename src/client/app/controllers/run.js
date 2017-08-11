@@ -42,3 +42,4 @@ function deselectItems(clearProperties, controller) {
 
 }
 
+

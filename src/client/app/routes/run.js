@@ -32,3 +32,4 @@ function getData(store, model, controller) {
     }
   );
 }
+
