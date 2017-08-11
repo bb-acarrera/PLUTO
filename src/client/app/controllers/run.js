@@ -14,10 +14,10 @@ export default Ember.Controller.extend({
       for (var i = 0; i < siblings.length; i++) {
         const sibling = siblings[i];
         if (sibling.nodeName.toLowerCase() == "tr" && sibling.classList)
-          sibling.classList.remove('success');
+          sibling.classList.remove('selected');
       }
 
-      row.classList.add('success');
+      row.classList.add('selected');
 
       this.set('showErrors', rule);
     }

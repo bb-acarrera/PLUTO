@@ -1,31 +1,44 @@
 import Ember from 'ember';
-import RSVP from 'rsvp';
 
 export default Ember.Route.extend({
 
-    model(params) {
-        return this.store.findRecord('run', params.run_id).then(
-            run => {
-                return RSVP.hash({
-                    file: params.run_id,
-                    ruleset: this.store.findRecord('ruleset', run.get('ruleset')),
-                    log: this.store.findRecord('log', run.get('log')),
-                    rules: this.store.findAll('rule')
-                });
-            });
-    },
-    actions: {
-        error(reason) {
-            alert(reason); // "FAIL"
+  setupController: function (controller, model) {
+    const store = this.get('store');
 
-            // Can transition to another route here, e.g.
-            // this.transitionTo('index');
+    getData(store, model, controller)
 
-            // Uncomment the line below to bubble this error event:
-            // return true;
-        }
-    }
+
+  }
 });
 
-
-
+function getData(store, model, controller) {
+  return store.findRecord('run', model.id).then(
+    run => {
+      //return run;
+      return store.findRecord('ruleset', run.get('ruleset')).then(
+        ruleSetResult => {
+          return store.findRecord('log', run.get('log')).then(
+            logResult => {
+              // Get the rule files for displaying in a choice selector. (These are not the rule instances in a ruleset.)
+              return store.findAll('rule').then(
+                rules => {
+                  controller.set("model", {file: run.get('inputfilename'), ruleset: ruleSetResult, log: logResult, rules: rules});
+                },
+                error => {
+                  controller.set("model", {file: run.get('inputfilename'), ruleset: ruleSetResult, log: logResult, rules: null, error: error});
+                }
+              )
+            },
+            error => {
+              controller.set("model", {file: run.get('inputfilename'), ruleset: ruleSetResult, log: null, rules: null, error: error});
+            });
+        },
+        error => {
+          controller.set("model", {file: run.get('inputfilename'), ruleset: null, log: null, rules: null, error: error});
+        });
+    },
+    error => {
+      controller.set("model", {error: error});
+    }
+  );
+}
