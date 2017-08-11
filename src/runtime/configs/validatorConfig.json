@@ -1,7 +1,7 @@
 {
 	"rootDirectory" : ".",
 	"rulesetDirectory" : "runtime/rulesets",
-	"rulesDirectory" : "rules",
+	"rulesDirectory" : "runtime/customrules",
 	"tempDirectory" : "./tmp",
 	"inputDirectory" : "data",
 	"outputDirectory" : "results",

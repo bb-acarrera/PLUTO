@@ -4,59 +4,61 @@
 const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../api/RuleAPI");
 const DeleteColumn = require("../../../rules/DeleteColumn");
+const CSVParser = require("../../../rules/CSVParser");
 
 /*
  * A trivial class which takes input from a stream and captures it in a buffer.
  */
 class MemoryWriterStream extends stream.Writable {
-	constructor(options) {
-		super(options);
-		this.buffer = Buffer.from(''); // empty
-	}
+    constructor(options) {
+        super(options);
+        this.buffer = Buffer.from(''); // empty
+    }
 
-	_write(chunk, enc, cb) {
-		// our memory store stores things in buffers
-		const buffer = (Buffer.isBuffer(chunk)) ?
-			chunk :  // already is Buffer use it
-			new Buffer(chunk, enc);  // string, convert
+    _write(chunk, enc, cb) {
+        // our memory store stores things in buffers
+        const buffer = (Buffer.isBuffer(chunk)) ?
+            chunk :  // already is Buffer use it
+            new Buffer(chunk, enc);  // string, convert
 
-		// concat to the buffer already there
-		this.buffer = Buffer.concat([this.buffer, buffer]);
+        // concat to the buffer already there
+        this.buffer = Buffer.concat([this.buffer, buffer]);
 
-		// console.log("MemoryWriterStream DEBUG: " + chunk.toString());
+        // console.log("MemoryWriterStream DEBUG: " + chunk.toString());
 
-		cb(null);
-	}
+        cb(null);
+    }
 
-	getData(encoding) {
-		return this.buffer.toString(encoding);
-	}
+    getData(encoding) {
+        return this.buffer.toString(encoding);
+    }
 }
 
 QUnit.test( "DeleteColumn: Deletion Test", function(assert){
-   const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger,
-       "column" : 0
-   }
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "column" : 0,
+        "numberOfHeaderRows" : 1
+    }
 
-   const data = "Column 0,Column 1\na,b";
-   const rule = new DeleteColumn(config);
-   const done = assert.async();
-   rule._run( { data: data }).then((result) => {
-	   	assert.ok(result, "Created");
-	   	const logResults = logger.getLog();
-		const writer = new MemoryWriterStream();
-		writer.on('finish', () => {
-			const dataVar = writer.getData();
-			//console.log("dataVar = " + dataVar);
+    const data = "Column 0,Column 1\na,b";
+    const rule = new DeleteColumn(config);
+    const parser = new CSVParser(config, rule);
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
 
-			assert.equal(dataVar, "Column 1\nb\n", "Expected only column 1");
-			done();
-		})
-	   	result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+            assert.equal(dataVar, "Column 1\nb\n", "Expected only column 1");
+            done();
+        });
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
     });
 
 });
@@ -65,13 +67,15 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "column" : 1
+        "column" : 1,
+        "numberOfHeaderRows" : 1
     }
 
     const data = "Column 0,Column 1\na,b";
     const rule = new DeleteColumn(config);
+    const parser = new CSVParser(config, rule);
     const done = assert.async();
-    rule._run( { data: data }).then((result) => {
+    parser._run( { data: data }).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -91,13 +95,15 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "column" : -1
+        "column" : -1,
+        "numberOfHeaderRows" : 1
     };
 
     const data = "Column 0,Column 1\na,b";
     const rule = new DeleteColumn(config);
+    const parser = new CSVParser(config, rule);
     const done = assert.async();
-    rule._run( { data: data }).then((result) => {
+    parser._run( { data: data }).then((result) => {
         assert.ok(rule, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -114,15 +120,17 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
 });
 
 QUnit.test( "DeleteColumn: No Column Property test", function(assert){
-   const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger
-   };
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "numberOfHeaderRows" : 1
+    };
 
     const data = "Column 0,Column 1\na,b";
     const rule = new DeleteColumn(config);
+    const parser = new CSVParser(config, rule);
     const done = assert.async();
-    rule._run( { data: data }).then((result) => {
+    parser._run( { data: data }).then((result) => {
         assert.ok(rule, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();

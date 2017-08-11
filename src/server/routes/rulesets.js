@@ -40,6 +40,12 @@ class RulesetRouter extends BaseRouter {
 						});
 				}
 
+				var parser = {
+					filename: ruleset.parser.filename,
+					name: ruleset.parser.filename,
+					config: ruleset.parser.config
+				}
+
 				res.json({
 					data: {
 						type: "ruleset",
@@ -51,6 +57,7 @@ class RulesetRouter extends BaseRouter {
 							"database-id": ruleset.id,
 							import: ruleset.import,
 							export: ruleset.export,
+							parser: parser,
 							rules: rules,
 							config: ruleset.config
 						}

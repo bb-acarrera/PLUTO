@@ -1,10 +1,8 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class CheckColumnCount extends CSVRuleAPI {
+class CheckColumnCount extends TableRuleAPI {
 	constructor(config) {
 		super(config);
-
-		this.rowNumber = 0;
 
 		this.columns = undefined;
 		if (!this.config)
@@ -24,18 +22,52 @@ class CheckColumnCount extends CSVRuleAPI {
 		this.reportAlways = this.config && this.config.reportAlways ? this.config.reportAlways : false;	// Should every occurrence be reported?
 	}
 
-	processRecord(record) {
+	start(parser) {
+		this.parser = parser;
+	}
+
+	processRecord(record, rowId) {
+
 		if (this.columns !== undefined) {
 			if (record.length !== this.columns) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${this.rowNumber} has wrong number of columns. Got ${record.length}.`);
+					this.error(`Row ${rowId} has wrong number of columns. Got ${record.length}.`);
 					this.badColumnCountReported = true;
 				}
 			}
 		}
 
-		this.rowNumber++;
 		return record;
+	}
+
+
+	get processHeaderRows() {
+		return true;
+	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'columns',
+				type: 'integer',
+				label: 'Number of Columns',
+				minimum: '1',
+				tooltip: 'The expected number of columns in the input file.'
+			},
+			{
+				name: 'reportAlways',
+				label: 'Report All Errors?',
+				type: 'boolean',
+				tooltip: 'Report all errors encountered or just the first.'
+			}
+		];
+	}
+
+	static get ConfigDefaults() {
+		return {
+			columns: 9,
+			reportAlways: false
+		};
 	}
 }
 

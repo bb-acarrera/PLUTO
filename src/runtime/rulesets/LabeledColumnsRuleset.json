@@ -61,6 +61,12 @@
 			"config" : {
 				"file": "./results/labeledColumnsOutput.csv"
 			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numberOfHeaderRows" : 1
+			}
 		}
 	}
 }

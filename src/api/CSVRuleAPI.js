@@ -45,6 +45,8 @@ class CSVRuleAPI extends RuleAPI {
 		this.post_comment = this.config.OutputComment || '';
 		this.post_escape = this.config.OutputEscape || '"';
 		this.post_quote = this.config.OutputQuote || '"';
+
+		this.numHeaderRows = this.getValidatedHeaderRows();
 	}
 
 	/**
@@ -148,9 +150,10 @@ class CSVRuleAPI extends RuleAPI {
 	/**
 	 * Derived classes should implement this method to process individual records.
 	 * @param record {array} one record from the csv file. Headers are not skipped.
+	 * @param rowNumber {integer} the row number
 	 * @returns {array} a record, either the original one if no modifications were carried out or a new one.
 	 */
-	processRecord(record) {
+	processRecord(record, rowNumber) {
 		// Process the record and return the new record.
 		return record;
 	}
@@ -172,9 +175,20 @@ class CSVRuleAPI extends RuleAPI {
 												// I'd rather detect it.
 			});
 
+		let processHeaderRows = this.processHeaderRows;
+		let rowNumber = 0;
+
+
 		// This CSV Transformer is used to call the processRecord() method above.
 		const transformer = transform(record => {
-			return this.processRecord(record);
+			let response = record;
+
+			if (rowNumber >= this.numHeaderRows || processHeaderRows) {
+				response = this.processRecord(record, rowNumber);
+			}
+
+			rowNumber++;
+			return response;
 		});
 		transformer.once("finish", () => {
 			this.finish();	// Finished so let the derived class know.
@@ -201,6 +215,14 @@ class CSVRuleAPI extends RuleAPI {
 	run() {
 		this._processCSV(this.inputStream, this.outputStream);
 		return this.asStream(this.outputStream);
+	}
+
+	/**
+	 * Derived classes can implement this method to return true if they need the header rows
+	 * @returns {boolean} true if header rows should be passed to the processRecord method
+	 */
+	get processHeaderRows() {
+		return false;
 	}
 }
 

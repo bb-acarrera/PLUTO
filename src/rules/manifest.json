@@ -1,0 +1,38 @@
+{
+  "parsers": [
+    {
+      "filename":"CSVParser"
+    }
+  ],
+  "rules": [
+    {
+      "filename":"CheckColumnCount"
+    },
+    {
+      "filename":"CheckColumnRegEx"
+    },
+    {
+      "filename":"CheckColumnType"
+    },
+    {
+      "filename":"CheckLatLong"
+    },
+    {
+      "filename":"DeleteColumn"
+    },
+    {
+      "filename":"RunPythonScript"
+    }
+  ],
+  "importers" : [
+    {
+      "filename":"LocalCopyImport"
+    }
+  ],
+  "exporters" : [
+    {
+      "filename":"LocalCopyExport"
+    }
+  ]
+}
+

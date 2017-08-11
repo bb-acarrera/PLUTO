@@ -5,17 +5,21 @@
             <div class="section-header">Input Filename</div>
             <div class="section-content">{{model.file}}</div>
             <div class="section-header">Ruleset</div>
-            <div class="section-content">ID: {{model.ruleset.ruleset_id}}</div>
+            <div class="section-content">{{model.ruleset.filename}}</div>
             <div class="section-content">Description: {{model.ruleset.name}}</div>
+            <div class="section-header">Parser</div>
+            <div class="section-content">{{model.ruleset.parser.name}}</div>
             <div class="section-header">Rules</div>
             <table id="rulesTable" class="ruleset-table">
               {{#each model.ruleset.rules as |ruleInstance index|}}
-                  <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
+                  <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
+                      class="rule-selectable">
                     {{rule-log-icons rule=ruleInstance log=model.log}}
                       <td>{{ruleInstance.name}}</td>
                   </tr>
               {{/each}}
-                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) "Validator"}}>
+                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) "Validator"}}
+                    class="rule-selectable">
                   {{rule-log-icons rule="Validator" log=model.log}}
                     <td>Global Errors</td><td/><td/><td/>
                 </tr>
@@ -27,7 +31,10 @@
             <div class="section-header">Errors:</div>
           {{#if showErrors}}
             {{show-errors rule=this.showErrors log=model.log}}
+          {{else}}
+            {{show-errors log=model.log}}
           {{/if}}
         </div>
     </div>
 </div>
+

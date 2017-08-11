@@ -4,7 +4,7 @@ const path = require("path");
 const Util = require("./Util");
 const RuleSet = require("../validator/RuleSet");
 const DB = require("./db");
-const BaseRuleAPI = require('../api/BaseRuleAPI');
+const ErrorHandlerAPI = require('../api/errorHandlerAPI');
 
 class data {
     constructor(config) {
@@ -156,8 +156,8 @@ class data {
                 rulesetId = result.rows[0].id
             }
 
-            let numErrors = logCounts[BaseRuleAPI.ERROR] || 0;
-            let numWarnings = logCounts[BaseRuleAPI.WARNING] || 0;
+            let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
+            let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
 
             this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
                     "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",

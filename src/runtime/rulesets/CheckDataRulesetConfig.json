@@ -13,7 +13,6 @@
 				"filename" : "CheckLatLong",
 				"config" : {
 					"id" : 2,
-					"numberOfHeaderRows" : 1,
 					"latitudeColumn"  : 2,
 					"longitudeColumn" : 3
 				}
@@ -23,7 +22,6 @@
 				"name" : "Validate Population Column",
 				"config" : {
 					"id" : 3,
-					"numberOfHeaderRows" : 1,
 					"type" : "number",
 					"column" : 4
 				}
@@ -33,7 +31,6 @@
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
 					"id" : 4,
-					"numberOfHeaderRows" : 1,
 					"column" : 2,
 					"regex" : "[^0-9\\s]*"
 				}
@@ -49,6 +46,12 @@
 			"scriptPath": "./rules/LocalCopyExport",
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numberOfHeaderRows" : 1
 			}
 		}
 	}

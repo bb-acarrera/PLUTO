@@ -65,13 +65,14 @@ tr.error-row {
   /* width:  auto; */
 }
 
-tr.selected {
+.rule-selectable.selected {
   background: lightcyan;
 }
 
-tr:hover {
+.rule-selectable:hover {
   background-color: #f0f0f0;
 }
+
 
 /* Conflicts with the selection background coloring.
 /* tr:nth-child(even) {
