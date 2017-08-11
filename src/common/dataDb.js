@@ -182,54 +182,38 @@ class data {
      */
     retrieveRuleset(ruleset_id, rulesetOverrideFile, version) {
 
-        if(!version) {
-            version = 0;
-        }
+        return getRuleset(this.db, ruleset_id, version, (result, resolve, reject) => {
+            if(result.rows.length > 0) {
+                let dbRuleset = result.rows[0].rules;
 
-        if (!ruleset_id)
-            return;
+                // PJT 17/09/01 - Unfortunately at the moment there are three senses for an ID on a ruleset.
+                // They are the database row number, the "filename" (which till now has also been the "id")
+                // and the "ruleset_id". We want to simplify this to just two, the database row number (henceforth
+                // the "id") which uniquely identifies a ruleset by ruleset_id & version, and the ruleset_id which
+                // excludes the version (and will eventually be used to get the most up-to-date version of a ruleset.)
+                // Here we get rid of the sense that the id is the same as the filename and instead make it the
+                // same as the database row.
+                dbRuleset.id = result.rows[0].id;
 
-        if (ruleset_id.endsWith(".json"))
-            ruleset_id = ruleset_id.substr(0, ruleset_id.length - 5);
+                dbRuleset.filename = ruleset_id;
+                dbRuleset.name = dbRuleset.name || ruleset_id;
+                let ruleset = new RuleSet(dbRuleset);
 
-        return new Promise((resolve, reject) => {
+                if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
+                    ruleset.applyOverride(rulesetOverrideFile);
+                }
 
-            this.db.query("SELECT rules, id FROM rulesets " +
-                "where ruleset_id = $1 AND version = $2",
-                [ruleset_id, version])
-                .then((result) => {
+                resolve(ruleset);
 
-                    if(result.rows.length > 0) {
-                        let dbRuleset = result.rows[0].rules;
-
-                        // PJT 17/09/01 - Unfortunately at the moment there are three senses for an ID on a ruleset.
-                        // They are the database row number, the "filename" (which till now has also been the "id")
-                        // and the "ruleset_id". We want to simplify this to just two, the database row number (henceforth
-                        // the "id") which uniquely identifies a ruleset by ruleset_id & version, and the ruleset_id which
-                        // excludes the version (and will eventually be used to get the most up-to-date version of a ruleset.)
-                        // Here we get rid of the sense that the id is the same as the filename and instead make it the
-                        // same as the database row.
-                        dbRuleset.id = result.rows[0].id;
-
-                        dbRuleset.filename = ruleset_id;
-                        dbRuleset.name = dbRuleset.name || ruleset_id;
-                        let ruleset = new RuleSet(dbRuleset);
-
-                        if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-                            ruleset.applyOverride(rulesetOverrideFile);
-                        }
-
-                        resolve(ruleset);
-
-                    } else {
-                        resolve(null);
-                    }
-
-                }, (error) => {
-                    reject(error);
-                });
-
+            } else {
+                resolve(null);
+            }
         });
+
+    }
+
+    rulesetExists(ruleset_id, version) {
+
     }
 
     /**
@@ -326,6 +310,36 @@ class data {
 
 
     }
+}
+
+function getRuleset(db, ruleset_id, version, callback) {
+    if(!version) {
+        version = 0;
+    }
+
+    if (!ruleset_id) {
+        return new Promise((resolve, reject) => {
+            reject("No ruleset_id provided")
+        });
+    }
+
+    if (ruleset_id.endsWith(".json"))
+        ruleset_id = ruleset_id.substr(0, ruleset_id.length - 5);
+
+    return new Promise((resolve, reject) => {
+
+        db.query("SELECT rules, id FROM rulesets " +
+                "where ruleset_id = $1 AND version = $2",
+            [ruleset_id, version])
+            .then((result) => {
+
+                callback(result, resolve, reject);
+
+            }, (error) => {
+                reject(error);
+            });
+
+    });
 }
 
 let dataInstance = null;
