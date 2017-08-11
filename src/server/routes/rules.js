@@ -6,66 +6,176 @@ const BaseRouter = require('./baseRouter');
 class RulesRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
+
+        this.rules = [];
+        this.parsers = [];
+        this.importers = [];
+        this.exporters = [];
+
+        this.classMap = {};
+
+        this.loadManifests();
 	}
 
-	get(req, res) {
-		// Send generic rules. (i.e. not rule instances.)
-		const rules = [];
-		const rulesMap = {};
-		let dir = this.config.validator.config.rulesDirectory;
-		fs.readdirSync(dir).forEach(file => {
-			let rule = this.loadRule(dir, file);
-			if (rule) {
-                rules.push(rule);
-                rulesMap[rule.filename] = rule;
-            }
-		});
+    getRules(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
 
-		dir = path.resolve(__dirname, '../../rules');
-        fs.readdirSync(dir).forEach(file => {
-            let rule = this.loadRule(dir, file);
-            if (rule) {
-            	if (!rulesMap[rule.filename])
-                	rules.push(rule);
-            }
+        res.json({
+            data: this.rules
         });
+    }
 
-		res.json({
-			data: rules
-		});
-	}
+    getParsers(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
 
-	loadRule(dir, file) {
-        const extension = path.extname(file);
-        if (extension && extension == ".js") {
-            const basename = path.basename(file, extension);
-            const uiConfigName = basename + ".ui.json";
-            const configFile = path.resolve(dir, uiConfigName);
-            var uiConfig = undefined;
-            if (fs.existsSync(configFile)) {
-                const contents = fs.readFileSync(configFile, 'utf8');
-                try {
-                    uiConfig = JSON.parse(contents);
+        res.json({
+            data: this.parsers
+        });
+    }
+
+    getParsers(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
+
+        res.json({
+            data: this.parsers
+        });
+    }
+
+    getExporters(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
+
+        res.json({
+            data: this.exporters
+        });
+    }
+
+    loadManifests() {
+        let dir = this.config.validator.config.rulesDirectory;
+
+
+        this.loadManifest(dir);
+
+        dir = path.resolve(__dirname, '../../rules');
+        this.loadManifest(dir);
+
+    }
+
+    loadManifest(dir) {
+
+        let manifestFile = dir;
+        let manifest = null;
+
+        try {
+            manifestFile = path.resolve(dir, 'manifest.json');
+            const contents = fs.readFileSync(manifestFile, 'utf8');
+
+            manifest = JSON.parse(contents);
+
+        } catch(e) {
+            console.log('Error loading manifset from ' + manifestFile + ': ' + e);
+            return;
+        }
+
+        let loadItem = (item, type, target) => {
+            if(!this.classMap[item.filename]) {
+                const properties = this.loadFromManifest(dir, item.filename, type);
+
+                if(properties) {
+                    target.push(properties);
                 }
-                catch (e) {
-                    console.log(`Failed to load ${uiConfigName}. Attempt threw:\n${e}\n`);
+            }
+        };
+
+        if(manifest.rules) {
+            manifest.rules.forEach((item) => {
+                loadItem(item, 'rule', this.rules);
+            });
+        }
+
+        if(manifest.parsers) {
+            manifest.parsers.forEach((item) => {
+                loadItem(item, 'parser', this.parsers);
+            });
+        }
+
+        if(manifest.importers) {
+            manifest.importers.forEach((item) => {
+                loadItem(item, 'importer', this.importers);
+            });
+        }
+
+        if(manifest.exporters) {
+            manifest.exporters.forEach((item) => {
+                loadItem(item, 'exporter', this.exporters);
+            });
+        }
+
+    }
+
+    loadFromManifest(dir, file, type) {
+        try {
+
+            var ruleClass = null;
+
+            const ruleFile = path.resolve(dir, file + '.js');
+
+            if (fs.existsSync(ruleFile)) {
+
+                ruleClass = require(ruleFile);
+
+                this.classMap[file] = ruleClass;
+
+                var properties = this.getClassProperties(ruleClass);
+                if(properties) {
+
+                    return {
+                        id: file,
+                        type: 'rule',
+                        attributes: {
+                            name: file,
+                            filename: file,
+                            ui: {
+                                properties: properties
+                            }
+                        }
+                    };
+
+                } else {
+                    console.log(`${type} ${ruleFile} does not have ConfigProperties.`);
                 }
             }
             else
-                console.log(`No ${uiConfigName} for ${file}.`);
+                console.log(`No ${ruleFile} for ${type} ${file}.`);
 
-            return {
-                id: basename,
-                type: 'rule',
-                attributes: {
-                    name: basename,
-                    filename: basename,
-                    ui: uiConfig
-                }
-            };
+
+        } catch (e) {
+            console.log(`Error loading ${type} ${file} from manifest in ${dir}: ${e}`);
         }
-        return;
-	}
+        return null;
+    }
+
+    getClassProperties(ruleClass) {
+
+        if(ruleClass.ConfigProperties) {
+            //do a deep clone
+            let properties = JSON.parse(JSON.stringify(ruleClass.ConfigProperties));
+
+            if (ruleClass.ConfigDefaults) {
+                properties.forEach((prop) => {
+                    if (ruleClass.ConfigDefaults.hasOwnProperty(prop.name)) {
+                        prop.default = ruleClass.ConfigDefaults[prop.name];
+                    }
+                });
+            }
+            return properties;
+        }
+        return null;
+    }
+
 }
+
+
+
+
 
 module.exports = RulesRouter;

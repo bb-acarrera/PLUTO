@@ -3,12 +3,18 @@
   <div>
     <div class="column">
       <div class="section-header">Ruleset</div>
-      <div class="section-content">ID: {{model.ruleset.ruleset_id}}</div>
+      <div class="section-content">{{model.ruleset.filename}}</div>
       <div class="section-content">Description: <input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
+      <div class="section-header">Parser</div>
+      <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser" model.ruleset.parser}}>
+        {{model.ruleset.parser.name}}
+      </div>
       <div class="section-header">Rules</div>
       <table id="rulesTable" class="ruleset-table">
         {{#each model.ruleset.rules as |ruleInstance index|}}
-          <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}>
+          <tr
+            id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
+            class="rule-selectable">
             <td>{{ruleInstance.name}}</td>
             <td><button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up"></i></button></td>
             <td><button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down"></i></button></td>
@@ -30,9 +36,9 @@
       <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i class="fa fa-trash"></i></button>
       <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet</button>
     </div>
-    <div class="column">
+    <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
       <!-- The column for editting rule properties. -->
-      {{show-rule-editor ruleInstance=this.ruleToEdit rules=model.rules ruleset=model.ruleset}}
+      {{show-rule-editor ruleInstance=this.ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers}}
       <button class="save-ruleset" style="float: right" {{action "updateRule" model.ruleset this.ruleToEdit}}>Apply</button>
     </div>
   </div>

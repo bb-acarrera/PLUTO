@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-export function showRuleEditor(params, {ruleInstance, rules, ruleset}) {
+export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers}) {
   var content = "<div>";
 
   if (!ruleInstance || !rules)
@@ -11,6 +11,13 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset}) {
     if (rule.get("filename") == ruleInstance.filename)
       uiConfig = rule.get("ui");
   });
+  
+  if(!uiConfig) {
+    parsers.forEach(parser => {
+      if (parser.get("filename") == ruleInstance.filename)
+        uiConfig = parser.get("ui");
+    });
+  }
 
   var rulesetConfig = ruleset.get("config") || {};
   var sharedData = rulesetConfig.sharedData || {};

@@ -1,10 +1,9 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class DeleteColumn extends CSVRuleAPI {
+class DeleteColumn extends TableRuleAPI {
 	constructor(config) {
 		super(config);
 
-		this.rowNumber = 0;
 		this.column = this.getValidatedColumnProperty();
 	}
 
@@ -15,7 +14,6 @@ class DeleteColumn extends CSVRuleAPI {
 				record.splice(this.column, 1);
 		}
 
-		this.rowNumber++;
 		return record;
 	}
 
@@ -31,6 +29,26 @@ class DeleteColumn extends CSVRuleAPI {
 			&& this.config.sharedData.columnLabels.length != undefined
 			&& this.config.sharedData.columnLabels.length >= this.column)
 			this.config.sharedData.columnLabels.splice(this.column, 1);
+	}
+
+	get processHeaderRows() {
+		return true;
+	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'column',
+				label: 'Column To Delete',
+				type: 'column',
+				tooltip: 'The column label for the column to delete.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {};
 	}
 }
 

@@ -1,6 +1,6 @@
-const CSVRuleAPI = require("../api/CSVRuleAPI");
+const TableRuleAPI = require("../api/TableRuleAPI");
 
-class CheckLatLong extends CSVRuleAPI {
+class CheckLatLong extends TableRuleAPI {
 	constructor(config) {
 		super(config);
 
@@ -8,8 +8,6 @@ class CheckLatLong extends CSVRuleAPI {
 			this.error('No configuration specified.');	// At the moment this does nothing since a config is required for reporting errors.
 			return;	// Might as well give up...
 		}
-
-		this.numHeaderRows = this.getValidatedHeaderRows();
 
 		this.latitudeColumn = this.getValidatedColumnProperty(this.config.latitudeColumn, 'latitudeColumn');
 		this.longitudeColumn = this.getValidatedColumnProperty(this.config.longitudeColumn, 'longitudeColumn');
@@ -31,16 +29,15 @@ class CheckLatLong extends CSVRuleAPI {
 		else
 			this.nullEpsilon = this.config.nullIslandEpsilon;
 
-		this.rowNumber = 0;
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 	}
 
-	processRecord(record) {
-		if (this.latitudeColumn !== undefined && this.longitudeColumn !== undefined && this.rowNumber >= this.numHeaderRows) {
+	processRecord(record, rowId) {
+		if (this.latitudeColumn !== undefined && this.longitudeColumn !== undefined) {
 			if (this.latitudeColumn >= record.length || this.longitudeColumn >= record.length) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${this.rowNumber} has insufficient columns.`);
+					this.error(`Row ${rowId} has insufficient columns.`);
 					this.badColumnCountReported = true;
 				}
 			}
@@ -48,24 +45,61 @@ class CheckLatLong extends CSVRuleAPI {
 				const lat = record[this.latitudeColumn];
 				const long = record[this.longitudeColumn];
 				if (isNaN(lat))
-					this.error(`Latitude is not a number in row ${this.rowNumber}. Got '${lat}'.`);
+					this.error(`Latitude is not a number in row ${rowId}. Got '${lat}'.`);
 				else if (lat < -90 || lat > 90)
-					this.error(`Latitude is out of range in row ${this.rowNumber}. Got '${lat}'.`);
+					this.error(`Latitude is out of range in row ${rowId}. Got '${lat}'.`);
 
 				if (isNaN(long))
-					this.error(`Longitude is not a number in row ${this.rowNumber}. Got '${long}'.`);
+					this.error(`Longitude is not a number in row ${rowId}. Got '${long}'.`);
 				else if (long < -180 || long > 180)
-					this.error(`Longitude is out of range in row ${this.rowNumber}. Got '${long}'.`);
+					this.error(`Longitude is out of range in row ${rowId}. Got '${long}'.`);
 
 				if (Math.abs(lat) <= this.nullEpsilon && Math.abs(long) <= this.nullEpsilon)
-					this.warning(`Found null island in row ${this.rowNumber}.`);	// Should this be enabled conditionally?
+					this.warning(`Found null island in row ${rowId}.`);	// Should this be enabled conditionally?
 
 				// TODO: Any other tests?
 			}
 		}
 
-		this.rowNumber++;
 		return record;
+	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'latitudeColumn',
+				label: 'Latitude Column',
+				type: 'column',
+				tooltip: 'The column label for the latitude data.'
+			},
+			{
+				name: 'longitudeColumn',
+				label: 'Longitude Column',
+				type: 'column',
+				tooltip: 'The column label for the longitude data.'
+			},
+			{
+				name: 'nullEpsilon',
+				label: 'Null Island Epsilon',
+				type: 'float',
+				minimum: '0',
+				tooltip: 'The amount of error permitted around the null island test.'
+			},
+			{
+				name: 'reportAlways',
+				label: 'Report All Errors?',
+				type: 'boolean',
+				tooltip: 'Report all errors encountered or just the first.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {
+			nullEpsilon: 0.01,
+			reportAlways: false
+		};
 	}
 }
 module.exports = CheckLatLong;

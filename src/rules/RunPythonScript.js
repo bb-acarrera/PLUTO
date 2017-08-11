@@ -2,9 +2,9 @@ const fs = require('fs-extra');
 const path = require("path");
 const spawnSync = require('child_process').spawnSync;
 
-const RuleAPI = require("../api/RuleAPI");
+const OperatorAPI = require("../api/RuleAPI");
 
-class RunPythonScript extends RuleAPI {
+class RunPythonScript extends OperatorAPI {
 	constructor(config) {
 		super(config);
 	}
@@ -81,6 +81,22 @@ class RunPythonScript extends RuleAPI {
 		}
 		else
 			return this.asFile(this.runPython(inputName));
+	}
+
+	static get ConfigProperties() {
+		return [
+			{
+				name: 'pythonScript',
+				type: 'string',
+				label: 'Python Script Path',
+				tooltip: 'The path to the python script to run.'
+			}
+		];
+	}
+
+
+	static get ConfigDefaults() {
+		return {};
 	}
 }
 

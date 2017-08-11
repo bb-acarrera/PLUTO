@@ -3,40 +3,40 @@
  */
 
 const ErrorLogger = require("../../ErrorLogger");
-const RuleAPI = require("../../../api/RuleAPI");
 const validator = require("../../../validator/validator");
 const Data = require("../../../common/dataDb");
 
 QUnit.test( "Validator: No Config Creation Test", function(assert){
-    const logger = new ErrorLogger();
 
     assert.throws(
         function() {
             const vldtr = new validator();
         },
         function( err ) {
-            return err.toString().startsWith("Failed to find RulesetDirectory ");
+            return err.toString().startsWith("No data accessor supplied");
         },
-        'Expected "Failed to find RulesetDirectory"'
+        'Expected "No data accessor supplied"'
     );
+
 });
 
 QUnit.test( "Validator: Nonexistent RootDirectory Test", function(assert){
-   const logger = new ErrorLogger();
-   const config = {
-       "_debugLogger" : logger,
-       "rootDirectory" : "/foo/bar"
-   };
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "rootDirectory" : "/foo/bar"
+    };
 
-   assert.throws(
-       function() {
-           const vldtr = new validator(config);
-       },
-       function( err ) {
-           return err.toString().startsWith("Failed to find RootDirectory")
-       },
-       'Expected "Failed to find RootDirectory"'
-   );
+    assert.throws(
+        function() {
+            const vldtr = new validator(config);
+        },
+        function( err ) {
+            return err.toString().startsWith("Failed to find RootDirectory ");
+        },
+        'Expected "Failed to find RootDirectory"'
+    );
+
 });
 
 
@@ -48,7 +48,7 @@ QUnit.test( "Validator: No rulesetDirectory Test", function(assert){
     };
 
     const vldtr = new validator(config, () => {});
-    assert.ok(vldtr.config.rulesetDirectory, "runtime/rulesets");
+    assert.ok(vldtr.config.rulesetDirectory.endsWith("runtime/rulesets"), "Ruleset directory defauls to runtime/rulesets");
 
 });
 
@@ -62,44 +62,6 @@ QUnit.test( "Validator: No rulesDirectory Test", function(assert){
    const vldtr = new validator(config, () => {});
    assert.ok(vldtr.config.rulesDirectory, "rules");
 
-});
-
-QUnit.test( "Validator: Nonexistent rulesetDirectory Test", function(assert){
-    const logger = new ErrorLogger();
-    const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
-        "rulesetDirectory" : "foo/bar"
-    };
-
-    assert.throws(
-        function() {
-            const vldtr = new validator(config);
-        },
-        function( err ) {
-            return err.toString().startsWith("Failed to find RulesetDirectory")
-        },
-        'Expected "Failed to find RootDirectory"'
-    );
-});
-
-QUnit.test( "Validator: Nonexistent rulesDirectory Test", function(assert){
-    const logger = new ErrorLogger();
-    const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
-        "rulesDirectory" : "foo/bar"
-    };
-
-    assert.throws(
-        function() {
-            const vldtr = new validator(config);
-        },
-        function( err ) {
-            return err.toString().startsWith("Failed to find RulesDirectory")
-        },
-        'Expected "Failed to find RulesDirectory"'
-    );
 });
 
 QUnit.test( "Validator: End to End Test", function(assert) {
@@ -161,10 +123,17 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
                                     filename : "CheckColumnCount",
                                     config : {
                                         id : 1,
-                                        columns : 9
+                                        columns : 9,
+                                        numberOfHeaderRows : 1
                                     }
                                 }
-                            ]
+                            ],
+                            parser: {
+                                filename: "CSVParser",
+                                config: {
+                                    numberOfHeaderRows : 1
+                                }
+                            }
                     });
                 })
             },
@@ -243,7 +212,13 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                                     columns : 4
                                 }
                             }
-                        ]
+                        ],
+                        parser: {
+                            filename: "CSVParser",
+                            config: {
+                                numberOfHeaderRows : 1
+                            }
+                        }
                     });
                 })
             },
@@ -291,7 +266,13 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
                                     nullIslandEpsilon : 0
                                 }
                             }
-                        ]
+                        ],
+                        parser: {
+                            filename: "CSVParser",
+                            config: {
+                                numberOfHeaderRows : 1
+                            }
+                        }
                     });
                     //throw new Exception('this is an exception');
                 })
