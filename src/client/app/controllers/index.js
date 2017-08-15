@@ -4,11 +4,55 @@ export default Ember.Controller.extend({
   queryParams: [],
   actions: {
     addRuleset() {
-      alert("Add ruleset not yet implemented.");
+      var rulesetId = prompt("Enter a name for the new ruleset", "");
+
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = () => {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
+          this.transitionToRoute('editRuleset', rulesetId);
+        }
+        else if (xmlHttp.readyState == 4) {
+          alert(`Failed to create. Status = ${xmlHttp.status}`);
+        }
+      };
+
+      let theUrl = document.location.origin + "/rulesets/";
+      let theJSON = {
+        rulesetId: rulesetId
+      };
+
+      xmlHttp.open("POST", theUrl, true); // true for asynchronous
+      xmlHttp.setRequestHeader("Content-Type", "application/json");
+      xmlHttp.send(JSON.stringify(theJSON));
+
     },
 
-    cloneRuleset() {
-      alert("Clone ruleset not yet implemented.");
+    cloneRuleset(ruleset) {
+      var rulesetId = prompt("Enter a name for the copied ruleset", "");
+
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = () => {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
+          this.get('target.router').refresh();
+          this.transitionToRoute('editRuleset', rulesetId);
+        }
+        else if (xmlHttp.readyState == 4) {
+          alert(`Failed to create. Status = ${xmlHttp.status}`);
+        }
+      };
+
+      var ruleset = ruleset.toJSON().rules;
+      ruleset.name = "Copy of " + ruleset.name;
+
+      let theUrl = document.location.origin + "/rulesets/";
+      let theJSON = {
+        rulesetId: rulesetId,
+        ruleset: ruleset
+      };
+
+      xmlHttp.open("POST", theUrl, true); // true for asynchronous
+      xmlHttp.setRequestHeader("Content-Type", "application/json");
+      xmlHttp.send(JSON.stringify(theJSON));
     },
 
     deleteRuleset(ruleset, rulesets) {
@@ -22,7 +66,7 @@ export default Ember.Controller.extend({
           else if (xmlHttp.readyState == 4) {
             alert(`Failed to delete. Status = ${xmlHttp.status}`);
           }
-        }
+        };
 
         let theUrl = document.location.origin + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
         let theJSON = ruleset.toJSON();

@@ -24,14 +24,14 @@
         <td>{{rulesetInstance.filename}}</td>
         <td align="right">
           <button {{action "deleteRuleset" rulesetInstance model.rulesets}}><i class="fa fa-trash"></i></button>
-          <button {{action "cloneRuleset" rulesetInstance}} disabled><i class="fa fa-clone"></i></button>
+          <button {{action "cloneRuleset" rulesetInstance}}><i class="fa fa-clone"></i></button>
           {{#link-to 'editRuleset' rulesetInstance tagName='button'}}<i class="fa fa-pencil"></i>{{/link-to}}
 
         </td>
       </tr>
     {{/each}}
   </table>
-  <!-- <button {{action "addRuleset" model.rulesets}}><i class="fa fa-plus"></i></button> -->
-  {{#link-to 'editRuleset' (new-ruleset) tagName='button'}}<i class="fa fa-plus"></i>{{/link-to}}
+  <button {{action "addRuleset" model.rulesets}}><i class="fa fa-plus"></i></button>
+  <!-- {{#link-to 'editRuleset' (new-ruleset) tagName='button'}}<i class="fa fa-plus"></i>{{/link-to}} -->
 
 </div>

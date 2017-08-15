@@ -170,8 +170,6 @@ class data {
 
         });
 
-
-
     }
 
     /**
@@ -213,7 +211,13 @@ class data {
     }
 
     rulesetExists(ruleset_id, version) {
-
+        return getRuleset(this.db, ruleset_id, version, (result, resolve, reject) => {
+            if(result.rows.length > 0) {
+               resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
     }
 
     /**
