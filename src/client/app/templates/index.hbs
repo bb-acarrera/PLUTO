@@ -9,7 +9,7 @@
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
             <td>{{runInstance.ruleset}}</td>
-            <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
+            <td>{{#link-to "run" runInstance.id}}Details{{/link-to}}</td>
           </tr>
       {{/each}}
     </table>
@@ -24,8 +24,7 @@
         <td align="right">
           <button {{action "deleteRuleset" rulesetInstance model.rulesets}}><i class="fa fa-trash"></i></button>
           <button {{action "cloneRuleset" rulesetInstance}}><i class="fa fa-clone"></i></button>
-          {{#link-to 'editRuleset' rulesetInstance tagName='button'}}<i class="fa fa-pencil"></i>{{/link-to}}
-
+          {{#link-to 'editRuleset' rulesetInstance.filename tagName='button'}}<i class="fa fa-pencil"></i>{{/link-to}}
         </td>
       </tr>
     {{/each}}
