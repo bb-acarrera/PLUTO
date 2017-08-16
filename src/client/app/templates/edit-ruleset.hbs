@@ -8,6 +8,22 @@
       <div class="section-header">Parser</div>
       <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser" model.ruleset.parser}}>
         {{model.ruleset.parser.name}}
+
+        {{#if showChangeParser}}
+
+            <select id="selectParser">
+                <option value="None" selected>None</option>
+              {{#each model.parsers as |parser|}}
+                  <option value="{{parser.filename}}">{{parser.name}}</option>
+              {{/each}}
+            </select>
+
+            <button {{action "hideChangeParser"}}>Cancel</button>
+            <button {{action "changeParser" model.ruleset model.rules}}>OK</button>
+        {{else}}
+            <button {{action "showChangeParser"}}>Change</button>
+        {{/if}}
+
       </div>
       <div class="section-header">Rules</div>
       <table id="rulesTable" class="ruleset-table">

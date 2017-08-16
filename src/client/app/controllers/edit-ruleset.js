@@ -69,7 +69,22 @@ export default Ember.Controller.extend({
         this.set('showErrors', rule);
       }
 
-    }
+    },
+
+    showChangeParser() {
+      this.set('showChangeParser', true);
+    },
+
+    hideChangeParser() {
+      this.set('showChangeParser', false);
+    },
+
+    changeParser(ruleset) {
+
+
+      this.set('showChangeParser', false);
+    },
+
   },
   init: function() {
   }
