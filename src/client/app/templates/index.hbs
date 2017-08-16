@@ -9,7 +9,7 @@
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
             <td>{{runInstance.ruleset}}</td>
-            <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
+            <td>{{#link-to "run" runInstance.id}}Details{{/link-to}}</td>
           </tr>
       {{/each}}
     </table>
