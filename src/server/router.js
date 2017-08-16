@@ -32,6 +32,7 @@ class Router {
 		this._router.get('/rulesets/:id', (req, res, next) => this.rulesetRouter.get(req, res, next) );
 		this._router.patch('/rulesets/:id', (req, res, next) => this.rulesetRouter.patch(req, res, next) );
         this._router.delete('/rulesets/:id', (req, res, next) => this.rulesetRouter.delete(req, res, next) );
+		this._router.post('/rulesets', (req, res, next) => this.rulesetRouter.insert(req, res, next) );
 
         this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
 	}
