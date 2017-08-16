@@ -5,7 +5,7 @@ export default Ember.Route.extend({
     model(params) {
         return RSVP.hash({
             ruleset: this.store.findRecord('ruleset', params.ruleset_id),
-            parsers: this.store.findRecord('parser'),
+            parsers: this.store.findAll('parser'),
             rules: this.store.findAll('rule')
         });
     },
