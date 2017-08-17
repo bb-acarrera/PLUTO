@@ -40,10 +40,13 @@ class RulesetRouter extends BaseRouter {
 						});
 				}
 
-				var parser = {
-					filename: ruleset.parser.filename,
-					name: ruleset.parser.filename,
-					config: ruleset.parser.config
+				let parser = null;
+				if(ruleset.parser) {
+					parser = {
+						filename: ruleset.parser.filename,
+						name: ruleset.parser.filename,
+						config: ruleset.parser.config
+					};
 				}
 
 				res.json({
@@ -82,7 +85,7 @@ class RulesetRouter extends BaseRouter {
 
 					rulesets.push({
 						type: "ruleset",
-						id: ruleset.ruleset_id || ruleset.filename,
+						id: ruleset["ruleset-id"] || ruleset.filename,
 						attributes: ruleset
 					})
 				});
@@ -108,6 +111,40 @@ class RulesetRouter extends BaseRouter {
         this.config.data.deleteRuleSet(ruleset).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
         });
+	}
+
+	insert(req, res, next) {
+		let new_rulesetId = req.body.rulesetId;
+
+		this.config.data.rulesetExists(new_rulesetId, 0).then((exists) => {
+			if(exists) {
+				res.status(422).send(`Ruleset '${new_rulesetId}' already exsists.`);
+				return;
+			}
+
+			let ruleset = null;
+
+			if(req.body.ruleset) {
+				req.body.ruleset.filename = new_rulesetId;
+				req.body.ruleset.ruleset_id = new_rulesetId;
+				ruleset = new RuleSet(req.body.ruleset);
+			} else {
+				ruleset = new RuleSet({
+					filename: new_rulesetId,
+					ruleset_id: new_rulesetId
+				})
+			}
+
+			this.config.data.saveRuleSet(ruleset).then((name) => {
+				res.status(201).location('/ruleset/' + name).json(req.body);
+
+			}, (error) => {
+				next(error);
+			}).catch(next);
+
+		}, (error) => {
+			next(error);
+		}).catch(next);
 	}
 }
 
