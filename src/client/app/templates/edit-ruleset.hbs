@@ -7,23 +7,27 @@
       <div class="section-content">Description: <input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
       <div class="section-header">Parser</div>
       <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser" model.ruleset.parser}}>
-        {{model.ruleset.parser.name}}
-
+          {{#if model.ruleset.parser}}
+            {{model.ruleset.parser.name}}
+          {{else}}
+            None
+          {{/if}}
+        <span class="parser-buttons" onclick={{action "stopPropagation"}}>
         {{#if showChangeParser}}
 
-            <select id="selectParser">
-                <option value="None" selected>None</option>
+            <select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers bubbles=false}}>
+                <option>Choose the parser</option>
+                <option value="None">None</option>
               {{#each model.parsers as |parser|}}
-                  <option value="{{parser.filename}}">{{parser.name}}</option>
+                  <option value={{parser.filename}}>{{parser.name}}</option>
               {{/each}}
             </select>
 
-            <button {{action "hideChangeParser"}}>Cancel</button>
-            <button {{action "changeParser" model.ruleset model.rules}}>OK</button>
+            <button onclick={{action "hideChangeParser" bubbles=false}}>Cancel</button>
         {{else}}
-            <button {{action "showChangeParser"}}>Change</button>
+            <button onclick={{action "showChangeParser" bubbles=false}}>Change</button>
         {{/if}}
-
+        </span>
       </div>
       <div class="section-header">Rules</div>
       <table id="rulesTable" class="ruleset-table">
