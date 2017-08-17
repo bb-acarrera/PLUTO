@@ -130,7 +130,7 @@ class RulesRouter extends BaseRouter {
 
                     return {
                         id: file,
-                        type: 'rule',
+                        type: type,
                         attributes: {
                             name: file,
                             filename: file,
