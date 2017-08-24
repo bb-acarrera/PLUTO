@@ -26,15 +26,31 @@ function addRuleset(controller, rulesetId, ruleset) {
 
 export default Ember.Controller.extend({
   queryParams: [],
+    ptarget: "default",
+    showdialog: false,
+    dialogtarget: "",
+    buttontext: "Save",
   actions: {
+    openNewDialog(){
+      this.set("ptarget", "Name the new ruleset");
+      this.set("dialogtarget", "");
+      this.set("buttontext", "Save");
+      this.set("showdialog", true);
+    },
+    openCloneDialog(clone){
+      this.set("ptarget", "Please name the clone of ");
+      this.set("dialogtarget", clone);
+      this.set("buttontext", "Clone");
+      this.set("showdialog", true);
+    },
     addRuleset() {
-      var rulesetId = prompt("Enter a name for the new ruleset", "");
-
-      addRuleset(this, rulesetId);
+      this.set("showdialog", false);
+      addRuleset(this, this.modaltext);
     },
 
     cloneRuleset(ruleset) {
-      var rulesetId = prompt("Enter a name for the copied ruleset", "");
+      this.modal2 = false;
+      var rulesetId = this.modaltext;
 
       var rulesetCopy = ruleset.toJSON().rules;
       ruleset.name = "Copy of " + ruleset.name;
