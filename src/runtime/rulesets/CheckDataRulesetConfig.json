@@ -13,8 +13,8 @@
 				"filename" : "CheckLatLong",
 				"config" : {
 					"id" : 2,
-					"latitudeColumn"  : 2,
-					"longitudeColumn" : 3
+					"latitudeColumn"  : "lat",
+					"longitudeColumn" : "lng"
 				}
 			},
 			{
@@ -23,7 +23,7 @@
 				"config" : {
 					"id" : 3,
 					"type" : "number",
-					"column" : 4
+					"column" : "pop"
 				}
 			},
 			{
@@ -31,7 +31,7 @@
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
 					"id" : 4,
-					"column" : 2,
+					"column" : "city",
 					"regex" : "[^0-9\\s]*"
 				}
 			}

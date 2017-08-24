@@ -29,6 +29,10 @@ class CSVParser extends TableParserAPI {
         this.post_quote = this.config.OutputQuote || '"';
 
         this.numHeaderRows = this.getValidatedHeaderRows();
+
+        if(this.config.sharedData && !this.config.sharedData.columnLabels) {
+            this.config.sharedData.columnLabels = this.config.columnNames;
+        }
     }
 
     /**
