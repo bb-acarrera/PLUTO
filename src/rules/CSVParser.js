@@ -134,6 +134,12 @@ class CSVParser extends TableParserAPI {
     static get ConfigProperties() {
         return [
             {
+                name: 'columnName',
+                label: 'Column names',
+                type: 'columnNames',
+                tooltip: 'The names of the columns; used for column selection in rules'
+            },
+            {
                 name: 'numHeaderRows',
                 label: 'Number of Header Rows',
                 type: 'integer',
