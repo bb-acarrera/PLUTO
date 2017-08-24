@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   queryParams: [],
+
   actions: {
     saveRuleSet(ruleset) {
       save(ruleset);
@@ -66,10 +67,29 @@ export default Ember.Controller.extend({
         row.classList.add('selected');
 
         this.set('ruleToEdit', rule);
-        this.set('showErrors', rule);
       }
 
+    },
+
+    showChangeParser() {
+      this.set('showChangeParser', true);
+    },
+
+    hideChangeParser() {
+      this.set('showChangeParser', false);
+    },
+
+    changeParser(ruleset, parsers) {
+
+      changeParser(ruleset, parsers);
+
+      this.set('showChangeParser', false);
+    },
+
+    stopPropagation(event) {
+      event.stopPropagation();
     }
+
   },
   init: function() {
   }
@@ -198,6 +218,30 @@ function deselectItems(clearProperties, controller) {
     controller.set('ruleToEdit', null);
     controller.set('showErrors', null);
   }
+
+}
+
+function changeParser(ruleset, parsers) {
+  const newParserFilename = document.getElementById("selectParser").value;
+  if (newParserFilename == "None") {
+    ruleset.set("parser", null);
+    ruleset.notifyPropertyChange("parser");
+  } else {
+    parsers.forEach(parser => {
+      if (parser.get("filename") == newParserFilename) {
+        const newParser = {};
+        newParser.filename = parser.get("filename");
+        newParser.config = Object.assign({}, parser.get("config") || {});  // Clone the config. Don't want to reference the original.
+        newParser.name = newParser.filename;
+        newParser.config.id = createGUID();
+
+        ruleset.set("parser", newParser);
+        ruleset.notifyPropertyChange("parser");
+      }
+    });
+  }
+
+
 
 }
 
