@@ -275,7 +275,7 @@ class Validator {
 		config.name = config.name || ruleDescriptor.filename;
 		this.ruleName = config.name;
 
-		let rule =  new ruleClass(config);;
+		let rule =  new ruleClass(config);
 
 		if(ruleClass.NeedsParser) {
 
@@ -286,6 +286,8 @@ class Validator {
 			if(ruleClass.Parser !== this.parserClass.Type) {
 				throw(`Rule/Parser mistmatch. Rule ${ruleDescriptor} needs ${ruleClass.Parser} parser but ${this.parserConfig.name} is ${this.parserClass.Type}`);
 			}
+
+			this.updateConfig(this.parserConfig);
 
 			rule = new this.parserClass(this.parserConfig, rule);
 
