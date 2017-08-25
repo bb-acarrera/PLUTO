@@ -28,7 +28,7 @@
 				{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
 			{{/bs-button}}
 
-			{{#bs-button onClick=(action "openCloneDialog" rulesetInstance.filename)}}
+			{{#bs-button onClick=(action "openCloneDialog" rulesetInstance.filename rulesetInstance)}}
 				<i class="fa fa-clone"></i>
 				{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
 			{{/bs-button}}
@@ -54,7 +54,12 @@
 		{{/modal.body}}
 		{{#modal.footer}}
 			{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
-			{{#bs-button type="success" onClick=(action "addRuleset")}}{{buttontext}}{{/bs-button}}
+			{{#if isclone}}
+				{{#bs-button type="success" onClick=(action "cloneRuleset" dialogruleset)}}{{buttontext}}{{/bs-button}}
+			{{else}}
+				{{#bs-button type="success" onClick=(action  "addRuleset")}}{{buttontext}}{{/bs-button}}
+			{{/if}}
+
 		{{/modal.footer}}
 	{{/bs-modal}}
 

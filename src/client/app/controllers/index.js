@@ -30,18 +30,25 @@ export default Ember.Controller.extend({
     showdialog: false,
     dialogtarget: "",
     buttontext: "Save",
+    isclone: false,
+    dialogruleset: null,
   actions: {
     openNewDialog(){
       this.set("ptarget", "Name the new ruleset");
       this.set("dialogtarget", "");
       this.set("buttontext", "Save");
       this.set("showdialog", true);
+      this.set("isclone", false);
+      this.set("dialogruleset", null);
     },
-    openCloneDialog(clone){
+    openCloneDialog(cloneName, ruleset){
       this.set("ptarget", "Please name the clone of ");
-      this.set("dialogtarget", clone);
+      this.set("dialogtarget", cloneName);
       this.set("buttontext", "Clone");
       this.set("showdialog", true);
+      this.set("isclone", true);
+      this.set("dialogruleset", ruleset);
+
     },
     addRuleset() {
       this.set("showdialog", false);
@@ -49,7 +56,7 @@ export default Ember.Controller.extend({
     },
 
     cloneRuleset(ruleset) {
-      this.modal2 = false;
+      this.set("showdialog", false);
       var rulesetId = this.modaltext;
 
       var rulesetCopy = ruleset.toJSON().rules;
