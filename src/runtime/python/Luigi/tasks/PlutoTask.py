@@ -38,10 +38,10 @@ class PlutoTask(luigi.Task):
 		config = json.load(f)
 
 		nodeExe = "node"
-		cwd = os.path.abspath(config['WorkingDirectory'])
-		validatorExe = os.path.normpath(os.path.join(cwd, config['ValidatorExecutable']))
-		configFile = os.path.normpath(os.path.join(cwd, config['ValidatorConfig']))
-		rulesetFile = os.path.normpath(os.path.join(cwd, config['RuleSet']))
+		cwd = os.path.abspath(config['workingDirectory'])
+		validatorExe = os.path.normpath(os.path.join(cwd, config['validatorExecutable']))
+		configFile = os.path.normpath(os.path.join(cwd, config['validatorConfig']))
+		rulesetFile = os.path.normpath(os.path.join(cwd, config['ruleSet']))
 
 		result = run([nodeExe, validatorExe, \
 				"-c", configFile, \
