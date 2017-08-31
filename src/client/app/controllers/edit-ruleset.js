@@ -25,8 +25,8 @@ export default Ember.Controller.extend({
       deleteRule(tableID, ruleset);
     },
 
-    updateRule(ruleset, rule) {
-      updateRule(ruleset, rule);
+    updateRule(ruleInstance, rules, ruleset, parsers) {
+      updateRule(ruleInstance, rules, ruleset, parsers);
     },
 
     moveRuleUp(ruleset, index) {
@@ -133,7 +133,16 @@ function addRule(ruleset, rules) {
     if (rule.get("filename") == newRuleFilename) {
       const newRule = {};
       newRule.filename = rule.get("filename");
-      newRule.config = Object.assign({}, rule.get("config") || {});  // Clone the config. Don't want to reference the original.
+
+      var uiConfig = rule.get('ui').properties;
+      var startingConfig = {};
+      uiConfig.forEach(config => {
+        if(config.default) {
+          startingConfig[config.name] = config.default;
+        }
+      });
+
+      newRule.config = Object.assign({}, rule.get("config") || startingConfig);  // Clone the config. Don't want to reference the original.
       newRule.name = newRule.filename;
       newRule.config.id = createGUID();
 
@@ -172,24 +181,46 @@ function deleteRule(tableID, ruleset) {
   }
 }
 
-function updateRule(ruleset, rule) {
-  if (!rule)
+function updateRule(ruleInstance, rules, ruleset, parsers) {
+  if (!ruleInstance)
     return;
 
   // Update the name.
-  if (rule.hasOwnProperty("name")) {
+  if (ruleInstance.hasOwnProperty("name")) {
     const value = document.getElementById('name').value;
-    Ember.set(rule, 'name', value);
+    Ember.set(ruleInstance, 'name', value);
+  }
+
+  var uiConfig;
+  rules.forEach(rule => {
+    if (rule.get("filename") == ruleInstance.filename)
+      uiConfig = rule.get("ui");
+  });
+
+  if(!uiConfig) {
+    parsers.forEach(parser => {
+      if (parser.get("filename") == ruleInstance.filename)
+        uiConfig = parser.get("ui");
+    });
   }
 
   // Get the properties.
-  for (var key in rule.config) {
-    let element = document.getElementById(key);
-    if (element) {
-      const value = element.value;
-      Ember.set(rule.config, key, value);
+  uiConfig.properties.forEach(prop => {
+      let element = document.getElementById(prop.name);
+      if (element) {
+        var value = element.value;
+        if(prop.type === "columnNames") {
+          var re = /\s*,\s*/;
+          value = value.split(re);
+        }
+        if(prop.type === "column") {
+          value = $(element).prop('selectedIndex');
+        }
+
+        Ember.set(ruleInstance.config, prop.name, value);
+      }
     }
-  }
+  );
 
   ruleset.notifyPropertyChange("rules");
 }
@@ -231,7 +262,15 @@ function changeParser(ruleset, parsers) {
       if (parser.get("filename") == newParserFilename) {
         const newParser = {};
         newParser.filename = parser.get("filename");
-        newParser.config = Object.assign({}, parser.get("config") || {});  // Clone the config. Don't want to reference the original.
+
+        var uiConfig = parser.get("ui").properties;
+        var startingConfig = {};
+        uiConfig.forEach(config => {
+          if(config.default) {
+            startingConfig[config.name] = config.default;
+          }
+        });
+        newParser.config = Object.assign({}, parser.get("config") || startingConfig);  // Clone the config. Don't want to reference the original.
         newParser.name = newParser.filename;
         newParser.config.id = createGUID();
 

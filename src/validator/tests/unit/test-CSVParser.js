@@ -35,7 +35,7 @@ QUnit.test( "CSVParser: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CSVParser(config, new TestTableRule());
@@ -51,7 +51,7 @@ QUnit.test( "CSVParser: Creation Test No Rule", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CSVParser(config);
@@ -75,14 +75,14 @@ QUnit.test( "CSVParser: Check For Absent NumberOfHeaderRows property", function(
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured without a 'numberOfHeaderRows' property. Using 0.");
+	assert.equal(logResults[0].description, "Configured without a 'numHeaderRows' property. Using 0.");
 });
 
 QUnit.test( "CSVParser: Check For Non-Number NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : "foo"
+		"numHeaderRows" : "foo"
 	};
 
 	const rule = new CSVParser(config, new TestTableRule());
@@ -90,14 +90,14 @@ QUnit.test( "CSVParser: Check For Non-Number NumberOfHeaderRows", function( asse
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-number 'numberOfHeaderRows'. Got 'foo', using 0.");
+	assert.equal(logResults[0].description, "Configured with a non-number 'numHeaderRows'. Got 'foo', using 0.");
 });
 
 QUnit.test( "CSVParser: Check For Negative NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : -1
+		"numHeaderRows" : -1
 	};
 
 	const rule = new CSVParser(config, new TestTableRule());
@@ -105,14 +105,14 @@ QUnit.test( "CSVParser: Check For Negative NumberOfHeaderRows", function( assert
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a negative 'numberOfHeaderRows'. Got '-1', using 0.");
+	assert.equal(logResults[0].description, "Configured with a negative 'numHeaderRows'. Got '-1', using 0.");
 });
 
 QUnit.test( "CSVParser: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1.1
+		"numHeaderRows" : 1.1
 	};
 
 	const rule = new CSVParser(config, new TestTableRule());
@@ -120,14 +120,14 @@ QUnit.test( "CSVParser: Check For Non-Integer NumberOfHeaderRows", function( ass
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer 'numberOfHeaderRows'. Got '1.1', using 1.");
+	assert.equal(logResults[0].description, "Configured with a non-integer 'numHeaderRows'. Got '1.1', using 1.");
 });
 
 QUnit.test( "CSVParser: Check Valid Rows processed Exluding Header", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new TestTableRule(config);
