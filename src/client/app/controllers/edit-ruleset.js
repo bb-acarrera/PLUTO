@@ -209,7 +209,7 @@ function updateRule(ruleInstance, rules, ruleset, parsers) {
       let element = document.getElementById(prop.name);
       if (element) {
         var value = element.value;
-        if(prop.type === "columnNames") {
+        if(prop.type === "list") {
           var re = /\s*,\s*/;
           value = value.split(re);
         }

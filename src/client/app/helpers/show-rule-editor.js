@@ -20,8 +20,12 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers}) 
   }
 
   var rulesetConfig = ruleset.get("config") || {};
-  var sharedData = rulesetConfig.sharedData || {};
-  var columnLabels = sharedData.columnLabels || ruleset.data.parser.config.columnName || [];
+  var parser = ruleset.get("parser");
+
+  var columnLabels = [];
+  if(parser && parser.config && parser.config.columnNames) {
+    columnLabels = parser.config.columnNames;
+  }
 
   if (ruleInstance && uiConfig && uiConfig.properties) {
     // Place the name prompt at the top, always.
