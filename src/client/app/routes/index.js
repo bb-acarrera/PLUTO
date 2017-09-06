@@ -7,11 +7,9 @@ export default Ember.Route.extend({
   },
 
   model() {
-    const store = this.get('store');
-
-    return store.findAll('run').then(
+    return this.store.findAll('run').then(
       runs => {
-        return store.findAll('ruleset').then(
+        return this.store.findAll('ruleset').then(
           rulesets => {
             return { runs : runs, rulesets : rulesets };
           },

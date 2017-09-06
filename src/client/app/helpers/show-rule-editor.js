@@ -19,7 +19,6 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers}) 
     });
   }
 
-  var rulesetConfig = ruleset.get("config") || {};
   var parser = ruleset.get("parser");
 
   var columnLabels = [];

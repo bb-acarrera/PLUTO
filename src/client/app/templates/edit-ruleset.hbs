@@ -64,8 +64,8 @@
     </div>
     <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
       <!-- The column for editting rule properties. -->
-      {{show-rule-editor ruleInstance=this.ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers}}
-      <button class="save-ruleset" style="float: right" {{action "updateRule" this.ruleToEdit model.rules model.ruleset model.parsers}}>Apply</button>
+      {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers}}
+      <!--<button class="save-ruleset" style="float: right" {{action "updateRule" ruleToEdit}}>Apply</button>-->
     </div>
   </div>
 </div>

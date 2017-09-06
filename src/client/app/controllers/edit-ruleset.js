@@ -2,9 +2,22 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   queryParams: [],
+  ruleToEditChanged: Ember.observer('ruleToEdit', function()  {
+    let val = this.get('ruleToEdit');
+    let oldval = this.get('_oldRuleToEdit');
 
+    if (val === oldval) { return; }
+
+    this.set('_oldRuleToEdit', val);
+
+    if (oldval) {
+      updateRule(oldval, this.model.rules, this.model.ruleset, this.model.parsers);
+    }
+  }),
+  ruleToEdit: null,
   actions: {
     saveRuleSet(ruleset) {
+      updateRule(this.get('ruleToEdit'), this.model.rules, this.model.ruleset, this.model.parsers);
       save(ruleset);
     },
 
@@ -25,8 +38,8 @@ export default Ember.Controller.extend({
       deleteRule(tableID, ruleset);
     },
 
-    updateRule(ruleInstance, rules, ruleset, parsers) {
-      updateRule(ruleInstance, rules, ruleset, parsers);
+    updateRule(ruleInstance) {
+      updateRule(ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers);
     },
 
     moveRuleUp(ruleset, index) {
@@ -52,8 +65,6 @@ export default Ember.Controller.extend({
       rules.splice(index+1, 0, movingRule); // Add it back one spot later.
       ruleset.notifyPropertyChange("rules");
     },
-
-
 
     toggleRowHighlight(rowID, rule) {
 
@@ -208,7 +219,7 @@ function updateRule(ruleInstance, rules, ruleset, parsers) {
   uiConfig.properties.forEach(prop => {
       let element = document.getElementById(prop.name);
       if (element) {
-        var value = element.value;
+        var value = prop.type === 'boolean' ? element.checked : element.value;
         if(prop.type === "list") {
           var re = /\s*,\s*/;
           value = value.split(re);
