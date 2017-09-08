@@ -35,11 +35,9 @@
         <div class="column">
             <!-- The column for showing rule errors. -->
             <div class="section-header">Errors:</div>
-          {{#if showErrors}}
-            {{show-errors rule=this.showErrors log=model.log}}
-          {{else}}
-            {{show-errors log=model.log}}
-          {{/if}}
+
+           {{show-errors errors=pagedContent}}
+			{{page-numbers content=pagedContent}}
         </div>
     </div>
 </div>
