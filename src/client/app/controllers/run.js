@@ -59,6 +59,7 @@ export default Ember.Controller.extend({
         row.classList.add('selected');
 
         this.set('showErrors', rule);
+        this.set('page',1);
       }
 
     }
@@ -79,6 +80,7 @@ function deselectItems(clearProperties, controller) {
 
   if(clearProperties) {
     controller.set('showErrors', null);
+    this.set('page',1);
   }
 
 }

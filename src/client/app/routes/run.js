@@ -13,6 +13,10 @@ export default Ember.Route.extend({
               });
           });
   },
+  setupController(controller, model) {
+    this._super(...arguments);
+    controller.set('page', 1);
+  },
     actions: {
       error(reason){
           alert(reason);
