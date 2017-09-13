@@ -9,11 +9,10 @@
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
             <td>{{runInstance.ruleset}}</td>
-            <td>{{#link-to "run" runInstance}}Details{{/link-to}}</td>
+            <td>{{#link-to "run" runInstance.id}}Details{{/link-to}}</td>
           </tr>
       {{/each}}
     </table>
-
 </div>
 <div>
   <h2>PLUTO Rulesets</h2>
@@ -23,15 +22,53 @@
       <tr id="{{concat 'rulesetTableRow' index}}">
         <td>{{rulesetInstance.filename}}</td>
         <td align="right">
-          <button {{action "deleteRuleset" rulesetInstance model.rulesets}}><i class="fa fa-trash"></i></button>
-          <button {{action "cloneRuleset" rulesetInstance}} disabled><i class="fa fa-clone"></i></button>
-          <!-- <button {{action "editRuleset" rulesetInstance}}><i class="fa fa-pencil"></i></button> -->
-          {{#link-to 'editRuleset' rulesetInstance tagName='button'}}<i class="fa fa-pencil"></i>{{/link-to}}
 
+			{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets)}}
+				<i class="fa fa-trash"></i>
+				{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
+			{{/bs-button}}
+
+			{{#bs-button onClick=(action "openCloneDialog" rulesetInstance.filename rulesetInstance)}}
+				<i class="fa fa-clone"></i>
+				{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
+			{{/bs-button}}
+
+          {{#link-to 'editRuleset' rulesetInstance.filename tagName='button' class='btn btn-default'}}
+			  {{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
+			  <i class="fa fa-pencil"></i>
+		  {{/link-to}}
         </td>
       </tr>
     {{/each}}
   </table>
-  <button {{action "addRuleset" model.rulesets}} disabled><i class="fa fa-plus"></i></button>
+
+
+	{{#bs-modal open=showdialog onHidden=(action (mut showdialog) false) as |modal|}}
+		{{#modal.header}}
+			<h4 class="modal-title">
+				{{ptarget}}{{dialogtarget}}
+			</h4>
+		{{/modal.header}}
+		{{#modal.body}}
+				{{input type="text"  class="form-control"  autofocus="autofocus" value=modaltext}}
+		{{/modal.body}}
+		{{#modal.footer}}
+			{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
+			{{#if isclone}}
+				{{#bs-button type="success" onClick=(action "cloneRuleset" dialogruleset)}}{{buttontext}}{{/bs-button}}
+			{{else}}
+				{{#bs-button type="success" onClick=(action  "addRuleset")}}{{buttontext}}{{/bs-button}}
+			{{/if}}
+
+		{{/modal.footer}}
+	{{/bs-modal}}
+
+
+	{{#bs-button onClick=(action "openNewDialog")}}
+		<i class="fa fa-plus"></i>
+		{{#bs-tooltip placement="top"}}Add ruleset{{/bs-tooltip}}
+	{{/bs-button}}
+
+
 
 </div>

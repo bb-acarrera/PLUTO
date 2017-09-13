@@ -29,6 +29,10 @@ class CSVParser extends TableParserAPI {
         this.post_quote = this.config.OutputQuote || '"';
 
         this.numHeaderRows = this.getValidatedHeaderRows();
+
+        if(this.config.sharedData && !this.config.sharedData.columnLabels) {
+            this.config.sharedData.columnLabels = this.config.columnNames;
+        }
     }
 
     /**
@@ -133,6 +137,12 @@ class CSVParser extends TableParserAPI {
 
     static get ConfigProperties() {
         return [
+            {
+                name: 'columnName',
+                label: 'Column names',
+                type: 'columnNames',
+                tooltip: 'The names of the columns; used for column selection in rules'
+            },
             {
                 name: 'numHeaderRows',
                 label: 'Number of Header Rows',

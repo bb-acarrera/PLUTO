@@ -1,35 +1,21 @@
 import Ember from 'ember';
+import RSVP from 'rsvp';
 
 export default Ember.Route.extend({
-
-  setupController: function (controller, model) {
-    const store = this.get('store');
-
-    getData(store, model, controller)
-
-
-  }
-});
-
-function getData(store, model, controller) {
-  return store.findRecord('run', model.id).then(
-    (run) => {
-      
-      Ember.RSVP.Promise.all([
-        store.findRecord('ruleset', run.get('ruleset')),
-        store.findRecord('log', run.get('log')),
-        store.findAll('rule')]).then(
-        (values)=>{
-          controller.set("model", {file: run.get('inputfilename'), ruleset: values[0], log: values[1], rules: values[2]});
-        },
-        error => {
-          controller.set("model", {error: error});
-        }
-      );
-    },
-    error => {
-      controller.set("model", {error: error});
+  model(params) {
+      return this.store.findRecord('run', params.run_id).then(
+          run => {
+              return RSVP.hash({
+                  file: params.run_id,
+                  ruleset: this.store.findRecord('ruleset', run.get('ruleset')),
+                  log: this.store.findRecord('log', run.get('log')),
+                  rules: this.store.findAll('rule')
+              });
+          });
+  },
+    actions: {
+      error(reason){
+          alert(reason);
+      }
     }
-  );
-}
-
+});
