@@ -108,7 +108,7 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 1
 	};
 
@@ -132,7 +132,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -156,7 +156,7 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -176,7 +176,7 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "float",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -200,7 +200,7 @@ QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( ass
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "float",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -220,7 +220,7 @@ QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", functio
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "float",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -240,7 +240,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "integer",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -264,7 +264,7 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "integer",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -288,7 +288,7 @@ QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( a
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "integer",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 

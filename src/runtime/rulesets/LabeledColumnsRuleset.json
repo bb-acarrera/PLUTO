@@ -29,7 +29,7 @@
 				"filename" : "CheckLatLong",
 				"config" : {
 					"id" : 7,
-					"numberOfHeaderRows" : 1,
+					"numHeaderRows" : 1,
 					"latitudeColumn"  : "lat",
 					"longitudeColumn" : "lng"
 				}
@@ -39,7 +39,7 @@
 				"name" : "Validate Population Column",
 				"config" : {
 					"id" : 8,
-					"numberOfHeaderRows" : 1,
+					"numHeaderRows" : 1,
 					"type" : "number",
 					"column" : "pop"
 				}
@@ -61,7 +61,7 @@
 			"filename": "CSVParser",
 			"config": {
 				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ],
-				"numberOfHeaderRows" : 1
+				"numHeaderRows" : 1
 			}
 		}
 	}

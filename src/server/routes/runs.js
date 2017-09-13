@@ -39,8 +39,10 @@ class RunsRouter extends BaseRouter {
                 page = req.query.page;
             }
 
-            this.config.data.getRuns(page).then((runs) => {
+            this.config.data.getRuns(page).then((results) => {
                 var data = [];
+
+                let runs = results.runs;
 
                 runs.forEach(runInfo => {
                     var run = {

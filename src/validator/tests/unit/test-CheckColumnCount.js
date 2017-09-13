@@ -9,7 +9,7 @@ QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -28,7 +28,7 @@ QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "foo",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -46,7 +46,7 @@ QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( 
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "-1",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -64,7 +64,7 @@ QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", functio
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "1.1",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -82,7 +82,7 @@ QUnit.test( "CheckColumnCount: Check Valid Columns Property Test", function( ass
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "1",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -98,7 +98,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "1",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -121,7 +121,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "1",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -144,7 +144,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "2",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);
@@ -169,7 +169,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	const config = {
 		"_debugLogger" : logger,
 		"columns" : "1",
-		"numberOfHeaderRows" : 1
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnCount(config);

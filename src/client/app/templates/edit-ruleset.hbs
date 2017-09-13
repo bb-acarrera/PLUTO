@@ -1,5 +1,11 @@
 <div>
-  <h2>Edit Ruleset</h2>
+	<div style="display: flex">
+		{{#link-to 'index' tagName='button' class='btn btn-success btn-sm'}}
+			{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+			<i class="fa fa-angle-double-left"></i>
+		{{/link-to}}
+  		<h2>Edit Ruleset</h2>
+	</div>
   <div>
     <div class="column">
       <div class="section-header">Ruleset</div>
@@ -58,8 +64,8 @@
     </div>
     <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
       <!-- The column for editting rule properties. -->
-      {{show-rule-editor ruleInstance=this.ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers}}
-      <button class="save-ruleset" style="float: right" {{action "updateRule" model.ruleset this.ruleToEdit}}>Apply</button>
+      {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers}}
+      <!--<button class="save-ruleset" style="float: right" {{action "updateRule" ruleToEdit}}>Apply</button>-->
     </div>
   </div>
 </div>

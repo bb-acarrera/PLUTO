@@ -51,7 +51,7 @@
 		"parser" : {
 			"filename": "CSVParser",
 			"config": {
-				"numberOfHeaderRows" : 1,
+				"numHeaderRows" : 1,
 				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
 			}
 		}

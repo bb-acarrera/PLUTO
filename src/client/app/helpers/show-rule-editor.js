@@ -11,7 +11,7 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers}) 
     if (rule.get("filename") == ruleInstance.filename)
       uiConfig = rule.get("ui");
   });
-  
+
   if(!uiConfig) {
     parsers.forEach(parser => {
       if (parser.get("filename") == ruleInstance.filename)
@@ -19,9 +19,12 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers}) 
     });
   }
 
-  var rulesetConfig = ruleset.get("config") || {};
-  var sharedData = rulesetConfig.sharedData || {};
-  var columnLabels = sharedData.columnLabels || [];
+  var parser = ruleset.get("parser");
+
+  var columnLabels = [];
+  if(parser && parser.config && parser.config.columnNames) {
+    columnLabels = parser.config.columnNames;
+  }
 
   if (ruleInstance && uiConfig && uiConfig.properties) {
     // Place the name prompt at the top, always.
@@ -117,7 +120,7 @@ function addColumnProperty(instance, property, columnLabels) {
   for (var i = 0; i < columnLabels.length; i++) {
     let choice = columnLabels[i];
     content += `<option value="${choice}"`;
-    if (choice == initialValue)
+    if (i == initialValue)
       content += " selected";
     content += `>${choice}</option>`;
   }

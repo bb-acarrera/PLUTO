@@ -16,18 +16,18 @@ class CheckLatLong extends TableRuleAPI {
 			this.error(`Configured with identical latitudeColumn and longitudeColumn property values.`);
 
 		this.nullEpsilon = 0.01;
-		if (this.config.nullIslandEpsilon === undefined) {
-			this.warning(`Configured without a nullIslandEpsilon property. Using ${this.nullEpsilon}.`);
+		if (this.config.nullEpsilon === undefined) {
+			this.warning(`Configured without a nullEpsilon property. Using ${this.nullEpsilon}.`);
 			this.nullEpsilon = 0;
 		}
-		else if (isNaN(this.config.nullIslandEpsilon))
-			this.error(`Configured with a non-number nullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'.`);
-		else if (this.config.nullIslandEpsilon < 0) {
-			this.nullEpsilon = -this.config.nullIslandEpsilon;
-			this.warning(`Configured with a negative nullIslandEpsilon. Got '${this.config.nullIslandEpsilon}'. Using ${this.nullEpsilon}.`);
+		else if (isNaN(this.config.nullEpsilon))
+			this.error(`Configured with a non-number nullEpsilon. Got '${this.config.nullEpsilon}'.`);
+		else if (this.config.nullEpsilon < 0) {
+			this.nullEpsilon = -this.config.nullEpsilon;
+			this.warning(`Configured with a negative nullEpsilon. Got '${this.config.nullEpsilon}'. Using ${this.nullEpsilon}.`);
 		}
 		else
-			this.nullEpsilon = this.config.nullIslandEpsilon;
+			this.nullEpsilon = this.config.nullEpsilon;
 
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?

@@ -67,6 +67,7 @@ class CheckColumnType extends TableRuleAPI {
 				name: 'column',
 				label: 'Column',
 				type: 'column',
+        minimum: '0',
 				tooltip: 'The column label to run the regular expression against.'
 			},
 			{
@@ -76,8 +77,7 @@ class CheckColumnType extends TableRuleAPI {
 				choices: [
 					'string',
 					'float',
-					'integer',
-					'number'
+					'integer'
 				],
 				tooltip: 'The expected data type of the given column.'
 			},
