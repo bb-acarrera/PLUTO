@@ -33,11 +33,11 @@ class RulesRouter extends BaseRouter {
         });
     }
 
-    getParsers(req, res) {
+    getImporters(req, res) {
         // Send generic rules. (i.e. not rule instances.)
 
         res.json({
-            data: this.parsers
+            data: this.importers
         });
     }
 
