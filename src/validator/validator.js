@@ -15,6 +15,8 @@ const Data = require("../common/dataDb");
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
 
+const RuleLoader = require('../common/ruleLoader')
+
 const version = '0.1'; //require("../../package.json").version;
 
 // Add a new method to Promises to help with running rules.
@@ -78,6 +80,8 @@ class Validator {
 
 		// This needs to be done after the above tests and setting of the global config object.
         this.data = Data(this.config);
+
+		this.ruleLoader = new RuleLoader(this.config.rulesDirectory);
     }
 
 	/*
@@ -122,11 +126,7 @@ class Validator {
 			throw new Error("No Ruleset found for: " + this.config.ruleset);
 		}
 
-		let rulesDirectory;
-		if (ruleset.rulesDirectory)
-			rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
-		else
-			rulesDirectory = this.config.rulesDirectory;
+		let rulesDirectory = this.config.rulesDirectory;
 
 		this.rulesetName = ruleset.name || "Unnamed";
 
@@ -136,7 +136,7 @@ class Validator {
 		this.rulesDirectory = rulesDirectory;
 
 		if(ruleset.parser) {
-			this.parserClass = this.getParserClass(rulesDirectory, ruleset.parser);
+			this.parserClass = this.getParserClass(ruleset.parser);
 		}
 
 		if (!this.outputFileName && !ruleset.export) {
@@ -203,7 +203,7 @@ class Validator {
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
 				if (lastResult.index < rules.length && !validator.shouldAbort)
-					return validator.getRule(rulesDirectory, rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
+					return validator.getRule(rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
 			}).catch((e) => {
@@ -238,36 +238,14 @@ class Validator {
 		}
 	}
 
-	getRule(rulesDirectory, ruleDescriptor) {
+	getRule(ruleDescriptor) {
 		// TODO: Get all the rules before running them. This way if any rules are missing an error can be
 		// raised without affecting the later running of the rules.
-		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
+		var ruleClass = this.loadRule(ruleDescriptor.filename);
 
-		// Load the default config, if it exists.
-		let suffixIndex = ruleDescriptor.filename.lastIndexOf('.');
-		var defaultConfigName;
-		if (suffixIndex > 0)
-			defaultConfigName = ruleDescriptor.filename.substring(0, suffixIndex) + "Config.json";
-		else
-			defaultConfigName = ruleDescriptor.filename + "Config.json";
-		let defaultConfigPath = path.resolve(rulesDirectory, defaultConfigName);
 
-		var defaultConfig = {};
-		if (fs.existsSync(defaultConfigPath))
-			defaultConfig = require(defaultConfigPath);
-
-		// Get the rule's config. If there isn't one use the default. The config from the ruleset file replaces
-		// the default. It does not amend it.
-		let config = ruleDescriptor.config || defaultConfig;
-		if (typeof config === 'string' && config != defaultConfigPath) {
-			try {
-				config = path.resolve(rulesDirectory, config);
-				config = require(config);
-			}
-			catch (e) {
-				throw(this.constructor.name, "Failed to load rule config file \"" + config + "\".\n\tCause: " + e);
-			}
-		}
+		// Get the rule's config.
+		let config = ruleDescriptor.config || {};
 
 		// Set the validator so that the rule can report errors and such.
 		// TODO: This would still have to be done when running the rules, not before.
@@ -296,8 +274,13 @@ class Validator {
 		return rule;
 	}
 
-	getParserClass(rulesDirectory, parserDescriptor) {
-		var parserClass = this.loadRule(parserDescriptor.filename, rulesDirectory);
+	getParserClass(parserDescriptor) {
+		var parserClass = this.ruleLoader.parsersMap[parserDescriptor.filename]
+
+		if(!parserClass) {
+			parserClass = this.loadRule(parserDescriptor.filename);
+		}
+
 
 		let config = parserDescriptor.config;
 
@@ -536,7 +519,7 @@ class Validator {
 	importFile(importConfig, targetFilename) {
 		let validator = this;
 		return new Promise((resolve, reject) => {
-			var importerClass = this.loadImporterExporter(importConfig.scriptPath);
+			var importerClass = this.loadImporter(importConfig);
 
 			if(!importerClass) {
 				reject("Could not find importer " + importConfig.scriptPath);
@@ -584,7 +567,7 @@ class Validator {
 				return;
 			}
 
-			var exporterClass = this.loadImporterExporter(exportConfig.scriptPath);
+			var exporterClass = this.loadExporter(exportConfig);
 
 			if(!exporterClass) {
 				reject("Could not find exporter " + exportConfig.scriptPath);
@@ -620,13 +603,18 @@ class Validator {
 	 * @returns {*} the executable rule if it could be loaded.
 	 * @private
 	 */
-	loadRule(filename, rulesDirectory) {
+	loadRule(filename) {
+
 		if (!filename)
 			throw("Rule has no 'filename' property.");
 
+		if(this.ruleLoader.rulesMap[filename]) {
+			return this.ruleLoader.rulesMap[filename];
+		}
+
 		// Find the rule file.
 
-		let ruleFilename = rulesDirectory === undefined ? path.resolve(filename) : path.resolve(rulesDirectory, filename);
+		let ruleFilename = this.config.rulesDirectory === undefined ? path.resolve(filename) : path.resolve(this.config.rulesDirectory, filename);
 		if (!fs.existsSync(ruleFilename) && !fs.existsSync(ruleFilename + '.js')) {
 			ruleFilename = path.resolve(path.resolve(__dirname, '../rules'), filename);
 		}
@@ -640,11 +628,39 @@ class Validator {
 	 * @returns {*} the executable importer/exporter if it could be loaded.
 	 * @private
 	 */
-	loadImporterExporter(filename) {
-		if (!filename)
+	loadImporter(config) {
+
+		if(config.filename) {
+			if(this.ruleLoader.importersMap[config.filename]) {
+				return this.ruleLoader.importersMap[config.filename];
+			}
+		}
+
+		if (!config.scriptPath)
+			throw("Importer/Exporter has no 'scriptPath' property.");
+
+		let porterFilename = path.resolve(config.scriptPath);
+		return this.loadPlugin(porterFilename);
+	}
+
+	/**
+	 * A method for loading an importer or exporter object.
+	 * @param filename the name of the importer or exporter file to load.
+	 * @returns {*} the executable importer/exporter if it could be loaded.
+	 * @private
+	 */
+	loadExporter(config) {
+
+		if(config.filename) {
+			if(this.ruleLoader.exportersMap[config.filename]) {
+				return this.ruleLoader.exportersMap[config.filename];
+			}
+		}
+
+		if (!config.scriptPath)
 			throw("Importer/Exporter has no 'filename' property.");
 
-		let porterFilename = path.resolve(filename);
+		let porterFilename = path.resolve(config.scriptPath);
 		return this.loadPlugin(porterFilename);
 	}
 

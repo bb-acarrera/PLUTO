@@ -37,13 +37,13 @@
 			}
 		],
 		"import" : {
-			"scriptPath": "./rules/LocalCopyImport",
+			"filename": "LocalCopyImport",
 			"config": {
 				"file": "./examples/data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"scriptPath": "./rules/LocalCopyExport",
+			"filename": "LocalCopyExport",
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
 			}
