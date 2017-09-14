@@ -114,7 +114,6 @@ class data {
 
 
         return new Promise((resolve, reject) => {
-            var runs = [];
 
             let where = "";
 
