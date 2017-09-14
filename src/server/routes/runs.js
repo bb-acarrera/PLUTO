@@ -35,14 +35,15 @@ class RunsRouter extends BaseRouter {
         } else {
 
             let page = 0;
+            let size = 10;
             if(req.query.page) {
                 page = req.query.page;
             }
 
-            this.config.data.getRuns(page).then((runs) => {
-                var data = [];
+            this.config.data.getRuns(page, size).then((result) => {
+              var data = [];
 
-                runs.forEach(runInfo => {
+              result.runs.forEach(runInfo => {
                     var run = {
                         id: runInfo.id,
                         type: 'run',
@@ -51,8 +52,11 @@ class RunsRouter extends BaseRouter {
                     data.push(run);
                 });
 
+
+
                 res.json({
-                    data: data
+                    data: data,
+                    meta: { rowCount: result.rowCount, totalPages: result.pageCount}
                 });
             }, next)
                 .catch(next);

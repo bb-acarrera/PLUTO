@@ -98,43 +98,65 @@ class data {
      * the plugin.
      * @returns {Promise} resolves {array} list of the runs.
      */
-    getRuns(page) {
+    getRuns(page, size) {
 
         let offset;
+
+        if(!size) {
+           size = this.runsLimit;
+        }
+
         if(!page) {
             offset = 0;
         } else {
-            offset = page * this.runsLimit;
+            offset = (page - 1) * size;
         }
+
 
         return new Promise((resolve, reject) => {
             var runs = [];
 
-            this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, " +
+            let where = "";
+
+            let runsQuery = this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, " +
                 "runs.finishtime, runs.num_errors, runs.num_warnings " +
                 "FROM runs " +
                 "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
-                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2", [this.runsLimit, offset] )
-                .then((result) => {
+                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
 
-                    result.rows.forEach((row) => {
-                        runs.push({
-                            id: row.run_id,
-                            log: row.id,
-                            ruleset: row.ruleset_id,
-                            inputfilename: row.inputfile,
-                            outputfilename: row.outputfile,
-                            time: row.finishtime,
-                            errorcount: row.num_errors,
-                            warningcount: row.num_warnings
-                        });
+            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " + where)
+
+            Promise.all([runsQuery, countQuery]).then((values) => {
+
+                let result = values[0];
+                let countResult = values[1];
+
+                let rowCount = countResult.rows[0].count;
+                let pageCount = Math.ceil(rowCount/size);
+
+                let runs = [];
+                result.rows.forEach((row) => {
+                    runs.push({
+                        id: row.run_id,
+                        log: row.id,
+                        ruleset: row.ruleset_id,
+                        inputfilename: row.inputfile,
+                        outputfilename: row.outputfile,
+                        time: row.finishtime,
+                        errorcount: row.num_errors,
+                        warningcount: row.num_warnings
                     });
-
-                    resolve(runs);
-
-                }, (error) => {
-                    reject(error);
                 });
+
+                resolve({
+                    runs: runs,
+                    rowCount: rowCount,
+                    pageCount: pageCount
+                });
+
+            }, (error) => {
+                reject(error);
+            });
 
         });
     }
