@@ -288,7 +288,7 @@ function deselectItems(clearProperties, controller) {
       item.classList.remove('selected');
   }
 
-  const otherItems = ['parser', 'importer', 'exporter'];
+  const otherItems = ['parser', 'import', 'export'];
 
   otherItems.forEach(item => {
     const parserElem = document.getElementById(item);
