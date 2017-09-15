@@ -98,14 +98,20 @@ class data {
      * the plugin.
      * @returns {Promise} resolves {array} list of the runs.
      */
-    getRuns(page) {
+    getRuns(page, size) {
 
         let offset;
+
+        if(!size) {
+           size = this.runsLimit;
+        }
+
         if(!page) {
             offset = 0;
         } else {
-            offset = page * this.runsLimit;
+            offset = (page - 1) * size;
         }
+
 
         return new Promise((resolve, reject) => {
 
@@ -115,7 +121,7 @@ class data {
                 "runs.finishtime, runs.num_errors, runs.num_warnings " +
                 "FROM runs " +
                 "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
-                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [this.runsLimit, offset] );
+                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
 
             let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " + where)
 
@@ -125,7 +131,7 @@ class data {
                 let countResult = values[1];
 
                 let rowCount = countResult.rows[0].count;
-                let pageCount = Math.ceil(rowCount/this.runsLimit);
+                let pageCount = Math.ceil(rowCount/size);
 
                 let runs = [];
                 result.rows.forEach((row) => {
