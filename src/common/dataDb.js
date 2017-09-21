@@ -27,6 +27,7 @@ class data {
 
         this.runsLimit = 50;
         this.rulesetLimit = 50;
+        this.logLimit = 50;
     }
 
     /**
@@ -36,14 +37,42 @@ class data {
      * @returns {Promise} resolves {object} the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
      */
-    getLog(id) {
+    getLog(id, page, size) {
+
+        if(!size) {
+            size = this.logLimit;
+        }
+
+        let offset;
+        if(!page) {
+            offset = 0;
+        } else {
+            offset = (page - 1) * size;
+        }
 
         return new Promise((resolve, reject) => {
             this.db.query("SELECT log FROM runs where id = $1", [id])
                 .then((result) => {
 
                     if(result.rows.length > 0) {
-                        resolve(result.rows[0].log);
+
+                        const log = result.rows[0].log;
+                        let logResp = [];
+                        let pageCount = Math.ceil(log.length / size);
+
+                        if(log.length < size) {
+                            if(offset != 0) {
+                                logResp = [];
+                            } else {
+                                logResp = log;
+                            }
+                        } else {
+                            logResp = log.splice(offset, offset + size);
+                        }
+
+                        resolve({logs: logResp,
+                          rowCount: log.length,
+                          pageCount: pageCount });
                     } else {
                         resolve(null);
                     }

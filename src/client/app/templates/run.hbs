@@ -17,17 +17,21 @@
             <div class="section-content">{{model.ruleset.parser.name}}</div>
             <div class="section-header">Rules</div>
             <table id="rulesTable" class="ruleset-table">
-              {{#each model.ruleset.rules as |ruleInstance index|}}
+              {{#each ruleData as |ruleInstance index|}}
                   <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
                       class="rule-selectable">
-                    {{rule-log-icons rule=ruleInstance log=model.log}}
+					  <td class="icon-cell">
+						  	<i class="fa fa-exclamation-triangle fa {{rule-log-icons ruleInstance}}"></i>
+					  </td>
                       <td>{{ruleInstance.name}}</td>
                   </tr>
               {{/each}}
                 <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) "Validator"}}
                     class="rule-selectable">
-                  {{rule-log-icons rule="Validator" log=model.log}}
-                    <td>Global Errors</td><td/><td/><td/>
+					<td></td>
+					<td>
+                    Global Errors
+					</td>
                 </tr>
             </table>
             {{#link-to 'editRuleset' model.ruleset.filename}}Edit Current Ruleset{{/link-to}}
@@ -36,8 +40,8 @@
             <!-- The column for showing rule errors. -->
             <div class="section-header">Errors:</div>
 
-           {{show-errors errors=pagedContent}}
-			{{page-numbers content=pagedContent}}
+           {{show-errors errors=errors}}
+			{{show-paginator pages=model.log.meta.totalPages current=page}}
         </div>
     </div>
 </div>

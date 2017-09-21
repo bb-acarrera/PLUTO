@@ -4,7 +4,9 @@
     <table id="runsTable" class="runs-table">
       {{#each model.runs.result as |runInstance index|}}
           <tr id="{{concat 'runsTableRow' index}}">
-            <td>{{run-error runInstance.errorcount runInstance.warningcount}}</td>
+			  <td class="icon-cell">
+				  <i class="fa fa-exclamation-triangle fa {{rule-log-icons runInstance}}"></i>
+			  </td>
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
             <td>{{runInstance.ruleset}}</td>

@@ -21,6 +21,7 @@ class Router {
 
 
 		this._router.get('/logs/:id', (req, res, next) => this.logsRouter.get(req, res, next) );
+    this._router.get('/logs', (req, res, next) => this.logsRouter.get(req, res, next) );
 
 		this._router.get('/rules', (req, res, next) => this.rulesRouter.getRules(req, res, next));
 		this._router.get('/parsers', (req, res, next) => this.rulesRouter.getParsers(req, res, next));

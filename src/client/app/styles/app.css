@@ -53,6 +53,7 @@ table.ruleset-table {
   border-spacing: 0;
   background: #E8E8E8;
   width:  98%;
+  table-layout: fixed;
 }
 
 td.error-cell {
@@ -81,6 +82,28 @@ tr.error-row {
   margin: 0px;
 }
 
+.warning-and-error-icon {
+  color: transparent;
+  background: linear-gradient(90deg, firebrick 50%, gold 50%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.warning-icon {
+  color: gold;
+}
+
+.error-icon {
+  color: firebrick;
+}
+
+.no-icon {
+  display: none;
+}
+
+.icon-cell {
+  width: 18px;
+}
 /* Conflicts with the selection background coloring.
 /* tr:nth-child(even) {
   background-color: #f2f2f2;
