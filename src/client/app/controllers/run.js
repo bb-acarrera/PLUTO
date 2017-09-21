@@ -1,6 +1,4 @@
 import Ember from 'ember';
-import pagedArray from 'ember-cli-pagination/computed/paged-array';
-
 
 export default Ember.Controller.extend({
   queryParams: ["page", "perPage"],
@@ -10,19 +8,12 @@ export default Ember.Controller.extend({
   page: 1,
   perPage: 13,
 
-  // can be called anything, I've called it pagedContent
-  // remember to iterate over pagedContent in your template
-  pagedContent: pagedArray('errors', {
-    page: Ember.computed.alias("parent.page"),
-    perPage: Ember.computed.alias("parent.perPage")
-  }),
-
   // binding the property on the paged array
   // to a property on the controller
-  totalPages: Ember.computed.oneWay("pagedContent.totalPages"),
+  totalPages: Ember.computed.oneWay("model.log.meta.totalPages"),
 
   errors: Ember.computed('showErrors','model.log',function(){
-    let log  = this.get('model.log');
+    let log  = this.get('model.log').result;
     let rule = this.get('showErrors');
 
     let ruleID = undefined;
@@ -34,7 +25,7 @@ export default Ember.Controller.extend({
     }
 
     let result = [];
-    log.get('reports').forEach((report) => {
+    log.forEach((report) => {
       if ((ruleID && ruleID == report.get("ruleID")) ||
         (ruleID === "global" && typeof report.get("ruleID") === "undefined") ||
         typeof ruleID === "undefined"){
@@ -45,6 +36,24 @@ export default Ember.Controller.extend({
     });
 
     return result;
+  }),
+  ruleData: Ember.computed('ruleset.rules','log', function(){
+    let rules = this.get('model.ruleset.rules');
+    let log = this.get('model.log.result');
+
+    rules.forEach(function(rule){
+      let hasWarnings = log.any(function(entry){
+        return entry.get('ruleID') == rule.config.id && entry.get('logType') == 'Warning';
+      });
+      let hasErrors = log.any(function(entry){
+        return entry.get('ruleID') == rule.config.id && entry.get('logType') == 'Error';
+      });
+      rule.hasWarnings = hasWarnings;
+      rule.hasErrors = hasErrors;
+      rule.hasAny = hasWarnings || hasErrors;
+    });
+
+    return rules;
   }),
   showErrors: null,
   actions: {

@@ -8,7 +8,14 @@ export default Ember.Route.extend({
               return RSVP.hash({
                   file: params.run_id,
                   ruleset: this.store.findRecord('ruleset', run.get('ruleset')),
-                  log: this.store.findRecord('log', run.get('log')),
+                  log: this.store.query('log', {
+                    id: run.get('log'),
+                    page: params.page,
+                    size: params.perPage
+                  }).then(function (result) {
+                    let meta = result.get('meta');
+                    return { result: result, meta: meta};
+                  }),
                   rules: this.store.findAll('rule')
               });
           });
