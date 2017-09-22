@@ -16,7 +16,9 @@ export default Ember.Route.extend({
                   log: this.store.query('log', {
                     id: run.get('log'),
                     page: params.page,
-                    size: params.perPage
+                    size: params.perPage,
+                    ruleid: params.ruleid,
+                    type: params.type
                   }).then(function (result) {
                     let meta = result.get('meta');
                     return { result: result, meta: meta};

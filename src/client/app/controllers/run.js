@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-  queryParams: ["page", "perPage"],
+  queryParams: ["page", "perPage", "ruleid", "type"],
 
   // set default values, can cause problems if left out
   // if value matches default, it won't display in the URL
   page: 1,
   perPage: 13,
+  ruleid: null,
+  type: null,
 
   // binding the property on the paged array
   // to a property on the controller
@@ -18,9 +20,7 @@ export default Ember.Controller.extend({
 
     let ruleID = undefined;
 
-    if(rule === "global") {
-      ruleID = rule;
-    } else if(rule && rule.config) {
+    if(rule && rule.config) {
       ruleID = rule.config.id;
     }
 
@@ -40,6 +40,14 @@ export default Ember.Controller.extend({
   ruleData: Ember.computed('ruleset.rules','log', function(){
     let rules = this.get('model.ruleset.rules');
     let log = this.get('model.log.meta.ruleState');
+
+    rules.push({
+      name: 'Global Errors',
+      filename: 'global',
+      config:{
+        id: 'global'
+      }
+    })
 
     rules.forEach(function(rule){
 
@@ -69,7 +77,10 @@ export default Ember.Controller.extend({
         row.classList.add('selected');
 
         this.set('showErrors', rule);
-        this.set('page',1);
+        this.set('page', 1);
+        this.set('ruleid', rule.config.id);
+
+
       }
 
     }
@@ -90,7 +101,8 @@ function deselectItems(clearProperties, controller) {
 
   if(clearProperties) {
     controller.set('showErrors', null);
-    this.set('page',1);
+    controller.set('page',1);
+    controller.set('ruleid', null);
   }
 
 }

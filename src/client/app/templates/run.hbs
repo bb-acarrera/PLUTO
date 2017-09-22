@@ -1,11 +1,11 @@
 <div>
-	<div style="display: flex">
-		{{#link-to 'index' tagName='button' class='btn btn-success btn-sm'}}
-			{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
-			<i class="fa fa-angle-double-left"></i>
-		{{/link-to}}
-		<h2>PLUTO</h2>
-	</div>
+    <div style="display: flex">
+      {{#link-to 'index' tagName='button' class='btn btn-success btn-sm'}}
+        {{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+          <i class="fa fa-angle-double-left"></i>
+      {{/link-to}}
+        <h2>PLUTO</h2>
+    </div>
     <div>
         <div class="column">
             <div class="section-header">Input Filename</div>
@@ -20,28 +20,21 @@
               {{#each ruleData as |ruleInstance index|}}
                   <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
                       class="rule-selectable">
-					  <td class="icon-cell">
-						  	<i class="fa fa-exclamation-triangle fa {{rule-log-icons ruleInstance}}"></i>
-					  </td>
+                      <td class="icon-cell">
+                          <i class="fa fa-exclamation-triangle fa {{rule-log-icons ruleInstance}}"></i>
+                      </td>
                       <td>{{ruleInstance.name}}</td>
                   </tr>
               {{/each}}
-                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) "Validator"}}
-                    class="rule-selectable">
-					<td></td>
-					<td>
-                    Global Errors
-					</td>
-                </tr>
             </table>
-            {{#link-to 'editRuleset' model.ruleset.filename}}Edit Current Ruleset{{/link-to}}
+          {{#link-to 'editRuleset' model.ruleset.filename}}Edit Current Ruleset{{/link-to}}
         </div>
         <div class="column">
             <!-- The column for showing rule errors. -->
             <div class="section-header">Errors:</div>
 
-           {{show-errors errors=errors}}
-			{{show-paginator pages=model.log.meta.totalPages current=page}}
+          {{show-errors errors=errors}}
+          {{show-paginator pages=model.log.meta.totalPages current=page}}
         </div>
     </div>
 </div>

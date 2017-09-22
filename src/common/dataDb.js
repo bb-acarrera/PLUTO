@@ -50,6 +50,13 @@ class data {
             offset = (page - 1) * size;
         }
 
+        if(type && type.length === 0) {
+            type = null;
+        }
+        if(ruleid && ruleid.length === 0) {
+            ruleid = null;
+        }
+
         return new Promise((resolve, reject) => {
             this.db.query("SELECT log FROM runs where id = $1", [id])
                 .then((result) => {
@@ -61,7 +68,7 @@ class data {
                         let pageCount = Math.ceil(log.length / size);
                         let resultMap = {};
                         let filteredLog;
-                        let filter;
+                        let filter, rowRuleId;
 
                         if(type || ruleid) {
                             filteredLog = [];
@@ -72,21 +79,28 @@ class data {
                         }
 
                         log.forEach(function(value){
-                            if(!resultMap[value.ruleID]) {
-                                resultMap[value.ruleID]={
+
+                            if(!value.ruleID) {
+                                rowRuleId = "global";
+                            }else {
+                                rowRuleId = value.ruleID;
+                            }
+
+                            if(!resultMap[rowRuleId]) {
+                                resultMap[rowRuleId]={
                                     err: false,
                                     warn: false
                                 };
                             }
                             if(value.type == 'Error') {
-                              resultMap[value.ruleID].err = true;
+                              resultMap[rowRuleId].err = true;
                             }
                             if(value.type == 'Warning') {
-                              resultMap[value.ruleID].warn = true;
+                              resultMap[rowRuleId].warn = true;
                             }
 
                             if(filter) {
-                                if((!type || type == value.type) && (!ruleid || value.ruleID == ruleid )) {
+                                if((!type || type == value.type) && (!ruleid || rowRuleId == ruleid )) {
                                     filteredLog.push(value);
                                 }
                             }
