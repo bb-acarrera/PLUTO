@@ -1,24 +1,31 @@
 import Ember from 'ember';
 
-export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers}) {
+export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, importers, exporters}) {
   var content = "<div>";
 
   if (!ruleInstance || !rules)
     return "";
 
-  var uiConfig;
-  rules.forEach(rule => {
-    if (rule.get("filename") == ruleInstance.filename)
-      uiConfig = rule.get("ui");
-  });
 
-  if(!uiConfig) {
-    parsers.forEach(parser => {
-      if (parser.get("filename") == ruleInstance.filename)
-        uiConfig = parser.get("ui");
+  var uiConfig;
+
+  const itemSets = [rules, parsers, importers, exporters];
+  let items;
+
+  for(var i = 0; i < itemSets.length; i++) {
+    items = itemSets[i];
+
+    items.forEach(item => {
+      if (item.get("filename") == ruleInstance.filename)
+        uiConfig = item.get("ui");
     });
+
+    if(uiConfig) {
+      break;
+    }
   }
 
+  //get the column names from the parser
   var parser = ruleset.get("parser");
 
   var columnLabels = [];

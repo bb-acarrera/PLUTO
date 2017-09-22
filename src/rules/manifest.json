@@ -26,12 +26,14 @@
   ],
   "importers" : [
     {
-      "filename":"LocalCopyImport"
+      "filename":"LocalCopyImport",
+      "path": "./LocalCopyImport.js"
     }
   ],
   "exporters" : [
     {
-      "filename":"LocalCopyExport"
+      "filename":"LocalCopyExport",
+      "path": "./LocalCopyExport.js"
     }
   ]
 }

@@ -11,13 +11,13 @@ export default Ember.Controller.extend({
     this.set('_oldRuleToEdit', val);
 
     if (oldval) {
-      updateRule(oldval, this.model.rules, this.model.ruleset, this.model.parsers);
+      updateRule(oldval, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
     }
   }),
   ruleToEdit: null,
   actions: {
     saveRuleSet(ruleset) {
-      updateRule(this.get('ruleToEdit'), this.model.rules, this.model.ruleset, this.model.parsers);
+      updateRule(this.get('ruleToEdit'), this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
       save(ruleset);
     },
 
@@ -39,7 +39,7 @@ export default Ember.Controller.extend({
     },
 
     updateRule(ruleInstance) {
-      updateRule(ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers);
+      updateRule(ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
     },
 
     moveRuleUp(ruleset, index) {
@@ -95,6 +95,37 @@ export default Ember.Controller.extend({
       changeParser(ruleset, parsers);
 
       this.set('showChangeParser', false);
+    },
+
+    showChangeImporter() {
+      this.set('showChangeImporter', true);
+    },
+
+    hideChangeImporter() {
+      this.set('showChangeImporter', false);
+    },
+
+    changeImporter(ruleset, importers) {
+
+      changeImporter(ruleset, importers);
+
+      this.set('showChangeImporter', false);
+    },
+
+
+    showChangeExporter() {
+      this.set('showChangeExporter', true);
+    },
+
+    hideChangeExporter() {
+      this.set('showChangeExporter', false);
+    },
+
+    changeExporter(ruleset, exporters) {
+
+      changeExporter(ruleset, exporters);
+
+      this.set('showChangeExporter', false);
     },
 
     stopPropagation(event) {
@@ -192,7 +223,7 @@ function deleteRule(tableID, ruleset) {
   }
 }
 
-function updateRule(ruleInstance, rules, ruleset, parsers) {
+function updateRule(ruleInstance, rules, ruleset, parsers, importers, exporters) {
   if (!ruleInstance)
     return;
 
@@ -202,17 +233,21 @@ function updateRule(ruleInstance, rules, ruleset, parsers) {
     Ember.set(ruleInstance, 'name', value);
   }
 
-  var uiConfig;
-  rules.forEach(rule => {
-    if (rule.get("filename") == ruleInstance.filename)
-      uiConfig = rule.get("ui");
-  });
 
-  if(!uiConfig) {
-    parsers.forEach(parser => {
-      if (parser.get("filename") == ruleInstance.filename)
-        uiConfig = parser.get("ui");
+  const itemSets = [rules, parsers, importers, exporters];
+  let items, uiConfig;
+
+  for(var i = 0; i < itemSets.length; i++) {
+    items = itemSets[i];
+
+    items.forEach(item => {
+      if (item.get("filename") == ruleInstance.filename)
+        uiConfig = item.get("ui");
     });
+
+    if(uiConfig) {
+      break;
+    }
   }
 
   // Get the properties.
@@ -253,8 +288,16 @@ function deselectItems(clearProperties, controller) {
       item.classList.remove('selected');
   }
 
-  const parserElem = document.getElementById('parser');
-  parserElem.classList.remove('selected');
+  const otherItems = ['parser', 'import', 'export'];
+
+  otherItems.forEach(item => {
+    const parserElem = document.getElementById(item);
+
+    if(parserElem) {
+      parserElem.classList.remove('selected');
+    }
+
+  });
 
   if(clearProperties) {
     controller.set('ruleToEdit', null);
@@ -264,35 +307,45 @@ function deselectItems(clearProperties, controller) {
 }
 
 function changeParser(ruleset, parsers) {
-  const newParserFilename = document.getElementById("selectParser").value;
-  if (newParserFilename == "None") {
-    ruleset.set("parser", null);
-    ruleset.notifyPropertyChange("parser");
-  } else {
-    parsers.forEach(parser => {
-      if (parser.get("filename") == newParserFilename) {
-        const newParser = {};
-        newParser.filename = parser.get("filename");
 
-        var uiConfig = parser.get("ui").properties;
+  changeItem(ruleset, parsers, "selectParser", "parser");
+}
+
+function changeImporter(ruleset, importers) {
+  changeItem(ruleset, importers, "selectImporter", "import");
+}
+
+function changeExporter(ruleset, exporters) {
+  changeItem(ruleset, exporters, "selectExporter", "export");
+}
+
+function changeItem(ruleset, items, elementId, propName) {
+  const newItemFilename = document.getElementById(elementId).value;
+  if (newItemFilename == "None") {
+    ruleset.set(propName, null);
+    ruleset.notifyPropertyChange(propName);
+  } else {
+    items.forEach(item => {
+      if (item.get("filename") == newItemFilename) {
+        const newItem = {};
+        newItem.filename = item.get("filename");
+
+        var uiConfig = item.get("ui").properties;
         var startingConfig = {};
         uiConfig.forEach(config => {
           if(config.default) {
             startingConfig[config.name] = config.default;
           }
         });
-        newParser.config = Object.assign({}, parser.get("config") || startingConfig);  // Clone the config. Don't want to reference the original.
-        newParser.name = newParser.filename;
-        newParser.config.id = createGUID();
+        newItem.config = Object.assign({}, item.get("config") || startingConfig);  // Clone the config. Don't want to reference the original.
+        newItem.name = newItem.filename;
+        newItem.config.id = createGUID();
 
-        ruleset.set("parser", newParser);
-        ruleset.notifyPropertyChange("parser");
+        ruleset.set(propName, newItem);
+        ruleset.notifyPropertyChange(propName);
       }
     });
   }
 
-
-
 }
-
 
