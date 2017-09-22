@@ -37,32 +37,38 @@ export default Ember.Controller.extend({
 
     return result;
   }),
-  ruleData: Ember.computed('ruleset.rules','log', function(){
+  ruleData: Ember.computed('model.ruleset.rules','model.log', function() {
     let rules = this.get('model.ruleset.rules');
     let log = this.get('model.log.meta.ruleState');
 
-    rules.push({
-      name: 'Global Errors',
-      filename: 'global',
-      config:{
-        id: 'global'
-      }
-    })
+    if (Array.isArray(rules)) {
 
-    rules.forEach(function(rule){
+      rules.push({
+        name: 'Global Errors',
+        filename: 'global',
+        config: {
+          id: 'global'
+        }
+      });
 
-      rule.warningcount = false;
-      rule.errorcount = false;
-      rule.hasAny = false;
+      rules.forEach(function (rule) {
 
-      if(log[rule.config.id]){
-        rule.warningcount = log[rule.config.id].warn;
-        rule.errorcount = log[rule.config.id].err;
-        rule.hasAny = rule.warningcount || rule.errorcount;
-      }
-    });
+        rule.warningcount = false;
+        rule.errorcount = false;
+        rule.hasAny = false;
 
-    return rules;
+        if (log[rule.config.id]) {
+          rule.warningcount = log[rule.config.id].warn;
+          rule.errorcount = log[rule.config.id].err;
+          rule.hasAny = rule.warningcount || rule.errorcount;
+        }
+      });
+
+      return rules;
+    }
+
+    return [];
+
   }),
   showErrors: null,
   actions: {
