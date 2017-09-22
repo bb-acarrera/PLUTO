@@ -2,8 +2,8 @@ import Ember from 'ember';
 
 export function ruleLogIcons([value]) {
   let result =  '';
-  let err = value.hasErrors || Ember.get(value,'errorcount');
-  let warn = value.hasWarnings || Ember.get(value,'warningcount');
+  let err = Ember.get(value,'errorcount');
+  let warn = Ember.get(value,'warningcount');
   if (err) {
     result = 'error-icon';
   }

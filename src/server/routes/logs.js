@@ -50,7 +50,7 @@ class LogsRouter extends BaseRouter {
 
 			res.json({
 				data: includedReports,
-				meta: { rowCount: log.rowCount, totalPages: log.totalPages}
+				meta: { rowCount: log.rowCount, totalPages: log.pageCount, ruleState: log.ruleStates}
 			});
 		}, next)
 			.catch(next);
