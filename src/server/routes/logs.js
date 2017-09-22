@@ -24,7 +24,7 @@ class LogsRouter extends BaseRouter {
 		// The server's root directory points to the client code while the validator's root
 		// directory points to rulesets, rule plugins and such. It can be configured such
 		// that these two root directories are the same.
-		this.config.data.getLog(id, page, size).then((log) => {
+		this.config.data.getLog(id, page, size, req.query.ruleid, req.query.type).then((log) => {
 			if (!log) {
 				res.status(404).send(`Unable to retrieve the log '${id}'.`);
 				return;

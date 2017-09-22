@@ -37,7 +37,7 @@ class data {
      * @returns {Promise} resolves {object} the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
      */
-    getLog(id, page, size) {
+    getLog(id, page, size, ruleid, type) {
 
         if(!size) {
             size = this.logLimit;
@@ -60,6 +60,16 @@ class data {
                         let logResp = [];
                         let pageCount = Math.ceil(log.length / size);
                         let resultMap = {};
+                        let filteredLog;
+                        let filter;
+
+                        if(type || ruleid) {
+                            filteredLog = [];
+                            filter = true;
+                        } else {
+                            filteredLog = log;
+                            filter = false;
+                        }
 
                         log.forEach(function(value){
                             if(!resultMap[value.ruleID]) {
@@ -74,16 +84,23 @@ class data {
                             if(value.type == 'Warning') {
                               resultMap[value.ruleID].warn = true;
                             }
+
+                            if(filter) {
+                                if((!type || type == value.type) && (!ruleid || value.ruleID == ruleid )) {
+                                    filteredLog.push(value);
+                                }
+                            }
                         });
 
-                        if(log.length < size) {
+
+                        if(filteredLog.length < size) {
                             if(offset != 0) {
                                 logResp = [];
                             } else {
-                                logResp = log;
+                                logResp = filteredLog;
                             }
                         } else {
-                            logResp = log.splice(offset, offset + size);
+                            logResp = filteredLog.splice(offset, size);
                         }
 
                         resolve({logs: logResp,
