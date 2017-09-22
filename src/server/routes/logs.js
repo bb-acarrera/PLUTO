@@ -9,9 +9,16 @@ class LogsRouter extends BaseRouter {
 
 	get(req, res, next) {
 		 let id = req.query.id || req.params.id;
-		 let page = req.query.page || 1;
-		 let size = req.query.size || 0;
+		 let page = parseInt(req.query.page, 10);
+		 let size = parseInt(req.query.size, 10);
 
+		if(isNaN(page)) {
+			page = 1;
+		}
+
+		if(isNaN(size)) {
+			size = 0;
+		}
 
 		// Note that in general the server and validator can have different root directories.
 		// The server's root directory points to the client code while the validator's root
@@ -50,7 +57,7 @@ class LogsRouter extends BaseRouter {
 
 			res.json({
 				data: includedReports,
-				meta: { rowCount: log.rowCount, totalPages: log.totalPages}
+				meta: { rowCount: log.rowCount, totalPages: log.pageCount, ruleState: log.ruleStates}
 			});
 		}, next)
 			.catch(next);

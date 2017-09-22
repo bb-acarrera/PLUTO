@@ -59,6 +59,22 @@ class data {
                         const log = result.rows[0].log;
                         let logResp = [];
                         let pageCount = Math.ceil(log.length / size);
+                        let resultMap = {};
+
+                        log.forEach(function(value){
+                            if(!resultMap[value.ruleID]) {
+                                resultMap[value.ruleID]={
+                                    err: false,
+                                    warn: false
+                                };
+                            }
+                            if(value.type == 'Error') {
+                              resultMap[value.ruleID].err = true;
+                            }
+                            if(value.type == 'Warning') {
+                              resultMap[value.ruleID].warn = true;
+                            }
+                        });
 
                         if(log.length < size) {
                             if(offset != 0) {
@@ -72,7 +88,8 @@ class data {
 
                         resolve({logs: logResp,
                           rowCount: log.length,
-                          pageCount: pageCount });
+                          pageCount: pageCount,
+                          ruleStates: resultMap});
                     } else {
                         resolve(null);
                     }

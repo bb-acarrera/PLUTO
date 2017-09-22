@@ -39,18 +39,19 @@ export default Ember.Controller.extend({
   }),
   ruleData: Ember.computed('ruleset.rules','log', function(){
     let rules = this.get('model.ruleset.rules');
-    let log = this.get('model.log.result');
+    let log = this.get('model.log.meta.ruleState');
 
     rules.forEach(function(rule){
-      let hasWarnings = log.any(function(entry){
-        return entry.get('ruleID') == rule.config.id && entry.get('logType') == 'Warning';
-      });
-      let hasErrors = log.any(function(entry){
-        return entry.get('ruleID') == rule.config.id && entry.get('logType') == 'Error';
-      });
-      rule.hasWarnings = hasWarnings;
-      rule.hasErrors = hasErrors;
-      rule.hasAny = hasWarnings || hasErrors;
+
+      rule.warningcount = false;
+      rule.errorcount = false;
+      rule.hasAny = false;
+
+      if(log[rule.config.id]){
+        rule.warningcount = log[rule.config.id].warn;
+        rule.errorcount = log[rule.config.id].err;
+        rule.hasAny = rule.warningcount || rule.errorcount;
+      }
     });
 
     return rules;

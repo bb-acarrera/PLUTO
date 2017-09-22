@@ -2,6 +2,11 @@ import Ember from 'ember';
 import RSVP from 'rsvp';
 
 export default Ember.Route.extend({
+  queryParams: {
+    page: {
+      refreshModel: true
+    }
+  },
   model(params) {
       return this.store.findRecord('run', params.run_id).then(
           run => {
