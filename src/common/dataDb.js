@@ -65,7 +65,6 @@ class data {
 
                         const log = result.rows[0].log;
                         let logResp = [];
-                        let pageCount = Math.ceil(log.length / size);
                         let resultMap = {};
                         let filteredLog;
                         let filter, rowRuleId;
@@ -118,8 +117,8 @@ class data {
                         }
 
                         resolve({logs: logResp,
-                          rowCount: log.length,
-                          pageCount: pageCount,
+                          rowCount: filteredLog.length,
+                          pageCount: Math.ceil(filteredLog.length / size),
                           ruleStates: resultMap});
                     } else {
                         resolve(null);

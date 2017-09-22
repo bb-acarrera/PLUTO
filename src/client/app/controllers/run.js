@@ -14,6 +14,8 @@ export default Ember.Controller.extend({
   // to a property on the controller
   totalPages: Ember.computed.oneWay("model.log.meta.totalPages"),
 
+
+
   errors: Ember.computed('showErrors','model.log',function(){
     let log  = this.get('model.log').result;
     let rule = this.get('showErrors');
@@ -43,13 +45,16 @@ export default Ember.Controller.extend({
 
     if (Array.isArray(rules)) {
 
-      rules.push({
-        name: 'Global Errors',
-        filename: 'global',
-        config: {
-          id: 'global'
-        }
-      });
+      if(rules.length > 0 && rules[rules.length - 1].config.id !== 'global') {
+        rules.push({
+          name: 'Global Errors',
+          filename: 'global',
+          config: {
+            id: 'global'
+          }
+        });
+      }
+
 
       rules.forEach(function (rule) {
 
