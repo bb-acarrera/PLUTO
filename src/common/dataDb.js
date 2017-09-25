@@ -12,18 +12,6 @@ class data {
 
         this.db = DB(this.config);
 
-        this.rootDir = Util.getRootDirectory(this.config);
-
-        if (this.config.rulesetDirectory)
-            this.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
-        else
-            this.rulesetDirectory = path.resolve('runtime/rulesets');
-
-        if (!fs.existsSync(this.rulesetDirectory))
-            throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";
-
-        this.runsDirectory = path.resolve(this.rootDir, this.config.runsDirectory);
-        this.logDirectory = path.resolve(this.rootDir, this.config.logDirectory);
 
         this.runsLimit = 50;
         this.rulesetLimit = 50;

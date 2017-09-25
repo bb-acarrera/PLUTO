@@ -11,13 +11,13 @@
 			}
 		],
 		"import" : {
-			"scriptPath": "/opt/PLUTO/config/import.js",
+			"filename": "sampleImport",
 			"config": {
 				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"scriptPath": "/opt/PLUTO/config/export.js",
+			"filename": "sampleExport",
 			"config" : {
 				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
 			}
