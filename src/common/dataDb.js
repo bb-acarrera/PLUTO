@@ -151,12 +151,11 @@ class data {
                             id: row.run_id,
                             log: row.id,
                             ruleset: row.ruleset_id,
-                            inputfilename: row.inputFile,
-                            outputfilename: row.outputFile,
+                            inputfilename: row.inputfile,
+                            outputfilename: row.outputfile,
                             time: row.finishtime,
                             errorcount: row.num_errors,
-                            warningcount: row.num_warnings,
-                            log_results: row.log
+                            warningcount: row.num_warnings
                         });
                     } else {
                         resolve(null);

@@ -17,6 +17,7 @@ export default Ember.Route.extend({
       return this.store.findRecord('run', params.run_id).then(
           run => {
               return RSVP.hash({
+                  run: run,
                   file: params.run_id,
                   ruleset: this.store.findRecord('ruleset', run.get('ruleset')),
                   log: this.store.query('log', {
