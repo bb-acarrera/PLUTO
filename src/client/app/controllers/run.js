@@ -94,6 +94,13 @@ export default Ember.Controller.extend({
 
       }
 
+      this.transitionToRoute({queryParams:{
+        page: this.get('page'),
+        ruleid: this.get('ruleid'),
+        perPage: this.get('perPage'),
+        type: this.get('type')
+      }});
+
     }
   },
   init: function() {
@@ -115,6 +122,13 @@ function deselectItems(clearProperties, controller) {
     controller.set('page',1);
     controller.set('ruleid', null);
   }
+
+  controller.transitionToRoute({queryParams:{
+    page: controller.get('page'),
+    ruleid: controller.get('ruleid'),
+    perPage: controller.get('perPage'),
+    type: controller.get('type')
+  }});
 
 }
 
