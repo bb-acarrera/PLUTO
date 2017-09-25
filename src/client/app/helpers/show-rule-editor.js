@@ -127,7 +127,7 @@ function addColumnProperty(instance, property, columnLabels) {
   for (var i = 0; i < columnLabels.length; i++) {
     let choice = columnLabels[i];
     content += `<option value="${choice}"`;
-    if (i == initialValue)
+    if (choice == initialValue)
       content += " selected";
     content += `>${choice}</option>`;
   }
