@@ -34,10 +34,15 @@ class RunsRouter extends BaseRouter {
 
         } else {
 
-            let page = 0;
-            let size = 10;
-            if(req.query.page) {
-                page = req.query.page;
+            let page = parseInt(req.query.page, 10);
+            let size = parseInt(req.query.size, 10);
+
+            if(isNaN(page)) {
+                page = 1;
+            }
+
+            if(isNaN(size)) {
+                size = 0;
             }
 
             this.config.data.getRuns(page, size).then((result) => {

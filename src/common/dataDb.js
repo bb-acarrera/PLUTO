@@ -378,19 +378,23 @@ class data {
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
-    getRulesets(page) {
+    getRulesets(page, size) {
 
         return new Promise((resolve) => {
+
+            if(!size) {
+                size = this.rulesetLimit;
+            }
 
             let offset;
             if(!page) {
                 offset = 0;
             } else {
-                offset = page * this.runsLimit;
+                offset = (page - 1) * size;
             }
 
             this.db.query("SELECT * FROM rulesets " +
-                    "ORDER BY name ASC LIMIT $1 OFFSET $2", [this.rulesetLimit, offset] )
+                    "ORDER BY name ASC LIMIT $1 OFFSET $2", [size, offset] )
                 .then((result) => {
 
                     var rulesets = [];
