@@ -11,7 +11,7 @@ const Validator = require('../validator/validator');
 
 const Util = require("../common/Util");
 const Data = require("../common/dataDb");
-const DataFS = require("../common/dataFS");
+const DataFS = require("../common/dataFs");
 
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
