@@ -35,7 +35,7 @@ class RunsRouter extends BaseRouter {
         } else {
 
             let page = parseInt(req.query.page, 10);
-            let size = parseInt(req.query.size, 10);
+            let size = parseInt(req.query.perPage, 10);
 
             if(isNaN(page)) {
                 page = 1;
