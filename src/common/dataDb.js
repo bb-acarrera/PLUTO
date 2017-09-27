@@ -198,7 +198,7 @@ class data {
                 "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
                 "ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
 
-            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " + where)
+            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " + where);
 
             Promise.all([runsQuery, countQuery]).then((values) => {
 
@@ -393,22 +393,35 @@ class data {
                 offset = (page - 1) * size;
             }
 
-            this.db.query("SELECT * FROM rulesets " +
-                    "ORDER BY name ASC LIMIT $1 OFFSET $2", [size, offset] )
-                .then((result) => {
+            let rulesetsQuery = this.db.query("SELECT * FROM rulesets " +
+                "ORDER BY name ASC LIMIT $1 OFFSET $2", [size, offset] );
 
-                    var rulesets = [];
+            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id");
 
-                    result.rows.forEach((ruleset) => {
-                        ruleset.filename = ruleset.filename || ruleset.ruleset_id;
-                        rulesets.push(ruleset);
-                    });
+            Promise.all([rulesetsQuery, countQuery]).then((values) => {
 
-                    resolve(rulesets);
+                let result = values[0];
+                let countResult = values[1];
 
-                }, (error) => {
-                    reject(error);
+                let rowCount = countResult.rows[0].count;
+                let pageCount = Math.ceil(rowCount/size);
+
+                var rulesets = [];
+
+                result.rows.forEach((ruleset) => {
+                    ruleset.filename = ruleset.filename || ruleset.ruleset_id;
+                    rulesets.push(ruleset);
                 });
+
+                resolve({
+                    rulesets:rulesets,
+                    rowCount: rowCount,
+                    pageCount: pageCount});
+
+
+            }, (error) => {
+                reject(error);
+            });
 
         });
 
