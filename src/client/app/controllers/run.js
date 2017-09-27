@@ -14,6 +14,18 @@ export default Ember.Controller.extend({
   // to a property on the controller
   totalPages: Ember.computed.oneWay("model.log.meta.totalPages"),
 
+  errorTitle: Ember.computed('showErrors', function(){
+    let rule = this.get('showErrors');
+    if (rule) {
+      if (rule.filename == 'global') {
+        return "Global Notifications";
+      }else {
+        return "Notifications for " + rule.filename;
+      }
+    } else {
+      return "All Notifications";
+    }
+  }),
 
 
   errors: Ember.computed('showErrors','model.log',function(){
