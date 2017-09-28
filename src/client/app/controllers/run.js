@@ -83,12 +83,16 @@ export default Ember.Controller.extend({
 
       return rules;
     }
-
     return [];
-
   }),
   showErrors: null,
   actions: {
+    decPage() {
+      this.transitionToRoute({queryParams: {page: Math.max(this.page - 1, 1)}});
+    },
+    incPage() {
+      this.transitionToRoute({queryParams: {page: Math.min(this.page + 1, this.get('totalPages'))}});
+    },
     toggleRowHighlight(rowID, rule) {
       const row = document.getElementById(rowID);
 
