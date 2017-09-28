@@ -43,6 +43,21 @@ class LocalCopyImport {
         });
     }
 
+    static get Type() {
+        return "importer";
+    }
+
+    static get ConfigProperties() {
+        return [
+            {
+                name: 'file',
+                label: 'Source file path',
+                type: 'string',
+                tooltip: 'The full path to where the file to process is located'
+            }
+        ];
+    }
+
 };
 
 // Export the class.

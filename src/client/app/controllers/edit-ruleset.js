@@ -10,7 +10,7 @@ export default Ember.Controller.extend({
 
     this.set('_oldRuleToEdit', val);
 
-    if (oldval) {
+    if (oldval && val) {
       updateRule(oldval, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
     }
   }),

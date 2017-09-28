@@ -81,6 +81,21 @@ class LocalCopyExport {
         }
     }
 
+    static get Type() {
+        return "exporter";
+    }
+
+    static get ConfigProperties() {
+        return [
+            {
+                name: 'file',
+                label: 'Desitation file path',
+                type: 'string',
+                tooltip: 'The full path to where the processed file should be placed'
+            }
+        ];
+    }
+
 };
 
 module.exports = LocalCopyExport;

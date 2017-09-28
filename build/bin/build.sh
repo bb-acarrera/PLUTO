@@ -24,14 +24,14 @@ if [ ! -d $DST ]; then
 fi
 
 # Copy the files required to run the validator and server.
-echo "Copying runtime directories."
-for dir in runtime server common validator examples/data
+echo "Copying server directories."
+for dir in server common api rules validator
 do
     cp -r $SRC/$dir $SERVER_DST
 done
 
 cp $SRC/../package.json $SERVER_DST
-cp $SERVER_DST/runtime/configs/serverConfig.json $SERVER_DST/serverConfig.json
+cp $SRC/runtime/configs/serverConfig.json $SERVER_DST/serverConfig.json
 cp $SRC/../Dockerfile $SERVER_DST
 
 echo "install npm dependencies"
