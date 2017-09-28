@@ -89,7 +89,7 @@ class RulesetRouter extends BaseRouter {
 
 				let rawRulesets = result.rulesets;
 
-				rawRulesets.data.forEach(ruleset => {
+				rawRulesets.forEach(ruleset => {
 					ruleset["ruleset-id"] = ruleset.ruleset_id;
 					delete ruleset.ruleset_id;
 
@@ -103,7 +103,7 @@ class RulesetRouter extends BaseRouter {
 					})
 				});
 
-				res.json({ data: rulesets, meta: {totalPages: rawRulesets.pageCount}});
+				res.json({ data: rulesets, meta: {totalPages: result.pageCount}});
 
 			}, (error) => {
 				next(error);
