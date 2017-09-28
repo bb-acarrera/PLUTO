@@ -173,7 +173,7 @@ class data {
      * the plugin.
      * @returns {Promise} resolves {array} list of the runs.
      */
-    getRuns(page, size) {
+    getRuns(page, size, rulesetFilter, filenameFilter) {
 
         let offset;
 

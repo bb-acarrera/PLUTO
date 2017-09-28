@@ -9,12 +9,19 @@ export default Ember.Route.extend(RouteMixin, {
     },
     rulePage: {
       refreshModel: true
+    },
+    rulesetFilter: {
+      refreshModel: true
+    },
+    filenameFilter: {
+      refreshModel: true
     }
   },
   loadQueryParams(params){
     this.transitionTo({queryParams: params});
   },
   model(params) {
+    console.log("index model");
     return RSVP.hash({
       rulesets: this.store.query('ruleset', {
         page: params.rulePage,
@@ -23,7 +30,12 @@ export default Ember.Route.extend(RouteMixin, {
           let meta = result.get('meta');
           return { result: result, meta: meta};
         }),
-      runs: this.store.query('run', params).then(function (result) {
+      runs: this.store.query('run', {
+        page: params.rulePage,
+        perPage: params.rulePerPage,
+        rulesetFilter: params.rulesetFilter,
+        filenameFilter: params.filenameFilter
+      }).then(function (result) {
         let meta = result.get('meta');
         return { result: result, meta: meta};
       })

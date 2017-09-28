@@ -36,6 +36,8 @@ class RunsRouter extends BaseRouter {
 
             let page = parseInt(req.query.page, 10);
             let size = parseInt(req.query.perPage, 10);
+            let rulesetFilter = req.query.rulesetFilter;
+            let filenameFilter = req.query.filenameFilter;
 
             if(isNaN(page)) {
                 page = 1;
@@ -45,7 +47,7 @@ class RunsRouter extends BaseRouter {
                 size = 0;
             }
 
-            this.config.data.getRuns(page, size).then((result) => {
+            this.config.data.getRuns(page, size, rulesetFilter, filenameFilter).then((result) => {
               var data = [];
 
               result.runs.forEach(runInfo => {

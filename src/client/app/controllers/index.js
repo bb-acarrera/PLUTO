@@ -24,7 +24,7 @@ function addRuleset(controller, rulesetId, ruleset) {
 }
 
 export default Ember.Controller.extend({
-  queryParams: ["page", "perPage", "rulePage", "rulePerPage"],
+  queryParams: ["page", "perPage", "rulePage", "rulePerPage", "filenameFilter", "rulesetFilter"],
     ptarget: "default",
     showdialog: false,
     dialogtarget: "",
@@ -38,6 +38,8 @@ export default Ember.Controller.extend({
   perPage: 10,
   rulePage: 1,
   rulePerPage: 10,
+  rulesetFilter: '',
+  filenameFilter: '',
 
   totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
   totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
