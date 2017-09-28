@@ -1,14 +1,21 @@
 <div>
-  <h2>Edit Ruleset</h2>
+	<div style="display: flex">
+		{{#link-to 'index' tagName='button' class='btn btn-success btn-sm'}}
+			{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+			<i class="fa fa-angle-double-left"></i>
+		{{/link-to}}
+  		<h2>Edit Ruleset</h2>
+	</div>
   <div>
     <div class="column">
       <div class="section-header">Ruleset</div>
       <div class="section-content">{{model.ruleset.filename}}</div>
       <div class="section-content">Description: <input id="rulesetName" type="text" value="{{model.ruleset.name}}" class="text-input"/></div>
+
       <div class="section-header">Parser</div>
       <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser" model.ruleset.parser}}>
           {{#if model.ruleset.parser}}
-            {{model.ruleset.parser.name}}
+            {{model.ruleset.parser.filename}}
           {{else}}
             None
           {{/if}}
@@ -29,6 +36,57 @@
         {{/if}}
         </span>
       </div>
+
+        <div class="section-header">Importer</div>
+        <div class="section-content rule-selectable" id="import" {{action "toggleRowHighlight" "import" model.ruleset.import}}>
+          {{#if model.ruleset.import}}
+            {{model.ruleset.import.filename}}
+          {{else}}
+              None
+          {{/if}}
+            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
+              {{#if showChangeImporter}}
+
+                  <select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers bubbles=false}}>
+                      <option>Choose the importer</option>
+                      <option value="None">None</option>
+                    {{#each model.importers as |importer|}}
+                        <option value={{importer.filename}}>{{importer.name}}</option>
+                    {{/each}}
+                  </select>
+
+                <button onclick={{action "hideChangeImporter" bubbles=false}}>Cancel</button>
+              {{else}}
+                  <button onclick={{action "showChangeImporter" bubbles=false}}>Change</button>
+              {{/if}}
+            </span>
+        </div>
+
+        <div class="section-header">Exporter</div>
+        <div class="section-content rule-selectable" id="export" {{action "toggleRowHighlight" "export" model.ruleset.export}}>
+          {{#if model.ruleset.export}}
+            {{model.ruleset.export.filename}}
+          {{else}}
+              None
+          {{/if}}
+            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
+              {{#if showChangeExporter}}
+
+                  <select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters bubbles=false}}>
+                      <option>Choose the exporter</option>
+                      <option value="None">None</option>
+                    {{#each model.exporters as |exporter|}}
+                        <option value={{exporter.filename}}>{{exporter.name}}</option>
+                    {{/each}}
+                  </select>
+
+                <button onclick={{action "hideChangeExporter" bubbles=false}}>Cancel</button>
+              {{else}}
+                  <button onclick={{action "showChangeExporter" bubbles=false}}>Change</button>
+              {{/if}}
+            </span>
+        </div>
+
       <div class="section-header">Rules</div>
       <table id="rulesTable" class="ruleset-table">
         {{#each model.ruleset.rules as |ruleInstance index|}}
@@ -58,8 +116,8 @@
     </div>
     <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
       <!-- The column for editting rule properties. -->
-      {{show-rule-editor ruleInstance=this.ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers}}
-      <button class="save-ruleset" style="float: right" {{action "updateRule" model.ruleset this.ruleToEdit}}>Apply</button>
+      {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers importers=model.importers exporters=model.exporters}}
+      <!--<button class="save-ruleset" style="float: right" {{action "updateRule" ruleToEdit}}>Apply</button>-->
     </div>
   </div>
 </div>

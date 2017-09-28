@@ -54,16 +54,16 @@ class CSVRuleAPI extends RuleAPI {
 	 * and if so returns it otherwise an error is posted to the log and <code>0</code> is
 	 * returned.
 	 * @param {string} headerRowsProperty the value of a config header rows property. If this is <code>undefined</code>
-	 * then <code>this.config.numberOfHeaderRows</code> is used.
-	 * @param {string} headerRowsPropertyName the name of the property to use in error messages. Defaults to 'numberOfHeaderRows'.
+	 * then <code>this.config.numHeaderRows</code> is used.
+	 * @param {string} headerRowsPropertyName the name of the property to use in error messages. Defaults to 'numHeaderRows'.
 	 * @returns {number|undefined} the number of header rows given by headerRowsProperty or 0 if the value is not valid.
 	 */
 	getValidatedHeaderRows(headerRowsProperty, headerRowsPropertyName) {
-		headerRowsProperty = headerRowsProperty == undefined ? this.config.numberOfHeaderRows : headerRowsProperty;
-		headerRowsPropertyName = headerRowsPropertyName == undefined ? 'numberOfHeaderRows' : headerRowsPropertyName;
+		headerRowsProperty = headerRowsProperty == undefined ? this.config.numHeaderRows : headerRowsProperty;
+		headerRowsPropertyName = headerRowsPropertyName == undefined ? 'numHeaderRows' : headerRowsPropertyName;
 
 		var result = 0;
-		if (!this.config.numberOfHeaderRows)
+		if (!this.config.numHeaderRows)
 			this.warning(`Configured without a '${headerRowsPropertyName}' property. Using ${result}.`);
 		else if (isNaN(headerRowsProperty))
 			this.warning(`Configured with a non-number '${headerRowsPropertyName}'. Got '${headerRowsProperty}', using ${result}.`);

@@ -1,6 +1,5 @@
 import Ember from 'ember';
 
-
 function addRuleset(controller, rulesetId, ruleset) {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = () => {
@@ -25,14 +24,38 @@ function addRuleset(controller, rulesetId, ruleset) {
 }
 
 export default Ember.Controller.extend({
-  queryParams: [],
+  queryParams: ["page", "perPage", "rulePage", "rulePerPage"],
     ptarget: "default",
     showdialog: false,
     dialogtarget: "",
     buttontext: "Save",
     isclone: false,
     dialogruleset: null,
+
+  // set default values, can cause problems if left out
+  // if value matches default, it won't display in the URL
+  page: 1,
+  perPage: 10,
+  rulePage: 1,
+  rulePerPage: 10,
+
+  totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
+  totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
+
+
   actions: {
+    decPage() {
+      this.transitionToRoute({queryParams: {page: Math.max(this.page - 1, 1)}});
+    },
+    incPage() {
+      this.transitionToRoute({queryParams: {page: Math.min(this.page + 1, this.get('totalPages'))}});
+    },
+    decRulePage() {
+      this.transitionToRoute({queryParams: {rulePage: Math.max(this.rulePage - 1, 1)}});
+    },
+    incRulePage() {
+      this.transitionToRoute({queryParams: {rulePage: Math.min(this.rulePage + 1, this.get('totalRulePages'))}});
+    },
     openNewDialog(){
       this.set("ptarget", "Name the new ruleset");
       this.set("dialogtarget", "");

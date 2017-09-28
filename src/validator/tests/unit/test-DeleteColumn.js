@@ -40,7 +40,7 @@ QUnit.test( "DeleteColumn: Deletion Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "column" : 0,
-        "numberOfHeaderRows" : 1
+        "numHeaderRows" : 1
     }
 
     const data = "Column 0,Column 1\na,b";
@@ -68,7 +68,7 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "column" : 1,
-        "numberOfHeaderRows" : 1
+        "numHeaderRows" : 1
     }
 
     const data = "Column 0,Column 1\na,b";
@@ -96,7 +96,7 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
     const config = {
         "_debugLogger" : logger,
         "column" : -1,
-        "numberOfHeaderRows" : 1
+        "numHeaderRows" : 1
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -123,7 +123,7 @@ QUnit.test( "DeleteColumn: No Column Property test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "numberOfHeaderRows" : 1
+        "numHeaderRows" : 1
     };
 
     const data = "Column 0,Column 1\na,b";

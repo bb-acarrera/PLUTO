@@ -47,9 +47,6 @@ class ProcessFileRouter extends BaseRouter {
 
 
         new Promise((resolve) => {
-
-
-
             if(req.body.import) {
                 overrideFile = this.getTempName(this.config) + '.json';
                 fs.writeFileSync(overrideFile, JSON.stringify({ import: req.body.import }), 'utf-8');
@@ -59,9 +56,15 @@ class ProcessFileRouter extends BaseRouter {
                 cwd: path.resolve('.')
             };
 
-            var cmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
+
+            var cmd;
+
+              cmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
+
             if(overrideFile) {
-                cmd += ' -v "' + overrideFile + '"';
+              cmd += ' -v "' + overrideFile + '"';
+            } else {
+                cmd += ' -i "' +  req.body.input +  '" -o "' + req.body.output + '"';
             }
 
             console.log('exec cmd: ' + cmd);
@@ -93,9 +96,6 @@ class ProcessFileRouter extends BaseRouter {
         }).then(() => {
             //do cleanup
         });
-
-
-
     }
 
     // Create a unique temporary filename in the temp directory.

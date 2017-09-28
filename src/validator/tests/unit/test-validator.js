@@ -124,14 +124,14 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
                                     config : {
                                         id : 1,
                                         columns : 9,
-                                        numberOfHeaderRows : 1
+                                        numHeaderRows : 1
                                     }
                                 }
                             ],
                             parser: {
                                 filename: "CSVParser",
                                 config: {
-                                    numberOfHeaderRows : 1
+                                    numHeaderRows : 1
                                 }
                             }
                     });
@@ -216,7 +216,7 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                         parser: {
                             filename: "CSVParser",
                             config: {
-                                numberOfHeaderRows : 1
+                                numHeaderRows : 1
                             }
                         }
                     });
@@ -260,17 +260,17 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
                             {
                                 filename : "CheckLatLong",
                                 config : {
-                                    numberOfHeaderRows : 1,
+                                    numHeaderRows : 1,
                                     latitudeColumn : 2,
                                     longitudeColumn : 3,
-                                    nullIslandEpsilon : 0
+                                    nullEpsilon : 0
                                 }
                             }
                         ],
                         parser: {
                             filename: "CSVParser",
                             config: {
-                                numberOfHeaderRows : 1
+                                numHeaderRows : 1
                             }
                         }
                     });

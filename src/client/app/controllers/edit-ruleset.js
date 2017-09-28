@@ -2,9 +2,22 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   queryParams: [],
+  ruleToEditChanged: Ember.observer('ruleToEdit', function()  {
+    let val = this.get('ruleToEdit');
+    let oldval = this.get('_oldRuleToEdit');
 
+    if (val === oldval) { return; }
+
+    this.set('_oldRuleToEdit', val);
+
+    if (oldval) {
+      updateRule(oldval, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
+    }
+  }),
+  ruleToEdit: null,
   actions: {
     saveRuleSet(ruleset) {
+      updateRule(this.get('ruleToEdit'), this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
       save(ruleset);
     },
 
@@ -25,8 +38,8 @@ export default Ember.Controller.extend({
       deleteRule(tableID, ruleset);
     },
 
-    updateRule(ruleset, rule) {
-      updateRule(ruleset, rule);
+    updateRule(ruleInstance) {
+      updateRule(ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters);
     },
 
     moveRuleUp(ruleset, index) {
@@ -52,8 +65,6 @@ export default Ember.Controller.extend({
       rules.splice(index+1, 0, movingRule); // Add it back one spot later.
       ruleset.notifyPropertyChange("rules");
     },
-
-
 
     toggleRowHighlight(rowID, rule) {
 
@@ -84,6 +95,37 @@ export default Ember.Controller.extend({
       changeParser(ruleset, parsers);
 
       this.set('showChangeParser', false);
+    },
+
+    showChangeImporter() {
+      this.set('showChangeImporter', true);
+    },
+
+    hideChangeImporter() {
+      this.set('showChangeImporter', false);
+    },
+
+    changeImporter(ruleset, importers) {
+
+      changeImporter(ruleset, importers);
+
+      this.set('showChangeImporter', false);
+    },
+
+
+    showChangeExporter() {
+      this.set('showChangeExporter', true);
+    },
+
+    hideChangeExporter() {
+      this.set('showChangeExporter', false);
+    },
+
+    changeExporter(ruleset, exporters) {
+
+      changeExporter(ruleset, exporters);
+
+      this.set('showChangeExporter', false);
     },
 
     stopPropagation(event) {
@@ -133,7 +175,16 @@ function addRule(ruleset, rules) {
     if (rule.get("filename") == newRuleFilename) {
       const newRule = {};
       newRule.filename = rule.get("filename");
-      newRule.config = Object.assign({}, rule.get("config") || {});  // Clone the config. Don't want to reference the original.
+
+      var uiConfig = rule.get('ui').properties;
+      var startingConfig = {};
+      uiConfig.forEach(config => {
+        if(config.default) {
+          startingConfig[config.name] = config.default;
+        }
+      });
+
+      newRule.config = Object.assign({}, rule.get("config") || startingConfig);  // Clone the config. Don't want to reference the original.
       newRule.name = newRule.filename;
       newRule.config.id = createGUID();
 
@@ -172,24 +223,50 @@ function deleteRule(tableID, ruleset) {
   }
 }
 
-function updateRule(ruleset, rule) {
-  if (!rule)
+function updateRule(ruleInstance, rules, ruleset, parsers, importers, exporters) {
+  if (!ruleInstance)
     return;
 
   // Update the name.
-  if (rule.hasOwnProperty("name")) {
+  if (ruleInstance.hasOwnProperty("name")) {
     const value = document.getElementById('name').value;
-    Ember.set(rule, 'name', value);
+    Ember.set(ruleInstance, 'name', value);
+  }
+
+
+  const itemSets = [rules, parsers, importers, exporters];
+  let items, uiConfig;
+
+  for(var i = 0; i < itemSets.length; i++) {
+    items = itemSets[i];
+
+    items.forEach(item => {
+      if (item.get("filename") == ruleInstance.filename)
+        uiConfig = item.get("ui");
+    });
+
+    if(uiConfig) {
+      break;
+    }
   }
 
   // Get the properties.
-  for (var key in rule.config) {
-    let element = document.getElementById(key);
-    if (element) {
-      const value = element.value;
-      Ember.set(rule.config, key, value);
+  uiConfig.properties.forEach(prop => {
+      let element = document.getElementById(prop.name);
+      if (element) {
+        var value = prop.type === 'boolean' ? element.checked : element.value;
+        if(prop.type === "list") {
+          var re = /\s*,\s*/;
+          value = value.split(re);
+        }
+        if(prop.type === "column") {
+          value = $(element).prop('selectedIndex');
+        }
+
+        Ember.set(ruleInstance.config, prop.name, value);
+      }
     }
-  }
+  );
 
   ruleset.notifyPropertyChange("rules");
 }
@@ -211,8 +288,16 @@ function deselectItems(clearProperties, controller) {
       item.classList.remove('selected');
   }
 
-  const parserElem = document.getElementById('parser');
-  parserElem.classList.remove('selected');
+  const otherItems = ['parser', 'import', 'export'];
+
+  otherItems.forEach(item => {
+    const parserElem = document.getElementById(item);
+
+    if(parserElem) {
+      parserElem.classList.remove('selected');
+    }
+
+  });
 
   if(clearProperties) {
     controller.set('ruleToEdit', null);
@@ -222,27 +307,45 @@ function deselectItems(clearProperties, controller) {
 }
 
 function changeParser(ruleset, parsers) {
-  const newParserFilename = document.getElementById("selectParser").value;
-  if (newParserFilename == "None") {
-    ruleset.set("parser", null);
-    ruleset.notifyPropertyChange("parser");
-  } else {
-    parsers.forEach(parser => {
-      if (parser.get("filename") == newParserFilename) {
-        const newParser = {};
-        newParser.filename = parser.get("filename");
-        newParser.config = Object.assign({}, parser.get("config") || {});  // Clone the config. Don't want to reference the original.
-        newParser.name = newParser.filename;
-        newParser.config.id = createGUID();
 
-        ruleset.set("parser", newParser);
-        ruleset.notifyPropertyChange("parser");
+  changeItem(ruleset, parsers, "selectParser", "parser");
+}
+
+function changeImporter(ruleset, importers) {
+  changeItem(ruleset, importers, "selectImporter", "import");
+}
+
+function changeExporter(ruleset, exporters) {
+  changeItem(ruleset, exporters, "selectExporter", "export");
+}
+
+function changeItem(ruleset, items, elementId, propName) {
+  const newItemFilename = document.getElementById(elementId).value;
+  if (newItemFilename == "None") {
+    ruleset.set(propName, null);
+    ruleset.notifyPropertyChange(propName);
+  } else {
+    items.forEach(item => {
+      if (item.get("filename") == newItemFilename) {
+        const newItem = {};
+        newItem.filename = item.get("filename");
+
+        var uiConfig = item.get("ui").properties;
+        var startingConfig = {};
+        uiConfig.forEach(config => {
+          if(config.default) {
+            startingConfig[config.name] = config.default;
+          }
+        });
+        newItem.config = Object.assign({}, item.get("config") || startingConfig);  // Clone the config. Don't want to reference the original.
+        newItem.name = newItem.filename;
+        newItem.config.id = createGUID();
+
+        ruleset.set(propName, newItem);
+        ruleset.notifyPropertyChange(propName);
       }
     });
   }
 
-
-
 }
-
 

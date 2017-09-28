@@ -169,7 +169,7 @@ QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", functio
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured without a nullIslandEpsilon property. Using 0.01.");
+	assert.equal(logResults[0].description, "Configured without a nullEpsilon property. Using 0.01.");
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", function( assert ) {
@@ -178,7 +178,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", fun
 		"_debugLogger" : logger,
 		"longitudeColumn" : 0,
 		"latitudeColumn" : 1,
-		"nullIslandEpsilon" : "foo"
+		"nullEpsilon" : "foo"
 	};
 
 	const rule = new CheckLatLong(config);
@@ -186,7 +186,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", fun
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number nullIslandEpsilon. Got 'foo'.");
+	assert.equal(logResults[0].description, "Configured with a non-number nullEpsilon. Got 'foo'.");
 });
 
 QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", function( assert ) {
@@ -195,7 +195,7 @@ QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", funct
 		"_debugLogger" : logger,
 		"longitudeColumn" : 0,
 		"latitudeColumn" : 1,
-		"nullIslandEpsilon" : -0.1
+		"nullEpsilon" : -0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -203,17 +203,17 @@ QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", funct
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a negative nullIslandEpsilon. Got '-0.1'. Using 0.1.");
+	assert.equal(logResults[0].description, "Configured with a negative nullEpsilon. Got '-0.1'. Using 0.1.");
 });
 
 QUnit.test( "CheckLatLong: Check For Bad Column Index", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"latitudeColumn" : 0,
 		"longitudeColumn" : 1,
-		"nullIslandEpsilon" : 0.1
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -234,10 +234,10 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"latitudeColumn" : 0,
 		"longitudeColumn" : 1,
-		"nullIslandEpsilon" : 0.1
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -263,10 +263,10 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"latitudeColumn" : 0,
 		"longitudeColumn" : 1,
-		"nullIslandEpsilon" : 0.1
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
@@ -301,10 +301,10 @@ QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"latitudeColumn" : 0,
 		"longitudeColumn" : 1,
-		"nullIslandEpsilon" : 0.1
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);

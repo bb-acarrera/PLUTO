@@ -90,7 +90,7 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Index", function( assert ) {
 	const config = {
 		"_debugLogger" : logger,
 		"regex" : "^a+$",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 1
 	};
 
@@ -115,7 +115,7 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 	const config = {
 		"_debugLogger" : logger,
 		"regex" : "^a+$",	// A string of 1 or more a's.
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 
@@ -140,7 +140,7 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 		"_debugLogger" : logger,
 		"type" : "regex",
 		"regex" : "^a+$",
-		"numberOfHeaderRows" : 1,
+		"numHeaderRows" : 1,
 		"column" : 0
 	};
 

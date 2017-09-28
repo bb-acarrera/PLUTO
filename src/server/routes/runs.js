@@ -34,15 +34,21 @@ class RunsRouter extends BaseRouter {
 
         } else {
 
-            let page = 0;
-            if(req.query.page) {
-                page = req.query.page;
+            let page = parseInt(req.query.page, 10);
+            let size = parseInt(req.query.perPage, 10);
+
+            if(isNaN(page)) {
+                page = 1;
             }
 
-            this.config.data.getRuns(page).then((runs) => {
-                var data = [];
+            if(isNaN(size)) {
+                size = 0;
+            }
 
-                runs.forEach(runInfo => {
+            this.config.data.getRuns(page, size).then((result) => {
+              var data = [];
+
+              result.runs.forEach(runInfo => {
                     var run = {
                         id: runInfo.id,
                         type: 'run',
@@ -51,8 +57,11 @@ class RunsRouter extends BaseRouter {
                     data.push(run);
                 });
 
+
+
                 res.json({
-                    data: data
+                    data: data,
+                    meta: { rowCount: result.rowCount, totalPages: result.pageCount}
                 });
             }, next)
                 .catch(next);

@@ -27,6 +27,7 @@ class data {
 
         this.runsLimit = 50;
         this.rulesetLimit = 50;
+        this.logLimit = 50;
     }
 
     /**
@@ -36,14 +37,89 @@ class data {
      * @returns {Promise} resolves {object} the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
      */
-    getLog(id) {
+    getLog(id, page, size, ruleid, type) {
+
+        if(!size) {
+            size = this.logLimit;
+        }
+
+        let offset;
+        if(!page) {
+            offset = 0;
+        } else {
+            offset = (page - 1) * size;
+        }
+
+        if(type && type.length === 0) {
+            type = null;
+        }
+        if(ruleid && ruleid.length === 0) {
+            ruleid = null;
+        }
 
         return new Promise((resolve, reject) => {
             this.db.query("SELECT log FROM runs where id = $1", [id])
                 .then((result) => {
 
                     if(result.rows.length > 0) {
-                        resolve(result.rows[0].log);
+
+                        const log = result.rows[0].log;
+                        let logResp = [];
+                        let resultMap = {};
+                        let filteredLog;
+                        let filter, rowRuleId;
+
+                        if(type || ruleid) {
+                            filteredLog = [];
+                            filter = true;
+                        } else {
+                            filteredLog = log;
+                            filter = false;
+                        }
+
+                        log.forEach(function(value){
+
+                            if(!value.ruleID) {
+                                rowRuleId = "global";
+                            }else {
+                                rowRuleId = value.ruleID;
+                            }
+
+                            if(!resultMap[rowRuleId]) {
+                                resultMap[rowRuleId]={
+                                    err: false,
+                                    warn: false
+                                };
+                            }
+                            if(value.type == 'Error') {
+                              resultMap[rowRuleId].err = true;
+                            }
+                            if(value.type == 'Warning') {
+                              resultMap[rowRuleId].warn = true;
+                            }
+
+                            if(filter) {
+                                if((!type || type == value.type) && (!ruleid || rowRuleId == ruleid )) {
+                                    filteredLog.push(value);
+                                }
+                            }
+                        });
+
+
+                        if(filteredLog.length < size) {
+                            if(offset != 0) {
+                                logResp = [];
+                            } else {
+                                logResp = filteredLog;
+                            }
+                        } else {
+                            logResp = filteredLog.splice(offset, size);
+                        }
+
+                        resolve({logs: logResp,
+                          rowCount: filteredLog.length,
+                          pageCount: Math.ceil(filteredLog.length / size),
+                          ruleStates: resultMap});
                     } else {
                         resolve(null);
                     }
@@ -75,12 +151,11 @@ class data {
                             id: row.run_id,
                             log: row.id,
                             ruleset: row.ruleset_id,
-                            inputfilename: row.inputFile,
-                            outputfilename: row.outputFile,
+                            inputfilename: row.inputfile,
+                            outputfilename: row.outputfile,
                             time: row.finishtime,
                             errorcount: row.num_errors,
-                            warningcount: row.num_warnings,
-                            log_results: row.log
+                            warningcount: row.num_warnings
                         });
                     } else {
                         resolve(null);
@@ -98,43 +173,64 @@ class data {
      * the plugin.
      * @returns {Promise} resolves {array} list of the runs.
      */
-    getRuns(page) {
+    getRuns(page, size) {
 
         let offset;
+
+        if(!size) {
+           size = this.runsLimit;
+        }
+
         if(!page) {
             offset = 0;
         } else {
-            offset = page * this.runsLimit;
+            offset = (page - 1) * size;
         }
 
-        return new Promise((resolve, reject) => {
-            var runs = [];
 
-            this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, " +
+        return new Promise((resolve, reject) => {
+
+            let where = "";
+
+            let runsQuery = this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, " +
                 "runs.finishtime, runs.num_errors, runs.num_warnings " +
                 "FROM runs " +
                 "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
-                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2", [this.runsLimit, offset] )
-                .then((result) => {
+                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
 
-                    result.rows.forEach((row) => {
-                        runs.push({
-                            id: row.run_id,
-                            log: row.id,
-                            ruleset: row.ruleset_id,
-                            inputfilename: row.inputfile,
-                            outputfilename: row.outputfile,
-                            time: row.finishtime,
-                            errorcount: row.num_errors,
-                            warningcount: row.num_warnings
-                        });
+            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " + where);
+
+            Promise.all([runsQuery, countQuery]).then((values) => {
+
+                let result = values[0];
+                let countResult = values[1];
+
+                let rowCount = countResult.rows[0].count;
+                let pageCount = Math.ceil(rowCount/size);
+
+                let runs = [];
+                result.rows.forEach((row) => {
+                    runs.push({
+                        id: row.run_id,
+                        log: row.id,
+                        ruleset: row.ruleset_id,
+                        inputfilename: row.inputfile,
+                        outputfilename: row.outputfile,
+                        time: row.finishtime,
+                        errorcount: row.num_errors,
+                        warningcount: row.num_warnings
                     });
-
-                    resolve(runs);
-
-                }, (error) => {
-                    reject(error);
                 });
+
+                resolve({
+                    runs: runs,
+                    rowCount: rowCount,
+                    pageCount: pageCount
+                });
+
+            }, (error) => {
+                reject(error);
+            });
 
         });
     }
@@ -282,33 +378,50 @@ class data {
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
-    getRulesets(page) {
+    getRulesets(page, size) {
 
         return new Promise((resolve) => {
+
+            if(!size) {
+                size = this.rulesetLimit;
+            }
 
             let offset;
             if(!page) {
                 offset = 0;
             } else {
-                offset = page * this.runsLimit;
+                offset = (page - 1) * size;
             }
 
-            this.db.query("SELECT * FROM rulesets " +
-                    "ORDER BY name ASC LIMIT $1 OFFSET $2", [this.rulesetLimit, offset] )
-                .then((result) => {
+            let rulesetsQuery = this.db.query("SELECT * FROM rulesets " +
+                "ORDER BY name ASC LIMIT $1 OFFSET $2", [size, offset] );
 
-                    var rulesets = [];
+            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id");
 
-                    result.rows.forEach((ruleset) => {
-                        ruleset.filename = ruleset.filename || ruleset.ruleset_id;
-                        rulesets.push(ruleset);
-                    });
+            Promise.all([rulesetsQuery, countQuery]).then((values) => {
 
-                    resolve(rulesets);
+                let result = values[0];
+                let countResult = values[1];
 
-                }, (error) => {
-                    reject(error);
+                let rowCount = countResult.rows[0].count;
+                let pageCount = Math.ceil(rowCount/size);
+
+                var rulesets = [];
+
+                result.rows.forEach((ruleset) => {
+                    ruleset.filename = ruleset.filename || ruleset.ruleset_id;
+                    rulesets.push(ruleset);
                 });
+
+                resolve({
+                    rulesets:rulesets,
+                    rowCount: rowCount,
+                    pageCount: pageCount});
+
+
+            }, (error) => {
+                reject(error);
+            });
 
         });
 
