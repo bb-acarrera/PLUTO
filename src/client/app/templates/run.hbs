@@ -34,7 +34,7 @@
             <div class="section-header">{{errorTitle}}:</div>
 
           {{show-errors errors=errors}}
-          {{show-paginator pages=totalPages current=page}}
+          {{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage')}}
         </div>
     </div>
 </div>

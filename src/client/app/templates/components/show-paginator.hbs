@@ -1,21 +1,7 @@
 {{#if (gt pages 1)}}
-<nav aria-label="Page navigation">
-  <div>Page {{current}} of {{pages}}</div>
-  <div>
-	<ul class="pagination">
-		<li class="page-item {{if (is-equal current 1) 'disabled'}}">
-			{{#link-to (query-params page=(dec current)) replace=true class="page-link}" aria-label="Previous" disabled=(is-equal current 1)}}
-				<span aria-hidden="true">&laquo;</span>
-				<span class="sr-only">Previous</span>
-			{{/link-to}}
-		</li>
-		<li class="page-item {{if (is-equal current pages) 'disabled'}}">
-			{{#link-to (query-params page=(inc current)) replace=true class="page-link" aria-label="next" disabled=(is-equal current pages)}}
-				<span aria-hidden="true">&raquo;</span>
-				<span class="sr-only">Next</span>
-			{{/link-to}}
-		</li>
-	</ul>
-  </div>
-</nav>
+	<div class="paginator-item">
+		{{#bs-button icon="glyphicon glyphicon-backward" size="xs" onClick=(action "previous") disabled=(is-equal current 1)}}{{/bs-button}}
+		<div>Page {{current}} of {{pages}}</div>
+		{{#bs-button icon="glyphicon glyphicon-forward" size="xs" onClick=(action "next") disabled=(is-equal current pages)}}{{/bs-button}}
+	</div>
 {{/if}}

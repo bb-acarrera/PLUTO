@@ -104,6 +104,18 @@ tr.error-row {
 .icon-cell {
   width: 18px;
 }
+
+.paginator-item {
+  height: 15px;
+}
+.paginator-item * {
+  float: left;
+}
+
+.paginator-item button {
+  margin-top: 2px;
+}
+
 /* Conflicts with the selection background coloring.
 /* tr:nth-child(even) {
   background-color: #f2f2f2;
