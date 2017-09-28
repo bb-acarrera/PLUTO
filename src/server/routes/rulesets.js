@@ -84,8 +84,10 @@ class RulesetRouter extends BaseRouter {
 				size = 0;
 			}
 
-			this.config.data.getRulesets(page, size).then((rawRulesets) => {
+			this.config.data.getRulesets(page, size).then((result) => {
 				const rulesets = [];
+
+				let rawRulesets = result.rulesets;
 
 				rawRulesets.data.forEach(ruleset => {
 					ruleset["ruleset-id"] = ruleset.ruleset_id;
