@@ -6,6 +6,8 @@ RUN apk --no-cache add \
   py-pip \
   build-base
 
+RUN pip install --upgrade requests
+
 ADD . /opt/PLUTO
 
 VOLUME ["/opt/PLUTO/config"]
