@@ -179,13 +179,49 @@ class data {
 
         return new Promise((resolve, reject) => {
 
-            let where = "";
+            let where = "", countWhere = "", rulesetWhere = "", filenameWhere = "";
 
-            let runsQuery = this.db.query(getRunQuery(this.tables) +
-                " ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
+            let values = [size, offset];
+            let countValues = [];
 
-            let countQuery = this.db.query(updateTableNames("SELECT count(*) FROM {{runs}} " +
-                "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " + where, this.tables));
+            if(rulesetFilter && rulesetFilter.length) {
+                rulesetWhere = safeStringLike(rulesetFilter);
+
+                values.push(rulesetWhere);
+                where = "WHERE {{rulesets}}.ruleset_id ILIKE $" + values.length;
+
+                countValues.push(rulesetWhere);
+                countWhere = "WHERE {{rulesets}}.ruleset_id ILIKE $" + countValues.length;
+
+            }
+
+            if(filenameFilter && filenameFilter.length > 0) {
+                filenameWhere = safeStringLike(filenameFilter);
+                if(where.length === 0) {
+                    where = "WHERE ";
+                    countWhere = "WHERE ";
+                } else {
+                    where += " AND ";
+                    countWhere += " AND ";
+                }
+
+                values.push(filenameWhere);
+                where += "inputfile ILIKE $" + values.length;
+
+                countValues.push(filenameWhere);
+                countWhere += "inputfile ILIKE $" + countValues.length;
+
+            }
+
+            let runSQL = getRunQuery(this.tables) + " " + updateTableNames(where, this.tables) +
+                " ORDER BY finishtime DESC LIMIT $1 OFFSET $2";
+
+            let runsQuery = this.db.query(runSQL, values );
+
+            let countSQL = updateTableNames("SELECT count(*) FROM {{runs}} " +
+                "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " + countWhere, this.tables);
+
+            let countQuery = this.db.query(countSQL, countValues);
 
             Promise.all([runsQuery, countQuery]).then((values) => {
 
@@ -412,16 +448,25 @@ class data {
     }
 }
 
+
+function safeStringLike(value) {
+    let resp = value.trim();
+    resp = replaceAll(value, "%", "");
+    resp = replaceAll(value, "_", "");
+    return '%' + resp + '%';
+}
+
+function replaceAll(target, search, replacement) {
+    return target.split(search).join(replacement);
+}
+
 function updateTableNames(query, tableNames) {
 
     let resp = query;
 
     for(var key of Object.keys(tableNames)) {
         let name = "{{" + key + "}}";
-        while(resp.indexOf(name) >= 0) {
-            resp = resp.replace(name, tableNames[key]);
-        }
-
+        resp = replaceAll(resp, name, tableNames[key]);
     }
 
     if(resp.indexOf('{{') >= 0) {
