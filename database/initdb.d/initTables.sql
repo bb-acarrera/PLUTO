@@ -5,6 +5,7 @@ CREATE TABLE runs (
     run_id varchar(512),
     inputfile varchar(512),
     outputfile varchar(512),
+    starttime timestamp,
     finishtime timestamp,
     log json,
     num_errors integer,

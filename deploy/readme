@@ -1,17 +1,9 @@
-Once the pluto container is available in your docker repository, run startpluto.sh to start the pluto database and the "pluto" container using the sample_config configuration
+First, pull pluto and pluto_dbloader into your local repo.
 
-To import the sample rulesets into the database:
+Once the pluto container is available in your docker repository, run initpluto.sh to run the pluto database and the "pluto" container using the sample_config configuration
 
-1. install node if it is not already installed
+To import the sample rulesets into the database, run from the folder that this readme resides in:
 
-2. cd to the rulests folder:
-  $ cd {PLUTO}/sample_config/rulesets
-
-3. if this is the first time running the importer, install some dependencies:
-  $ ./importer_setup.sh
-
-4. import the rulesets:
-  $ ./run_importer.sh
-
+docker run -v $PWD/sample_config:/opt/PLUTO/config --net=plutonet --rm -a stdout -a stderr pluto_dbloader
 
 To extend the pluto container to include dependencies for plugins, see the Dockerfile to extend the pluto container and run that extended container the same way that it's started in startpluto.sh

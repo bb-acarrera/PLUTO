@@ -6,8 +6,9 @@ const pg = require('pg');
 const version = '0.1';
 
 class Importer {
-    constructor(validatorConfig) {
+    constructor(validatorConfig, rulesetFolder) {
         this.validatorConfig = validatorConfig;
+        this.rulesetFolder = rulesetFolder;
 
         let inConfig = this.validatorConfig;
 
@@ -74,7 +75,7 @@ class Importer {
 
         let promises = [];
 
-        fs.readdirSync('.').forEach(file => {
+        fs.readdirSync(this.rulesetFolder).forEach(file => {
 
             if (file.substr(file.length - 5) === '.json') {
 
@@ -83,7 +84,7 @@ class Importer {
                 let contents = null;
 
                 try {
-                    contents = require(path.resolve(file));
+                    contents = require(path.resolve(this.rulesetFolder, file));
                 }
                 catch (e) {
                     console.log("Failed to load ruleset file \"" + file + "\".\n\t" + e);
@@ -147,7 +148,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
     program
         .version(version)
         .usage('[options]')
-        .description('Import rulesets into the database from the ruleset folder. Must be run from the folder containing the rulesets')
+        .description('Import rulesets into the database from the ruleset folder. Default assumes run from the folder containing the rulesets')
         .option('-v, --validatorConfig <configFile>', 'The validator configuration file to use.')
         .option('-h, --host <hostname>', 'database server host')
         .option('-p, --port <port>', 'database server port')
@@ -155,6 +156,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .option('-d, --dbname <database>', 'database to connect to')
         .option('-W, --password <password>', 'user password')
         .option('-e, --export <tablename>', 'table name to export')
+        .option('-r, --ruleset <rulesetFolder>', 'folder that contains the rulesets, default current folder')
         .parse(process.argv);
 
 
@@ -185,9 +187,21 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         }
     }
 
+    let rulesetFolder;
+
+    if(program.ruleset) {
+        rulesetFolder = path.resolve(program.ruleset);
+    } else if(config.rulesetDirectory) {
+        rulesetFolder = path.resolve(config.rootDirectory, config.rulesetDirectory);
+    } else {
+        rulesetFolder = path.resolve('.');
+    }
+
     config.scriptName = scriptName;
 
-    const importer = new Importer(config);
+
+
+    const importer = new Importer(config, rulesetFolder);
 
     if(program.export) {
         importer.exportTable(program.export);

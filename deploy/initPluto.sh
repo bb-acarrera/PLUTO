@@ -11,5 +11,8 @@ docker volume create pgdata
 #start the database container, if the pluto database doesn't exist, create it and run all the .sql files in database/init.d (which will create the tables)
 docker run -v pgdata:/var/lib/postgresql/data -v $PWD/database/initdb.d:/docker-entrypoint-initdb.d  -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=pluto -e POSTGRES_DB=pluto --net=plutonet --name pluto_db -d postgres:9.6-alpine
 
+#if needed, import data into the databsae
+
+
 #start the pluto server, using the sample_config as the config folder
 docker run -v $PWD/sample_config:/opt/PLUTO/config -p 3000:3000 --net=plutonet --name pluto_server -d pluto
