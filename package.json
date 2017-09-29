@@ -11,6 +11,7 @@
     "build" : "sh build/bin/build.sh",
     "start": "sh startPluto.sh",
     "start_devdb": "sh src/start_dev_db.sh",
+    "clean_devdb": "sh src/clean_dev_db.sh",
     "build_docs" : "sh build/bin/buildDocs.sh"
   },
   "repository": {
