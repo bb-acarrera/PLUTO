@@ -16,6 +16,10 @@ DEPLOY_SRC=$ROOT/deploy
 DBLOADER_DST=$DST/dbloader
 DBLOADER_SRC=$DB_SRC/dbloader
 
+PACKAGE_VERSION=$(node -pe "require('./package.json').version")
+
+echo Building version $PACKAGE_VERSION
+
 rm -rf $DST
 
 # Make sure the destination folder exists.
@@ -44,6 +48,10 @@ npm install --production
 # Build the client. NOTE: This is doing a development build not a production build.
 echo "Building client."
 cd $CLIENT
+
+echo update the client version to match the main version -- OK if fails
+npm version $PACKAGE_VERSION
+
 ember build --environment=development --output-path=$EMBER_DST
 
 # build the releaseble depoyment files
