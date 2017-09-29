@@ -18,3 +18,4 @@ test_config/tmp/*
 /pluto.image.tar
 Factories.csv
 /root/
+/test_build/

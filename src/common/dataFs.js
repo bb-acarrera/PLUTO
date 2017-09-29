@@ -13,7 +13,7 @@ class data {
         if (this.config.rulesetDirectory)
             this.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
         else
-            this.rulesetDirectory = path.resolve('runtime/rulesets');
+            this.rulesetDirectory = path.resolve('rulesets');
 
         if (!fs.existsSync(this.rulesetDirectory))
             throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";

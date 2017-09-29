@@ -8,10 +8,13 @@ CLIENT=$ROOT/src/client
 EMBER_DST=$DST/server/public
 SERVER_DST=$DST/server
 DEPLOY_DST=$DST/deploy
+DB_SRC=$ROOT/database
 DB_DST=$DEPLOY_DST/database
 CONFIG_DST=$DEPLOY_DST/sample_config
 CONFIG=$ROOT/test_config
 DEPLOY_SRC=$ROOT/deploy
+DBLOADER_DST=$DST/dbloader
+DBLOADER_SRC=$DB_SRC/dbloader
 
 rm -rf $DST
 
@@ -24,14 +27,14 @@ if [ ! -d $DST ]; then
 fi
 
 # Copy the files required to run the validator and server.
-echo "Copying runtime directories."
-for dir in runtime server common validator examples/data
+echo "Copying server directories."
+for dir in server common api rules validator
 do
     cp -r $SRC/$dir $SERVER_DST
 done
 
 cp $SRC/../package.json $SERVER_DST
-cp $SERVER_DST/runtime/configs/serverConfig.json $SERVER_DST/serverConfig.json
+cp $SRC/runtime/configs/serverConfig.json $SERVER_DST/serverConfig.json
 cp $SRC/../Dockerfile $SERVER_DST
 
 echo "install npm dependencies"
@@ -50,11 +53,12 @@ mkdir $DEPLOY_DST
 mkdir $DB_DST
 mkdir $DB_DST/initdb.d
 mkdir $CONFIG_DST
+mkdir $DBLOADER_DST
 
 cp $DEPLOY_SRC/* $DEPLOY_DST
 
 #copy database files
-cp $ROOT/database/initdb.d/* $DB_DST/initdb.d
+cp $DB_SRC/initdb.d/* $DB_DST/initdb.d
 
 #build/copy sample config
 mkdir $CONFIG_DST/results
@@ -71,3 +75,12 @@ for file in copy.py export.js import.js validatorConfig.json
 do
     cp $CONFIG/$file $CONFIG_DST
 done
+
+#copy the dbloader
+cp $DBLOADER_SRC/* $DBLOADER_DST
+
+echo "Build the server docker image"
+docker build -t pluto:develop -f $SERVER_DST/Dockerfile $DST/server
+
+echo "Build the data load docker image"
+docker build -t pluto_dbloader:develop -f $DBLOADER_DST/Dockerfile $DBLOADER_DST

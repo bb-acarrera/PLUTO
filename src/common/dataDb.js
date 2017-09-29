@@ -6,28 +6,28 @@ const RuleSet = require("../validator/RuleSet");
 const DB = require("./db");
 const ErrorHandlerAPI = require('../api/errorHandlerAPI');
 
+
+
 class data {
     constructor(config) {
         this.config = config || {};
 
         this.db = DB(this.config);
 
-        this.rootDir = Util.getRootDirectory(this.config);
-
-        if (this.config.rulesetDirectory)
-            this.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
-        else
-            this.rulesetDirectory = path.resolve('runtime/rulesets');
-
-        if (!fs.existsSync(this.rulesetDirectory))
-            throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";
-
-        this.runsDirectory = path.resolve(this.rootDir, this.config.runsDirectory);
-        this.logDirectory = path.resolve(this.rootDir, this.config.logDirectory);
 
         this.runsLimit = 50;
         this.rulesetLimit = 50;
         this.logLimit = 50;
+
+        let schemaName = config.dbSchema || 'pluto';
+        if(schemaName.length > 0) {
+            schemaName = schemaName + '.';
+        }
+
+        this.tables = {
+            runs: schemaName + 'runs',
+            rulesets: schemaName + 'rulesets'
+        }
     }
 
     /**
@@ -58,7 +58,7 @@ class data {
         }
 
         return new Promise((resolve, reject) => {
-            this.db.query("SELECT log FROM runs where id = $1", [id])
+            this.db.query(updateTableNames("SELECT log FROM {{runs}} where id = $1", this.tables), [id])
                 .then((result) => {
 
                     if(result.rows.length > 0) {
@@ -139,24 +139,13 @@ class data {
     getRun(id) {
         return new Promise((resolve, reject) => {
 
-            this.db.query("SELECT runs.id, rulesets.ruleset_id, run_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings " +
-                "FROM runs " +
-                "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
-                "where run_id = $1", [id])
+            let query = getRunQuery(this.tables) + " where run_id = $1";
+
+            this.db.query(query, [id])
                 .then((result) => {
 
                     if(result.rows.length > 0) {
-                        let row = result.rows[0];
-                        resolve({
-                            id: row.run_id,
-                            log: row.id,
-                            ruleset: row.ruleset_id,
-                            inputfilename: row.inputfile,
-                            outputfilename: row.outputfile,
-                            time: row.finishtime,
-                            errorcount: row.num_errors,
-                            warningcount: row.num_warnings
-                        });
+                        resolve(getRunResult(result.rows[0]));
                     } else {
                         resolve(null);
                     }
@@ -192,13 +181,11 @@ class data {
 
             let where = "";
 
-            let runsQuery = this.db.query("SELECT runs.id, rulesets.ruleset_id, runs.run_id, runs.inputfile, runs.outputfile, " +
-                "runs.finishtime, runs.num_errors, runs.num_warnings " +
-                "FROM runs " +
-                "INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " +
-                "ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
+            let runsQuery = this.db.query(getRunQuery(this.tables) +
+                " ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
 
-            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id " + where);
+            let countQuery = this.db.query(updateTableNames("SELECT count(*) FROM {{runs}} " +
+                "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " + where, this.tables));
 
             Promise.all([runsQuery, countQuery]).then((values) => {
 
@@ -210,16 +197,7 @@ class data {
 
                 let runs = [];
                 result.rows.forEach((row) => {
-                    runs.push({
-                        id: row.run_id,
-                        log: row.id,
-                        ruleset: row.ruleset_id,
-                        inputfilename: row.inputfile,
-                        outputfilename: row.outputfile,
-                        time: row.finishtime,
-                        errorcount: row.num_errors,
-                        warningcount: row.num_warnings
-                    });
+                    runs.push(getRunResult(row));
                 });
 
                 resolve({
@@ -245,7 +223,8 @@ class data {
      */
      saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
 
-        this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1", [ruleSetID]).then((result) => {
+        this.db.query(updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
+            [ruleSetID]).then((result) => {
 
             let rulesetId = null;
             if(result.rows.length > 0) {
@@ -255,8 +234,8 @@ class data {
             let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
             let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
 
-            this.db.query("INSERT INTO runs (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
-                    "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
+            this.db.query(updateTableNames("INSERT INTO {{runs}} (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
+                    "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
                 [runId, rulesetId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
                 .then(() => {
                     return;
@@ -276,7 +255,7 @@ class data {
      */
     retrieveRuleset(ruleset_id, rulesetOverrideFile, version) {
 
-        return getRuleset(this.db, ruleset_id, version, (result, resolve, reject) => {
+        return getRuleset(this.db, ruleset_id, version, this.tables, (result, resolve, reject) => {
             if(result.rows.length > 0) {
                 let dbRuleset = result.rows[0].rules;
 
@@ -307,7 +286,7 @@ class data {
     }
 
     rulesetExists(ruleset_id, version) {
-        return getRuleset(this.db, ruleset_id, version, (result, resolve, reject) => {
+        return getRuleset(this.db, ruleset_id, version, this.tables, (result, resolve, reject) => {
             if(result.rows.length > 0) {
                resolve(true);
             } else {
@@ -327,13 +306,16 @@ class data {
 
             let name = ruleset.filename;
 
-            this.db.query("SELECT id FROM rulesets WHERE ruleset_id = $1 AND version = 0", [name])
+            this.db.query(
+                updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1 AND version = 0", this.tables),
+                [name])
                 .then((result) => {
                     if(result.rows.length === 0) {
-                        this.db.query("INSERT INTO rulesets (ruleset_id, name, version, rules) " +
-                            "VALUES($1, $2, $3, $4) RETURNING id", [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
+                        this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
+                            "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
+                            [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
                     } else {
-                        this.db.query("UPDATE rulesets SET rules = $2, name = $3 WHERE id = $1",
+                        this.db.query(updateTableNames("UPDATE {{rulesets}} SET rules = $2, name = $3 WHERE id = $1", this.tables),
                             [result.rows[0].id, JSON.stringify(ruleset), ruleset.name]);
                     }
 
@@ -360,7 +342,8 @@ class data {
 
             let ruleset_id = ruleset.ruleset_id || ruleset.filename;
 
-            this.db.query("DELETE FROM rulesets WHERE ruleset_id = $1 AND version = 0", [ruleset_id])
+            this.db.query(updateTableNames("DELETE FROM {{rulesets}} WHERE ruleset_id = $1 AND version = 0", this.tables),
+                [ruleset_id])
                 .then(() => {
                     resolve(ruleset_id);
                 }, (error) => {
@@ -393,10 +376,10 @@ class data {
                 offset = (page - 1) * size;
             }
 
-            let rulesetsQuery = this.db.query("SELECT * FROM rulesets " +
-                "ORDER BY name ASC LIMIT $1 OFFSET $2", [size, offset] );
+            let rulesetsQuery = this.db.query(updateTableNames("SELECT * FROM {{rulesets}} " +
+                "ORDER BY name ASC LIMIT $1 OFFSET $2", this.tables), [size, offset] );
 
-            let countQuery = this.db.query("SELECT count(*) FROM runs INNER JOIN rulesets ON runs.ruleset_id = rulesets.id");
+            let countQuery = this.db.query(updateTableNames("SELECT count(*) FROM {{rulesets}}", this.tables));
 
             Promise.all([rulesetsQuery, countQuery]).then((values) => {
 
@@ -429,7 +412,46 @@ class data {
     }
 }
 
-function getRuleset(db, ruleset_id, version, callback) {
+function updateTableNames(query, tableNames) {
+
+    let resp = query;
+
+    for(var key of Object.keys(tableNames)) {
+        let name = "{{" + key + "}}";
+        while(resp.indexOf(name) >= 0) {
+            resp = resp.replace(name, tableNames[key]);
+        }
+
+    }
+
+    if(resp.indexOf('{{') >= 0) {
+        console.log("Unknown table replace in query: " + resp);
+        throw "Unknown table replace in query: " + resp;
+    }
+
+    return resp;
+}
+
+function getRunQuery(tableNames) {
+    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings " +
+        "FROM {{runs}} " +
+        "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames);
+}
+
+function getRunResult(row) {
+    return {
+        id: row.run_id,
+        log: row.id,
+        ruleset: row.ruleset_id,
+        inputfilename: row.inputfile,
+        outputfilename: row.outputfile,
+        time: row.finishtime,
+        errorcount: row.num_errors,
+        warningcount: row.num_warnings
+    };
+}
+
+function getRuleset(db, ruleset_id, version, tables, callback) {
     if(!version) {
         version = 0;
     }
@@ -445,8 +467,8 @@ function getRuleset(db, ruleset_id, version, callback) {
 
     return new Promise((resolve, reject) => {
 
-        db.query("SELECT rules, id FROM rulesets " +
-                "where ruleset_id = $1 AND version = $2",
+        db.query(updateTableNames("SELECT rules, id FROM {{rulesets}} " +
+                "where ruleset_id = $1 AND version = $2", tables),
             [ruleset_id, version])
             .then((result) => {
 

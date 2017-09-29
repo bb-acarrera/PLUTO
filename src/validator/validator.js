@@ -44,14 +44,6 @@ class Validator {
 		if (!fs.existsSync(this.rootDir))
 			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
 
-		if (this.config.rulesetDirectory)
-			this.config.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
-		else
-			this.config.rulesetDirectory = path.resolve(this.rootDir, 'runtime/rulesets');
-
-		if (!fs.existsSync(this.config.rulesetDirectory))
-			console.log("Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n");
-
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
 		else

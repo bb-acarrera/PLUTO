@@ -39,19 +39,6 @@ QUnit.test( "Validator: Nonexistent RootDirectory Test", function(assert){
 
 });
 
-
-QUnit.test( "Validator: No rulesetDirectory Test", function(assert){
-    const logger = new ErrorLogger();
-    const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src"
-    };
-
-    const vldtr = new validator(config, () => {});
-    assert.ok(vldtr.config.rulesetDirectory.endsWith("runtime/rulesets"), "Ruleset directory defauls to runtime/rulesets");
-
-});
-
 QUnit.test( "Validator: No rulesDirectory Test", function(assert){
    const logger = new ErrorLogger();
    const config = {

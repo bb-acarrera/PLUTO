@@ -1,0 +1,21 @@
+{
+  "parsers": [
+    
+  ],
+  "rules": [
+    
+  ],
+  "importers" : [
+    {
+      "filename":"sampleImport",
+      "path": "/opt/PLUTO/config/import.js"
+    }
+  ],
+  "exporters" : [
+    {
+      "filename":"sampleExport",
+      "path": "/opt/PLUTO/config/export.js"
+    }
+  ]
+}
+
