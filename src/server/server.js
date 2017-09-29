@@ -45,6 +45,7 @@ class Server {
 		if (app.get('env') === 'development') {
 
 			app.use(function(err, req, res, next) {
+				console.log(req.url + ': ' + err);
 				res.status(err.status || 500);
 				res.json({
 					message: err.message,
