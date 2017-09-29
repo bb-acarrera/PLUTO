@@ -23,7 +23,7 @@ npm run build
 ## Starting the services
 
 ```shell
-npm run start
+npm run start_docker
 ```
 
 It will create a docker volume for the Postgresql database (pgdata), start the database, and then start the web server.
