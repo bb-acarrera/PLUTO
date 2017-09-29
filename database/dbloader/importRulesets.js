@@ -58,6 +58,7 @@ class Importer {
 
     run() {
 
+        this.failureCount = 0;
 
         this.testConnection();
     }
@@ -76,6 +77,13 @@ class Importer {
                 client.end();
                 this.addRulesets();
             }).catch(e => {
+                this.failureCount += 1;
+
+                if(this.failureCount > 15) {
+                    console.error('Too manny connection attempts; aborting');
+                    process.exit(1);
+                }
+
                 client.end();
                 console.error('Attempt failed: ', e.message);
                 setTimeout(() => {
