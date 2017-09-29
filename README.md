@@ -13,7 +13,6 @@ To build the docker container:
 
 ```shell
 npm run build
-npm run docker_build
 ```
 
 'npm run build' executes the build script, and puts the build into the "./Release" folder.
