@@ -8,10 +8,10 @@
     "docker_build": "docker build -t pluto:develop ./Release/server",
     "docker_run_bash": "sh startPlutoInteractive.sh",
     "docker_save": "docker save --output pluto.image.tar pluto:develop",
-    "build" : "sh build/bin/build.sh",
+    "build": "sh build/bin/build.sh",
     "start_docker": "sh startPluto.sh",
     "start_devdb": "sh src/start_dev_db.sh",
-    "build_docs" : "sh build/bin/buildDocs.sh",
+    "build_docs": "sh build/bin/buildDocs.sh",
     "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets"
   },
   "repository": {
@@ -29,6 +29,7 @@
     "commander": "^2.9.0",
     "csv": "^1.1.1",
     "express": "^4.15.2",
+    "express-fileupload": "^0.2.0",
     "fs-extra": "^3.0.1",
     "pg": "^7.0",
     "rimraf": "^2.6.1",
