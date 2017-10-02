@@ -435,7 +435,7 @@ function updateTableNames(query, tableNames) {
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings " +
         "FROM {{runs}} " +
-        "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames);
+        "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames);
 }
 
 function getRunResult(row) {
