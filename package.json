@@ -11,8 +11,9 @@
     "build": "sh build/bin/build.sh",
     "start_docker": "sh startPluto.sh",
     "start_devdb": "sh src/start_dev_db.sh",
-    "build_docs": "sh build/bin/buildDocs.sh",
-    "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets"
+    "build_docs" : "sh build/bin/buildDocs.sh",
+    "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets",
+    "tag_images": "sh build/bin/tagImages.sh"
   },
   "repository": {
     "type": "git",
