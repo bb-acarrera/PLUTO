@@ -63,7 +63,12 @@ class data {
 
                     if(result.rows.length > 0) {
 
-                        const log = result.rows[0].log;
+                        let log = result.rows[0].log;
+
+                        if(!log) {
+                            log = [];
+                        }
+
                         let logResp = [];
                         let resultMap = {};
                         let filteredLog;
@@ -139,7 +144,7 @@ class data {
     getRun(id) {
         return new Promise((resolve, reject) => {
 
-            let query = getRunQuery(this.tables) + " where run_id = $1";
+            let query = getRunQuery(this.tables) + updateTableNames(" WHERE {{runs}}.id = $1", this.tables);
 
             this.db.query(query, [id])
                 .then((result) => {
@@ -182,10 +187,10 @@ class data {
             let where = "";
 
             let runsQuery = this.db.query(getRunQuery(this.tables) +
-                " ORDER BY finishtime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
+                " ORDER BY finishtime DESC NULLS LAST, starttime DESC LIMIT $1 OFFSET $2 " + where, [size, offset] );
 
             let countQuery = this.db.query(updateTableNames("SELECT count(*) FROM {{runs}} " +
-                "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " + where, this.tables));
+                "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " + where, this.tables));
 
             Promise.all([runsQuery, countQuery]).then((values) => {
 
@@ -213,6 +218,37 @@ class data {
         });
     }
 
+    createRunRecord(ruleSetID) {
+
+        return new Promise((resolve, reject) => {
+
+            this.db.query(updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
+                [ruleSetID]).then((result) => {
+
+                let rulesetId = null;
+                if (result.rows.length > 0) {
+                    rulesetId = result.rows[0].id
+                }
+
+                let date = new Date();
+
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime) " +
+                        "VALUES($1, $2, $3) RETURNING id", this.tables),
+                    [rulesetId, date, date])
+                    .then((result) => {
+                        resolve(result.rows[0].id);
+                    }, (error) => {
+                        console.log(error);
+                        reject(error);
+                    });
+
+            }, (error) => {
+                console.log(error);
+                reject(error);
+            });
+        });
+    }
+
     /**
      * This method saves record which is used by the client code to reference files for any particular run.
      * @param runId the unique ID of the run.
@@ -223,27 +259,19 @@ class data {
      */
      saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
 
-        this.db.query(updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
-            [ruleSetID]).then((result) => {
 
-            let rulesetId = null;
-            if(result.rows.length > 0) {
-                rulesetId = result.rows[0].id
-            }
+        let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
+        let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
 
-            let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
-            let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
-
-            this.db.query(updateTableNames("INSERT INTO {{runs}} (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
-                    "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                [runId, rulesetId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
-                .then(() => {
-                    return;
-                }, (error) => {
-                    console.log(error);
-                });
-
-        });
+        this.db.query(updateTableNames("UPDATE {{runs}} SET " +
+            "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7  " +
+            "WHERE id = $1", this.tables),
+            [runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
+            .then(() => {
+                return;
+            }, (error) => {
+                console.log(error);
+            });
 
     }
 
@@ -433,21 +461,29 @@ function updateTableNames(query, tableNames) {
 }
 
 function getRunQuery(tableNames) {
-    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings " +
+    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings, starttime " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames);
 }
 
 function getRunResult(row) {
+
+    let isRunning = false;
+    if(row.finishtime && row.starttime) {
+        isRunning = row.finishtime.getTime() === row.starttime.getTime();
+    }
+
     return {
-        id: row.run_id,
+        id: row.id,
         log: row.id,
         ruleset: row.ruleset_id,
         inputfilename: row.inputfile,
         outputfilename: row.outputfile,
         time: row.finishtime,
+        starttime: row.starttime,
         errorcount: row.num_errors,
-        warningcount: row.num_warnings
+        warningcount: row.num_warnings,
+        isrunning: isRunning
     };
 }
 

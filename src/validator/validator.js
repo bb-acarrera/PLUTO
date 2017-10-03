@@ -90,24 +90,35 @@ class Validator {
 			throw e;
 		}
 
-		this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
-			.then((ruleset) => {
+		this.data.createRunRecord(this.config.ruleset).then((runId) => {
 
-				this.processRuleset(ruleset, outputFile, inputEncoding, inputFile);
-			},
-			(error)=>{
-				this.error(error);
-				this.finishRun();
-			}).catch((e) => {
-				if(!e.message){
-					this.error(e);
+			this.runId = runId;
+
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
+				.then((ruleset) => {
+
+						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile);
+					},
+					(error)=>{
+						this.error(error);
+						this.finishRun();
+					}).catch((e) => {
+					if(!e.message){
+						this.error(e);
+					}
+					else {
+						this.error(e.message);
+					}
+					this.finishRun();
 				}
-				else {
-					this.error(e.message);
-				}
-				this.finishRun();
-			}
-		);
+			);
+		}, (error) => {
+			console.log("Error creating run record: " + error);
+			console.log("aborting");
+
+		});
+
+
 
 
 
@@ -315,7 +326,7 @@ class Validator {
 		if(!this.inputFileName){
 			this.inputFileName = "";
 		}
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString();
+		const runId = this.runId;
 
 		if (results && this.currentRuleset.export) {
 			var resultsFile = null;

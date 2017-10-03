@@ -71,6 +71,11 @@ QUnit.test( "Validator: End to End Test", function(assert) {
                    });
                })
            },
+           createRunRecord: function() {
+               return new Promise((resolve) => {
+                   resolve(0);
+               })
+           },
            saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
                assert.ok(log, "Expected log to be created");
                done();
@@ -124,6 +129,11 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
                     });
                 })
             },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
+                })
+            },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
                 assert.ok(log, "Expected log to be created");
                 done();
@@ -157,6 +167,11 @@ QUnit.test( "Validator: End to End no ruleset Test", function(assert){
                     resolve({
 
                     });
+                })
+            },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
                 })
             },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
@@ -207,6 +222,11 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                             }
                         }
                     });
+                })
+            },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
                 })
             },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
@@ -264,6 +284,11 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
                     //throw new Exception('this is an exception');
                 })
             },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
+                })
+            },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
                 assert.ok(log, "Expected log to be created");
                 assert.equal(log[0].type, "Warning", "Expected an error");
@@ -297,6 +322,11 @@ QUnit.test( "Validator: End to End Null Promise Test", function(assert){
             retrieveRuleset: function(ruleset_id, rulesetOverrideFile, version) {
                 return new Promise((resolve) => {
                     resolve(null);
+                })
+            },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
                 })
             },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
@@ -334,6 +364,11 @@ QUnit.test( "Validator: End to End Throw Error Test", function(assert){
                     throw "Thrown Error";
                 })
             },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
+                })
+            },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
                 assert.ok(log, "Expected log to be created");
                 assert.equal(log[0].type, "Error", "Expected an error");
@@ -367,6 +402,11 @@ QUnit.test( "Validator: End to End Promise Rejection Test", function(assert){
             retrieveRuleset: function(ruleset_id, rulesetOverrideFile, version) {
                 return new Promise((resolve, reject) => {
                     reject("Rejected Promise");
+                })
+            },
+            createRunRecord: function() {
+                return new Promise((resolve) => {
+                    resolve(0);
                 })
             },
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
