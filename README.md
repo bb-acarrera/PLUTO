@@ -6,7 +6,7 @@ Primary Layer Updating Tool
 First, set up the environment:
 
 ```shell
-npm install
+./setupDevEnvironment.sh
 ```
 
 To build the docker container:
