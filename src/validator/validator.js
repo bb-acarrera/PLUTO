@@ -93,6 +93,7 @@ class Validator {
 		this.data.createRunRecord(this.config.ruleset).then((runId) => {
 
 			this.runId = runId;
+			console.log("runId:" + runId);
 
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
 				.then((ruleset) => {
@@ -117,11 +118,6 @@ class Validator {
 			console.log("aborting");
 
 		});
-
-
-
-
-
 	}
 
 	processRuleset(ruleset, outputFile, inputEncoding, inputFile){
@@ -356,7 +352,6 @@ class Validator {
 					this.data.saveRunRecord(runId, this.logger.getLog(),
 						this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
 					this.cleanup();
-					console.log("Done.");
 				});
 		} else {
 			if(results) {
@@ -369,7 +364,6 @@ class Validator {
 			this.data.saveRunRecord(runId, this.logger.getLog(),
 				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
 			this.cleanup();
-			console.log("Done.");
 		}
 
 	}
@@ -379,8 +373,11 @@ class Validator {
 	 * @private
 	 */
 	cleanup() {
-		// Remove the temp directory and contents.
 
+		//kill the database
+		this.data.end();
+
+		// Remove the temp directory and contents.
 		try {
 			rimraf.sync(this.tempDir, null, (e) => {
 				this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
@@ -389,6 +386,7 @@ class Validator {
 			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
 		}
 
+		console.log("Done.");
 
 	}
 

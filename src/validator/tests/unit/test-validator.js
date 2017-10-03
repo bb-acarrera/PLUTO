@@ -79,7 +79,8 @@ QUnit.test( "Validator: End to End Test", function(assert) {
            saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
                assert.ok(log, "Expected log to be created");
                done();
-           }
+           },
+           end: function () {}
 
        };
    });
@@ -137,7 +138,8 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
             saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
                 assert.ok(log, "Expected log to be created");
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });
@@ -178,7 +180,8 @@ QUnit.test( "Validator: End to End no ruleset Test", function(assert){
                 assert.ok(log, "Expected log to be created");
                 assert.equal(log[0].type, "Warning", "Expected a warning");
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });
@@ -234,7 +237,8 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                 assert.equal(log[0].type, "Error", "Expected an error");
                 assert.equal(log[0].description, "Row 0 has wrong number of columns. Got 9.", 'Expected "Row 0 has wrong number of columns. Got 9."')
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });
@@ -294,7 +298,8 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
                 assert.equal(log[0].type, "Warning", "Expected an error");
                 assert.equal(log[0].description, "Found null island in row 2.", 'Expected "Found null island in row 2"');
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });
@@ -334,7 +339,8 @@ QUnit.test( "Validator: End to End Null Promise Test", function(assert){
                 assert.equal(log[0].type, "Error", "Expected an error");
                 assert.equal(log[0].description, "No Ruleset found for: Test Data Ruleset", 'Expected "No Ruleset found for: Test Data Ruleset"');
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });
@@ -374,7 +380,8 @@ QUnit.test( "Validator: End to End Throw Error Test", function(assert){
                 assert.equal(log[0].type, "Error", "Expected an error");
                 assert.equal(log[0].description, "Thrown Error", 'Expected "Thrown Error"');
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });
@@ -414,7 +421,8 @@ QUnit.test( "Validator: End to End Promise Rejection Test", function(assert){
                 assert.equal(log[0].type, "Error", "Expected an error");
                 assert.equal(log[0].description, "Rejected Promise", 'Expected "Rejected Promise"');
                 done();
-            }
+            },
+            end: function () {}
 
         };
     });

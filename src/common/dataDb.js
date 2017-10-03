@@ -30,6 +30,10 @@ class data {
         }
     }
 
+    end() {
+        this.db.end();
+    }
+
     /**
      * This method is used by the application to get an in-memory copy of a log file managed by
      * the plugin.
