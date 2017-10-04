@@ -1,11 +1,12 @@
 # PLUTO
 Primary Layer Updating Tool
 
-## Building
+## Setup and Building
 
 First, set up the environment:
 
 ```shell
+
 ./setupDevEnvironment.sh
 ```
 
@@ -101,8 +102,7 @@ After the project is built, in the `Release` folder a `deploy` folder is created
 
 first time:
 ```shell
-cd src/client
-npm install
+npm install -g ember-cli
 ```
 
 to build:
@@ -110,6 +110,13 @@ to build:
 cd src/client
 ember build
 ```
+
+to monitor and build automatically:
+```shell
+cd src/client
+ember server
+```
+
 ## More..
 
 Additional information can be found in the following documents.
