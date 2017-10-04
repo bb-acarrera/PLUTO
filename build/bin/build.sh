@@ -49,10 +49,14 @@ npm install --production
 echo "Building client."
 cd $CLIENT
 
-echo update the client version to match the main version -- OK if fails
-npm version $PACKAGE_VERSION
+CLIENT_PACKAGE_VERSION=$(node -pe "require('./package.json').version")
 
-./node_modules/.bin/ember build --environment=development --output-path=$EMBER_DST
+if [ "$PACKAGE_VERSION" != "$CLIENT_PACKAGE_VERSION" ]; then
+    echo update the client version $CLIENT_PACKAGE_VERSION to match the main version
+    npm version --not-git-tag-version $PACKAGE_VERSION
+fi
+
+./node_modules/.bin/ember build --environment=production --output-path=$EMBER_DST
 
 # build the releaseble depoyment files
 echo "Building deployable files"
