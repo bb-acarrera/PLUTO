@@ -347,16 +347,13 @@ class Validator {
 					this.cleanup();
 					console.log("Done.");
 				});
-		} else if (results) {
-			this.saveResults(results);
-			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
-			this.cleanup();
-			console.log("Done.");
-		}
-		else {
-			console.error("No results");
-			this.error("No results were produced.");
+		} else {
+			if(results) {
+				this.saveResults(results);
+			} else {
+				console.error("No results");
+				this.error("No results were produced.");
+			}
 
 			this.data.saveRunRecord(runId, this.logger.getLog(),
 				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());

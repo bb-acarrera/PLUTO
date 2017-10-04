@@ -9,10 +9,15 @@ const app = express();
 const Validator = require("../validator/validator");
 const Router = require("./router");
 
-const version = '0.1'; //require("../../package.json").version;
-
 const Util = require('../common/Util');
 const Data = require('../common/dataDb');
+
+let version = "0";
+if(fs.existsSync("../../package.json")) {
+	version = require("../../../package.json").version;
+} else if(fs.existsSync("../package.json")) {
+	version = require("../../package.json").version;
+}
 
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {

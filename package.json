@@ -1,6 +1,6 @@
 {
   "name": "pluto",
-  "version": "0.0.1",
+  "version": "0.2.1",
   "description": "A data validation framework.",
   "main": "server.js",
   "scripts": {
@@ -13,7 +13,8 @@
     "start_devdb": "sh src/start_dev_db.sh",
     "clean_devdb": "sh src/clean_dev_db.sh",
     "build_docs" : "sh build/bin/buildDocs.sh",
-    "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets"
+    "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets",
+    "tag_images": "sh build/bin/tagImages.sh"
   },
   "repository": {
     "type": "git",
