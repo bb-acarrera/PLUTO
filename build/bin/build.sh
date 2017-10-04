@@ -52,7 +52,7 @@ cd $CLIENT
 echo update the client version to match the main version -- OK if fails
 npm version $PACKAGE_VERSION
 
-ember build --environment=development --output-path=$EMBER_DST
+./node_modules/.bin/ember build --environment=development --output-path=$EMBER_DST
 
 # build the releaseble depoyment files
 echo "Building deployable files"
