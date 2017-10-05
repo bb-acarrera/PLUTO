@@ -10,7 +10,7 @@
 	"dbUser" : "pluto",
 	"dbPassword" : "password",
 	"dbDatabase" : "pluto",
-	"dbHost" : "10.65.16.12",
+	"dbHost" : "localhost",
 	"dbPort" : "6543",
 	"dbSchema": "pluto"
 }
