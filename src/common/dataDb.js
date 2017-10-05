@@ -5,6 +5,7 @@ const Util = require( "./Util" );
 const RuleSet = require( "../validator/RuleSet" );
 const DB = require( "./db" );
 const ErrorHandlerAPI = require( '../api/errorHandlerAPI' );
+const moment = require('moment');
 
 
 class data {
@@ -204,19 +205,7 @@ class data {
             where += "{{runs}}.num_errors " + errOp + " 0" + joinOp + "{{runs}}.num_warnings " + warnOp + " 0";
             countWhere = where;
 
-            if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
-                rulesetWhere = safeStringLike( filters.rulesetFilter );
-
-                values.push( rulesetWhere );
-                where = "WHERE {{rulesets}}.ruleset_id ILIKE $" + values.length;
-
-                countValues.push( rulesetWhere );
-                countWhere = "WHERE {{rulesets}}.ruleset_id ILIKE $" + countValues.length;
-
-            }
-
-            if ( filters.filenameFilter && filters.filenameFilter.length > 0 ) {
-                filenameWhere = safeStringLike( filters.filenameFilter );
+            function extendWhere() {
                 if ( where.length === 0 ) {
                     where = "WHERE ";
                     countWhere = "WHERE ";
@@ -224,6 +213,26 @@ class data {
                     where += " AND ";
                     countWhere += " AND ";
                 }
+            }
+
+
+            if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
+                rulesetWhere = safeStringLike( filters.rulesetFilter );
+
+                extendWhere();
+
+                values.push( rulesetWhere );
+                where += "{{rulesets}}.ruleset_id ILIKE $" + values.length;
+
+                countValues.push( rulesetWhere );
+                countWhere += "{{rulesets}}.ruleset_id ILIKE $" + countValues.length;
+
+            }
+
+            if ( filters.filenameFilter && filters.filenameFilter.length > 0 ) {
+                filenameWhere = safeStringLike( filters.filenameFilter );
+
+                extendWhere();
 
                 values.push( filenameWhere );
                 where += "inputfile ILIKE $" + values.length;
@@ -231,6 +240,16 @@ class data {
                 countValues.push( filenameWhere );
                 countWhere += "inputfile ILIKE $" + countValues.length;
 
+            }
+
+            if(filters.dateFilter) {
+                extendWhere();
+
+                values.push( moment.utc(filters.dateFilter) );
+                where += "CAST(finishtime AS DATE) = CAST($" + values.length + " AS DATE)";
+
+                countValues.push( filters.dateFilter );
+                countWhere += "CAST(finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
             }
 
 
@@ -330,7 +349,7 @@ class data {
 
             this.db.query( updateTableNames( "INSERT INTO {{runs}} (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
                 "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables ),
-                [ runId, rulesetId, inputFile, outputFile, new Date(), JSON.stringify( log ), numErrors, numWarnings ] )
+                [ runId, rulesetId, inputFile, outputFile, moment.utc(new Date()), JSON.stringify( log ), numErrors, numWarnings ] )
                 .then( () => {
                     return;
                 }, ( error ) => {

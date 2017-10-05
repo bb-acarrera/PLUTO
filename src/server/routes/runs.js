@@ -41,7 +41,16 @@ class RunsRouter extends BaseRouter {
             let showErrors = JSON.parse(req.query.errorFilter || true);
             let showWarnings = JSON.parse(req.query.warningsFilter || true);
             let showNone = JSON.parse(req.query.noneFilter || true);
-            let dateFilter = req.query.dateFilter;
+            let dateFilter = null;
+
+            if(req.query.dateFilter && req.query.dateFilter.length > 0) {
+                let time = Date.parse(req.query.dateFilter);
+                if(!isNaN(time)) {
+                    dateFilter = new Date(time);
+                }
+            }
+
+
 
             if(isNaN(page)) {
                 page = 1;
