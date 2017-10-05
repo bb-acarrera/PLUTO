@@ -263,19 +263,21 @@ class data {
      */
      saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
 
+        return new Promise((resolve, reject) => {
+            let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
+        	let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
 
-        let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
-        let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
-
-        this.db.query(updateTableNames("UPDATE {{runs}} SET " +
-            "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7  " +
-            "WHERE id = $1", this.tables),
-            [runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
-            .then(() => {
-                return;
-            }, (error) => {
-                console.log(error);
-            });
+        	this.db.query(updateTableNames("UPDATE {{runs}} SET " +
+        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7  " +
+            	"WHERE id = $1", this.tables),
+            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
+            	.then(() => {
+            		resolve();
+            	}, (error) => {
+                	console.log(error);
+                	reject(error);
+            	});
+        });
 
     }
 
@@ -342,21 +344,29 @@ class data {
                 updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1 AND version = 0", this.tables),
                 [name])
                 .then((result) => {
+                    let qry;
                     if(result.rows.length === 0) {
-                        this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
+                        qry = this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
                             "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
                             [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
                     } else {
-                        this.db.query(updateTableNames("UPDATE {{rulesets}} SET rules = $2, name = $3 WHERE id = $1", this.tables),
+                        qry = this.db.query(updateTableNames("UPDATE {{rulesets}} SET rules = $2, name = $3 WHERE id = $1", this.tables),
                             [result.rows[0].id, JSON.stringify(ruleset), ruleset.name]);
                     }
 
-                    resolve(name);
+                    qry.then(() => {
+                        resolve(name);
+                    }, (error) => {
+                        reject(error)
+                    });
+
                 }, (error) => {
                     console.log(error);
+                    reject(error);
                 })
                 .catch((error) => {
                     console.log(error);
+                    reject(error);
                 });
         });
 

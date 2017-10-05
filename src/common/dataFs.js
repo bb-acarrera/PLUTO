@@ -95,28 +95,34 @@ class data {
      */
     saveRunRecord(runId, log, ruleSetId, inputFile, outputFile) {
 
-        let logId = this.saveLog(inputFile, log);
+        return new Promise((resolve, reject) => {
 
-        try {
-            if (!fs.existsSync(this.runsDirectory))
-                fs.mkdirSync(this.runsDirectory);	// Make sure the runsDirectory exists.
-        }
-        catch (e) {
-            console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-            throw e;
-        }
+            let logId = this.saveLog(inputFile, log);
 
-        const run = {
-            id: runId,
-            log: logId,
-            ruleset: ruleSetId,
-            inputfilename: inputFile,
-            outputfilename: outputFile,
-            time: new Date()
-        };
+            try {
+                if (!fs.existsSync(this.runsDirectory))
+                    fs.mkdirSync(this.runsDirectory);	// Make sure the runsDirectory exists.
+            }
+            catch (e) {
+                console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
+                reject(e);
+            }
+
+            const run = {
+                id: runId,
+                log: logId,
+                ruleset: ruleSetId,
+                inputfilename: inputFile,
+                outputfilename: outputFile,
+                time: new Date()
+            };
 
 
-        fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
+            fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
+
+            resolve();
+
+        });
 
     }
 
