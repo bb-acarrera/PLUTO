@@ -9,7 +9,11 @@ export default EmberUploader.FileField.extend({
 
     if (!Ember.isEmpty(files)) {
       // this second argument is optional and can to be sent as extra data with the upload
-      uploader.upload(files[0], { ruleset: this.get('ruleset') });
+      uploader.upload(files[0], { ruleset: this.get('ruleset') }).then(data => {
+        console.log(data.runId);
+      }, error => {
+        // Handle failure
+      });
     }
 
     this.$().val(null);
