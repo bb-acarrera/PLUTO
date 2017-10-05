@@ -336,8 +336,6 @@ class data {
      */
     saveRunRecord ( runId, log, ruleSetID, inputFile, outputFile, logCounts ) {
 
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
-
         return new Promise((resolve, reject) => {
             this.db.query(updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
                 [ruleSetID]).then((result) => {
