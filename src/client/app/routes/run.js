@@ -16,10 +16,13 @@ export default Ember.Route.extend({
   model(params) {
       return this.store.findRecord('run', params.run_id).then(
           run => {
+
+              let ruleset = run.get('ruleset');
+
               return RSVP.hash({
                   run: run,
                   file: params.run_id,
-                  ruleset: this.store.findRecord('ruleset', run.get('ruleset')),
+                  ruleset: ruleset? this.store.findRecord('ruleset', ruleset) : null,
                   log: this.store.query('log', {
                     id: run.get('log'),
                     page: params.page,

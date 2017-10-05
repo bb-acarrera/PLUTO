@@ -138,13 +138,16 @@ class Importer {
                                 resolve();
                             });
 
-                    } else {
+                    } else if(this.validatorConfig.forceWrite) {
                         this.query("UPDATE " + this.rulesetsTable + " SET rules = $2 WHERE id = $1",
                             [result.rows[0].id, JSON.stringify(ruleset)])
                             .then(() => {
                                 console.log('Updated ' + file);
                                 resolve();
                             });
+                    } else {
+                        console.log(file + ' already in database');
+                        resolve();
                     }
 
                 })
@@ -181,6 +184,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .option('-e, --export <tablename>', 'table name to export')
         .option('-r, --ruleset <rulesetFolder>', 'folder that contains the rulesets, default current folder')
         .option('-s, --schema <schema>', 'database schema')
+        .option('-f, --force', 'force overwrite of rulesets if present')
         .parse(process.argv);
 
 
@@ -228,6 +232,8 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
     }
 
     config.scriptName = scriptName;
+
+    config.forceWrite = program.force;
 
 
 

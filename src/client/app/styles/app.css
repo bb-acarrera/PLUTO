@@ -124,3 +124,11 @@ tr.error-row {
 /* tr:nth-child(even) {
   background-color: #f2f2f2;
 } */
+
+div.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 80%;
+  color: gray;
+}
