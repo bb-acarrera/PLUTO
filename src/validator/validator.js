@@ -142,8 +142,17 @@ class Validator {
 			this.warning("No output file specified.");
 		}
 
-		if(ruleset.import) {
+		if(!ruleset.import && !inputFile) {
+			throw "No input file specified.";
+		}
 
+		if(inputFile) {
+			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
+
+			this.displayInputFileName = path.basename(this.inputFileName);
+
+			this.runRules(rulesDirectory, ruleset, this.inputFileName);
+		} else {
 			this.inputFileName = this.getTempName();
 
 			this.importFile(ruleset.import, this.inputFileName).then( (displayInputFileName) => {
@@ -160,17 +169,8 @@ class Validator {
 				.catch(() => {
 					this.finishRun();
 				});
-		} else {
+		}
 
-			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
-            if (!this.inputFileName)
-                throw "No input file specified.";
-
-            this.displayInputFileName = path.basename(this.inputFileName);
-
-			this.runRules(rulesDirectory, ruleset, this.inputFileName);
-
-        }
     }
 
 	/*

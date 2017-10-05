@@ -483,7 +483,7 @@ function getRunQuery(tableNames) {
 function getRunResult(row) {
 
     let isRunning = row.num_warnings == null && row.num_errors == null;
-    
+
     return {
         id: row.id,
         log: row.id,
