@@ -336,27 +336,32 @@ class data {
      */
     saveRunRecord ( runId, log, ruleSetID, inputFile, outputFile, logCounts ) {
 
-        this.db.query( updateTableNames( "SELECT id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables ),
-            [ ruleSetID ] ).then( ( result ) => {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
 
-            let rulesetId = null;
-            if ( result.rows.length > 0 ) {
-                rulesetId = result.rows[ 0 ].id
-            }
+        return new Promise((resolve, reject) => {
+            this.db.query(updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
+                [ruleSetID]).then((result) => {
 
-            let numErrors = logCounts[ ErrorHandlerAPI.ERROR ] || 0;
-            let numWarnings = logCounts[ ErrorHandlerAPI.WARNING ] || 0;
+                let rulesetId = null;
+                if (result.rows.length > 0) {
+                    rulesetId = result.rows[0].id
+                }
 
-            this.db.query( updateTableNames( "INSERT INTO {{runs}} (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
-                "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables ),
-                [ runId, rulesetId, inputFile, outputFile, moment.utc(new Date()), JSON.stringify( log ), numErrors, numWarnings ] )
-                .then( () => {
-                    return;
-                }, ( error ) => {
-                    console.log( error );
-                } );
+                let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
+                let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
 
-        } );
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (run_id, ruleset_id, inputfile, outputfile, finishtime, log, num_errors, num_warnings) " +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                    [runId, rulesetId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
+                    .then(() => {
+                        resolve();
+                    }, (error) => {
+                        console.log(error);
+                        reject(error);
+                    });
+
+            });
+        });
 
     }
 
@@ -420,26 +425,34 @@ class data {
             let name = ruleset.filename;
 
             this.db.query(
-                updateTableNames( "SELECT id FROM {{rulesets}} WHERE ruleset_id = $1 AND version = 0", this.tables ),
-                [ name ] )
-                .then( ( result ) => {
-                    if ( result.rows.length === 0 ) {
-                        this.db.query( updateTableNames( "INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
-                            "VALUES($1, $2, $3, $4) RETURNING id", this.tables ),
-                            [ ruleset.filename, ruleset.name, 0, JSON.stringify( ruleset ) ] );
+                updateTableNames("SELECT id FROM {{rulesets}} WHERE ruleset_id = $1 AND version = 0", this.tables),
+                [name])
+                .then((result) => {
+                    let qry;
+                    if(result.rows.length === 0) {
+                        qry = this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
+                            "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
+                            [ruleset.filename, ruleset.name, 0, JSON.stringify(ruleset)]);
                     } else {
-                        this.db.query( updateTableNames( "UPDATE {{rulesets}} SET rules = $2, name = $3 WHERE id = $1", this.tables ),
-                            [ result.rows[ 0 ].id, JSON.stringify( ruleset ), ruleset.name ] );
+                        qry = this.db.query(updateTableNames("UPDATE {{rulesets}} SET rules = $2, name = $3 WHERE id = $1", this.tables),
+                            [result.rows[0].id, JSON.stringify(ruleset), ruleset.name]);
                     }
 
-                    resolve( name );
-                }, ( error ) => {
-                    console.log( error );
-                } )
-                .catch( ( error ) => {
-                    console.log( error );
-                } );
-        } );
+                    qry.then(() => {
+                        resolve(name);
+                    }, (error) => {
+                        reject(error)
+                    });
+
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        });
 
 
     }

@@ -112,18 +112,22 @@ class RulesetRouter extends BaseRouter {
 		}
 	}
 
-	patch(req, res) {
+	patch(req, res, next) {
 		const ruleset = new RuleSet(req.body);
 		this.config.data.saveRuleSet(ruleset).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
-		});
+		}, (error) => {
+			next(error);
+		}).catch(next);
 	}
 
-	delete(req, res) {
+	delete(req, res, next) {
         const ruleset = new RuleSet(req.body);
         this.config.data.deleteRuleSet(ruleset).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
-        });
+        }, (error) => {
+			next(error);
+		}).catch(next);
 	}
 
 	insert(req, res, next) {

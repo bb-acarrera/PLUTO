@@ -11,5 +11,6 @@
 	"dbPassword" : "password",
 	"dbDatabase" : "pluto",
 	"dbHost" : "localhost",
-	"dbPort" : "6543"
+	"dbPort" : "6543",
+	"dbSchema": "pluto"
 }
