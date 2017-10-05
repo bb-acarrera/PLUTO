@@ -71,13 +71,16 @@ class ProcessFileRouter extends BaseRouter {
 
             this.generateResponse(res, ruleset,
                 this.processFile(ruleset, null, fileToProcess, outputFile, next, res, () => {
+
+                    fs.unlink(fileToProcess);
+
                     if (fs.existsSync(outputFile)) {
                         fs.unlink(outputFile);
                     }
                 })
             );
 
-            fs.unlink(fileToProcess);
+
         });
     }
 

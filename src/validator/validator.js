@@ -323,19 +323,32 @@ class Validator {
 			this.inputFileName = "";
 		}
 
-		if (results && this.currentRuleset.export) {
+		if(!results) {
+			console.error("No results");
+			this.error("No results were produced.");
+		}
+
+		if(this.outputFileName) {
+
+			if(results) {
+				this.saveResults(results);
+			}
+			this.finalize();
+
+		} else if(this.currentRuleset && this.currentRuleset.export) {
 			var resultsFile = null;
-			if (results.file)
+
+			if (results && results.file)
 				resultsFile = results.file;
-			else if (results.stream) {
+			else if (results && results.stream) {
 				resultsFile = this.getTempName();
 				this.putFile(results.stream, resultsFile, this.encoding);
 			}
-			else if (results.data) {
+			else if (results && results.data) {
 				resultsFile = this.getTempName();
 				this.saveFile(results.data, resultsFile, this.encoding);
 			}
-			else
+			else if(results)
 				this.error("Unrecognized results structure.");
 
 			this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
@@ -351,13 +364,7 @@ class Validator {
 					this.finalize();
 				});
 		} else {
-			if(results) {
-				this.saveResults(results);
-			} else {
-				console.error("No results");
-				this.error("No results were produced.");
-			}
-
+			this.warning("No output method specified");
 			this.finalize();
 		}
 
