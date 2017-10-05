@@ -272,7 +272,13 @@ class data {
 
                 let runs = [];
                 result.rows.forEach( ( row ) => {
-                    runs.push( getRunResult( row ) );
+
+                    let run = getRunResult( row );
+
+                    if(run.id) {
+                        runs.push( run );
+                    }
+
                 } );
 
                 resolve( {
@@ -447,7 +453,7 @@ class data {
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
-    getRulesets ( page, size ) {
+    getRulesets ( page, size, filters ) {
 
         return new Promise( ( resolve ) => {
 
@@ -462,10 +468,30 @@ class data {
                 offset = (page - 1) * size;
             }
 
-            let rulesetsQuery = this.db.query( updateTableNames( "SELECT * FROM {{rulesets}} " +
-                "ORDER BY name ASC LIMIT $1 OFFSET $2", this.tables ), [ size, offset ] );
+            let where = "";
+            let countWhere = "";
 
-            let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{rulesets}}", this.tables ) );
+            let values = [ size, offset ];
+            let countValues = [];
+
+            if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
+                let rulesetWhere = safeStringLike( filters.rulesetFilter );
+
+                where = "WHERE ";
+                countWhere = where;
+
+                values.push( rulesetWhere );
+                where += "{{rulesets}}.ruleset_id ILIKE $" + values.length;
+
+                countValues.push( rulesetWhere );
+                countWhere += "{{rulesets}}.ruleset_id ILIKE $" + countValues.length;
+
+            }
+
+            let rulesetsQuery = this.db.query( updateTableNames( "SELECT * FROM {{rulesets}} " + where + " " +
+                "ORDER BY name ASC LIMIT $1 OFFSET $2", this.tables ), values );
+
+            let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{rulesets}} " + countWhere, this.tables ), countValues );
 
             Promise.all( [ rulesetsQuery, countQuery ] ).then( ( values ) => {
 
