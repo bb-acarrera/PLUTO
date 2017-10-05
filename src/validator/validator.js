@@ -79,7 +79,7 @@ class Validator {
 	/*
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
 	 */
-	runRuleset(inputFile, outputFile, inputEncoding) {
+	runRuleset(inputFile, outputFile, inputEncoding, inputDisplayName) {
 		this.running = true;	// Used by finishRun() to determine if it should clean up. Avoids issues with finishRun() being called twice.
 
 		try {
@@ -98,7 +98,7 @@ class Validator {
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
 				.then((ruleset) => {
 
-						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile);
+						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
 					},
 					(error)=>{
 						this.error(error);
@@ -120,7 +120,7 @@ class Validator {
 		});
 	}
 
-	processRuleset(ruleset, outputFile, inputEncoding, inputFile){
+	processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName){
 		if(!ruleset){
 			throw new Error("No Ruleset found for: " + this.config.ruleset);
 		}
@@ -149,7 +149,12 @@ class Validator {
 		if(inputFile) {
 			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
 
-			this.displayInputFileName = path.basename(this.inputFileName);
+			if(inputDisplayName) {
+				this.displayInputFileName = inputDisplayName;
+			} else {
+				this.displayInputFileName = path.basename(this.inputFileName);
+			}
+
 
 			this.runRules(rulesDirectory, ruleset, this.inputFileName);
 		} else {

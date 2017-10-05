@@ -43,7 +43,7 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
-        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, next, res));
+        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res));
     }
 
     processUpload(req, res, next) {
@@ -70,7 +70,7 @@ class ProcessFileRouter extends BaseRouter {
                 return res.status(500).send(err);
 
             this.generateResponse(res, ruleset,
-                this.processFile(ruleset, null, fileToProcess, outputFile, next, res, () => {
+                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, () => {
 
                     fs.unlink(fileToProcess);
 
@@ -106,7 +106,7 @@ class ProcessFileRouter extends BaseRouter {
         });
     }
 
-    processFile(ruleset, importConfig, inputFile, outputFile, next, res, finishedFn) {
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, finishedFn) {
         return new Promise((resolve, reject) => {
 
             var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
@@ -126,6 +126,13 @@ class ProcessFileRouter extends BaseRouter {
                 spawnArgs.push(inputFile);
                 spawnArgs.push('-o');
                 spawnArgs.push(outputFile);
+
+                if(inputDisplayName) {
+                    execCmd += ' -n ' + inputDisplayName;
+
+                    spawnArgs.push('-n');
+                    spawnArgs.push(inputDisplayName);
+                }
             }
 
             const options = {
