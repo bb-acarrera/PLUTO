@@ -97,6 +97,10 @@ tr.error-row {
   color: firebrick;
 }
 
+.good-icon {
+  color: lightskyblue;
+}
+
 .no-icon {
   display: none;
 }

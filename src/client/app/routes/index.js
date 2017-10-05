@@ -15,6 +15,18 @@ export default Ember.Route.extend(RouteMixin, {
     },
     filenameFilter: {
       refreshModel: true
+    },
+    showErrors: {
+      refreshModel: true
+    },
+    showWarnings: {
+      refreshModel: true
+    },
+    showNone: {
+      refreshModel: true
+    },
+    dateFilter: {
+      refreshModel: true
     }
   },
   loadQueryParams(params){
@@ -34,7 +46,11 @@ export default Ember.Route.extend(RouteMixin, {
         page: params.rulePage,
         perPage: params.rulePerPage,
         rulesetFilter: params.rulesetFilter,
-        filenameFilter: params.filenameFilter
+        filenameFilter: params.filenameFilter,
+        errorFilter: params.showErrors,
+        warningsFilter: params.showWarnings,
+        noneFilter: params.showNone,
+        dateFilter: params.dateFilter
       }).then(function (result) {
         let meta = result.get('meta');
         return { result: result, meta: meta};

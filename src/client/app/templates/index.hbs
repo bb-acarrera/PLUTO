@@ -4,9 +4,22 @@
     <table id="runsTable" class="runs-table">
 		<tr style="border-bottom: 1px solid grey;">
 			<td class="icon-cell">
-				<i class="glyphicon glyphicon-search"></i>
+				{{#bs-dropdown tagName="span" as |dd|}}
+					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
+					{{#dd.menu as |menu|}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showWarnings" checked=showWarnings}}<i class="fa fa-exclamation-triangle warning-icon"></i> Show Warnings
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showErrors" checked=showErrors}}<i class="fa fa-exclamation-triangle error-icon"></i>  Show Errors
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showNone" checked=showNone}}<i class="fa fa-thumbs-o-up good-icon"></i> Show Success
+						{{/menu.item}}
+					{{/dd.menu}}
+				{{/bs-dropdown}}
 			</td>
-			<td></td>
+			<td>{{input type="date" value=dateFilter}}</td>
 			<td>{{input placeholder="filter" value=filenameFilter}}</td>
 			<td>{{input placeholder="filter" value=rulesetFilter}}</td>
 			<td></td>
@@ -15,7 +28,7 @@
       {{#each model.runs.result as |runInstance index|}}
           <tr id="{{concat 'runsTableRow' index}}">
 			  <td class="icon-cell">
-				  <i class="fa fa-exclamation-triangle fa {{rule-log-icons runInstance}}"></i>
+				  <i class="fa fa-exclamation-triangle {{rule-log-icons runInstance}}"></i>
 			  </td>
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
