@@ -322,7 +322,6 @@ class Validator {
 		if(!this.inputFileName){
 			this.inputFileName = "";
 		}
-		const runId = this.runId;
 
 		if (results && this.currentRuleset.export) {
 			var resultsFile = null;
@@ -339,7 +338,7 @@ class Validator {
 			else
 				this.error("Unrecognized results structure.");
 
-			this.exportFile(this.currentRuleset.export, resultsFile, runId)
+			this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
 				.then(() => {},
 
 					(error) => {
@@ -349,9 +348,7 @@ class Validator {
 					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.data.saveRunRecord(runId, this.logger.getLog(),
-						this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
-					this.cleanup();
+					this.finalize();
 				});
 		} else {
 			if(results) {
@@ -361,10 +358,17 @@ class Validator {
 				this.error("No results were produced.");
 			}
 
-			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
-			this.cleanup();
+			this.finalize();
 		}
+
+	}
+
+	finalize() {
+		this.data.saveRunRecord(this.runId, this.logger.getLog(),
+			this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+			.then(() => {}, (error) => console.log('error saving run: ' + error))
+			.catch((e) => console.log('Exception saving run: ' + e))
+			.then(() => this.cleanup());
 
 	}
 
