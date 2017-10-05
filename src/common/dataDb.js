@@ -252,44 +252,6 @@ class data {
                 countWhere += "CAST(finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
             }
 
-
-            //  // if(where.length === 0) {
-            //    where = "WHERE ";
-            //    countWhere = "WHERE ";
-            //  // } else {
-            //  //   where += " OR ";
-            //  //   countWhere += " OR ";
-            //  // }
-            //  //
-            //  // where += "{{runs}}.num_errors > 0" ;
-            //  //
-            //  // countWhere += "{{runs}}.num_errors > 0";
-            //
-            //
-            //
-            //
-            //
-            // // where += " OR ";
-            // // countWhere += " OR ";
-            //
-            //
-            //  where += "{{runs}}.num_warnings > 0";
-            //
-            //  countWhere += "{{runs}}.num_warnings > 0";
-            //
-            //
-            //
-            //
-            //
-            //    where += " OR ";
-            //    countWhere += " OR ";
-            //
-            //
-            //  where += "{{runs}}.num_errors = 0 AND {{runs}}.num_warnings = 0";
-            //  countWhere += "{{runs}}.num_errors = 0  AND {{runs}}.num_warnings = 0";
-
-            //dateFilter
-
             let runSQL = getRunQuery( this.tables ) + " " + updateTableNames( where, this.tables ) +
                 " ORDER BY finishtime DESC LIMIT $1 OFFSET $2";
 
