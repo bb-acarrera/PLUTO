@@ -71,7 +71,9 @@ class ProcessFileRouter extends BaseRouter {
 
             this.generateResponse(res, ruleset,
                 this.processFile(ruleset, null, fileToProcess, outputFile, next, res, () => {
-                    fs.unlink(outputFile);
+                    if (fs.existsSync(outputFile)) {
+                        fs.unlink(outputFile);
+                    }
                 })
             );
 
@@ -137,6 +139,10 @@ class ProcessFileRouter extends BaseRouter {
 
                 if(overrideFile) {
                     fs.unlink(overrideFile);
+                }
+
+                if(finishedFn) {
+                    finishedFn();
                 }
 
                 reject(err);
