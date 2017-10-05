@@ -482,11 +482,8 @@ function getRunQuery(tableNames) {
 
 function getRunResult(row) {
 
-    let isRunning = false;
-    if(row.finishtime && row.starttime) {
-        isRunning = row.finishtime.getTime() === row.starttime.getTime();
-    }
-
+    let isRunning = row.num_warnings == null && row.num_errors == null;
+    
     return {
         id: row.id,
         log: row.id,
