@@ -19,3 +19,4 @@ test_config/tmp/*
 Factories.csv
 /root/
 /test_build/
+/dbconfig.json

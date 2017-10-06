@@ -94,6 +94,33 @@ cd src
 node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
 ```
 
+## Changing the database schema
+We're using node-pg-migrate (https://github.com/salsita/node-pg-migrate) to manage migration.  Migration scripts are 
+executed as part of the dev database startup and built as part of the pluto_dbloader container.
+
+Docs on the tools are here: https://github.com/salsita/node-pg-migrate
+
+First, a config file needs to be generated for the tool. To generate one against the dev db:
+
+```shell
+cd database/dbloader
+node configureDatabase.js -v ../../src/runtime/configs/validatorConfig.json
+```
+
+which should create dbconfig.json in that folder. To test out the migration:
+
+```shell
+../../node_modules/.bin/pg-migrate up -f dbconfig.json
+```
+
+To create a new migration script:
+
+```
+pg-migrate create your-new-migration -f dbconfig.json
+```
+
+which will place the script in the database/dbloader/migrations folder.  Follow the docs on how to create new migrations.
+
 ## Deploying
 
 After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
