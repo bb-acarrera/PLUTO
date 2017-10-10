@@ -18,11 +18,13 @@ export default Ember.Route.extend({
           run => {
 
               let ruleset = run.get('ruleset');
+              let version = run.get('version');
 
               return RSVP.hash({
                   run: run,
                   file: params.run_id,
-                  ruleset: ruleset? this.store.findRecord('ruleset', ruleset) : null,
+                  ruleset: ruleset?
+                    this.store.queryRecord('ruleset', {id: ruleset, version: version}) : null,
                   log: this.store.query('log', {
                     id: run.get('log'),
                     page: params.page,
