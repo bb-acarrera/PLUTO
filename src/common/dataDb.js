@@ -186,26 +186,6 @@ class data {
             let values = [ size, offset ];
             let countValues = [];
 
-            /*
-            let errOp = "<";
-            let warnOp = "<";
-            let joinOp = " OR ";
-
-            if ( filters.showErrors ) {
-                errOp = ">";
-            }
-            if ( filters.showWarnings ) {
-                warnOp = ">";
-            }
-            if ( filters.showNone ) {
-                errOp = errOp == ">" ? ">=" : "=";
-                warnOp = warnOp == ">" ? ">=" : "=";
-                //joinOp = " AND ";
-            }
-
-            where += "{{runs}}.num_errors " + errOp + " 0" + joinOp + "{{runs}}.num_warnings " + warnOp + " 0";
-            */
-
             function extendWhere() {
                 if ( where.length === 0 ) {
                     where = "WHERE ";
@@ -246,7 +226,7 @@ class data {
                     errorsWhere += 'FALSE';
                 }
 
-                where +=   '(' + errorsWhere + ')';
+                where += '(' + errorsWhere + ')';
                 countWhere = where;
 
             }
