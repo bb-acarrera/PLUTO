@@ -87,14 +87,15 @@ class CSVParser extends TableParserAPI {
         if(this.tableRule) {
             processHeaderRows = this.tableRule.processHeaderRows;
         }
-        let rowNumber = 0;
+        let rowNumber = 1;
+        let rowHeaderOffset = this.numHeaderRows + 1;
 
 
         // This CSV Transformer is used to call the processRecord() method above.
         const transformer = transform(record => {
             let response = record;
 
-            if (this.tableRule && rowNumber >= this.numHeaderRows || processHeaderRows) {
+            if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
                 response = this.tableRule.processRecord(record, rowNumber);
             }
 
