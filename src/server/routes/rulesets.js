@@ -76,6 +76,8 @@ class RulesetRouter extends BaseRouter {
 			let page = parseInt(req.query.page, 10);
 			let size = parseInt(req.query.perPage, 10);
 
+			let rulesetFilter = req.query.rulesetFilter;
+
 			if(isNaN(page)) {
 				page = 1;
 			}
@@ -84,7 +86,9 @@ class RulesetRouter extends BaseRouter {
 				size = 0;
 			}
 
-			this.config.data.getRulesets(page, size).then((result) => {
+			this.config.data.getRulesets(page, size, {
+				rulesetFilter: rulesetFilter
+			}).then((result) => {
 				const rulesets = [];
 
 				let rawRulesets = result.rulesets;
@@ -103,7 +107,11 @@ class RulesetRouter extends BaseRouter {
 					})
 				});
 
-				res.json({ data: rulesets, meta: {totalPages: result.pageCount}});
+				res.json(
+					{
+						data: rulesets,
+						meta: {rowCount: result.rowCount, totalPages: result.pageCount}
+					});
 
 			}, (error) => {
 				next(error);
