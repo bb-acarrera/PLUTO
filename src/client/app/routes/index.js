@@ -33,7 +33,6 @@ export default Ember.Route.extend(RouteMixin, {
     this.transitionTo({queryParams: params});
   },
   model(params) {
-    console.log("index model");
     return RSVP.hash({
       rulesets: this.store.query('ruleset', {
         page: params.rulePage,
