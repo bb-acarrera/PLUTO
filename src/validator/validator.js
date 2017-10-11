@@ -244,6 +244,7 @@ class Validator {
 		this.updateConfig(config);
 		config.name = config.name || ruleDescriptor.filename;
 		this.ruleName = config.name;
+		config.errors = ruleDescriptor.errors;
 
 		let rule =  new ruleClass(config);
 
