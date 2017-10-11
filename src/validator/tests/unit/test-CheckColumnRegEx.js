@@ -104,7 +104,7 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Index", function( assert ) {
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1 has insufficient columns.");
+			assert.equal(logResults[0].description, "Row 2 has insufficient columns.");
 		}
 		done();
 	});
@@ -128,7 +128,7 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a match of ^a+$ but got bbbb.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a match of ^a+$ but got bbbb.");
 		}
 		done();
 	});
