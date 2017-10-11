@@ -36,6 +36,21 @@ class RunsRouter extends BaseRouter {
 
             let page = parseInt(req.query.page, 10);
             let size = parseInt(req.query.perPage, 10);
+            let rulesetFilter = req.query.rulesetFilter;
+            let filenameFilter = req.query.filenameFilter;
+            let showErrors = JSON.parse(req.query.errorFilter || true);
+            let showWarnings = JSON.parse(req.query.warningsFilter || true);
+            let showNone = JSON.parse(req.query.noneFilter || true);
+            let dateFilter = null;
+
+            if(req.query.dateFilter && req.query.dateFilter.length > 0) {
+                let time = Date.parse(req.query.dateFilter);
+                if(!isNaN(time)) {
+                    dateFilter = new Date(time);
+                }
+            }
+
+
 
             if(isNaN(page)) {
                 page = 1;
@@ -45,7 +60,14 @@ class RunsRouter extends BaseRouter {
                 size = 0;
             }
 
-            this.config.data.getRuns(page, size).then((result) => {
+          this.config.data.getRuns(page, size, {
+            rulesetFilter: rulesetFilter,
+            filenameFilter: filenameFilter,
+            showErrors: showErrors,
+            showWarnings: showWarnings,
+            showNone: showNone,
+            dateFilter: dateFilter
+          }).then((result) => {
               var data = [];
 
               result.runs.forEach(runInfo => {
