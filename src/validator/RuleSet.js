@@ -20,12 +20,20 @@ class RuleSet {
 		// all rulesets.
 		this.id = ruleset.database_id != undefined ? ruleset.database_id : ruleset.id || this._filename || this.name;	// Yes, the database_id should take precedence over "id". "id" is set by Ember.
 
-		this.addRules(ruleset.rules);
 		this.import = ruleset.import;
 		this.export = ruleset.export;
 		this.parser = ruleset.parser;
+		this.errors = ruleset.errors;
 
 		this.config = ruleset.config;
+
+		if(!this.errors) {
+			this.errors = {
+				onError: 'abort'
+			}
+		}
+
+		this.addRules(ruleset.rules);
 	}
 
 	addRules(rules) {
@@ -41,6 +49,25 @@ class RuleSet {
 			dstRule.id = srcRule.id;
 			dstRule.name = srcRule.name || srcRule.filename;
 			dstRule.ui = srcRule.ui;
+
+			if(srcRule.errors) {
+				dstRule.errors = srcRule.errors;
+			} else {
+				dstRule.errors = {};
+			}
+
+			if(dstRule.errors.onError == null) {
+				dstRule.errors.onError = this.errors.onError;
+			}
+
+			if(dstRule.errors.errorsToAbort == null) {
+				dstRule.errors.errorsToAbort = this.errors.singleRuleErrorsToAbort;
+			}
+
+			if(dstRule.errors.warningsToAbort == null) {
+				dstRule.errors.warningsToAbort = this.errors.singleRuleWarningsToAbort;
+			}
+
 			this.rules.push(dstRule);
 		}
 	}

@@ -267,7 +267,7 @@ class Validator {
 	}
 
 	getParserClass(parserDescriptor) {
-		var parserClass = this.ruleLoader.parsersMap[parserDescriptor.filename]
+		var parserClass = this.ruleLoader.parsersMap[parserDescriptor.filename];
 
 		if(!parserClass) {
 			parserClass = this.loadRule(parserDescriptor.filename);

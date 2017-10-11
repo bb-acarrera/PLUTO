@@ -7,6 +7,9 @@
 				"config" : {
 					"id" : 1,
 					"columns" : 9
+				},
+				"errors" : {
+					"onError": "abort"
 				}
 			},
 			{
@@ -54,6 +57,14 @@
 				"numHeaderRows" : 1,
 				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
 			}
+		},
+		"errors" : {
+			"onError": "excludeRow",
+			"totalErrorsToAbort": null,
+			"singleRuleErrorsToAbort": null,
+			"totalWarningsToAbort": null,
+			"singleRuleWarningsToAbort": null
+
 		}
 	}
 }
