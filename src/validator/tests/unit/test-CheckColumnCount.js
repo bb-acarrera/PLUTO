@@ -184,7 +184,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-		assert.equal(logResults[0].description, "Row 1 has too many of columns. Got 2.");
+		assert.equal(logResults[0].description, "Row 2 has too many of columns. Got 2.");
 		done();
 	});
 });

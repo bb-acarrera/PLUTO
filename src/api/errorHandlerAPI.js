@@ -35,19 +35,19 @@ class ErrorHandlerAPI {
 		})
 	}
 
-	getLastErrorCount() {
-		return this.lastCheck[ErrorHandlerAPI.ERROR];
+	lastCheckHadErrors() {
+		return this.lastCheck[ErrorHandlerAPI.ERROR] > 0;
 	}
 
 	updateCounts(level) {
 
 		if(!this.totals.hasOwnProperty(level)) {
 			this.lastCheck[level] = 1;
-			this.total[level] = 1;
+			this.totals[level] = 1;
 		}
 
 		this.lastCheck[level] += 1;
-		this.total[level] += 1;
+		this.totals[level] += 1;
 	}
 
 	/**

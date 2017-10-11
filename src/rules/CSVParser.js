@@ -95,11 +95,18 @@ class CSVParser extends TableParserAPI {
         const transformer = transform(record => {
             let response = record;
 
+            this.resetLastCheckCounts();
+
             if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
                 response = this.tableRule.processRecord(record, rowNumber);
             }
 
             rowNumber++;
+
+            if(this.lastCheckHadErrors() && this.excludeRecordOnError) {
+                return null;
+            }
+
             return response;
         });
 
