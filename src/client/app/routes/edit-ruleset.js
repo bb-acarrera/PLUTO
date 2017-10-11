@@ -1,23 +1,34 @@
 import Ember from 'ember';
 import RSVP from 'rsvp';
 
-export default Ember.Route.extend({
-    model(params) {
+export default Ember.Route.extend( {
+    model ( params ) {
         // This is necessary for clean page load on return to the page
-        if(this.controller && this.controller.ruleToEdit) {
-          this.controller.set('ruleToEdit', null);
+        if ( this.controller && this.controller.ruleToEdit ) {
+            this.controller.set( 'ruleToEdit', null );
         }
-        return RSVP.hash({
-            ruleset: this.store.findRecord('ruleset', params.ruleset_id),
-            parsers: this.store.findAll('parser'),
-            rules: this.store.findAll('rule'),
-            importers: this.store.findAll('importer'),
-            exporters: this.store.findAll('exporter')
-        });
+        return RSVP.hash( {
+            ruleset: this.store.findRecord( 'ruleset', params.ruleset_id ),
+            parsers: this.store.findAll( 'parser' ),
+            rules: this.store.findAll( 'rule' ),
+            importers: this.store.findAll( 'importer' ),
+            exporters: this.store.findAll( 'exporter' )
+        } );
     },
+    /* renderTemplate ( controller, model ) {
+         //this._super(controller, model);
+         this.render('editRuleset',{
+             into: 'application'
+         });
+         this.render('run',{
+             into: 'editRuleset',
+             model: 'run',
+             controller: 'run'
+         });
+     },*/
     actions: {
-        error(reason){
-            alert(reason);
+        error ( reason ) {
+            alert( reason );
         }
     }
-});
+} );
