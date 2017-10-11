@@ -18,8 +18,7 @@ class CheckColumnCount extends TableRuleAPI {
 		else
 			this.columns = parseFloat(this.config.columns);
 
-		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
-		this.reportAlways = this.config && this.config.reportAlways ? this.config.reportAlways : false;	// Should every occurrence be reported?
+
 	}
 
 	start(parser) {
@@ -29,11 +28,10 @@ class CheckColumnCount extends TableRuleAPI {
 	processRecord(record, rowId) {
 
 		if (this.columns !== undefined) {
-			if (record.length !== this.columns) {
-				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${rowId} has wrong number of columns. Got ${record.length}.`);
-					this.badColumnCountReported = true;
-				}
+			if (record.length < this.columns) {
+				this.error(`Row ${rowId} has too few of columns. Got ${record.length}.`);
+			} else if(record.length > this.columns) {
+				this.warning(`Row ${rowId} has too many of columns. Got ${record.length}.`)
 			}
 		}
 
