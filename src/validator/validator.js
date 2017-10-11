@@ -143,7 +143,7 @@ class Validator {
 
 					this.displayInputFileName = displayInputFileName;
 
-					this.runRules(rulesDirectory, ruleset, this.inputFileName);
+					this.runRules(ruleset, this.inputFileName);
 
 
 				},error => {
@@ -161,7 +161,7 @@ class Validator {
 
             this.displayInputFileName = path.basename(this.inputFileName);
 
-			this.runRules(rulesDirectory, ruleset, this.inputFileName);
+			this.runRules(ruleset, this.inputFileName);
 
         }
     }
@@ -170,10 +170,11 @@ class Validator {
 	 * Run the list of rules that are all in the same rulesDirectory, starting with the given file.
 	 * (The output from a rule will generally be a new file which is input to the next rule.)
 	 */
-	runRules(rulesDirectory, ruleset, file) {
+	runRules(ruleset, file) {
 
 		let rules = ruleset.rules;
 		this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
+		this.shouldAbort = false;
 
 		try {
 
@@ -202,7 +203,9 @@ class Validator {
 				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
 				this.error(errorMsg);
 			}).then((lastResult) => {
-				if (lastResult && lastResult.result && lastResult.result.stream) {
+				if(validator.shouldAbort) {
+					this.finishRun();
+				} else if (lastResult && lastResult.result && lastResult.result.stream) {
 					// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
 					let p = new Promise((resolve, reject) => {
 						let dest = this.putFile(lastResult.result.stream, this.getTempName());
@@ -214,7 +217,15 @@ class Validator {
 						});
 					});
 					p.then((filename) => {
-						this.finishRun({file: filename});
+						if(validator.shouldAbort) {
+							this.finishRun();
+						} else {
+							this.finishRun({file: filename});
+						}
+
+					}, (error) => {
+						this.error('Error writing stream: ' + error);
+						this.finishRun();
 					});
 				}
 				else
@@ -683,7 +694,7 @@ class Validator {
 	 * @private
 	 */
 	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
-		this.shouldAbort = shouldAbort || false;
+		this.shouldAbort = shouldAbort || this.shouldAbort;
 		if (this.logger)
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
 		else {

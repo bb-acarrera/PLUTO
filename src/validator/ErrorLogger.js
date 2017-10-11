@@ -2,11 +2,30 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
+function updateSummaries(log, level, ruleID, problemDescription) {
+
+	if(!log.rules.hasOwnProperty(ruleID)) {
+		log.rules[ruleID] = {
+			counts: {}
+		};
+	}
+
+	const rule = log.rules[ruleID];
+
+	if(!rule.counts.hasOwnProperty(level)) {
+		rule.counts[level] = 1;
+	} else {
+		rule.counts[level] += 1;
+	}
+
+
+}
 
 class ErrorLogger {
 	constructor() {
 		this.reports = [];
 		this.counts = {};
+		this.rules = {};
 	}
 
 	/*
@@ -34,6 +53,8 @@ class ErrorLogger {
 			this.counts[level] += 1;
 		}
 
+		updateSummaries(this, level, ruleID, problemDescription);
+
 		//console.log(util.inspect(report, {showHidden: false, depth: null}))
 	}
 
@@ -49,6 +70,20 @@ class ErrorLogger {
 	 */
 	getCounts() {
 		return this.counts;
+	}
+
+	/**
+	 * Get the counts of report types for a given rule
+	 */
+	getRuleCounts(ruleID) {
+
+		let rule = this.rules[ruleID];
+
+		if(rule) {
+			return rule.counts;
+		}
+
+		return null;
 	}
 }
 

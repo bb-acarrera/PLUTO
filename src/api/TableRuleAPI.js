@@ -1,4 +1,5 @@
 const ParserRuleAPI = require('./ParserRuleAPI');
+const ErrorHandlerAPI = require('./errorHandlerAPI');
 
 /**
  * This API class is used to describe the interface to rule operations. This base class can be used by rules that
@@ -43,6 +44,22 @@ class TableRuleAPI extends ParserRuleAPI {
     }
 
     /**
+     * Does pre-processing to pre the record to be processed, calls processRecord
+     * @param record {array} one record from the csv file.
+     * @param rowId {object | number} row indicator, usually the row number
+     * @returns {array} a record, either the original one if no modifications were carried out or a new one.
+     */
+    processRecordWrapper(record, rowId) {
+        this.isProcessingRecord = true;
+
+        const response = this.processRecord(record, rowId);
+
+        this.isProcessingRecord = false;
+
+        return response;
+    }
+
+    /**
      * Derived classes should implement this method to process individual records.
      * @param record {array} one record from the csv file.
      * @param rowId {object | number} row indicator, usually the row number
@@ -51,6 +68,40 @@ class TableRuleAPI extends ParserRuleAPI {
     processRecord(record, rowId) {
         // Process the record and return the new record.
         return record;
+    }
+
+    /**
+     * Overrides errorHandlerAPI method so when dropping rows processing isn't aborted
+     * @abstract
+     * @returns {boolean} <code>false</code> by default. Derived classes should choose whether an entire ruleset run should
+     * fail if they fail.
+     */
+    shouldRulesetFailOnError() {
+        if(this.isProcessingRecord && this.excludeRecordOnError) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Overrides errorHandlerAPI method so when dropping rows processing isn't aborted, and error is converted to warning
+     * @param {string} level the level of the log. One of {@link Validator.ERROR}, {@link Validator.WARNING}, or {@link Validator.INFO}.
+     * If null or undefined
+     * then {@link Validator.INFO} is assumed.
+     * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
+     * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
+     * @param problemDescription {string} a description of the problem encountered.
+     * @private
+     */
+    log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
+        if(this.isProcessingRecord && this.excludeRecordOnError && level === ErrorHandlerAPI.ERROR) {
+            level = ErrorHandlerAPI.WARNING;
+            shouldAbort = false;
+            problemDescription = '(Record dropped) ' + problemDescription;
+        }
+
+        return super.log(level, problemFileName, ruleID, problemDescription, shouldAbort);
     }
 
     /**

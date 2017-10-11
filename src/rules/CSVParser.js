@@ -98,7 +98,7 @@ class CSVParser extends TableParserAPI {
             this.tableRule.resetLastCheckCounts();
 
             if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
-                response = this.tableRule.processRecord(record, rowNumber);
+                response = this.tableRule.processRecordWrapper(record, rowNumber);
             }
 
             rowNumber++;
