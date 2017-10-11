@@ -181,29 +181,10 @@ class data {
 
         return new Promise( ( resolve, reject ) => {
 
-            let where = "WHERE ", countWhere = "WHERE ", rulesetWhere = "", filenameWhere = "";
+            let where = "", countWhere = "", rulesetWhere = "", filenameWhere = "";
 
             let values = [ size, offset ];
             let countValues = [];
-
-            let errOp = "<";
-            let warnOp = "<";
-            let joinOp = " OR ";
-
-            if ( filters.showErrors ) {
-                errOp = ">";
-            }
-            if ( filters.showWarnings ) {
-                warnOp = ">";
-            }
-            if ( filters.showNone ) {
-                errOp = errOp == ">" ? ">=" : "=";
-                warnOp = warnOp == ">" ? ">=" : "=";
-                joinOp = " AND ";
-            }
-
-            where += "{{runs}}.num_errors " + errOp + " 0" + joinOp + "{{runs}}.num_warnings " + warnOp + " 0";
-            countWhere = where;
 
             function extendWhere() {
                 if ( where.length === 0 ) {
@@ -215,6 +196,40 @@ class data {
                 }
             }
 
+            if(!filters.showErrors || !filters.showWarnings || !filters.showNone) {
+
+                let errorsWhere = '';
+
+                if(filters.showErrors) {
+                    errorsWhere += "{{runs}}.num_errors > 0";
+                }
+
+                if(filters.showWarnings) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.num_warnings > 0";
+                }
+
+                if ( filters.showNone ) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+                    errorsWhere += "({{runs}}.num_errors = 0 AND {{runs}}.num_warnings = 0)"
+
+                }
+
+                extendWhere();
+
+                if(errorsWhere.length == 0) {
+                    errorsWhere += 'FALSE';
+                }
+
+                where += '(' + errorsWhere + ')';
+                countWhere = where;
+
+            }
 
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
                 rulesetWhere = safeStringLike( filters.rulesetFilter );
@@ -288,6 +303,7 @@ class data {
                 } );
 
             }, ( error ) => {
+                console.log('Error with query: ' + runSQL);
                 reject( error );
             } );
 

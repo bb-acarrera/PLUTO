@@ -121,7 +121,7 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1 has insufficient columns.");
+			assert.equal(logResults[0].description, "Row 2 has insufficient columns.");
 		}
 		done();
 	});
@@ -145,7 +145,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a number but got foo.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a number but got foo.");
 		}
 		done();
 	});
@@ -189,7 +189,7 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a float but got foo.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a float but got foo.");
 		}
 		done();
 	});
@@ -253,7 +253,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a integer but got foo.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a integer but got foo.");
 		}
 		done();
 	});
@@ -277,7 +277,7 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Row 1, Column 0: Expected a integer but got 3.14.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a integer but got 3.14.");
 		}
 		done();
 	});

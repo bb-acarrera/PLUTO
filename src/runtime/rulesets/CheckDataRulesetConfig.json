@@ -35,7 +35,7 @@
 				"config" : {
 					"id" : 4,
 					"column" : "city",
-					"regex" : "[^0-9\\s]*"
+					"regex" : "^\\D*$"
 				}
 			}
 		],

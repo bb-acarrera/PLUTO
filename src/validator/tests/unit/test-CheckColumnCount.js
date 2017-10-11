@@ -159,7 +159,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 2, "Expect two results.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 0 has too few of columns. Got 1.");
+		assert.equal(logResults[0].description, "Row 1 has too few of columns. Got 1.");
 		done();
 	});
 });
