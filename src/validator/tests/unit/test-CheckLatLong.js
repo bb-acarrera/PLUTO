@@ -225,7 +225,7 @@ QUnit.test( "CheckLatLong: Check For Bad Column Index", function( assert ) {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 1 has insufficient columns.");
+		assert.equal(logResults[0].description, "Row 2 has insufficient columns.");
 		done();
 	});
 });
@@ -249,10 +249,10 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 		assert.equal(logResults.length, 2, `Expected two errors but got ${logResults.length}.`);
 		if (logResults.length >= 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Latitude is not a number in row 1. Got 'foo'.");
+			assert.equal(logResults[0].description, "Latitude is not a number in row 2. Got 'foo'.");
 			if (logResults.length >= 2) {
 				assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
-				assert.equal(logResults[1].description, "Longitude is not a number in row 1. Got 'bar'.");
+				assert.equal(logResults[1].description, "Longitude is not a number in row 2. Got 'bar'.");
 			}
 		}
 		done();
@@ -279,16 +279,16 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 		assert.equal(logResults.length, 4, `Expected four errors but got ${logResults.length}.`);
 		if (logResults.length >= 1) {
 			assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-			assert.equal(logResults[0].description, "Latitude is out of range in row 1. Got '-91'.");
+			assert.equal(logResults[0].description, "Latitude is out of range in row 2. Got '-91'.");
 			if (logResults.length >= 2) {
 				assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
-				assert.equal(logResults[1].description, "Longitude is out of range in row 1. Got '-200'.");
+				assert.equal(logResults[1].description, "Longitude is out of range in row 2. Got '-200'.");
 				if (logResults.length >= 3) {
 					assert.equal(logResults[2].type, "Error", "Expected an 'Error'.");
-					assert.equal(logResults[2].description, "Latitude is out of range in row 2. Got '91'.");
+					assert.equal(logResults[2].description, "Latitude is out of range in row 3. Got '91'.");
 					if (logResults.length >= 4) {
 						assert.equal(logResults[3].type, "Error", "Expected an 'Error'.");
-						assert.equal(logResults[3].description, "Longitude is out of range in row 2. Got '200'.");
+						assert.equal(logResults[3].description, "Longitude is out of range in row 3. Got '200'.");
 					}
 				}
 			}

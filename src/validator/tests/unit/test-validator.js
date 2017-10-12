@@ -247,7 +247,7 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
                 return new Promise((resolve) => {
                     assert.ok(log, "Expected log to be created");
                     assert.equal(log[0].type, "Error", "Expected an error");
-                    assert.equal(log[0].description, "Row 0 has wrong number of columns. Got 9.", 'Expected "Row 0 has wrong number of columns. Got 9."')
+                    assert.equal(log[0].description, "Row 1 has wrong number of columns. Got 9.", 'Expected "Row 1 has wrong number of columns. Got 9."')
                     done();
                     resolve();
                 });
@@ -311,7 +311,7 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
                 return new Promise((resolve) => {
                     assert.ok(log, "Expected log to be created");
                     assert.equal(log[0].type, "Warning", "Expected an error");
-                    assert.equal(log[0].description, "Found null island in row 2.", 'Expected "Found null island in row 2"');
+                    assert.equal(log[0].description, "Found null island in row 3.", 'Expected "Found null island in row 3"');
                     done();
                     resolve();
                 });
