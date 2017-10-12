@@ -14,11 +14,29 @@ class RulesetRouter extends BaseRouter {
 		// directory points to rulesets, rule plugins and such. It can be configured such
 		// that these two root directories are the same.
 
-		if(req.params.id) {
+		if(req.params.id || req.query.id || req.query.dbid) {
 
-			this.config.data.retrieveRuleset(req.params.id).then((ruleset) => {
+			let id = '';
+			let version = null;
+			let dbId = null;
+
+			if(req.params.id) {
+				id = req.params.id;
+			} else if(req.query.id) {
+				id = req.query.id;
+			}
+
+			if(req.query.version) {
+				version = req.query.version;
+			}
+
+			if(req.query.rulesetid) {
+				rulesetid = req.query.rulesetid
+			}
+
+			this.config.data.retrieveRuleset(id, null, version, dbId).then((ruleset) => {
 				if (!ruleset) {
-					res.status(404).send(`Unable to retrieve ruleset '${req.params.id}'.`);
+					res.status(404).send(`Unable to retrieve ruleset '${id}'.`);
 					return;
 				}
 
@@ -52,7 +70,7 @@ class RulesetRouter extends BaseRouter {
 				res.json({
 					data: {
 						type: "ruleset",
-						id: req.params.id,	// The filename is used for the id.
+						id: ruleset.id,	// The filename is used for the id.
 						attributes: {
 							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
 							filename: ruleset.filename,
@@ -97,12 +115,14 @@ class RulesetRouter extends BaseRouter {
 					ruleset["ruleset-id"] = ruleset.ruleset_id;
 					delete ruleset.ruleset_id;
 
-					ruleset["database-id"] = ruleset.id;
+					let id = ruleset.id;
+
+					ruleset["database-id"] = id;
 					delete ruleset.id;
 
 					rulesets.push({
 						type: "ruleset",
-						id: ruleset["ruleset-id"] || ruleset.filename,
+						id: id,
 						attributes: ruleset
 					})
 				});
@@ -141,7 +161,7 @@ class RulesetRouter extends BaseRouter {
 	insert(req, res, next) {
 		let new_rulesetId = req.body.rulesetId;
 
-		this.config.data.rulesetExists(new_rulesetId, 0).then((exists) => {
+		this.config.data.rulesetExists(new_rulesetId).then((exists) => {
 			if(exists) {
 				res.status(422).send(`Ruleset '${new_rulesetId}' already exsists.`);
 				return;

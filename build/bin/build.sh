@@ -8,11 +8,10 @@ CLIENT=$ROOT/src/client
 EMBER_DST=$DST/server/public
 SERVER_DST=$DST/server
 DEPLOY_DST=$DST/deploy
-DB_SRC=$ROOT/database
-DB_DST=$DEPLOY_DST/database
 CONFIG_DST=$DEPLOY_DST/sample_config
 CONFIG=$ROOT/test_config
 DEPLOY_SRC=$ROOT/deploy
+DB_SRC=$ROOT/database
 DBLOADER_DST=$DST/dbloader
 DBLOADER_SRC=$DB_SRC/dbloader
 
@@ -62,15 +61,10 @@ fi
 echo "Building deployable files"
 cd $ROOT
 mkdir $DEPLOY_DST
-mkdir $DB_DST
-mkdir $DB_DST/initdb.d
 mkdir $CONFIG_DST
-mkdir $DBLOADER_DST
+
 
 cp $DEPLOY_SRC/* $DEPLOY_DST
-
-#copy database files
-cp $DB_SRC/initdb.d/* $DB_DST/initdb.d
 
 #build/copy sample config
 mkdir $CONFIG_DST/results
@@ -89,7 +83,11 @@ do
 done
 
 #copy the dbloader
+mkdir $DBLOADER_DST
+mkdir $DBLOADER_DST/migrations
+
 cp $DBLOADER_SRC/* $DBLOADER_DST
+cp $DBLOADER_SRC/migrations/* $DBLOADER_DST/migrations
 
 echo "Build the server docker image"
 docker build -t pluto:develop -f $SERVER_DST/Dockerfile $DST/server

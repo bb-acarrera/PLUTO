@@ -30,6 +30,7 @@ program
     .option('-r, --ruleset <ruleset>', 'The ruleset to use.')
     .option('-v, --rulesetoverride <rulesetOverrideFile>', 'The ruleset overrides file to use.')
     .option('-l, --local', 'Run the validator locally (no database, run rulesets from disk, write outputs to results folder)')
+    .option('-n, --inputname <string>', 'Filename to use in run record for reporting')
     .parse(process.argv);
 
 if (!program.config)
@@ -71,6 +72,7 @@ if(program.local) {
 let inputFile = program.input;	//  ? path.resolve(program.input) : undefined;
 let outputFile = program.output;
 let inputEncoding = program.encoding;
+let inputDisplayName = program.inputname;
 
 //config.scriptName = scriptName;
 const validator = new Validator(config, dataAccess);
@@ -108,11 +110,11 @@ process.on('uncaughtException', (err) => {
 });
 
 try {
-    validator.runRuleset(inputFile, outputFile, inputEncoding);
+    validator.runRuleset(inputFile, outputFile, inputEncoding, inputDisplayName);
 }
 catch (e) {
     console.log("Failed.\n\t" + e);
     validator.error("Failed: " + e);
     validator.finishRun();	// Write the log.
-    process.exit(1);
+    process.exit(1);	// Quit.
 }

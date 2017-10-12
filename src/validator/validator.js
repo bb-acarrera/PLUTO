@@ -79,7 +79,7 @@ class Validator {
 	/*
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
 	 */
-	runRuleset(inputFile, outputFile, inputEncoding) {
+	runRuleset(inputFile, outputFile, inputEncoding, inputDisplayName) {
 		this.running = true;	// Used by finishRun() to determine if it should clean up. Avoids issues with finishRun() being called twice.
 
 		try {
@@ -90,30 +90,37 @@ class Validator {
 			throw e;
 		}
 
-		this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
-			.then((ruleset) => {
+		this.data.createRunRecord(this.config.ruleset).then((runId) => {
 
-				this.processRuleset(ruleset, outputFile, inputEncoding, inputFile);
-			},
-			(error)=>{
-				this.error(error);
-				this.finishRun();
-			}).catch((e) => {
-				if(!e.message){
-					this.error(e);
+			this.runId = runId;
+			console.log("runId:" + runId);
+
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
+				.then((ruleset) => {
+
+						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
+					},
+					(error)=>{
+						this.error(error);
+						this.finishRun();
+					}).catch((e) => {
+					if(!e.message){
+						this.error(e);
+					}
+					else {
+						this.error(e.message);
+					}
+					this.finishRun();
 				}
-				else {
-					this.error(e.message);
-				}
-				this.finishRun();
-			}
-		);
+			);
+		}, (error) => {
+			console.log("Error creating run record: " + error);
+			console.log("aborting");
 
-
-
+		});
 	}
 
-	processRuleset(ruleset, outputFile, inputEncoding, inputFile){
+	processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName){
 		if(!ruleset){
 			throw new Error("No Ruleset found for: " + this.config.ruleset);
 		}
@@ -135,8 +142,22 @@ class Validator {
 			this.warning("No output file specified.");
 		}
 
-		if(ruleset.import) {
+		if(!ruleset.import && !inputFile) {
+			throw "No input file specified.";
+		}
 
+		if(inputFile) {
+			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
+
+			if(inputDisplayName) {
+				this.displayInputFileName = inputDisplayName;
+			} else {
+				this.displayInputFileName = path.basename(this.inputFileName);
+			}
+
+
+			this.runRules(ruleset, this.inputFileName);
+		} else {
 			this.inputFileName = this.getTempName();
 
 			this.importFile(ruleset.import, this.inputFileName).then( (displayInputFileName) => {
@@ -153,17 +174,8 @@ class Validator {
 				.catch(() => {
 					this.finishRun();
 				});
-		} else {
+		}
 
-			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
-            if (!this.inputFileName)
-                throw "No input file specified.";
-
-            this.displayInputFileName = path.basename(this.inputFileName);
-
-			this.runRules(ruleset, this.inputFileName);
-
-        }
     }
 
 	/*
@@ -327,24 +339,36 @@ class Validator {
 		if(!this.inputFileName){
 			this.inputFileName = "";
 		}
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString();
 
-		if (results && this.currentRuleset.export) {
+		if(!results) {
+			console.error("No results");
+			this.error("No results were produced.");
+		}
+
+		if(this.outputFileName) {
+
+			if(results) {
+				this.saveResults(results);
+			}
+			this.finalize();
+
+		} else if(this.currentRuleset && this.currentRuleset.export) {
 			var resultsFile = null;
-			if (results.file)
+
+			if (results && results.file)
 				resultsFile = results.file;
-			else if (results.stream) {
+			else if (results && results.stream) {
 				resultsFile = this.getTempName();
 				this.putFile(results.stream, resultsFile, this.encoding);
 			}
-			else if (results.data) {
+			else if (results && results.data) {
 				resultsFile = this.getTempName();
 				this.saveFile(results.data, resultsFile, this.encoding);
 			}
-			else
+			else if(results)
 				this.error("Unrecognized results structure.");
 
-			this.exportFile(this.currentRuleset.export, resultsFile, runId)
+			this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
 				.then(() => {},
 
 					(error) => {
@@ -354,24 +378,21 @@ class Validator {
 					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.data.saveRunRecord(runId, this.logger.getLog(),
-						this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
-					this.cleanup();
-					console.log("Done.");
+					this.finalize();
 				});
 		} else {
-			if(results) {
-				this.saveResults(results);
-			} else {
-				console.error("No results");
-				this.error("No results were produced.");
-			}
-
-			this.data.saveRunRecord(runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts());
-			this.cleanup();
-			console.log("Done.");
+			this.warning("No output method specified");
+			this.finalize();
 		}
+
+	}
+
+	finalize() {
+		this.data.saveRunRecord(this.runId, this.logger.getLog(),
+			this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+			.then(() => {}, (error) => console.log('error saving run: ' + error))
+			.catch((e) => console.log('Exception saving run: ' + e))
+			.then(() => this.cleanup());
 
 	}
 
@@ -380,8 +401,11 @@ class Validator {
 	 * @private
 	 */
 	cleanup() {
-		// Remove the temp directory and contents.
 
+		//kill the database
+		this.data.end();
+
+		// Remove the temp directory and contents.
 		try {
 			rimraf.sync(this.tempDir, null, (e) => {
 				this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
@@ -390,6 +414,7 @@ class Validator {
 			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
 		}
 
+		console.log("Done.");
 
 	}
 
