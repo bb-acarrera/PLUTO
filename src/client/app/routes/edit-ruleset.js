@@ -2,6 +2,7 @@ import Ember from 'ember';
 import RSVP from 'rsvp';
 
 export default Ember.Route.extend( {
+    poll: Ember.inject.service(),
     model ( params ) {
         // This is necessary for clean page load on return to the page
         if ( this.controller && this.controller.ruleToEdit ) {
@@ -15,20 +16,15 @@ export default Ember.Route.extend( {
             exporters: this.store.findAll( 'exporter' )
         } );
     },
-    /* renderTemplate ( controller, model ) {
-         //this._super(controller, model);
-         this.render('editRuleset',{
-             into: 'application'
-         });
-         this.render('run',{
-             into: 'editRuleset',
-             model: 'run',
-             controller: 'run'
-         });
-     },*/
     actions: {
         error ( reason ) {
             alert( reason );
-        }
+        },
+        willTransition () {
+            if ( this.controller ) {
+                let pollId = this.controller.get( 'pollId' );
+                this.controller.get( 'poll' ).stopPoll( pollId );
+            }
+        },
     }
 } );

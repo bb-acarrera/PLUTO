@@ -3,12 +3,15 @@
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
 		<i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
-	<h2>Edit Ruleset</h2>
+	{{#if collapsed}}
+	{{else}}
+		<h2>Edit Ruleset</h2>
+	{{/if}}
 	{{#bs-button active=notCollapsed onClick=(action "toggle")}}
 		{{#if collapsed}}
-			Show
+			Show Ruleset
 		{{else}}
-			Hide
+			Hide Ruleset
 		{{/if}}
 	{{/bs-button}}
 </div>
@@ -154,12 +157,17 @@
 			</div>
 		</div>
 	</div>
-	<div class="">
-		<span>Upload</span>
-		{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload")}}
-	</div>
-
+	{{#if upload}}
+		<div class="fileUpload btn btn-default">
+			<span>Upload</span>
+			{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+		</div>
+	{{/if}}
 {{/bs-collapse}}
+{{#if processing}}
+	<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+	<span>Processing...</span>
+{{/if}}
 {{#bs-collapse collapsed=collapsedRun}}
 {{outlet}}
 {{/bs-collapse}}

@@ -1,9 +1,14 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend( {
-    queryParams: [ "collapsed", "collapsedRun" ],
+    queryParams: [ "collapsed", "collapsedRun", "upload" ],
     collapsed: false,
     collapsedRun: false,
+    processing: false,
+    upload: true,
+
+    poll: Ember.inject.service(),
+
     ruleToEditChanged: Ember.observer( 'ruleToEdit', function () {
         let val = this.get( 'ruleToEdit' );
         let oldval = this.get( '_oldRuleToEdit' );
@@ -21,7 +26,24 @@ export default Ember.Controller.extend( {
     ruleToEdit: null,
     actions: {
         toggleUpload (id) {
-            this.transitionToRoute("/editRuleset/1/run/" + id);
+            this.set("processing", true);
+            let pollId = this.get( 'poll' ).addPoll( {
+                interval: 1000, // one minute
+                callback: () => {
+                    this.store.findRecord( 'run', id ).then(
+                        run => {
+                            if ( !run.get('isrunning') ) {
+                                this.set("processing", false);
+                                this.replaceRoute( "editRuleset.run", this.model.ruleset.id,  id);
+                            }
+                        } );
+                }
+            } );
+
+            this.set( 'pollId', pollId );
+        },
+        showProcessing(){
+            this.set("processing", true);
         },
         toggle () {
           this.set("collapsed", !this.get("collapsed"));
