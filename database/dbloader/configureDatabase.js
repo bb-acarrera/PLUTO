@@ -77,6 +77,8 @@ class Configure {
 
                 child_process.exec(spawnExec, (error, stdout, stderr) => {
 
+                    fs.unlinkSync('dbconfig.json');
+
                     if(error) {
                         console.log('Error getting npm bin: ' + error);
                         console.log(stderr);
@@ -89,38 +91,8 @@ class Configure {
 
                     resolve();
                 });
-
-                /*
-
-                let proc = child_process.spawn(spawnCmd, spawnArgs, options);
-
-                proc.on('error', (err) => {
-                    console.log("spawn error: " + err);
-                    reject(err);
-                });
-
-                proc.stdout.on('data', (data) => {
-                    console.log('stdout: ' + data.toString());
-
-                });
-
-                proc.stderr.on('data', (data) => {
-                    console.log('stderr: ' + data.toString());
-                });
-
-                proc.on('exit', (code) => {
-                    console.log('child process exited with code ' + code.toString());
-                    resolve();
-                });
-
-                */
-
             });
-
-
         });
-
-
     }
 }
 
