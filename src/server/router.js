@@ -38,6 +38,7 @@ class Router {
 		this._router.post('/rulesets', (req, res, next) => this.rulesetRouter.insert(req, res, next) );
 
         this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
+		this._router.post('/processupload', (req, res, next) => this.processFileRouter.processUpload(req, res, next));
 	}
 
 	get router() {

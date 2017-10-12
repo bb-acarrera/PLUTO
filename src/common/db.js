@@ -37,6 +37,10 @@ class DB {
     connect(callback) {
         return this.pool.connect(callback);
     }
+
+    end() {
+        this.pool.end();
+    }
 }
 
 let dbInstance = null;

@@ -3,6 +3,7 @@ const program = require("commander");
 const path = require("path");
 const express = require('express');
 const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 
@@ -35,6 +36,8 @@ class Server {
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
 
 		this.config.data = Data(this.config.validatorConfig);
+
+		app.use(fileUpload());
 
 		// app.use(bodyParser.json()); // for parsing application/json
 		app.use(bodyParser.json());

@@ -33,7 +33,12 @@
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
             <td>{{runInstance.ruleset}}</td>
-            <td>{{#link-to "run" runInstance.id}}Details{{/link-to}}</td>
+            {{#if runInstance.isrunning}}
+              <td>running</td>
+            {{else}}
+              <td>{{#link-to "editRuleset.run" runInstance.ruleset runInstance.id (query-params run=true)}}Details{{/link-to}}</td>
+            {{/if}}
+
           </tr>
       {{/each}}
     </table>
@@ -58,7 +63,7 @@
 				{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
 			{{/bs-button}}
 
-          {{#link-to 'editRuleset' rulesetInstance.filename tagName='button' class='btn btn-default'}}
+          {{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
 			  {{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
 			  <i class="fa fa-pencil"></i>
 		  {{/link-to}}

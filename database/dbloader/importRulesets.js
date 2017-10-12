@@ -47,9 +47,6 @@ class Importer {
         });
 
         this.config = config;
-
-
-
     }
 
     query(text, values, callback) {
@@ -120,7 +117,7 @@ class Importer {
         });
 
         Promise.all(promises).then(() => {
-            process.exit(0);
+            this.pool.end();
         });
     }
 
