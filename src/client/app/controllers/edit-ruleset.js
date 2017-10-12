@@ -1,11 +1,11 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend( {
-    queryParams: [ "collapsed", "collapsedRun", "upload" ],
+    queryParams: [ "collapsed", "collapsedRun", "run" ],
     collapsed: false,
     collapsedRun: false,
     processing: false,
-    upload: true,
+    run: false,
 
     poll: Ember.inject.service(),
 

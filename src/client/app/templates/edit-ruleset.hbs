@@ -3,167 +3,172 @@
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
 		<i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
-	{{#if collapsed}}
-	{{else}}
-		<h2>Edit Ruleset</h2>
-	{{/if}}
-	{{#bs-button active=notCollapsed onClick=(action "toggle")}}
-		{{#if collapsed}}
-			Show Ruleset
-		{{else}}
-			Hide Ruleset
-		{{/if}}
-	{{/bs-button}}
+  {{#if run}}
+  {{else}}
+    {{#if collapsed}}
+    {{else}}
+      <h2>Edit Ruleset</h2>
+    {{/if}}
+    {{#bs-button active=notCollapsed onClick=(action "toggle")}}
+      {{#if collapsed}}
+        Show Ruleset
+      {{else}}
+        Hide Ruleset
+      {{/if}}
+    {{/bs-button}}
+  {{/if}}
 </div>
-{{#bs-collapse collapsed=collapsed}}
-	<div style="float: left">
+{{#if run}}
+{{else}}
 
-		<div style="float:none;">
-			<div class="column">
-				<div class="section-header">Ruleset</div>
-				<div class="section-content">{{model.ruleset.filename}}</div>
-				<div class="section-content">Description: <input id="rulesetName" type="text"
-																 value="{{model.ruleset.name}}" class="text-input"/>
-				</div>
+  {{#bs-collapse collapsed=collapsed}}
+    <div style="float: left">
 
-				<div class="section-header">Parser</div>
-				<div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser"
-																				  model.ruleset.parser}}>
-					{{#if model.ruleset.parser}}
-						{{model.ruleset.parser.filename}}
-					{{else}}
-						None
-					{{/if}}
-					<span class="parser-buttons" onclick={{action "stopPropagation"}}>
-						{{#if showChangeParser}}
+      <div style="float:none;">
+        <div class="column">
+          <div class="section-header">Ruleset</div>
+          <div class="section-content">{{model.ruleset.filename}}</div>
+          <div class="section-content">Description: <input id="rulesetName" type="text"
+                                   value="{{model.ruleset.name}}" class="text-input"/>
+          </div>
 
-							<select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers
-																		bubbles=false}}>
-                <option>Choose the parser</option>
-                <option value="None">None</option>
-								{{#each model.parsers as |parser|}}
-									<option value={{parser.filename}}>{{parser.name}}</option>
-								{{/each}}
-            </select>
+          <div class="section-header">Parser</div>
+          <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser"
+                                            model.ruleset.parser}}>
+            {{#if model.ruleset.parser}}
+              {{model.ruleset.parser.filename}}
+            {{else}}
+              None
+            {{/if}}
+            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
+              {{#if showChangeParser}}
 
-            <button onclick={{action "hideChangeParser" bubbles=false}}>Cancel</button>
-						{{else}}
-							<button onclick={{action "showChangeParser" bubbles=false}}>Change</button>
-						{{/if}}
-					</span>
-				</div>
+                <select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers
+                                      bubbles=false}}>
+                  <option>Choose the parser</option>
+                  <option value="None">None</option>
+                  {{#each model.parsers as |parser|}}
+                    <option value={{parser.filename}}>{{parser.name}}</option>
+                  {{/each}}
+              </select>
 
-				<div class="section-header">Importer</div>
-				<div class="section-content rule-selectable" id="import" {{action "toggleRowHighlight" "import"
-																				  model.ruleset.import}}>
-					{{#if model.ruleset.import}}
-						{{model.ruleset.import.filename}}
-					{{else}}
-						None
-					{{/if}}
-					<span class="parser-buttons" onclick={{action "stopPropagation"}}>
-						{{#if showChangeImporter}}
+              <button onclick={{action "hideChangeParser" bubbles=false}}>Cancel</button>
+              {{else}}
+                <button onclick={{action "showChangeParser" bubbles=false}}>Change</button>
+              {{/if}}
+            </span>
+          </div>
 
-							<select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers
-																		  bubbles=false}}>
-                      <option>Choose the importer</option>
-                      <option value="None">None</option>
-								{{#each model.importers as |importer|}}
-									<option value={{importer.filename}}>{{importer.name}}</option>
-								{{/each}}
-                  </select>
+          <div class="section-header">Importer</div>
+          <div class="section-content rule-selectable" id="import" {{action "toggleRowHighlight" "import"
+                                            model.ruleset.import}}>
+            {{#if model.ruleset.import}}
+              {{model.ruleset.import.filename}}
+            {{else}}
+              None
+            {{/if}}
+            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
+              {{#if showChangeImporter}}
 
-                <button onclick={{action "hideChangeImporter" bubbles=false}}>Cancel</button>
-						{{else}}
-							<button onclick={{action "showChangeImporter" bubbles=false}}>Change</button>
-						{{/if}}
-					</span>
-				</div>
+                <select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers
+                                        bubbles=false}}>
+                        <option>Choose the importer</option>
+                        <option value="None">None</option>
+                  {{#each model.importers as |importer|}}
+                    <option value={{importer.filename}}>{{importer.name}}</option>
+                  {{/each}}
+                    </select>
 
-				<div class="section-header">Exporter</div>
-				<div class="section-content rule-selectable" id="export" {{action "toggleRowHighlight" "export"
-																				  model.ruleset.export}}>
-					{{#if model.ruleset.export}}
-						{{model.ruleset.export.filename}}
-					{{else}}
-						None
-					{{/if}}
-					<span class="parser-buttons" onclick={{action "stopPropagation"}}>
-						{{#if showChangeExporter}}
+                  <button onclick={{action "hideChangeImporter" bubbles=false}}>Cancel</button>
+              {{else}}
+                <button onclick={{action "showChangeImporter" bubbles=false}}>Change</button>
+              {{/if}}
+            </span>
+          </div>
 
-							<select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters
-																		  bubbles=false}}>
-                      <option>Choose the exporter</option>
-                      <option value="None">None</option>
-								{{#each model.exporters as |exporter|}}
-									<option value={{exporter.filename}}>{{exporter.name}}</option>
-								{{/each}}
-                  </select>
+          <div class="section-header">Exporter</div>
+          <div class="section-content rule-selectable" id="export" {{action "toggleRowHighlight" "export"
+                                            model.ruleset.export}}>
+            {{#if model.ruleset.export}}
+              {{model.ruleset.export.filename}}
+            {{else}}
+              None
+            {{/if}}
+            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
+              {{#if showChangeExporter}}
 
-                <button onclick={{action "hideChangeExporter" bubbles=false}}>Cancel</button>
-						{{else}}
-							<button onclick={{action "showChangeExporter" bubbles=false}}>Change</button>
-						{{/if}}
-					</span>
-				</div>
+                <select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters
+                                        bubbles=false}}>
+                        <option>Choose the exporter</option>
+                        <option value="None">None</option>
+                  {{#each model.exporters as |exporter|}}
+                    <option value={{exporter.filename}}>{{exporter.name}}</option>
+                  {{/each}}
+                    </select>
 
-				<div class="section-header">Rules</div>
-				<table id="rulesTable" class="ruleset-table">
-					{{#each model.ruleset.rules as |ruleInstance index|}}
-						<tr
-							id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight"
-																			 (concat 'rulesetTableRow' index)
-																			 ruleInstance}}
-							class="rule-selectable">
-							<td>{{ruleInstance.name}}</td>
-							<td>
-								<button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up"></i>
-								</button>
-							</td>
-							<td>
-								<button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down"></i>
-								</button>
-							</td>
-						</tr>
-					{{/each}}
-					{{#if showAddRule}}
-						<td>
-							<select id="selectRule">
-								<option value="None" selected>None</option>
-								{{#each model.rules as |rule|}}
-									<option value="{{rule.filename}}">{{rule.name}}</option>
-								{{/each}}
-							</select>
-						</td>
-						<td>
-							<button {{action "hideAddRule"}}>Cancel</button>
-							<button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
-						</td>
-					{{/if}}
-				</table>
-				<button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
-				</button>
-				<button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i
-					class="fa fa-trash"></i></button>
-				<button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
-				</button>
-			</div>
-			<div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
-				<!-- The column for editting rule properties. -->
-				{{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers
-								   importers=model.importers exporters=model.exporters}}
-				<!--<button class="save-ruleset" style="float: right" {{action "updateRule"
-																			   ruleToEdit}}>Apply</button>-->
-			</div>
-		</div>
-	</div>
-	{{#if upload}}
-		<div class="fileUpload btn btn-default">
-			<span>Upload</span>
-			{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
-		</div>
-	{{/if}}
-{{/bs-collapse}}
+                  <button onclick={{action "hideChangeExporter" bubbles=false}}>Cancel</button>
+              {{else}}
+                <button onclick={{action "showChangeExporter" bubbles=false}}>Change</button>
+              {{/if}}
+            </span>
+          </div>
+
+          <div class="section-header">Rules</div>
+          <table id="rulesTable" class="ruleset-table">
+            {{#each model.ruleset.rules as |ruleInstance index|}}
+              <tr
+                id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight"
+                                         (concat 'rulesetTableRow' index)
+                                         ruleInstance}}
+                class="rule-selectable">
+                <td>{{ruleInstance.name}}</td>
+                <td>
+                  <button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up"></i>
+                  </button>
+                </td>
+                <td>
+                  <button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down"></i>
+                  </button>
+                </td>
+              </tr>
+            {{/each}}
+            {{#if showAddRule}}
+              <td>
+                <select id="selectRule">
+                  <option value="None" selected>None</option>
+                  {{#each model.rules as |rule|}}
+                    <option value="{{rule.filename}}">{{rule.name}}</option>
+                  {{/each}}
+                </select>
+              </td>
+              <td>
+                <button {{action "hideAddRule"}}>Cancel</button>
+                <button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
+              </td>
+            {{/if}}
+          </table>
+          <button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
+          </button>
+          <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i
+            class="fa fa-trash"></i></button>
+          <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
+          </button>
+        </div>
+        <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
+          <!-- The column for editting rule properties. -->
+          {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers
+                     importers=model.importers exporters=model.exporters}}
+          <!--<button class="save-ruleset" style="float: right" {{action "updateRule"
+                                           ruleToEdit}}>Apply</button>-->
+        </div>
+      </div>
+    </div>
+    <div class="fileUpload btn btn-default">
+      <span>Upload</span>
+      {{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+    </div>
+  {{/bs-collapse}}
+{{/if}}
 {{#if processing}}
 	<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
 	<span>Processing...</span>

@@ -23,7 +23,7 @@
 					</tr>
 				{{/each}}
 			</table>
-			{{#link-to 'editRuleset' model.ruleset.filename}}Edit Current Ruleset{{/link-to}}
+			{{#link-to 'editRuleset' model.ruleset.filename (query-params run=false)}}Edit Current Ruleset{{/link-to}}
 		</div>
 		<div class="column">
 			<!-- The column for showing rule errors. -->
