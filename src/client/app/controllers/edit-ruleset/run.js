@@ -57,18 +57,26 @@ export default Ember.Controller.extend({
 
         if (Array.isArray(rules)) {
 
-            if(rules.length > 0 && rules[rules.length - 1].config.id !== 'global') {
-                rules.push({
-                    name: 'Global Errors',
-                    filename: 'global',
-                    config: {
-                        id: 'global'
-                    }
-                });
-            }
+            let items = [];
 
+            items.push({
+                name: 'Global Errors',
+                filename: 'global',
+                config: {
+                    id: 'global'
+                }
+            });
 
-            rules.forEach(function (rule) {
+            rules.forEach(function (origRule) {
+
+                let rule = {
+                  name: origRule.name,
+                  filename: origRule.filename,
+                  config: {
+                    id: origRule.config.id
+                  }
+                };
+
 
                 rule.warningcount = false;
                 rule.errorcount = false;
@@ -79,9 +87,11 @@ export default Ember.Controller.extend({
                     rule.errorcount = log[rule.config.id].err;
                     rule.hasAny = rule.warningcount || rule.errorcount;
                 }
+
+                items.push(rule);
             });
 
-            return rules;
+            return items;
         }
         return [];
     }),
