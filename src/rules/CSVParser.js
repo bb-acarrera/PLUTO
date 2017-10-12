@@ -93,6 +93,11 @@ class CSVParser extends TableParserAPI {
 
         // This CSV Transformer is used to call the processRecord() method above.
         const transformer = transform(record => {
+
+            if(this.config.sharedData && this.config.sharedData.abort) {
+                return null;
+            }
+
             let response = record;
 
             this.tableRule.resetLastCheckCounts();

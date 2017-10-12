@@ -174,7 +174,7 @@ class Validator {
 
 		let rules = ruleset.rules;
 		this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
-		this.shouldAbort = false;
+		this.abort = false;
 
 		try {
 
@@ -195,7 +195,7 @@ class Validator {
 
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
-				if (lastResult.index < rules.length && !validator.shouldAbort)
+				if (lastResult.index < rules.length && !validator.abort)
 					return validator.getRule(rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
@@ -203,7 +203,7 @@ class Validator {
 				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
 				this.error(errorMsg);
 			}).then((lastResult) => {
-				if(validator.shouldAbort) {
+				if(validator.abort) {
 					this.finishRun();
 				} else if (lastResult && lastResult.result && lastResult.result.stream) {
 					// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
@@ -217,7 +217,7 @@ class Validator {
 						});
 					});
 					p.then((filename) => {
-						if(validator.shouldAbort) {
+						if(validator.abort) {
 							this.finishRun();
 						} else {
 							this.finishRun({file: filename});
@@ -682,6 +682,16 @@ class Validator {
 		return pluginClass;
 	}
 
+	abortRun() {
+		this.abort = true;
+
+		if(this.sharedData) {
+			this.sharedData.abort = true;
+		}
+
+		this.error('Aborting');
+	}
+
 	/**
 	 * This is called when the application has something to log.
 	 * @param {string} level the level of the log. One of {@link Validator.ERROR}, {@link Validator.WARNING}, or {@link Validator.INFO}.
@@ -694,7 +704,7 @@ class Validator {
 	 * @private
 	 */
 	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
-		this.shouldAbort = shouldAbort || this.shouldAbort;
+
 		if (this.logger)
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
 		else {
@@ -703,6 +713,10 @@ class Validator {
 			problemDescription = problemDescription || "";
 			const dateStr = new Date().toLocaleString();
 			console.log(level + ": " + dateStr + ": " + problemFileName + ": " + problemDescription);
+		}
+
+		if(shouldAbort) {
+			this.abortRun();
 		}
 	}
 
