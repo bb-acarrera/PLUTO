@@ -385,9 +385,9 @@ class data {
      * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
      * @return a promise to an object describing a ruleset.
      */
-    retrieveRuleset ( ruleset_id, rulesetOverrideFile, version ) {
+    retrieveRuleset ( ruleset_id, rulesetOverrideFile, version, dbId ) {
 
-        return getRuleset( this.db, ruleset_id, version, this.tables, ( result, resolve, reject ) => {
+        return getRuleset( this.db, ruleset_id, version, dbId, this.tables, ( result, resolve, reject ) => {
             if ( result.rows.length > 0 ) {
                 let dbRuleset = result.rows[ 0 ].rules;
 
@@ -418,7 +418,7 @@ class data {
     }
 
     rulesetExists(ruleset_id) {
-        return getRuleset(this.db, ruleset_id, null, this.tables, (result, resolve, reject) => {
+        return getRuleset(this.db, ruleset_id, null, null, this.tables, (result, resolve, reject) => {
             if(result.rows.length > 0) {
                resolve(true);
             } else {
@@ -662,31 +662,41 @@ function getRunResult(row) {
     };
 }
 
-function getRuleset(db, ruleset_id, version, tables, callback) {
+function getRuleset(db, ruleset_id, version, dbId, tables, callback) {
 
-    if ( !ruleset_id ) {
+    if ( !ruleset_id && !dbId ) {
         return new Promise( ( resolve, reject ) => {
             reject( "No ruleset_id provided" )
         } );
     }
 
-    if ( ruleset_id.endsWith( ".json" ) )
+    if ( ruleset_id && ruleset_id.endsWith( ".json" ) )
         ruleset_id = ruleset_id.substr( 0, ruleset_id.length - 5 );
 
     return new Promise( ( resolve, reject ) => {
 
-        let query = '';
-        let values = [ruleset_id];
+        let query = 'SELECT rules, id, ruleset_id, version  FROM ';
+        let values = [];
 
-        if(version != null) {
-            query = "SELECT rules, id FROM {{rulesets}} " +
-                "where ruleset_id = $1 AND version = $2";
-
-            values.push(version);
-
+        if(dbId != null || version != null) {
+            query += '{{rulesets}} ';
         } else {
-            query = "SELECT rules, id FROM {{currentRuleset}} " +
-                "where ruleset_id = $1";
+            query += '{{currentRuleset}}';
+        }
+
+        if(dbId) {
+            query += "where id = $1";
+
+            values.push(dbId);
+        } else {
+            query += "where ruleset_id = $1";
+            values.push(ruleset_id);
+
+            if(version != null) {
+                query += " AND version = $2";
+                values.push(version);
+            }
+
         }
 
         db.query(updateTableNames(query, tables), values)

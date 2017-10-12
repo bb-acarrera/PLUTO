@@ -18,11 +18,13 @@ export default Ember.Route.extend({
             run => {
 
                 let ruleset = run.get('ruleset');
+                let version = run.get('version');
+
 
                 return RSVP.hash({
                     run: run,
                     file: params.run_id,
-                    ruleset: ruleset? this.store.findRecord('ruleset', ruleset) : null,
+                    ruleset: ruleset ? this.store.queryRecord( 'ruleset', {id:ruleset, version:version} ) : null,
                     log: this.store.query('log', {
                         id: run.get('log'),
                         page: params.page,
@@ -31,16 +33,15 @@ export default Ember.Route.extend({
                         type: params.type
                     }).then(function (result) {
                         let meta = result.get('meta');
-                        return { result: result, meta: meta};
-                    }),
-                    rules: this.store.findAll('rule')
+                        return {result: result, meta: meta};
+                    })
                 });
             });
     },
     renderTemplate ( controller, model ) {
         this._super(controller, model);
     },
-    setupController(controller, model) {
+    setupController() {
         this._super(...arguments);
     },
     actions: {

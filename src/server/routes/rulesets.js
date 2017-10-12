@@ -14,10 +14,11 @@ class RulesetRouter extends BaseRouter {
 		// directory points to rulesets, rule plugins and such. It can be configured such
 		// that these two root directories are the same.
 
-		if(req.params.id || req.query.id) {
+		if(req.params.id || req.query.id || req.query.dbid) {
 
 			let id = '';
 			let version = null;
+			let dbId = null;
 
 			if(req.params.id) {
 				id = req.params.id;
@@ -29,7 +30,11 @@ class RulesetRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			this.config.data.retrieveRuleset(id, null, version).then((ruleset) => {
+			if(req.query.rulesetid) {
+				rulesetid = req.query.rulesetid
+			}
+
+			this.config.data.retrieveRuleset(id, null, version, dbId).then((ruleset) => {
 				if (!ruleset) {
 					res.status(404).send(`Unable to retrieve ruleset '${id}'.`);
 					return;
@@ -65,7 +70,7 @@ class RulesetRouter extends BaseRouter {
 				res.json({
 					data: {
 						type: "ruleset",
-						id: id,	// The filename is used for the id.
+						id: ruleset.id,	// The filename is used for the id.
 						attributes: {
 							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
 							filename: ruleset.filename,
@@ -110,12 +115,14 @@ class RulesetRouter extends BaseRouter {
 					ruleset["ruleset-id"] = ruleset.ruleset_id;
 					delete ruleset.ruleset_id;
 
-					ruleset["database-id"] = ruleset.id;
+					let id = ruleset.id;
+
+					ruleset["database-id"] = id;
 					delete ruleset.id;
 
 					rulesets.push({
 						type: "ruleset",
-						id: ruleset["ruleset-id"] || ruleset.filename,
+						id: id,
 						attributes: ruleset
 					})
 				});
