@@ -10,5 +10,6 @@ export default DS.Model.extend({
   starttime: DS.attr('date'),
   errorcount: DS.attr('number'),
   warningcount: DS.attr('number'),
-  isrunning: DS.attr('boolean')
+  isrunning: DS.attr('boolean'),
+  version: DS.attr('number')
 });
