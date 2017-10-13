@@ -149,3 +149,8 @@ div.footer {
   opacity: 0;
   filter: alpha(opacity=0);
 }
+
+.btn-return-title {
+  float: left;
+  height: 63px;
+}
