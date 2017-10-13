@@ -34,7 +34,8 @@ export default Ember.Controller.extend( {
                         run => {
                             if ( !run.get('isrunning') ) {
                                 this.set("processing", false);
-                                this.replaceRoute( "editRuleset.run", this.model.ruleset.id,  id);
+                                let rulesetid = this.model.ruleset.get("filename");
+                                this.replaceRoute( "editRuleset.run", rulesetid,  id);
                             }
                         } );
                 }
