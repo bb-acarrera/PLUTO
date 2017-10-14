@@ -29,7 +29,8 @@ class RuleSet {
 
 		if(!this.errors) {
 			this.errors = {
-				onError: 'abort'
+				onError: 'abort',
+				errorsToAbort: 1
 			}
 		}
 

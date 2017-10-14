@@ -2,7 +2,15 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
+const ErrorHandlerAPI = require("../api/errorHandlerAPI");
+
 function updateSummaries(log, level, ruleID, problemDescription) {
+
+	if(!log.counts.hasOwnProperty(level)) {
+		log.counts[level] = 1;
+	} else {
+		log.counts[level] += 1;
+	}
 
 	if(!log.rules.hasOwnProperty(ruleID)) {
 		log.rules[ruleID] = {
@@ -47,12 +55,6 @@ class ErrorLogger {
 		const report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription };
 		this.reports.push(report);
 
-		if(!this.counts.hasOwnProperty(level)) {
-			this.counts[level] = 1;
-		} else {
-			this.counts[level] += 1;
-		}
-
 		updateSummaries(this, level, ruleID, problemDescription);
 
 		//console.log(util.inspect(report, {showHidden: false, depth: null}))
@@ -84,6 +86,23 @@ class ErrorLogger {
 		}
 
 		return null;
+	}
+
+	getCount(level, ruleID) {
+
+		let counts = null;
+
+		if(ruleID == null) {
+			counts = this.getCounts();
+		} else {
+			this.getRuleCounts(ruleID);
+		}
+
+		if(!counts || !counts[level]) {
+			return 0;
+		}
+
+		return counts[level];
 	}
 }
 

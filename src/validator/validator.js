@@ -708,6 +708,11 @@ class Validator {
 	}
 
 	abortRun() {
+
+		if(this.abort) {
+			return;
+		}
+
 		this.abort = true;
 
 		if(this.sharedData) {
@@ -715,6 +720,47 @@ class Validator {
 		}
 
 		this.error('Aborting');
+	}
+
+	shouldAbort(ruleID) {
+
+		if(this.abort) {
+			return false;
+		}
+
+		let errorsToAbort = 1;
+		if(this.currentRuleset && this.currentRuleset.errors) {
+			errorsToAbort = this.currentRuleset.errors.errorsToAbort;
+		}
+
+
+		if(this.logger.getCount(ErrorHandlerAPI.ERROR) >= errorsToAbort) {
+			return true;
+		}
+
+		if(this.currentRuleset && this.currentRuleset.errors) {
+
+			if (this.currentRuleset.errors.warningsToAbort &&
+				this.logger.getCount(ErrorHandlerAPI.WARNING) >= this.currentRuleset.errors.warningsToAbort) {
+				return true;
+			}
+
+			if (ruleID) {
+				let rule = this.currentRuleset.rules[ruleID];
+				if (rule && rule.errors) {
+					if (rule.errors.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR) >= rule.errors.errorsToAbort) {
+						return true;
+					}
+
+					if (rule.errors.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING) >= rule.errors.warningsToAbort) {
+						return true;
+					}
+				}
+
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -728,11 +774,11 @@ class Validator {
 	 * @param shouldAbort should the running of rules stop at the end of the current rule,
 	 * @private
 	 */
-	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
+	log(level, problemFileName, ruleID, problemDescription) {
 
-		if (this.logger)
+		if (this.logger) {
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
-		else {
+		} else {
 			level = level || ErrorHandlerAPI.INFO;
 			problemFileName = problemFileName || "";
 			problemDescription = problemDescription || "";
@@ -740,7 +786,7 @@ class Validator {
 			console.log(level + ": " + dateStr + ": " + problemFileName + ": " + problemDescription);
 		}
 
-		if(shouldAbort) {
+		if(this.shouldAbort(ruleID)) {
 			this.abortRun();
 		}
 	}
