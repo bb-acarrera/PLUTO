@@ -143,4 +143,62 @@ QUnit.test( "RuleSet: Creation Test with all four properties", function(assert){
 	assert.ok(ruleset.rules, "RuleSet has rules");
 	assert.ok(ruleset.import, "RuleSet has an importer");
 	assert.ok(ruleset.export, "RuleSet has an exporter");
+    assert.equal(ruleset.rules.length, 1, "Expected one rule");
+});
+
+QUnit.test( "RuleSet: Creation Test check error defaults", function(assert){
+    const config = {
+        "name" : "Test RuleSet All Properties",
+        "rules" : []
+    };
+
+    const ruleset = new RuleSet(config);
+
+
+    assert.ok(ruleset.errors, "RuleSet was created with errors");
+    assert.equal(ruleset.errors.onError, "abort", "Expected default onError to be abort");
+
+});
+
+QUnit.test( "RuleSet: Creation Test rule error default", function(assert){
+    const config = {
+        "name" : "Test RuleSet All Properties",
+        "rules" : [
+            {
+                "filename" : "CheckColumnCount",
+                "name" : "Test RuleSet using all properties",
+                "config" : {
+                    "columns" : 9
+                }
+            }
+        ]
+    };
+
+    const ruleset = new RuleSet(config);
+
+
+    assert.equal(ruleset.rules[0].config.onError, "abort", "Expected default onError to be abort");
+
+});
+
+QUnit.test( "RuleSet: Creation Test rule onError", function(assert){
+    const config = {
+        "name" : "Test RuleSet All Properties",
+        "rules" : [
+            {
+                "filename" : "CheckColumnCount",
+                "name" : "Test RuleSet using all properties",
+                "config" : {
+                    "columns" : 9,
+                    "onError" : "removeRow"
+                }
+            }
+        ]
+    };
+
+    const ruleset = new RuleSet(config);
+
+
+    assert.equal(ruleset.rules[0].config.onError, "removeRow", 'Expected onError to be "removeRow"');
+
 });

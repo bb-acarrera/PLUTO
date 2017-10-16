@@ -6,9 +6,7 @@
 				"filename" : "CheckColumnCount",
 				"config" : {
 					"id" : 1,
-					"columns" : 9
-				},
-				"errors" : {
+					"columns" : 9,
 					"onError": "abort"
 				}
 			},
