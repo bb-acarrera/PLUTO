@@ -317,7 +317,7 @@ QUnit.test( "Validator: End to End Null Promise Test", function(assert){
 
     const done = assert.async();
 
-    const ruleset = null;
+    const ruleset = (resolve) => { resolve(null) };
 
     const dbProxy = new DataProxy(ruleset,
         (runId, log, ruleSetID, inputFile, outputFile) => {

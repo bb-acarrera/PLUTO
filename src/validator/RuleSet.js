@@ -1,3 +1,5 @@
+const Util = require("../common/Util");
+
 class RuleSet {
 	// PJT: 17/08/01 Note that since the rulesets are now maintained in the database and they can be copied and edited
 	// without being written to disk the use of a filename is far less important to the overall functioning of PLUTO.
@@ -44,6 +46,7 @@ class RuleSet {
 
 	addRules(rules) {
 		this.rules = [];
+		this.ruleMap = {};
 		if (!rules)
 			return;
 
@@ -52,10 +55,12 @@ class RuleSet {
 			const dstRule = {};
 			dstRule.config = srcRule.config;
 			dstRule.filename = srcRule.filename;
-			dstRule.id = srcRule.id;
 			dstRule.name = srcRule.name || srcRule.filename;
 			dstRule.ui = srcRule.ui;
 
+			if(!dstRule.config.id) {
+				dstRule.config.id = Util.createGUID();
+			}
 
 
 			if(dstRule.config.onError == null) {
@@ -71,6 +76,7 @@ class RuleSet {
 			}
 
 			this.rules.push(dstRule);
+			this.ruleMap[dstRule.config.id] = dstRule;
 		}
 	}
 
@@ -108,6 +114,10 @@ class RuleSet {
 				Object.assign(this.export.config, contents.export);
 			}
 		}
+	}
+
+	getRuleById(ruleId) {
+		return this.ruleMap[ruleId];
 	}
 
 	// toJSON() {

@@ -1,4 +1,4 @@
-
+const RuleSet = require("../../validator/RuleSet");
 
 class DataProxy {
     constructor(ruleset, afterSave, done) {
@@ -23,7 +23,7 @@ class DataProxy {
                             ruleset = that.ruleset;
                         }
 
-                        resolve(ruleset);
+                        resolve(new RuleSet(ruleset));
                     })
                 },
                 createRunRecord: function() {

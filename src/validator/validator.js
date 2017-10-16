@@ -746,13 +746,13 @@ class Validator {
 			}
 
 			if (ruleID) {
-				let rule = this.currentRuleset.rules[ruleID];
-				if (rule && rule.errors) {
-					if (rule.errors.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR) >= rule.errors.errorsToAbort) {
+				let rule = this.currentRuleset.getRuleById(ruleID);
+				if (rule && rule.config) {
+					if (rule.config.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR) >= rule.config.errorsToAbort) {
 						return true;
 					}
 
-					if (rule.errors.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING) >= rule.errors.warningsToAbort) {
+					if (rule.config.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING) >= rule.config.warningsToAbort) {
 						return true;
 					}
 				}
