@@ -28,10 +28,15 @@ class RuleSet {
 		this.config = ruleset.config;
 
 		if(!this.errors) {
-			this.errors = {
-				onError: 'abort',
-				errorsToAbort: 1
-			}
+			this.errors = {};
+		}
+
+		if(!this.errors.onError) {
+			this.errors.onError = 'abort';
+		}
+
+		if(this.errors.errorsToAbort == null) {
+			this.errors.errorsToAbort = 1;
 		}
 
 		this.addRules(ruleset.rules);

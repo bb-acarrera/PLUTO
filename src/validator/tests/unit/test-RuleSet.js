@@ -157,6 +157,33 @@ QUnit.test( "RuleSet: Creation Test check error defaults", function(assert){
 
     assert.ok(ruleset.errors, "RuleSet was created with errors");
     assert.equal(ruleset.errors.onError, "abort", "Expected default onError to be abort");
+    assert.equal(ruleset.errors.errorsToAbort, 1, "Expected default errorsToAbort to be 1");
+    assert.ok(ruleset.errors.warningsToAbort == null, "Expected default warningsToAbort to be not exist");
+
+});
+
+QUnit.test( "RuleSet: Creation Test check error config", function(assert){
+    const config = {
+        "name" : "Test RuleSet All Properties",
+        "rules" : [],
+        "errors" : {
+            "onError": "removeRow",
+            "errorsToAbort": 2,
+            "warningsToAbort": 1,
+            "singleRuleErrorsToAbort": 1,
+            "singleRuleWarningsToAbort": 1
+        }
+    };
+
+    const ruleset = new RuleSet(config);
+
+
+    assert.ok(ruleset.errors, "RuleSet was created with errors");
+    assert.equal(ruleset.errors.onError, "removeRow", "Expected onError to be abort");
+    assert.equal(ruleset.errors.errorsToAbort, 2, "Expected errorsToAbort to be 2");
+    assert.equal(ruleset.errors.warningsToAbort, 1, "Expected warningsToAbort to be 1");
+    assert.equal(ruleset.errors.singleRuleErrorsToAbort, 1, "Expected singleRuleErrorsToAbort to be 1");
+    assert.equal(ruleset.errors.singleRuleWarningsToAbort, 1, "Expected singleRuleWarningsToAbort to be 1");
 
 });
 
@@ -178,19 +205,27 @@ QUnit.test( "RuleSet: Creation Test rule error default", function(assert){
 
 
     assert.equal(ruleset.rules[0].config.onError, "abort", "Expected default onError to be abort");
+    assert.ok(ruleset.rules[0].config.errorsToAbort == null, "Expected default errorsToAbort to be not exist");
+    assert.ok(ruleset.rules[0].config.warningsToAbort == null, "Expected default warningsToAbort to be not exist");
 
 });
 
-QUnit.test( "RuleSet: Creation Test rule onError", function(assert){
+QUnit.test( "RuleSet: Creation Test rule defaults from parent error config", function(assert){
     const config = {
         "name" : "Test RuleSet All Properties",
+        "errors" : {
+            "onError": "removeRow",
+            "errorsToAbort": 2,
+            "warningsToAbort": 1,
+            "singleRuleErrorsToAbort": 3,
+            "singleRuleWarningsToAbort": 2
+        },
         "rules" : [
             {
                 "filename" : "CheckColumnCount",
                 "name" : "Test RuleSet using all properties",
                 "config" : {
-                    "columns" : 9,
-                    "onError" : "removeRow"
+                    "columns" : 9
                 }
             }
         ]
@@ -200,5 +235,33 @@ QUnit.test( "RuleSet: Creation Test rule onError", function(assert){
 
 
     assert.equal(ruleset.rules[0].config.onError, "removeRow", 'Expected onError to be "removeRow"');
+    assert.equal(ruleset.rules[0].config.errorsToAbort, 3, "Expected default errorsToAbort to be 3");
+    assert.equal(ruleset.rules[0].config.warningsToAbort, 2, "Expected default warningsToAbort to be 2");
+
+});
+
+QUnit.test( "RuleSet: Creation Test rule error config", function(assert){
+    const config = {
+        "name" : "Test RuleSet All Properties",
+        "rules" : [
+            {
+                "filename" : "CheckColumnCount",
+                "name" : "Test RuleSet using all properties",
+                "config" : {
+                    "columns" : 9,
+                    "onError" : "removeRow",
+                    "errorsToAbort": 2,
+                    "warningsToAbort": 1
+                }
+            }
+        ]
+    };
+
+    const ruleset = new RuleSet(config);
+
+
+    assert.equal(ruleset.rules[0].config.onError, "removeRow", 'Expected onError to be "removeRow"');
+    assert.equal(ruleset.rules[0].config.errorsToAbort, 2, "Expected default errorsToAbort to be 2");
+    assert.equal(ruleset.rules[0].config.warningsToAbort, 1, "Expected default warningsToAbort to be 1");
 
 });
