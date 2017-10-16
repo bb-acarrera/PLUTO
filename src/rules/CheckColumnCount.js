@@ -51,12 +51,6 @@ class CheckColumnCount extends TableRuleAPI {
 				label: 'Number of Columns',
 				minimum: '1',
 				tooltip: 'The expected number of columns in the input file.'
-			},
-			{
-				name: 'reportAlways',
-				label: 'Report All Errors?',
-				type: 'boolean',
-				tooltip: 'Report all errors encountered or just the first.'
 			}
 		];
 	}

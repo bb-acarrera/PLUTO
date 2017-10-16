@@ -51,22 +51,18 @@ class RuleSet {
 			dstRule.name = srcRule.name || srcRule.filename;
 			dstRule.ui = srcRule.ui;
 
-			if(srcRule.errors) {
-				dstRule.errors = srcRule.errors;
-			} else {
-				dstRule.errors = {};
+
+
+			if(dstRule.config.onError == null) {
+				dstRule.config.onError = this.errors.onError;
 			}
 
-			if(dstRule.errors.onError == null) {
-				dstRule.errors.onError = this.errors.onError;
+			if(dstRule.config.errorsToAbort == null) {
+				dstRule.config.errorsToAbort = this.errors.singleRuleErrorsToAbort;
 			}
 
-			if(dstRule.errors.errorsToAbort == null) {
-				dstRule.errors.errorsToAbort = this.errors.singleRuleErrorsToAbort;
-			}
-
-			if(dstRule.errors.warningsToAbort == null) {
-				dstRule.errors.warningsToAbort = this.errors.singleRuleWarningsToAbort;
+			if(dstRule.config.warningsToAbort == null) {
+				dstRule.config.warningsToAbort = this.errors.singleRuleWarningsToAbort;
 			}
 
 			this.rules.push(dstRule);

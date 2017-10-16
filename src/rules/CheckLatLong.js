@@ -84,12 +84,6 @@ class CheckLatLong extends TableRuleAPI {
 				type: 'float',
 				minimum: '0',
 				tooltip: 'The amount of error permitted around the null island test.'
-			},
-			{
-				name: 'reportAlways',
-				label: 'Report All Errors?',
-				type: 'boolean',
-				tooltip: 'Report all errors encountered or just the first.'
 			}
 		];
 	}
