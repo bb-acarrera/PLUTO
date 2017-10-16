@@ -14,8 +14,16 @@ class DataProxy {
         return () => {
             return {
                 retrieveRuleset: function() {
-                    return new Promise((resolve) => {
-                        resolve(that.ruleset);
+                    return new Promise((resolve, reject) => {
+
+                        let ruleset;
+                        if(typeof that.ruleset === "function") {
+                            ruleset = that.ruleset(resolve, reject);
+                        } else {
+                            ruleset = that.ruleset;
+                        }
+
+                        resolve(ruleset);
                     })
                 },
                 createRunRecord: function() {
