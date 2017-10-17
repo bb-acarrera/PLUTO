@@ -1,6 +1,11 @@
 import Ember from 'ember';
 
 function addRuleset(controller, rulesetId, ruleset) {
+  if(rulesetId === "unregistered") {
+      alert(`unregistered is a reserved name. Please choose a different one.`);
+      return;
+  }
+
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = () => {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
