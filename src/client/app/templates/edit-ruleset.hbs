@@ -44,7 +44,7 @@
               {{#if showChangeParser}}
 
                 <select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers
-                                      bubbles=false}}>
+                                      bubbles=false}} class="change-btn">
                   <option>Choose the parser</option>
                   <option value="None">None</option>
                   {{#each model.parsers as |parser|}}
@@ -52,9 +52,9 @@
                   {{/each}}
               </select>
 
-              <button onclick={{action "hideChangeParser" bubbles=false}}>Cancel</button>
+              <button onclick={{action "hideChangeParser" bubbles=false}} class="change-btn">Cancel</button>
               {{else}}
-                <button onclick={{action "showChangeParser" bubbles=false}}>Change</button>
+                <button onclick={{action "showChangeParser" bubbles=false}} class="change-btn">Change</button>
               {{/if}}
             </span>
           </div>
@@ -71,7 +71,7 @@
               {{#if showChangeImporter}}
 
                 <select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers
-                                        bubbles=false}}>
+                                        bubbles=false}} class="change-btn">
                         <option>Choose the importer</option>
                         <option value="None">None</option>
                   {{#each model.importers as |importer|}}
@@ -79,9 +79,9 @@
                   {{/each}}
                     </select>
 
-                  <button onclick={{action "hideChangeImporter" bubbles=false}}>Cancel</button>
+                  <button onclick={{action "hideChangeImporter" bubbles=false}} class="change-btn">Cancel</button>
               {{else}}
-                <button onclick={{action "showChangeImporter" bubbles=false}}>Change</button>
+                <button onclick={{action "showChangeImporter" bubbles=false}} class="change-btn">Change</button>
               {{/if}}
             </span>
           </div>
@@ -98,7 +98,7 @@
               {{#if showChangeExporter}}
 
                 <select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters
-                                        bubbles=false}}>
+                                        bubbles=false}} class="change-btn">
                         <option>Choose the exporter</option>
                         <option value="None">None</option>
                   {{#each model.exporters as |exporter|}}
@@ -106,12 +106,14 @@
                   {{/each}}
                     </select>
 
-                  <button onclick={{action "hideChangeExporter" bubbles=false}}>Cancel</button>
+                  <button onclick={{action "hideChangeExporter" bubbles=false}} class="change-btn">Cancel</button>
               {{else}}
-                <button onclick={{action "showChangeExporter" bubbles=false}}>Change</button>
+                <button onclick={{action "showChangeExporter" bubbles=false}} class="change-btn">Change</button>
               {{/if}}
             </span>
           </div>
+
+			<div class="section-content rule-selectable"><div class="section-header">Error Handling</div><button class="errors-btn">Change</button></div>
 
           <div class="section-header">Rules</div>
           <table id="rulesTable" class="ruleset-table">

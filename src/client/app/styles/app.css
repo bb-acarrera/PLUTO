@@ -149,3 +149,14 @@ div.footer {
   opacity: 0;
   filter: alpha(opacity=0);
 }
+
+.change-btn {
+  top: -3px;
+  position: relative;
+}
+
+.errors-btn {
+  float: right;
+  position: relative;
+  top: -27px;
+}

@@ -57,7 +57,28 @@ class CheckColumnCount extends TableRuleAPI {
 				label: 'Report All Errors?',
 				type: 'boolean',
 				tooltip: 'Report all errors encountered or just the first.'
-			}
+			},
+			{
+                name: 'onError',
+                label: 'Action on error: ',
+				type: 'choice',
+				choices: [
+                'none',
+                'excludeRow',
+                'integer']
+			},
+            {
+                name: 'singleRuleErrorsToAbort',
+                label: 'How many errors before abort?',
+                type: 'integer',
+                tooltip: 'Stop execution when these many errors occur.'
+            },
+            {
+                name: 'singleRuleWarningsToAbort',
+                label: 'How many warnings before abort?',
+                type: 'integer',
+                tooltip: 'Stop execution when these many warnings occur.'
+            }
 		];
 	}
 
