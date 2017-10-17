@@ -1,21 +1,14 @@
 <div style="float:none;display:flex;">
-	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm'}}
+	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
 		<i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
   {{#if run}}
+	  <h2>Run Details</h2>
   {{else}}
-    {{#if collapsed}}
-    {{else}}
+    {{#if (not collapsed)}}
       <h2>Edit Ruleset</h2>
     {{/if}}
-    {{#bs-button active=notCollapsed onClick=(action "toggle")}}
-      {{#if collapsed}}
-        Show Ruleset
-      {{else}}
-        Hide Ruleset
-      {{/if}}
-    {{/bs-button}}
   {{/if}}
 </div>
 {{#if run}}

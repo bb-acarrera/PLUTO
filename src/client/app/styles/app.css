@@ -150,6 +150,11 @@ div.footer {
   filter: alpha(opacity=0);
 }
 
+.btn-return-title {
+  float: left;
+  height: 63px;
+}
+
 .change-btn {
   top: -3px;
   position: relative;

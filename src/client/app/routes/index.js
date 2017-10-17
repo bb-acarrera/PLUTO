@@ -46,8 +46,8 @@ export default Ember.Route.extend(RouteMixin, {
           return { result: result, meta: meta};
         }),
       runs: this.store.query('run', {
-        page: params.rulePage,
-        perPage: params.rulePerPage,
+        page: params.page,
+        perPage: params.perPage,
         rulesetFilter: params.rulesetFilter,
         filenameFilter: params.filenameFilter,
         errorFilter: params.showErrors,

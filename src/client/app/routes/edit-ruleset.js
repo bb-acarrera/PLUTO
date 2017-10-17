@@ -9,7 +9,7 @@ export default Ember.Route.extend( {
             this.controller.set( 'ruleToEdit', null );
         }
         return RSVP.hash( {
-            ruleset: this.store.queryRecord( 'ruleset', {id:params.ruleset_id} ),
+            ruleset: params.ruleset_id !== "unregistered" ?this.store.queryRecord( 'ruleset', {id:params.ruleset_id} ) : null,
             parsers: this.store.findAll( 'parser' ),
             rules: this.store.findAll( 'rule' ),
             importers: this.store.findAll( 'importer' ),
