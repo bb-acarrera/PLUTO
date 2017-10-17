@@ -1,3 +1,5 @@
+const Util = require("../common/Util");
+
 class RuleSet {
 	// PJT: 17/08/01 Note that since the rulesets are now maintained in the database and they can be copied and edited
 	// without being written to disk the use of a filename is far less important to the overall functioning of PLUTO.
@@ -28,10 +30,15 @@ class RuleSet {
 		this.config = ruleset.config;
 
 		if(!this.errors) {
-			this.errors = {
-				onError: 'abort',
-				errorsToAbort: 1
-			}
+			this.errors = {};
+		}
+
+		if(!this.errors.onError) {
+			this.errors.onError = 'abort';
+		}
+
+		if(this.errors.errorsToAbort == null) {
+			this.errors.errorsToAbort = 1;
 		}
 
 		this.addRules(ruleset.rules);
@@ -39,6 +46,7 @@ class RuleSet {
 
 	addRules(rules) {
 		this.rules = [];
+		this.ruleMap = {};
 		if (!rules)
 			return;
 
@@ -47,29 +55,28 @@ class RuleSet {
 			const dstRule = {};
 			dstRule.config = srcRule.config;
 			dstRule.filename = srcRule.filename;
-			dstRule.id = srcRule.id;
 			dstRule.name = srcRule.name || srcRule.filename;
 			dstRule.ui = srcRule.ui;
 
-			if(srcRule.errors) {
-				dstRule.errors = srcRule.errors;
-			} else {
-				dstRule.errors = {};
+			if(!dstRule.config.id) {
+				dstRule.config.id = Util.createGUID();
 			}
 
-			if(dstRule.errors.onError == null) {
-				dstRule.errors.onError = this.errors.onError;
+
+			if(dstRule.config.onError == null) {
+				dstRule.config.onError = this.errors.onError;
 			}
 
-			if(dstRule.errors.errorsToAbort == null) {
-				dstRule.errors.errorsToAbort = this.errors.singleRuleErrorsToAbort;
+			if(dstRule.config.errorsToAbort == null) {
+				dstRule.config.errorsToAbort = this.errors.singleRuleErrorsToAbort;
 			}
 
-			if(dstRule.errors.warningsToAbort == null) {
-				dstRule.errors.warningsToAbort = this.errors.singleRuleWarningsToAbort;
+			if(dstRule.config.warningsToAbort == null) {
+				dstRule.config.warningsToAbort = this.errors.singleRuleWarningsToAbort;
 			}
 
 			this.rules.push(dstRule);
+			this.ruleMap[dstRule.config.id] = dstRule;
 		}
 	}
 
@@ -107,6 +114,10 @@ class RuleSet {
 				Object.assign(this.export.config, contents.export);
 			}
 		}
+	}
+
+	getRuleById(ruleId) {
+		return this.ruleMap[ruleId];
 	}
 
 	// toJSON() {

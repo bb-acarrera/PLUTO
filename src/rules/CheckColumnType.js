@@ -80,12 +80,6 @@ class CheckColumnType extends TableRuleAPI {
 					'integer'
 				],
 				tooltip: 'The expected data type of the given column.'
-			},
-			{
-				name: 'reportAlways',
-				label: 'Report All Errors?',
-				type: 'boolean',
-				tooltip: 'Report all errors encountered or just the first.'
 			}
 		];
 	}

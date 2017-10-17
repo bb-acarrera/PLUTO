@@ -53,12 +53,6 @@ class CheckColumnCount extends TableRuleAPI {
 				tooltip: 'The expected number of columns in the input file.'
 			},
 			{
-				name: 'reportAlways',
-				label: 'Report All Errors?',
-				type: 'boolean',
-				tooltip: 'Report all errors encountered or just the first.'
-			},
-			{
                 name: 'onError',
                 label: 'Action on error: ',
 				type: 'choice',

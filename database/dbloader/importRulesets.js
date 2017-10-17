@@ -69,7 +69,7 @@ class Importer {
     addRuleset(name, ruleset, file) {
 
         return new Promise((resolve) => {
-            this.db.query("SELECT id FROM " + this.rulesetsTable + " WHERE ruleset_id = $1 AND version = 0", [name])
+            this.db.query("SELECT version FROM " + this.rulesetsTable + " WHERE ruleset_id = $1 ORDER BY version DESC", [name])
                 .then((result) => {
                     if(result.rows.length === 0) {
                         this.db.query("INSERT INTO " + this.rulesetsTable + " (ruleset_id, name, version, rules) " +
@@ -81,8 +81,12 @@ class Importer {
                             });
 
                     } else if(this.config.forceWrite) {
-                        this.db.query("UPDATE " + this.rulesetsTable + " SET rules = $2 WHERE id = $1",
-                            [result.rows[0].id, JSON.stringify(ruleset)])
+
+                        const version = result.rows[0].version + 1;
+
+                        this.db.query("INSERT INTO " + this.rulesetsTable + " (ruleset_id, name, version, rules) " +
+                                "VALUES($1, $2, $3, $4) RETURNING id",
+                            [name, ruleset.name || name, version, JSON.stringify(ruleset)])
                             .then(() => {
                                 console.log('Updated ' + file);
                                 resolve();

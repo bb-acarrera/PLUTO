@@ -1,0 +1,11 @@
+{
+  "parsers": [],
+  "rules": [
+    {
+      "filename":"RulePassFail"
+    }
+  ],
+  "importers" : [],
+  "exporters" : []
+}
+
