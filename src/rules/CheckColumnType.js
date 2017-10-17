@@ -62,7 +62,7 @@ class CheckColumnType extends TableRuleAPI {
 	}
 
 	static get ConfigProperties() {
-		return [
+		return this.appendConfigProperties([
 			{
 				name: 'column',
 				label: 'Column',
@@ -81,14 +81,12 @@ class CheckColumnType extends TableRuleAPI {
 				],
 				tooltip: 'The expected data type of the given column.'
 			}
-		];
+		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return {
-			reportAlways: false
-		};
+		return this.appendDefaults({});
 	}
 }
 

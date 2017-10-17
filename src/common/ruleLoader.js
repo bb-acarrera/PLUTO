@@ -88,9 +88,11 @@ class RuleLoader {
 
     loadFromManifest(dir, item, type) {
 
+        let file;
+
         try {
 
-            let file = item.filename;
+            file = item.filename;
             let ruleFile;
 
             if(item.path) {

@@ -44,43 +44,21 @@ class CheckColumnCount extends TableRuleAPI {
 	}
 
 	static get ConfigProperties() {
-		return [
+		return this.appendConfigProperties([
 			{
 				name: 'columns',
 				type: 'integer',
 				label: 'Number of Columns',
 				minimum: '1',
 				tooltip: 'The expected number of columns in the input file.'
-			},
-			{
-                name: 'onError',
-                label: 'Action on error: ',
-				type: 'choice',
-				choices: [
-                'none',
-                'excludeRow',
-                'integer']
-			},
-            {
-                name: 'singleRuleErrorsToAbort',
-                label: 'How many errors before abort?',
-                type: 'integer',
-                tooltip: 'Stop execution when these many errors occur.'
-            },
-            {
-                name: 'singleRuleWarningsToAbort',
-                label: 'How many warnings before abort?',
-                type: 'integer',
-                tooltip: 'Stop execution when these many warnings occur.'
-            }
-		];
+			}
+		]);
 	}
 
 	static get ConfigDefaults() {
-		return {
-			columns: 9,
-			reportAlways: false
-		};
+		return this.appendDefaults({
+			columns: 9
+		});
 	}
 }
 

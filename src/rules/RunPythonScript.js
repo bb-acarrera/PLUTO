@@ -84,19 +84,19 @@ class RunPythonScript extends OperatorAPI {
 	}
 
 	static get ConfigProperties() {
-		return [
+		return this.appendConfigProperties([
 			{
 				name: 'pythonScript',
 				type: 'string',
 				label: 'Python Script Path',
 				tooltip: 'The path to the python script to run.'
 			}
-		];
+		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return {};
+		return this.appendDefaults({});
 	}
 }
 

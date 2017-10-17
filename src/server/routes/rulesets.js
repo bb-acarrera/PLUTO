@@ -80,7 +80,8 @@ class RulesetRouter extends BaseRouter {
 							export: ruleset.export,
 							parser: parser,
 							rules: rules,
-							config: ruleset.config
+							config: ruleset.config,
+							errors: ruleset.errors
 						}
 					}
 				});

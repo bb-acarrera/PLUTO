@@ -29,55 +29,9 @@ class RuleSet {
 
 		this.config = ruleset.config;
 
-		if(!this.errors) {
-			this.errors = {};
-		}
+		addErrors.call(this);
 
-		if(!this.errors.onError) {
-			this.errors.onError = 'abort';
-		}
-
-		if(this.errors.errorsToAbort == null) {
-			this.errors.errorsToAbort = 1;
-		}
-
-		this.addRules(ruleset.rules);
-	}
-
-	addRules(rules) {
-		this.rules = [];
-		this.ruleMap = {};
-		if (!rules)
-			return;
-
-		for (var i = 0; i < rules.length; i++) {
-			const srcRule = rules[i];
-			const dstRule = {};
-			dstRule.config = srcRule.config;
-			dstRule.filename = srcRule.filename;
-			dstRule.name = srcRule.name || srcRule.filename;
-			dstRule.ui = srcRule.ui;
-
-			if(!dstRule.config.id) {
-				dstRule.config.id = Util.createGUID();
-			}
-
-
-			if(dstRule.config.onError == null) {
-				dstRule.config.onError = this.errors.onError;
-			}
-
-			if(dstRule.config.errorsToAbort == null) {
-				dstRule.config.errorsToAbort = this.errors.singleRuleErrorsToAbort;
-			}
-
-			if(dstRule.config.warningsToAbort == null) {
-				dstRule.config.warningsToAbort = this.errors.singleRuleWarningsToAbort;
-			}
-
-			this.rules.push(dstRule);
-			this.ruleMap[dstRule.config.id] = dstRule;
-		}
+		addRules.call(this, ruleset.rules);
 	}
 
 	applyOverride(rulesetOverrideFile) {
@@ -132,6 +86,57 @@ class RuleSet {
     //
 	// 	return response;
 	// }
+}
+
+function addRules(rules) {
+	this.rules = [];
+	this.ruleMap = {};
+	if (!rules)
+		return;
+
+	for (var i = 0; i < rules.length; i++) {
+		const srcRule = rules[i];
+		const dstRule = {};
+		dstRule.config = srcRule.config;
+		dstRule.filename = srcRule.filename;
+		dstRule.name = srcRule.name || srcRule.filename;
+		dstRule.ui = srcRule.ui;
+
+		if(!dstRule.config.id) {
+			dstRule.config.id = Util.createGUID();
+		}
+
+
+		if(dstRule.config.onError == null) {
+			dstRule.config.onError = this.errors.onError;
+		}
+
+		if(dstRule.config.errorsToAbort == null) {
+			dstRule.config.errorsToAbort = this.errors.singleRuleErrorsToAbort;
+		}
+
+		if(dstRule.config.warningsToAbort == null) {
+			dstRule.config.warningsToAbort = this.errors.singleRuleWarningsToAbort;
+		}
+
+		this.rules.push(dstRule);
+		this.ruleMap[dstRule.config.id] = dstRule;
+	}
+}
+
+function addErrors() {
+	if(!this.errors) {
+		this.errors = {};
+	}
+
+	if(!this.errors.onError) {
+		this.errors.onError = 'abort';
+	}
+
+	if(this.errors.errorsToAbort == null) {
+		this.errors.errorsToAbort = 1;
+	}
+
 }
 
 module.exports = RuleSet;

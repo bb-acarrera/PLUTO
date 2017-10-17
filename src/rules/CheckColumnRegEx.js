@@ -42,7 +42,7 @@ class CheckColumnRegEx extends TableRuleAPI {
 
 
 	static get ConfigProperties() {
-		return [
+		return this.appendConfigProperties([
 			{
 				name: 'column',
 				label: 'Column',
@@ -56,14 +56,12 @@ class CheckColumnRegEx extends TableRuleAPI {
 				type: 'string',
 				tooltip: 'The regular expression to use to validate the given column.'
 			}
-		];
+		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return {
-			reportAlways: false
-		};
+		return this.appendDefaults({});
 	}
 
 }
