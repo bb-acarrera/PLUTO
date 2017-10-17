@@ -116,7 +116,7 @@ which should create dbconfig.json in that folder. To test out the migration:
 To create a new migration script:
 
 ```
-pg-migrate create your-new-migration -f dbconfig.json
+../../node_modules/.bin/pg-migrate create your-new-migration
 ```
 
 which will place the script in the database/dbloader/migrations folder.  Follow the docs on how to create new migrations.
