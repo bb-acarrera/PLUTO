@@ -147,36 +147,11 @@ QUnit.test( "Validator: End to End no ruleset Test", function(assert){
     const dbProxy = new DataProxy(ruleset,
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
+            assert.equal(log[0].type, "Warning", "Expected a warning");
         },
         done);
 
-    const vldtr = new validator(config, () => {
-        return {
-            retrieveRuleset: function(ruleset_id, rulesetOverrideFile, version) {
-                return new Promise((resolve) => {
-                    resolve({
-
-                    });
-                })
-            },
-            createRunRecord: function() {
-                return new Promise((resolve) => {
-                    resolve(0);
-                })
-            },
-            saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
-
-                return new Promise((resolve) => {
-                    assert.ok(log, "Expected log to be created");
-                    assert.equal(log[0].type, "Warning", "Expected a warning");
-                    done();
-                    resolve();
-                });
-            },
-            end: function () {}
-
-        };
-    });
+    const vldtr = new validator(config, dbProxy.getDataObj());
 
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
@@ -196,57 +171,34 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
 
     const done = assert.async();
 
-    const ruleset = {};
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "CheckColumnCount",
+                config : {
+                    id : 1,
+                    columns : 4
+                }
+            }
+        ],
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
 
     const dbProxy = new DataProxy(ruleset,
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
+            assert.equal(log[0].type, "Warning", "Expected a warning");
+            assert.equal(log[0].description, "Row 1 has too many of columns. Got 9.", 'Expected "Row 1 has too many of columns. Got 9."');
         },
         done);
 
-    const vldtr = new validator(config, () => {
-        return {
-            retrieveRuleset: function(ruleset_id, rulesetOverrideFile, version) {
-                return new Promise((resolve) => {
-                    resolve({
-                        name : "Test Data Ruleset",
-                        rules : [
-                            {
-                                filename : "CheckColumnCount",
-                                config : {
-                                    id : 1,
-                                    columns : 4
-                                }
-                            }
-                        ],
-                        parser: {
-                            filename: "CSVParser",
-                            config: {
-                                numHeaderRows : 1
-                            }
-                        }
-                    });
-                })
-            },
-            createRunRecord: function() {
-                return new Promise((resolve) => {
-                    resolve(0);
-                })
-            },
-            saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
-
-                return new Promise((resolve) => {
-                    assert.ok(log, "Expected log to be created");
-                    assert.equal(log[0].type, "Warning", "Expected a warning");
-                    assert.equal(log[0].description, "Row 1 has too many of columns. Got 9.", 'Expected "Row 1 has too many of columns. Got 9."')
-                    done();
-                    resolve();
-                });
-            },
-            end: function () {}
-
-        };
-    });
+    const vldtr = new validator(config, dbProxy.getDataObj());
 
 
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');

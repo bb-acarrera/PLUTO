@@ -25,11 +25,11 @@ class RuleSet {
 		this.import = ruleset.import;
 		this.export = ruleset.export;
 		this.parser = ruleset.parser;
-		this.errors = ruleset.errors;
+		this.general = ruleset.general;
 
 		this.config = ruleset.config;
 
-		addErrors.call(this);
+		addGeneralConfig.call(this);
 
 		addRules.call(this, ruleset.rules);
 	}
@@ -86,6 +86,39 @@ class RuleSet {
     //
 	// 	return response;
 	// }
+
+	/**
+	 * The list of config properties.  Used by the UI for display.
+	 * @returns {Array}
+	 * @constructor
+	 */
+	static get ConfigProperties() {
+		return  [
+			{
+				name: 'errorsToAbort',
+				label: 'How many total errors before abort?',
+				type: 'integer',
+				tooltip: 'Stop execution when these many errors occur.'
+			},
+			{
+				name: 'warningsToAbort',
+				label: 'How many total warnings before abort?',
+				type: 'integer',
+				tooltip: 'Stop execution when these many warnings occur.'
+			}
+		];
+	}
+
+	/**
+	 * The default values for configuration.
+	 * @returns {{}}
+	 * @constructor
+	 */
+	static get ConfigDefaults() {
+		return {
+			errorsToAbort: 1
+		};
+	}
 }
 
 function addRules(rules) {
@@ -108,15 +141,15 @@ function addRules(rules) {
 
 
 		if(dstRule.config.onError == null) {
-			dstRule.config.onError = this.errors.onError;
+			dstRule.config.onError = this.general.config.onError;
 		}
 
 		if(dstRule.config.errorsToAbort == null) {
-			dstRule.config.errorsToAbort = this.errors.singleRuleErrorsToAbort;
+			dstRule.config.errorsToAbort = this.general.config.singleRuleErrorsToAbort;
 		}
 
 		if(dstRule.config.warningsToAbort == null) {
-			dstRule.config.warningsToAbort = this.errors.singleRuleWarningsToAbort;
+			dstRule.config.warningsToAbort = this.general.config.singleRuleWarningsToAbort;
 		}
 
 		this.rules.push(dstRule);
@@ -124,17 +157,23 @@ function addRules(rules) {
 	}
 }
 
-function addErrors() {
-	if(!this.errors) {
-		this.errors = {};
+function addGeneralConfig() {
+	if(!this.general) {
+		this.general = {};
 	}
 
-	if(!this.errors.onError) {
-		this.errors.onError = 'abort';
+	if(!this.general.config) {
+		this.general.config = {};
 	}
 
-	if(this.errors.errorsToAbort == null) {
-		this.errors.errorsToAbort = 1;
+	let config = this.general.config;
+
+	if(!config.onError) {
+		config.onError = 'abort';
+	}
+
+	if(config.errorsToAbort == null) {
+		config.errorsToAbort = 1;
 	}
 
 }

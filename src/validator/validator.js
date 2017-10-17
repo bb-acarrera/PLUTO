@@ -729,35 +729,40 @@ class Validator {
 		}
 
 		let errorsToAbort = 1;
-		if(this.currentRuleset && this.currentRuleset.errors) {
-			errorsToAbort = this.currentRuleset.errors.errorsToAbort;
+
+		let errorConfig = null;
+		if(this.currentRuleset && this.currentRuleset.general) {
+			errorConfig = this.currentRuleset.general.config;
 		}
 
+		if(errorConfig) {
+			errorsToAbort = errorConfig.errorsToAbort;
+		}
 
 		if(this.logger.getCount(ErrorHandlerAPI.ERROR) >= errorsToAbort) {
 			return true;
 		}
 
-		if(this.currentRuleset && this.currentRuleset.errors) {
+		if(errorConfig) {
 
-			if (this.currentRuleset.errors.warningsToAbort &&
-				this.logger.getCount(ErrorHandlerAPI.WARNING) >= this.currentRuleset.errors.warningsToAbort) {
+			if (errorConfig.warningsToAbort &&
+				this.logger.getCount(ErrorHandlerAPI.WARNING) >= errorConfig.warningsToAbort) {
 				return true;
 			}
+		}
 
-			if (ruleID) {
-				let rule = this.currentRuleset.getRuleById(ruleID);
-				if (rule && rule.config) {
-					if (rule.config.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
-						return true;
-					}
-
-					if (rule.config.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
-						return true;
-					}
+		if (this.currentRuleset && ruleID) {
+			let rule = this.currentRuleset.getRuleById(ruleID);
+			if (rule && rule.config) {
+				if (rule.config.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
+					return true;
 				}
 
+				if (rule.config.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
+					return true;
+				}
 			}
+
 		}
 
 		return false;

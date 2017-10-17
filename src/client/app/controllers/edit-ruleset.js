@@ -284,22 +284,25 @@ function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporter
     }
 
     // Get the properties.
-    uiConfig.properties.forEach( prop => {
+    if(uiConfig) {
+        uiConfig.properties.forEach( prop => {
             let element = document.getElementById( prop.name );
             if ( element ) {
-                var value = prop.type === 'boolean' ? element.checked : element.value;
-                if ( prop.type === "list" ) {
-                    var re = /\s*,\s*/;
-                    value = value.split( re );
-                }
-                if ( prop.type === "column" ) {
-                    value = $( element ).prop( 'selectedIndex' );
-                }
+              var value = prop.type === 'boolean' ? element.checked : element.value;
+              if ( prop.type === "list" ) {
+                var re = /\s*,\s*/;
+                value = value.split( re );
+              }
+              if ( prop.type === "column" ) {
+                value = Ember.$( element ).prop( 'selectedIndex' );
+              }
 
-                Ember.set( ruleInstance.config, prop.name, value );
+              Ember.set( ruleInstance.config, prop.name, value );
             }
-        }
-    );
+          }
+        );
+    }
+
 
     ruleset.notifyPropertyChange( "rules" );
 }
@@ -321,7 +324,7 @@ function deselectItems ( clearProperties, controller ) {
             item.classList.remove( 'selected' );
     }
 
-    const otherItems = [ 'parser', 'import', 'export' ];
+    const otherItems = [ 'parser', 'import', 'export', 'general' ];
 
     otherItems.forEach( item => {
         const parserElem = document.getElementById( item );

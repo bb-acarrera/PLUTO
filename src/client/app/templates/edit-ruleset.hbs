@@ -25,6 +25,9 @@
                                    value="{{model.ruleset.name}}" class="text-input"/>
           </div>
 
+          <div class="section-content rule-selectable" id="general" {{action "toggleRowHighlight" "general"
+            model.ruleset.general}}>General Configuration</div>
+
           <div class="section-header">Parser</div>
           <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser"
                                             model.ruleset.parser}}>
@@ -106,8 +109,6 @@
             </span>
           </div>
 
-			<div class="section-content rule-selectable"><div class="section-header">Error Handling</div><button class="errors-btn">Change</button></div>
-
           <div class="section-header">Rules</div>
           <table id="rulesTable" class="ruleset-table">
             {{#each model.ruleset.rules as |ruleInstance index|}}
@@ -152,7 +153,7 @@
         <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
           <!-- The column for editting rule properties. -->
           {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers
-                     importers=model.importers exporters=model.exporters}}
+                     importers=model.importers exporters=model.exporters rulsetconfiguis=model.rulsetconfiguis}}
           <!--<button class="save-ruleset" style="float: right" {{action "updateRule"
                                            ruleToEdit}}>Apply</button>-->
         </div>

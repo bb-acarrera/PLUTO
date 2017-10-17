@@ -65,13 +65,13 @@ class BaseRuleAPI extends ErrorHandlerAPI {
 
         const properties = [
             {
-                name: 'singleRuleErrorsToAbort',
+                name: 'errorsToAbort',
                 label: 'How many errors before abort on this rule?',
                 type: 'integer',
                 tooltip: 'Stop execution when these many errors occur.'
             },
             {
-                name: 'singleRuleWarningsToAbort',
+                name: 'warningsToAbort',
                 label: 'How many warnings before abort on this rule?',
                 type: 'integer',
                 tooltip: 'Stop execution when these many warnings occur.'

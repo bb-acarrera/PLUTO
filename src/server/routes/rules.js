@@ -1,14 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-
 const BaseRouter = require('./baseRouter');
 const RuleLoader = require('../../common/ruleLoader');
+const RuleSet = require('../../validator/RuleSet');
 
 class RulesRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
 
         this.rulesLoader = new RuleLoader(this.config.validator.config.rulesDirectory);
+
+
+
+        this.rulesetConfig = [{
+            id: 0,
+            type: 'rulesetconfigui',
+            attributes: {
+                name: null,
+                filename: null,
+                ui: {
+                    properties: RuleLoader.applyDefaults(RuleSet.ConfigProperties, RuleSet.ConfigDefaults)
+                }
+            }
+        }];
 
 	}
 
@@ -41,6 +53,13 @@ class RulesRouter extends BaseRouter {
 
         res.json({
             data: this.rulesLoader.exporters
+        });
+    }
+
+    getRulesetConfigUI(req, res) {
+
+        res.json({
+            data: this.rulesetConfig
         });
     }
 

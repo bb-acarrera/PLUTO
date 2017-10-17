@@ -109,9 +109,9 @@ QUnit.test( "Validator Error Handling: Abort on two errors, only one error", fun
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "errorsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -152,9 +152,9 @@ QUnit.test( "Validator Error Handling: Abort on two errors, has two error", func
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "errorsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -194,9 +194,9 @@ QUnit.test( "Validator Error Handling: Abort on one warning", function(assert) {
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "warningsToAbort": 1
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -236,9 +236,9 @@ QUnit.test( "Validator Error Handling: Abort on two warnings, have one warning",
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "warningsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -279,9 +279,9 @@ QUnit.test( "Validator Error Handling: Abort on two warnings", function(assert) 
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "warningsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -326,9 +326,9 @@ QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "errorsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -379,9 +379,9 @@ QUnit.test( "Validator Error Handling: Pass rule errors, Abort on errors", funct
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "errorsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -434,9 +434,9 @@ QUnit.test( "Validator Error Handling: Pass rule errors, Pass on errors", functi
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "errorsToAbort": 3
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -489,9 +489,9 @@ QUnit.test( "Validator Error Handling: Pass rule warnings, Pass on warnings", fu
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "warningsToAbort": 3
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {
@@ -544,9 +544,9 @@ QUnit.test( "Validator Error Handling: Pass rule warnings, abort on warnings", f
                 }
             }
         ],
-        errors : {
+        general : { config : {
             "warningsToAbort": 2
-        },
+        }},
         parser: {
             filename: "CSVParser",
             config: {

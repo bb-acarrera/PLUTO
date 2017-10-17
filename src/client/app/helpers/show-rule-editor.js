@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, importers, exporters}) {
+export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, importers, exporters, rulsetconfiguis}) {
   var content = "<div>";
 
   if (!ruleInstance || !rules)
@@ -9,7 +9,7 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, i
 
   var uiConfig;
 
-  const itemSets = [rules, parsers, importers, exporters];
+  const itemSets = [rules, parsers, importers, exporters, rulsetconfiguis];
   let items;
 
   for(var i = 0; i < itemSets.length; i++) {
