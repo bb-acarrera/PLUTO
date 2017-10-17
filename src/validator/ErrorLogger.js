@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
-const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 function updateSummaries(log, level, ruleID, problemDescription) {
 
@@ -95,7 +94,7 @@ class ErrorLogger {
 		if(ruleID == null) {
 			counts = this.getCounts();
 		} else {
-			this.getRuleCounts(ruleID);
+			counts = this.getRuleCounts(ruleID);
 		}
 
 		if(!counts || !counts[level]) {

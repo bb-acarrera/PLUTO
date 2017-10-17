@@ -748,11 +748,11 @@ class Validator {
 			if (ruleID) {
 				let rule = this.currentRuleset.getRuleById(ruleID);
 				if (rule && rule.config) {
-					if (rule.config.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR) >= rule.config.errorsToAbort) {
+					if (rule.config.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
 						return true;
 					}
 
-					if (rule.config.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING) >= rule.config.warningsToAbort) {
+					if (rule.config.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
 						return true;
 					}
 				}
@@ -771,7 +771,6 @@ class Validator {
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
 	 * @param problemDescription {string} a description of the problem encountered.
 	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
-	 * @param shouldAbort should the running of rules stop at the end of the current rule,
 	 * @private
 	 */
 	log(level, problemFileName, ruleID, problemDescription) {

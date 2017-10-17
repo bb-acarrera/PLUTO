@@ -2,6 +2,8 @@ const ErrorLogger = require("../../ErrorLogger");
 const validator = require("../../../validator/validator");
 const DataProxy = require("../dbProxy");
 
+const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
+
 function getDefaultConfig() {
     return {
         "_debugLogger" : new ErrorLogger(),
@@ -60,7 +62,7 @@ QUnit.test( "Validator Error Handling: One Error", function(assert) {
                 config : {
                     id : 1,
                     rows: {
-                        "2": "error"
+                        "2": ErrorHandlerAPI.ERROR
                     }
                 }
             }
@@ -102,7 +104,7 @@ QUnit.test( "Validator Error Handling: Abort on two errors, only one error", fun
                 config : {
                     id : 1,
                     rows: {
-                        "2": "error"
+                        "2": ErrorHandlerAPI.ERROR
                     }
                 }
             }
@@ -144,8 +146,8 @@ QUnit.test( "Validator Error Handling: Abort on two errors, has two error", func
                 config : {
                     id : 1,
                     rows: {
-                        "2": "error",
-                        "3": "error"
+                        "2": ErrorHandlerAPI.ERROR,
+                        "3": ErrorHandlerAPI.ERROR
                     }
                 }
             }
@@ -187,7 +189,7 @@ QUnit.test( "Validator Error Handling: Abort on one warning", function(assert) {
                 config : {
                     id : 1,
                     rows: {
-                        "2": "warning"
+                        "2": ErrorHandlerAPI.WARNING
                     }
                 }
             }
@@ -229,7 +231,7 @@ QUnit.test( "Validator Error Handling: Abort on two warnings, have one warning",
                 config : {
                     id : 1,
                     rows: {
-                        "2": "warning"
+                        "2": ErrorHandlerAPI.WARNING
                     }
                 }
             }
@@ -260,7 +262,7 @@ QUnit.test( "Validator Error Handling: Abort on two warnings, have one warning",
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on two warning", function(assert) {
+QUnit.test( "Validator Error Handling: Abort on two warnings", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -271,14 +273,61 @@ QUnit.test( "Validator Error Handling: Abort on two warning", function(assert) {
                 config : {
                     id : 1,
                     rows: {
-                        "2": "warning",
-                        "3": "warning"
+                        "2": ErrorHandlerAPI.WARNING,
+                        "3": ErrorHandlerAPI.WARNING
                     }
                 }
             }
         ],
         errors : {
-            "warningsToAbort": 1
+            "warningsToAbort": 2
+        },
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+    const done = assert.async();
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, true, "Expected run to fail");
+
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.WARNING) == 2, "Expected at 2 warnings");
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 2, "Expected two errors (abort & no results)");
+
+        },
+        done);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});
+
+QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
+    const config = getDefaultConfig();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    "errorsToAbort": 1
+                }
+            }
+        ],
+        errors : {
+            "errorsToAbort": 2
         },
         parser: {
             filename: "CSVParser",
@@ -303,7 +352,7 @@ QUnit.test( "Validator Error Handling: Abort on two warning", function(assert) {
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
+QUnit.test( "Validator Error Handling: Pass rule errors, Abort on errors", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -314,9 +363,19 @@ QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
                 config : {
                     id : 1,
                     rows: {
-                        "2": "error"
+                        "2": ErrorHandlerAPI.ERROR
                     },
-                    "errorsToAbort": 1
+                    "errorsToAbort": 2
+                }
+            },
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 2,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    "errorsToAbort": 2
                 }
             }
         ],
@@ -336,6 +395,173 @@ QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
     const dbProxy = new DataProxy(ruleset,
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.equal(vldtr.abort, true, "Expected run to fail");
+
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 4, "Expected four errors");
+        },
+        done);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});
+
+QUnit.test( "Validator Error Handling: Pass rule errors, Pass on errors", function(assert) {
+    const config = getDefaultConfig();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    "errorsToAbort": 2
+                }
+            },
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 2,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    "errorsToAbort": 2
+                }
+            }
+        ],
+        errors : {
+            "errorsToAbort": 3
+        },
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+    const done = assert.async();
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, false, "Expected run to pass");
+
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 2, "Expected two errors");
+        },
+        done);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});
+
+QUnit.test( "Validator Error Handling: Pass rule warnings, Pass on warnings", function(assert) {
+    const config = getDefaultConfig();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.WARNING
+                    },
+                    "warningsToAbort": 2
+                }
+            },
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 2,
+                    rows: {
+                        "2": ErrorHandlerAPI.WARNING
+                    },
+                    "warningsToAbort": 2
+                }
+            }
+        ],
+        errors : {
+            "warningsToAbort": 3
+        },
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+    const done = assert.async();
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, false, "Expected run to pass");
+
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.WARNING) == 2, "Expected two warnings");
+        },
+        done);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});
+
+QUnit.test( "Validator Error Handling: Pass rule warnings, abort on warnings", function(assert) {
+    const config = getDefaultConfig();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.WARNING
+                    },
+                    "warningsToAbort": 2
+                }
+            },
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 2,
+                    rows: {
+                        "2": ErrorHandlerAPI.WARNING
+                    },
+                    "warningsToAbort": 2
+                }
+            }
+        ],
+        errors : {
+            "warningsToAbort": 2
+        },
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+    const done = assert.async();
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, true, "Expected run to fail");
+
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.WARNING) == 2, "Expected two warnings");
         },
         done);
 

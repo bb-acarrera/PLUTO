@@ -1,4 +1,5 @@
 const TableRuleAPI = require("../../../api/TableRuleAPI");
+const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
 
 class TestRulePassFail extends TableRuleAPI {
 	constructor(config) {
@@ -22,15 +23,15 @@ class TestRulePassFail extends TableRuleAPI {
 	processRecord(record, rowId) {
 
 		if(this.config.rows) {
-			if(this.config.rows[rowId] === 'error') {
+			if(this.config.rows[rowId] === ErrorHandlerAPI.ERROR) {
 				this.error(`Row ${rowId} has error`);
 			}
 
-			if(this.config.rows[rowId] === 'warning') {
+			if(this.config.rows[rowId] === ErrorHandlerAPI.WARNING) {
 				this.warning(`Row ${rowId} has warning`);
 			}
 
-			if(this.config.rows[rowId] === 'info') {
+			if(this.config.rows[rowId] === ErrorHandlerAPI.INFO) {
 				this.info(`Row ${rowId} has info`);
 			}
 		}
