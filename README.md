@@ -84,14 +84,14 @@ To run the validator manually:
 
 ```shell
 cd src
-node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -v $PWD/runtime/rulesets/override.json"
+node validator/validator.js -r CheckDataRulesetConfig -c $PWD/runtime/configs/validatorConfig.json -v $PWD/runtime/rulesets/override.json"
 ```
 
 or
 
 ```shell
 cd src
-node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
+node validator/validator.js -r CheckDataRulesetConfig -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
 ```
 
 ## Changing the database schema
