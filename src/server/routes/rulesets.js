@@ -67,21 +67,19 @@ class RulesetRouter extends BaseRouter {
 					};
 				}
 
+				ruleset["ruleset-id"] = ruleset.ruleset_id;
+				delete ruleset.ruleset_id;
+
+				let id = ruleset.id;
+
+				ruleset["database-id"] = id;
+				delete ruleset.id;
+
 				res.json({
 					data: {
 						type: "ruleset",
-						id: ruleset.id,	// The filename is used for the id.
-						attributes: {
-							name: ruleset.name,		// The ruleset's name is used here. This will be displayed in the UI.
-							filename: ruleset.filename,
-							"ruleset-id": ruleset.ruleset_id,
-							"database-id": ruleset.id,
-							import: ruleset.import,
-							export: ruleset.export,
-							parser: parser,
-							rules: rules,
-							config: ruleset.config
-						}
+						id: id,
+						attributes: ruleset
 					}
 				});
 			}, (error) => {

@@ -25,6 +25,9 @@
                                    value="{{model.ruleset.name}}" class="text-input"/>
           </div>
 
+          <div class="section-content rule-selectable" id="general" {{action "toggleRowHighlight" "general"
+            model.ruleset.general}}>General Configuration</div>
+
           <div class="section-header">Parser</div>
           <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser"
                                             model.ruleset.parser}}>
@@ -37,7 +40,7 @@
               {{#if showChangeParser}}
 
                 <select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers
-                                      bubbles=false}}>
+                                      bubbles=false}} class="change-btn">
                   <option>Choose the parser</option>
                   <option value="None">None</option>
                   {{#each model.parsers as |parser|}}
@@ -45,9 +48,9 @@
                   {{/each}}
               </select>
 
-              <button onclick={{action "hideChangeParser" bubbles=false}}>Cancel</button>
+              <button onclick={{action "hideChangeParser" bubbles=false}} class="change-btn">Cancel</button>
               {{else}}
-                <button onclick={{action "showChangeParser" bubbles=false}}>Change</button>
+                <button onclick={{action "showChangeParser" bubbles=false}} class="change-btn">Change</button>
               {{/if}}
             </span>
           </div>
@@ -64,7 +67,7 @@
               {{#if showChangeImporter}}
 
                 <select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers
-                                        bubbles=false}}>
+                                        bubbles=false}} class="change-btn">
                         <option>Choose the importer</option>
                         <option value="None">None</option>
                   {{#each model.importers as |importer|}}
@@ -72,9 +75,9 @@
                   {{/each}}
                     </select>
 
-                  <button onclick={{action "hideChangeImporter" bubbles=false}}>Cancel</button>
+                  <button onclick={{action "hideChangeImporter" bubbles=false}} class="change-btn">Cancel</button>
               {{else}}
-                <button onclick={{action "showChangeImporter" bubbles=false}}>Change</button>
+                <button onclick={{action "showChangeImporter" bubbles=false}} class="change-btn">Change</button>
               {{/if}}
             </span>
           </div>
@@ -91,7 +94,7 @@
               {{#if showChangeExporter}}
 
                 <select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters
-                                        bubbles=false}}>
+                                        bubbles=false}} class="change-btn">
                         <option>Choose the exporter</option>
                         <option value="None">None</option>
                   {{#each model.exporters as |exporter|}}
@@ -99,9 +102,9 @@
                   {{/each}}
                     </select>
 
-                  <button onclick={{action "hideChangeExporter" bubbles=false}}>Cancel</button>
+                  <button onclick={{action "hideChangeExporter" bubbles=false}} class="change-btn">Cancel</button>
               {{else}}
-                <button onclick={{action "showChangeExporter" bubbles=false}}>Change</button>
+                <button onclick={{action "showChangeExporter" bubbles=false}} class="change-btn">Change</button>
               {{/if}}
             </span>
           </div>
@@ -150,7 +153,7 @@
         <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
           <!-- The column for editting rule properties. -->
           {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers
-                     importers=model.importers exporters=model.exporters}}
+                     importers=model.importers exporters=model.exporters rulesetconfiguis=model.rulesetconfiguis}}
           <!--<button class="save-ruleset" style="float: right" {{action "updateRule"
                                            ruleToEdit}}>Apply</button>-->
         </div>

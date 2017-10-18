@@ -36,19 +36,19 @@ class DeleteColumn extends TableRuleAPI {
 	}
 
 	static get ConfigProperties() {
-		return [
+		return this.appendConfigProperties([
 			{
 				name: 'column',
 				label: 'Column To Delete',
 				type: 'column',
 				tooltip: 'The column label for the column to delete.'
 			}
-		];
+		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return {};
+		return this.appendDefaults({});
 	}
 }
 

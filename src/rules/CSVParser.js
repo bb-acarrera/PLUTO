@@ -93,13 +93,25 @@ class CSVParser extends TableParserAPI {
 
         // This CSV Transformer is used to call the processRecord() method above.
         const transformer = transform(record => {
+
+            if(this.config.sharedData && this.config.sharedData.abort) {
+                return null;
+            }
+
             let response = record;
 
+            this.tableRule.resetLastCheckCounts();
+
             if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
-                response = this.tableRule.processRecord(record, rowNumber);
+                response = this.tableRule.processRecordWrapper(record, rowNumber);
             }
 
             rowNumber++;
+
+            if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
+                return null;
+            }
+
             return response;
         });
 

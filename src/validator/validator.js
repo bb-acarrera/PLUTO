@@ -156,7 +156,7 @@ class Validator {
 			}
 
 
-			this.runRules(rulesDirectory, ruleset, this.inputFileName);
+			this.runRules(ruleset, this.inputFileName);
 		} else {
 			this.inputFileName = this.getTempName();
 
@@ -164,7 +164,7 @@ class Validator {
 
 					this.displayInputFileName = displayInputFileName;
 
-					this.runRules(rulesDirectory, ruleset, this.inputFileName);
+					this.runRules(ruleset, this.inputFileName);
 
 
 				},error => {
@@ -182,10 +182,11 @@ class Validator {
 	 * Run the list of rules that are all in the same rulesDirectory, starting with the given file.
 	 * (The output from a rule will generally be a new file which is input to the next rule.)
 	 */
-	runRules(rulesDirectory, ruleset, file) {
+	runRules(ruleset, file) {
 
 		let rules = ruleset.rules;
 		this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
+		this.abort = false;
 
 		try {
 
@@ -206,7 +207,7 @@ class Validator {
 
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
-				if (lastResult.index < rules.length && !validator.shouldAbort)
+				if (lastResult.index < rules.length && !validator.abort)
 					return validator.getRule(rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
@@ -214,7 +215,9 @@ class Validator {
 				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
 				this.error(errorMsg);
 			}).then((lastResult) => {
-				if (lastResult && lastResult.result && lastResult.result.stream) {
+				if(validator.abort) {
+					this.finishRun();
+				} else if (lastResult && lastResult.result && lastResult.result.stream) {
 					// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
 					let p = new Promise((resolve, reject) => {
 						let dest = this.putFile(lastResult.result.stream, this.getTempName());
@@ -226,7 +229,15 @@ class Validator {
 						});
 					});
 					p.then((filename) => {
-						this.finishRun({file: filename});
+						if(validator.abort) {
+							this.finishRun();
+						} else {
+							this.finishRun({file: filename});
+						}
+
+					}, (error) => {
+						this.error('Error writing stream: ' + error);
+						this.finishRun();
 					});
 				}
 				else
@@ -256,6 +267,7 @@ class Validator {
 		this.updateConfig(config);
 		config.name = config.name || ruleDescriptor.filename;
 		this.ruleName = config.name;
+		config.errors = ruleDescriptor.errors;
 
 		let rule =  new ruleClass(config);
 
@@ -279,7 +291,7 @@ class Validator {
 	}
 
 	getParserClass(parserDescriptor) {
-		var parserClass = this.ruleLoader.parsersMap[parserDescriptor.filename]
+		var parserClass = this.ruleLoader.parsersMap[parserDescriptor.filename];
 
 		if(!parserClass) {
 			parserClass = this.loadRule(parserDescriptor.filename);
@@ -695,6 +707,75 @@ class Validator {
 		return pluginClass;
 	}
 
+	abortRun(reason) {
+
+		if(this.abort) {
+			return;
+		}
+
+		this.abort = true;
+
+		if(this.sharedData) {
+			this.sharedData.abort = true;
+		}
+
+		this.error('Aborting: ' + reason);
+	}
+
+	checkAbort(ruleID) {
+
+		if(this.abort) {
+			return;
+		}
+
+		let errorsToAbort = 1;
+
+		let errorConfig = null;
+		if(this.currentRuleset && this.currentRuleset.general) {
+			errorConfig = this.currentRuleset.general.config;
+		}
+
+		if(errorConfig) {
+			errorsToAbort = errorConfig.errorsToAbort;
+		}
+
+		if(errorsToAbort && errorsToAbort > 0 && this.logger.getCount(ErrorHandlerAPI.ERROR) >= errorsToAbort) {
+			this.abortRun('Too many total errors. Got ' +
+				this.logger.getCount(ErrorHandlerAPI.ERROR) + ' limit was ' + errorsToAbort);
+			return;
+		}
+
+		if(errorConfig) {
+
+			if (errorConfig.warningsToAbort && errorConfig.warningsToAbort > 0 &&
+				this.logger.getCount(ErrorHandlerAPI.WARNING) >= errorConfig.warningsToAbort) {
+				this.abortRun('Too many total warnings. Got ' +
+					this.logger.getCount(ErrorHandlerAPI.WARNING) + ' limit was ' + errorConfig.warningsToAbort);
+				return;
+			}
+		}
+
+		if (this.currentRuleset && ruleID) {
+			let rule = this.currentRuleset.getRuleById(ruleID);
+			if (rule && rule.config) {
+				if (rule.config.errorsToAbort && rule.config.errorsToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
+					this.abortRun('Too many errors for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) + ' limit was ' + rule.config.errorsToAbort);
+					return;
+				}
+
+				if (rule.config.warningsToAbort && rule.config.warningsToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
+					this.abortRun('Too many warnings for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) + ' limit was ' + rule.config.warningsToAbort);
+				}
+			}
+
+		}
+
+	}
+
 	/**
 	 * This is called when the application has something to log.
 	 * @param {string} level the level of the log. One of {@link Validator.ERROR}, {@link Validator.WARNING}, or {@link Validator.INFO}.
@@ -703,20 +784,22 @@ class Validator {
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
 	 * @param problemDescription {string} a description of the problem encountered.
 	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
-	 * @param shouldAbort should the running of rules stop at the end of the current rule,
 	 * @private
 	 */
-	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
-		this.shouldAbort = shouldAbort || false;
-		if (this.logger)
+	log(level, problemFileName, ruleID, problemDescription) {
+
+		if (this.logger) {
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
-		else {
+		} else {
 			level = level || ErrorHandlerAPI.INFO;
 			problemFileName = problemFileName || "";
 			problemDescription = problemDescription || "";
 			const dateStr = new Date().toLocaleString();
 			console.log(level + ": " + dateStr + ": " + problemFileName + ": " + problemDescription);
 		}
+
+		this.checkAbort(ruleID);
+
 	}
 
 	/**

@@ -65,7 +65,7 @@ class CheckLatLong extends TableRuleAPI {
 	}
 
 	static get ConfigProperties() {
-		return [
+		return this.appendConfigProperties([
 			{
 				name: 'latitudeColumn',
 				label: 'Latitude Column',
@@ -84,22 +84,15 @@ class CheckLatLong extends TableRuleAPI {
 				type: 'float',
 				minimum: '0',
 				tooltip: 'The amount of error permitted around the null island test.'
-			},
-			{
-				name: 'reportAlways',
-				label: 'Report All Errors?',
-				type: 'boolean',
-				tooltip: 'Report all errors encountered or just the first.'
 			}
-		];
+		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return {
-			nullEpsilon: 0.01,
-			reportAlways: false
-		};
+		return this.appendDefaults({
+			nullEpsilon: 0.01
+		});
 	}
 }
 module.exports = CheckLatLong;

@@ -57,6 +57,51 @@ class BaseRuleAPI extends ErrorHandlerAPI {
     }
 
     /**
+     * Append config properties to a supplied list
+     * @param inProperties the list of properties to append to
+     * @returns {Array}
+     */
+    static appendConfigProperties(inProperties) {
+
+        const properties = [
+            {
+                name: 'errorsToAbort',
+                label: 'How many errors before abort on this rule?',
+                type: 'integer',
+                tooltip: 'Stop execution when these many errors occur.'
+            },
+            {
+                name: 'warningsToAbort',
+                label: 'How many warnings before abort on this rule?',
+                type: 'integer',
+                tooltip: 'Stop execution when these many warnings occur.'
+            }
+        ];
+
+        if(inProperties) {
+            return inProperties.concat(properties);
+        }
+
+        return [].concat(properties);
+    }
+
+    /**
+     * Append config defaults to a supplied list
+     * @param inDefaults the defaults to append to
+     * @returns {Object}
+     */
+    static appendDefaults(inDefaults) {
+
+        const defaults = {};
+
+        if(inDefaults) {
+            return Object.assign({}, inDefaults, defaults);
+        }
+
+        return defaults;
+    }
+
+    /**
      * The rule type.  Used by parser rules to determine if there is a match on the required type.
      * @returns {string}
      * @constructor
@@ -71,7 +116,7 @@ class BaseRuleAPI extends ErrorHandlerAPI {
      * @constructor
      */
     static get ConfigProperties() {
-        return [];
+        return this.appendConfigProperties();
     }
 
     /**
@@ -80,7 +125,7 @@ class BaseRuleAPI extends ErrorHandlerAPI {
      * @constructor
      */
     static get ConfigDefaults() {
-        return {};
+        return this.appendDefaults();
     }
 
 

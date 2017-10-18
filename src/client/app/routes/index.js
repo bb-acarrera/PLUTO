@@ -27,7 +27,10 @@ export default Ember.Route.extend(RouteMixin, {
     },
     dateFilter: {
       refreshModel: true
-    }
+    },
+      rulesetNameFilter: {
+          refreshModel: true
+      }
   },
   loadQueryParams(params){
     this.transitionTo({queryParams: params});
@@ -36,7 +39,8 @@ export default Ember.Route.extend(RouteMixin, {
     return RSVP.hash({
       rulesets: this.store.query('ruleset', {
         page: params.rulePage,
-        perPage: params.rulePerPage
+        perPage: params.rulePerPage,
+          rulesetFilter: params.rulesetNameFilter
       }).then(function (result) {
           let meta = result.get('meta');
           return { result: result, meta: meta};

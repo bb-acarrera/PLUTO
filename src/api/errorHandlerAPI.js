@@ -17,6 +17,37 @@ class ErrorHandlerAPI {
 	 */
 	constructor(localConfig) {
 		this.config = localConfig || {};
+
+		this.totals = {};
+		this.totals[ErrorHandlerAPI.ERROR] = 0;
+		this.totals[ErrorHandlerAPI.WARNING] = 0;
+		this.totals[ErrorHandlerAPI.INFO] = 0;
+
+		this.lastCheck = {};
+		this.lastCheck[ErrorHandlerAPI.ERROR] = 0;
+		this.lastCheck[ErrorHandlerAPI.WARNING] = 0;
+		this.lastCheck[ErrorHandlerAPI.INFO] = 0;
+	}
+
+	resetLastCheckCounts() {
+		Object.keys(this.lastCheck).forEach((key) => {
+			this.lastCheck[key] = 0;
+		})
+	}
+
+	lastCheckHadErrors() {
+		return this.lastCheck[ErrorHandlerAPI.ERROR] > 0;
+	}
+
+	updateCounts(level) {
+
+		if(!this.totals.hasOwnProperty(level)) {
+			this.lastCheck[level] = 1;
+			this.totals[level] = 1;
+		}
+
+		this.lastCheck[level] += 1;
+		this.totals[level] += 1;
 	}
 
 	/**
@@ -68,6 +99,9 @@ class ErrorHandlerAPI {
 			this.config.validator.log(level, problemFileName, ruleID, problemDescription, shouldAbort || false);
 		else if (this.config && this.config._debugLogger)
 			this.config._debugLogger.log(level, problemFileName, ruleID, problemDescription);
+
+		this.updateCounts(level);
+
 	}
 
 	/**
@@ -94,6 +128,8 @@ class ErrorHandlerAPI {
 	info(problemDescription) {
 		this.log(ErrorHandlerAPI.INFO, this.constructor.name, this.config.id, problemDescription);
 	}
+
+
 }
 
 module.exports = ErrorHandlerAPI;	// Export this so derived classes can extend it.

@@ -88,9 +88,11 @@ class RuleLoader {
 
     loadFromManifest(dir, item, type) {
 
+        let file;
+
         try {
 
-            let file = item.filename;
+            file = item.filename;
             let ruleFile;
 
             if(item.path) {
@@ -107,7 +109,7 @@ class RuleLoader {
 
                 this.classMap[file] = ruleClass;
 
-                var properties = this.getClassProperties(ruleClass);
+                var properties = RuleLoader.getClassProperties(ruleClass);
                 if(properties) {
 
                     return {
@@ -136,22 +138,32 @@ class RuleLoader {
         return null;
     }
 
-    getClassProperties(ruleClass) {
+    static getClassProperties(ruleClass) {
 
         if(ruleClass.ConfigProperties) {
             //do a deep clone
             let properties = JSON.parse(JSON.stringify(ruleClass.ConfigProperties));
 
-            if (ruleClass.ConfigDefaults) {
-                properties.forEach((prop) => {
-                    if (ruleClass.ConfigDefaults.hasOwnProperty(prop.name)) {
-                        prop.default = ruleClass.ConfigDefaults[prop.name];
-                    }
-                });
-            }
+            this.applyDefaults(properties, ruleClass.ConfigDefaults);
+
             return properties;
         }
         return null;
+    }
+
+    static applyDefaults(properties, configDefaults) {
+
+        if(!configDefaults) {
+            return;
+        }
+
+        properties.forEach((prop) => {
+            if (configDefaults.hasOwnProperty(prop.name)) {
+                prop.default = configDefaults[prop.name];
+            }
+        });
+
+        return properties;
     }
 }
 

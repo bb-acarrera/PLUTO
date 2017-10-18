@@ -13,7 +13,8 @@ export default Ember.Route.extend( {
             parsers: this.store.findAll( 'parser' ),
             rules: this.store.findAll( 'rule' ),
             importers: this.store.findAll( 'importer' ),
-            exporters: this.store.findAll( 'exporter' )
+            exporters: this.store.findAll( 'exporter' ),
+            rulesetconfiguis: this.store.findAll('rulesetconfigui')
         } );
     },
     actions: {
@@ -25,6 +26,6 @@ export default Ember.Route.extend( {
                 let pollId = this.controller.get( 'pollId' );
                 this.controller.get( 'poll' ).stopPoll( pollId );
             }
-        },
+        }
     }
 } );

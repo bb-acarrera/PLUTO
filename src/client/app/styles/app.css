@@ -154,3 +154,14 @@ div.footer {
   float: left;
   height: 63px;
 }
+
+.change-btn {
+  top: -3px;
+  position: relative;
+}
+
+.errors-btn {
+  float: right;
+  position: relative;
+  top: -27px;
+}

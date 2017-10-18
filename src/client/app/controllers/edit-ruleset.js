@@ -20,7 +20,8 @@ export default Ember.Controller.extend( {
         this.set( '_oldRuleToEdit', val );
 
         if ( oldval && val ) {
-            updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters );
+            updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers,
+              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
         }
     } ),
     ruleToEdit: null,
@@ -50,7 +51,8 @@ export default Ember.Controller.extend( {
           this.set("collapsed", !this.get("collapsed"));
         },
         saveRuleSet ( ruleset ) {
-            updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters );
+            updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
+              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
             save( ruleset );
         },
 
@@ -72,7 +74,8 @@ export default Ember.Controller.extend( {
         },
 
         updateRule ( ruleInstance ) {
-            updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters );
+            updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers,
+              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
         },
 
         moveRuleUp ( ruleset, index ) {
@@ -256,7 +259,7 @@ function deleteRule ( tableID, ruleset ) {
     }
 }
 
-function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters ) {
+function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters, rulesetconfiguis ) {
     if ( !ruleInstance )
         return;
 
@@ -267,7 +270,7 @@ function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporter
     }
 
 
-    const itemSets = [ rules, parsers, importers, exporters ];
+    const itemSets = [ rules, parsers, importers, exporters, rulesetconfiguis ];
     let items, uiConfig;
 
     for ( var i = 0; i < itemSets.length; i++ ) {
@@ -284,22 +287,25 @@ function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporter
     }
 
     // Get the properties.
-    uiConfig.properties.forEach( prop => {
+    if(uiConfig) {
+        uiConfig.properties.forEach( prop => {
             let element = document.getElementById( prop.name );
             if ( element ) {
-                var value = prop.type === 'boolean' ? element.checked : element.value;
-                if ( prop.type === "list" ) {
-                    var re = /\s*,\s*/;
-                    value = value.split( re );
-                }
-                if ( prop.type === "column" ) {
-                    value = $( element ).prop( 'selectedIndex' );
-                }
+              var value = prop.type === 'boolean' ? element.checked : element.value;
+              if ( prop.type === "list" ) {
+                var re = /\s*,\s*/;
+                value = value.split( re );
+              }
+              if ( prop.type === "column" ) {
+                value = Ember.$( element ).prop( 'selectedIndex' );
+              }
 
-                Ember.set( ruleInstance.config, prop.name, value );
+              Ember.set( ruleInstance.config, prop.name, value );
             }
-        }
-    );
+          }
+        );
+    }
+
 
     ruleset.notifyPropertyChange( "rules" );
 }
@@ -321,7 +327,7 @@ function deselectItems ( clearProperties, controller ) {
             item.classList.remove( 'selected' );
     }
 
-    const otherItems = [ 'parser', 'import', 'export' ];
+    const otherItems = [ 'parser', 'import', 'export', 'general' ];
 
     otherItems.forEach( item => {
         const parserElem = document.getElementById( item );

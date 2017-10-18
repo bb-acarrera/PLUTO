@@ -29,7 +29,7 @@ function addRuleset(controller, rulesetId, ruleset) {
 }
 
 export default Ember.Controller.extend({
-  queryParams: ["page", "perPage", "rulePage", "rulePerPage", "filenameFilter", "rulesetFilter", "showErrors", "showWarnings", "showNone", "dateFilter"],
+  queryParams: ["page", "perPage", "rulePage", "rulePerPage", "filenameFilter", "rulesetFilter", "showErrors", "showWarnings", "showNone", "dateFilter", "rulesetNameFilter"],
     ptarget: "default",
     showdialog: false,
     dialogtarget: "",
@@ -49,6 +49,7 @@ export default Ember.Controller.extend({
   showWarnings: true,
   showNone: true,
   dateFilter: '',
+    rulesetNameFilter: '',
 
   totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
   totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
