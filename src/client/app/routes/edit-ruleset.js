@@ -14,7 +14,7 @@ export default Ember.Route.extend( {
             rules: this.store.findAll( 'rule' ),
             importers: this.store.findAll( 'importer' ),
             exporters: this.store.findAll( 'exporter' ),
-            rulsetconfiguis: this.store.findAll('rulesetconfigui')
+            rulesetconfiguis: this.store.findAll('rulesetconfigui')
         } );
     },
     actions: {

@@ -21,7 +21,7 @@ export default Ember.Controller.extend( {
 
         if ( oldval && val ) {
             updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers,
-              this.model.importers, this.model.exporters, this.model.rulsetconfiguis );
+              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
         }
     } ),
     ruleToEdit: null,
@@ -52,7 +52,7 @@ export default Ember.Controller.extend( {
         },
         saveRuleSet ( ruleset ) {
             updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
-              this.model.importers, this.model.exporters, this.model.rulsetconfiguis );
+              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
             save( ruleset );
         },
 
@@ -75,7 +75,7 @@ export default Ember.Controller.extend( {
 
         updateRule ( ruleInstance ) {
             updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers,
-              this.model.importers, this.model.exporters, this.model.rulsetconfiguis );
+              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
         },
 
         moveRuleUp ( ruleset, index ) {
@@ -259,7 +259,7 @@ function deleteRule ( tableID, ruleset ) {
     }
 }
 
-function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters, rulsetconfiguis ) {
+function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters, rulesetconfiguis ) {
     if ( !ruleInstance )
         return;
 
@@ -270,7 +270,7 @@ function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporter
     }
 
 
-    const itemSets = [ rules, parsers, importers, exporters, rulsetconfiguis ];
+    const itemSets = [ rules, parsers, importers, exporters, rulesetconfiguis ];
     let items, uiConfig;
 
     for ( var i = 0; i < itemSets.length; i++ ) {
