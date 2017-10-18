@@ -402,6 +402,7 @@ class data {
 
                 dbRuleset.filename = ruleset_id;
                 dbRuleset.name = dbRuleset.name || ruleset_id;
+                dbRuleset.version = result.rows[0].version;
                 let ruleset = new RuleSet( dbRuleset );
 
                 if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
@@ -439,21 +440,29 @@ class data {
             let name = ruleset.filename;
 
             this.db.query(
-                updateTableNames("SELECT max(version) as version FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
+                updateTableNames("SELECT max(version) as version, max(id) as id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
                 [name])
                 .then((result) => {
                     let qry;
                     let version = 0;
+
                     if(result.rows.length > 0) {
+
+                        if(result.rows[0].version != ruleset.version) {
+                            reject('Cannot update old version');
+                            return;
+                        }
+
                         version = result.rows[0].version + 1;
+                        ruleset.version = version;
                     }
 
                     qry = this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
                             "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
                         [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset)]);
 
-                    qry.then(() => {
-                        resolve(name);
+                    qry.then((result) => {
+                        resolve(name, result.rows[0].id);
                     }, (error) => {
                         reject(error)
                     });

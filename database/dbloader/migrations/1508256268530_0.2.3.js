@@ -38,6 +38,8 @@ exports.up = (pgm) => {
     pgm.alterColumn('rulesets', 'name', textType);
     pgm.alterColumn('rulesets', 'rules', jsonbType);
 
+    pgm.addConstraint('rulesets', 'ruleset_id_version', 'UNIQUE (ruleset_id, version)');
+
     pgm.sql(viewSql);
 };
 
@@ -62,6 +64,8 @@ exports.down = (pgm) => {
     pgm.alterColumn('rulesets', 'ruleset_id', varcharType);
     pgm.alterColumn('rulesets', 'name', varcharType);
     pgm.alterColumn('rulesets', 'rules', jsonType);
+
+    pgm.dropConstraint('rulesets', 'ruleset_id_version', {ifExists:true});
 
     pgm.sql(viewSql);
 

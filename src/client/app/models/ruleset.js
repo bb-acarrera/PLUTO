@@ -10,5 +10,6 @@ export default DS.Model.extend({
     export : DS.attr(),
     config : DS.attr(),
     parser: DS.attr(),
-    general: DS.attr()
+    general: DS.attr(),
+    version: DS.attr('number')
 });
