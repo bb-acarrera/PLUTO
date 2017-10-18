@@ -141,14 +141,9 @@ function addRules(rules) {
 			dstRule.config.onError = this.general.config.onError;
 		}
 
-		if(dstRule.config.errorsToAbort == null) {
-			dstRule.config.errorsToAbort = this.general.config.singleRuleErrorsToAbort;
-		}
-
-		if(dstRule.config.warningsToAbort == null) {
-			dstRule.config.warningsToAbort = this.general.config.singleRuleWarningsToAbort;
-		}
-
+		dstRule.config.errorsToAbort = cleanNumber(dstRule.config.errorsToAbort, this.general.config.singleRuleErrorsToAbort);
+		dstRule.config.warningsToAbort = cleanNumber(dstRule.config.warningsToAbort, this.general.config.singleRuleWarningsToAbort);
+		
 		this.rules.push(dstRule);
 		this.ruleMap[dstRule.config.id] = dstRule;
 	}
@@ -169,10 +164,27 @@ function addGeneralConfig() {
 		config.onError = 'abort';
 	}
 
-	if(config.errorsToAbort == null) {
-		config.errorsToAbort = 1;
+	config.errorsToAbort = cleanNumber(config.errorsToAbort, 1);
+	config.warningsToAbort = cleanNumber(config.warningsToAbort);
+	config.singleRuleErrorsToAbort = cleanNumber(config.singleRuleErrorsToAbort);
+	config.singleRuleWarningsToAbort = cleanNumber(config.singleRuleWarningsToAbort);
+
+
+}
+
+function cleanNumber(value, defaultVal) {
+
+	let retVal = value;
+
+	if(typeof retVal === "string") {
+		retVal = parseInt(retVal);
 	}
 
+	if(retVal == null || isNaN(retVal)) {
+		retVal = defaultVal;
+	}
+
+	return retVal;
 }
 
 module.exports = RuleSet;
