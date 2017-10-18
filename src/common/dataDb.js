@@ -638,7 +638,7 @@ function updateTableNames ( query, tableNames ) {
 
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
-        "num_errors, num_warnings, starttime, {{rulesets}}.version " +
+        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
 }
@@ -658,7 +658,8 @@ function getRunResult(row) {
         errorcount: row.num_errors,
         warningcount: row.num_warnings,
         isrunning: isRunning,
-        version: row.version
+        version: row.version,
+        deleted: row.deleted
     };
 }
 
