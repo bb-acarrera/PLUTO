@@ -33,19 +33,21 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, i
     columnLabels = parser.config.columnNames;
   }
 
+  let name = ruleInstance.name || ruleInstance.filename;
+  if(name) {
+    content += `<div>Name <input id="name" type="text" value="${name}"/></div><br/>`;
+  }
+
+
   if (ruleInstance && uiConfig && uiConfig.properties) {
     // Place the name prompt at the top, always.
-    let name = ruleInstance.name || ruleInstance.filename;
-    content += `<div>Name <input id="name" type="text" value="${name}"/></div><br/>`;
+
     content += addProperties(ruleInstance, uiConfig.properties, columnLabels);
   }
   else if (ruleInstance && ruleInstance.config) {
     // If there is no UI do the best we can.
     // Place the name prompt at the top, always.
-    let name = ruleInstance.name || ruleInstance.filename;
-    content += `<div>Name <input id="Name" type="text" value="${name}"/></div><br/>`;
-
-    for (var key in ruleInstance.config) {
+   for (var key in ruleInstance.config) {
       // if (key != 'name')
         content += `<div>${key} <input id="${key}" type="text" value="${ruleInstance.config[key]}"/></div>`;
     }
