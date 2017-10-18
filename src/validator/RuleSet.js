@@ -143,7 +143,7 @@ function addRules(rules) {
 
 		dstRule.config.errorsToAbort = cleanNumber(dstRule.config.errorsToAbort, this.general.config.singleRuleErrorsToAbort);
 		dstRule.config.warningsToAbort = cleanNumber(dstRule.config.warningsToAbort, this.general.config.singleRuleWarningsToAbort);
-		
+
 		this.rules.push(dstRule);
 		this.ruleMap[dstRule.config.id] = dstRule;
 	}

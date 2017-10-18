@@ -159,7 +159,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 2, "Expect two results.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-		assert.equal(logResults[0].description, "Row 1 has too few of columns. Got 1.");
+		assert.equal(logResults[0].description, "Row 1 has too few columns. Got 1.");
 		done();
 	});
 });
@@ -184,7 +184,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-		assert.equal(logResults[0].description, "Row 2 has too many of columns. Got 2.");
+		assert.equal(logResults[0].description, "Row 2 has too many columns. Got 2.");
 		done();
 	});
 });

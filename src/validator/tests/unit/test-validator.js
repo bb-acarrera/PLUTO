@@ -194,7 +194,7 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Warning", "Expected a warning");
-            assert.equal(log[0].description, "Row 1 has too many of columns. Got 9.", 'Expected "Row 1 has too many of columns. Got 9."');
+            assert.equal(log[0].description, "Row 1 has too many columns. Got 9.", 'Expected "Row 1 has too many columns. Got 9."');
         },
         done);
 

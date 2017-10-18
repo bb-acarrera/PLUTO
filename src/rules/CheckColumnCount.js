@@ -29,9 +29,9 @@ class CheckColumnCount extends TableRuleAPI {
 
 		if (this.columns !== undefined) {
 			if (record.length < this.columns) {
-				this.error(`Row ${rowId} has too few of columns. Got ${record.length}.`);
+				this.error(`Row ${rowId} has too few columns. Got ${record.length}.`);
 			} else if(record.length > this.columns) {
-				this.warning(`Row ${rowId} has too many of columns. Got ${record.length}.`)
+				this.warning(`Row ${rowId} has too many columns. Got ${record.length}.`)
 			}
 		}
 
