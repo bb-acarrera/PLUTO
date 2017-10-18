@@ -77,8 +77,6 @@ class Configure {
 
                 child_process.exec(spawnExec, (error, stdout, stderr) => {
 
-                    fs.unlinkSync('dbconfig.json');
-
                     if(error) {
                         console.log('Error getting npm bin: ' + error);
                         console.log(stderr);

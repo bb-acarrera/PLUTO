@@ -84,14 +84,14 @@ To run the validator manually:
 
 ```shell
 cd src
-node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -v $PWD/runtime/rulesets/override.json"
+node validator/validator.js -r CheckDataRulesetConfig -c $PWD/runtime/configs/validatorConfig.json -v $PWD/runtime/rulesets/override.json"
 ```
 
 or
 
 ```shell
 cd src
-node validator/validator.js -r CheckDataRulesetConfig.json -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
+node validator/validator.js -r CheckDataRulesetConfig -c $PWD/runtime/configs/validatorConfig.json -i examples/data/simplemaps-worldcities-basic.csv -o ../results/simplemaps-worldcities-basic.csv.out
 ```
 
 ## Changing the database schema
@@ -116,7 +116,7 @@ which should create dbconfig.json in that folder. To test out the migration:
 To create a new migration script:
 
 ```
-pg-migrate create your-new-migration -f dbconfig.json
+../../node_modules/.bin/pg-migrate create your-new-migration
 ```
 
 which will place the script in the database/dbloader/migrations folder.  Follow the docs on how to create new migrations.
