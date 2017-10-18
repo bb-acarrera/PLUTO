@@ -20,7 +20,8 @@ export default Ember.Controller.extend( {
         this.set( '_oldRuleToEdit', val );
 
         if ( oldval && val ) {
-            updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters );
+            updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers,
+              this.model.importers, this.model.exporters, this.model.rulsetconfiguis );
         }
     } ),
     ruleToEdit: null,
@@ -50,7 +51,8 @@ export default Ember.Controller.extend( {
           this.set("collapsed", !this.get("collapsed"));
         },
         saveRuleSet ( ruleset ) {
-            updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters );
+            updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
+              this.model.importers, this.model.exporters, this.model.rulsetconfiguis );
             save( ruleset );
         },
 
@@ -72,7 +74,8 @@ export default Ember.Controller.extend( {
         },
 
         updateRule ( ruleInstance ) {
-            updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers, this.model.importers, this.model.exporters );
+            updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers,
+              this.model.importers, this.model.exporters, this.model.rulsetconfiguis );
         },
 
         moveRuleUp ( ruleset, index ) {
@@ -256,7 +259,7 @@ function deleteRule ( tableID, ruleset ) {
     }
 }
 
-function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters ) {
+function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters, rulsetconfiguis ) {
     if ( !ruleInstance )
         return;
 
@@ -267,7 +270,7 @@ function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporter
     }
 
 
-    const itemSets = [ rules, parsers, importers, exporters ];
+    const itemSets = [ rules, parsers, importers, exporters, rulsetconfiguis ];
     let items, uiConfig;
 
     for ( var i = 0; i < itemSets.length; i++ ) {
