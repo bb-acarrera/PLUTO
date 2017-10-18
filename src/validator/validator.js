@@ -707,7 +707,7 @@ class Validator {
 		return pluginClass;
 	}
 
-	abortRun() {
+	abortRun(reason) {
 
 		if(this.abort) {
 			return;
@@ -719,13 +719,13 @@ class Validator {
 			this.sharedData.abort = true;
 		}
 
-		this.error('Aborting');
+		this.error('Aborting: ' + reason);
 	}
 
-	shouldAbort(ruleID) {
+	checkAbort(ruleID) {
 
 		if(this.abort) {
-			return false;
+			return;
 		}
 
 		let errorsToAbort = 1;
@@ -739,33 +739,41 @@ class Validator {
 			errorsToAbort = errorConfig.errorsToAbort;
 		}
 
-		if(this.logger.getCount(ErrorHandlerAPI.ERROR) >= errorsToAbort) {
-			return true;
+		if(errorsToAbort && errorsToAbort > 0 && this.logger.getCount(ErrorHandlerAPI.ERROR) >= errorsToAbort) {
+			this.abortRun('Too many total errors. Got ' +
+				this.logger.getCount(ErrorHandlerAPI.ERROR) + ' limit was ' + errorsToAbort);
+			return;
 		}
 
 		if(errorConfig) {
 
-			if (errorConfig.warningsToAbort &&
+			if (errorConfig.warningsToAbort && errorConfig.warningsToAbort > 0 &&
 				this.logger.getCount(ErrorHandlerAPI.WARNING) >= errorConfig.warningsToAbort) {
-				return true;
+				this.abortRun('Too many total warnings. Got ' +
+					this.logger.getCount(ErrorHandlerAPI.WARNING) + ' limit was ' + errorConfig.warningsToAbort);
+				return;
 			}
 		}
 
 		if (this.currentRuleset && ruleID) {
 			let rule = this.currentRuleset.getRuleById(ruleID);
 			if (rule && rule.config) {
-				if (rule.config.errorsToAbort && this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
-					return true;
+				if (rule.config.errorsToAbort && rule.config.errorsToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
+					this.abortRun('Too many errors for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) + ' limit was ' + rule.config.errorsToAbort);
+					return;
 				}
 
-				if (rule.config.warningsToAbort && this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
-					return true;
+				if (rule.config.warningsToAbort && rule.config.warningsToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
+					this.abortRun('Too many warnings for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) + ' limit was ' + rule.config.warningsToAbort);
 				}
 			}
 
 		}
 
-		return false;
 	}
 
 	/**
@@ -790,9 +798,8 @@ class Validator {
 			console.log(level + ": " + dateStr + ": " + problemFileName + ": " + problemDescription);
 		}
 
-		if(this.shouldAbort(ruleID)) {
-			this.abortRun();
-		}
+		this.checkAbort(ruleID);
+
 	}
 
 	/**
