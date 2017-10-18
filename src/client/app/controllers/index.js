@@ -1,8 +1,8 @@
 import Ember from 'ember';
 
 function addRuleset(controller, rulesetId, ruleset) {
-  if(rulesetId === "unregistered") {
-      alert(`unregistered is a reserved name. Please choose a different one.`);
+  if(rulesetId === "_run_") {
+      alert(`_run_ is a reserved name. Please choose a different one.`);
       return;
   }
 
@@ -52,7 +52,6 @@ export default Ember.Controller.extend({
 
   totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
   totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
-
 
   actions: {
     decPage() {
