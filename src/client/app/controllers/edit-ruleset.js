@@ -53,7 +53,7 @@ export default Ember.Controller.extend( {
         saveRuleSet ( ruleset ) {
             updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
               this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
-            save( ruleset );
+            save( ruleset, this );
         },
 
         showAddRule () {
@@ -173,13 +173,14 @@ export default Ember.Controller.extend( {
     }
 } );
 
-function save ( ruleset ) {
+function save ( ruleset, controller ) {
     var name = document.getElementById( "rulesetName" ).value;
     ruleset.set( "name", name );
 
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ) {
+            window.location.reload(true);
             alert( "Successfully saved." );
         }
         else if ( xmlHttp.readyState == 4 ) {

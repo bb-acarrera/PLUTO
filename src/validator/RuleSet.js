@@ -19,6 +19,8 @@ class RuleSet {
 		// all rulesets.
 		this.id = ruleset.database_id != undefined ? ruleset.database_id : ruleset.id || this._filename || this.name;	// Yes, the database_id should take precedence over "id". "id" is set by Ember.
 
+		this.version = ruleset.version;
+
 		this.import = ruleset.import;
 		this.export = ruleset.export;
 		this.parser = ruleset.parser;
