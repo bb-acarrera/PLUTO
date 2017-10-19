@@ -12,7 +12,7 @@ docker volume create pgdata
 docker run -v pgdata:/var/lib/postgresql/data -p 5432:5432 -e POSTGRES_PASSWORD=password -e POSTGRES_USER=pluto -e POSTGRES_DB=pluto --net=plutonet --name pluto_db -d postgres:9.6-alpine
 
 #configure the database
-docker run -v $PWD/test_config:/opt/PLUTO/config --net=plutonet --rm -a stdout -a stderr pluto_dbloader
+docker run -v $PWD/sample_config:/opt/PLUTO/config --net=plutonet --rm -a stdout -a stderr pluto_dbloader
 
 #start the pluto server, using the sample_config as the config folder
 docker run -v $PWD/sample_config:/opt/PLUTO/config -p 3000:3000 --net=plutonet --name pluto_server -d pluto
