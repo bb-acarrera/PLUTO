@@ -2,6 +2,9 @@
 
 echo This must be run from the root pluto folder where this shell script resides
 
+docker stop pluto_server
+docker rm pluto_server
+
 #create a bridge network so the server can talk to the db
 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 plutonet
 
