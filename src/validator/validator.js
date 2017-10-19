@@ -589,10 +589,10 @@ class Validator {
 			const exporterName = exportConfig.filename || exportConfig.scriptPath;
 
 			if (!filename) {
-				this.warning(`Exporter ${exporterName} failed: no filename specified.`);
+				this.warning(`Exporter ${exporterName}: no filename specified.`);
 			}
 			else if(!fs.existsSync(filename)) {
-				this.warning(`Exporter ${exporterName} failed: ${filename} does not exist.`);
+				this.warning(`Exporter ${exporterName}: ${filename} does not exist.`);
 			}
 
 			var exporterClass = this.loadExporter(exportConfig);
