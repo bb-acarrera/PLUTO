@@ -547,8 +547,10 @@ class Validator {
 		return new Promise((resolve, reject) => {
 			var importerClass = this.loadImporter(importConfig);
 
+			const importerName = importConfig.filename || importConfig.scriptPath;
+
 			if(!importerClass) {
-				reject("Could not find importer " + importConfig.scriptPath);
+				reject("Could not find importer " + importerName );
 				return;
 			}
 
@@ -556,7 +558,7 @@ class Validator {
 			let importer = new importerClass(importConfig.config);
 
 			if(!importer.importFile) {
-				reject("Importer " + importConfig.scriptPath + " does not have importFile method");
+				reject("Importer " + importerName + " does not have importFile method");
 				return;
 			}
 
@@ -565,10 +567,10 @@ class Validator {
 					validator.encoding = importConfig.config.encoding || 'utf8';
 					resolve(displayInputFileName);
 				}, error => {
-					reject("Importer " + importConfig.scriptPath + " failed: " + error);
+					reject("Importer " + importerName + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Importer" + importConfig.scriptPath + " fail unexpectedly: " + e);
+					reject("Importer" + importerName + " fail unexpectedly: " + e);
 				});
 		});
 	}
@@ -584,19 +586,19 @@ class Validator {
 	exportFile(exportConfig, filename, runId) {
 		return new Promise((resolve, reject) => {
 
+			const exporterName = exportConfig.filename || exportConfig.scriptPath;
+
 			if (!filename) {
-				reject(`Exporter ${exportConfig.scriptPath} failed: no filename specified.`);
-				return;
+				this.warning(`Exporter ${exporterName} failed: no filename specified.`);
 			}
 			else if(!fs.existsSync(filename)) {
-				reject(`Exporter ${exportConfig.scriptPath} failed: ${filename} does not exist.`);
-				return;
+				this.warning(`Exporter ${exporterName} failed: ${filename} does not exist.`);
 			}
 
 			var exporterClass = this.loadExporter(exportConfig);
 
 			if(!exporterClass) {
-				reject("Could not find exporter " + exportConfig.scriptPath);
+				reject("Could not find exporter " + exporterName);
 				return;
 			}
 
@@ -604,17 +606,17 @@ class Validator {
 			let exporter = new exporterClass(exportConfig.config);
 
 			if(!exporter.exportFile) {
-				reject("Exporter " + exportConfig.scriptPath + " does not have exportFile method");
+				reject("Exporter " + exporterName + " does not have exportFile method");
 				return;
 			}
 
 			exporter.exportFile(filename, runId, this.logger.getLog()).then(function() {
 					resolve();
 				}, error => {
-					reject("Exporter " + exportConfig.scriptPath + " failed: " + error);
+					reject("Exporter " + exporterName + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Exporter" + exportConfig.scriptPath + " fail unexpectedly: " + e);
+					reject("Exporter" + exporterName + " fail unexpectedly: " + e);
 				});
 
 		});
