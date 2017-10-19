@@ -49,10 +49,20 @@ export default Ember.Controller.extend({
   showWarnings: true,
   showNone: true,
   dateFilter: '',
-    rulesetNameFilter: '',
+  rulesetNameFilter: '',
 
   totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
   totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
+
+  runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter', 'filenameFilter', 'dateFilter',
+    function() {
+      this.set('page', 1);
+  }),
+
+  rulesetFilterChanged: Ember.observer('rulesetNameFilter',
+    function() {
+      this.set('rulePage', 1);
+    }),
 
   actions: {
     decPage() {
