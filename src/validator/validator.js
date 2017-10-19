@@ -104,14 +104,14 @@ class Validator {
 						this.error(error);
 						this.finishRun();
 					}).catch((e) => {
-					if(!e.message){
-						this.error(e);
+						if(!e.message){
+							this.error(e);
+						}
+						else {
+							this.error(e.message);
+						}
+						this.finishRun();
 					}
-					else {
-						this.error(e.message);
-					}
-					this.finishRun();
-				}
 			);
 		}, (error) => {
 			console.log("Error creating run record: " + error);
@@ -332,67 +332,77 @@ class Validator {
 	 * @private
 	 */
 	finishRun(results) {
-		if (!this.running)
-			return;
 
-		this.running = false;
-		if(!this.inputFileName){
-			this.inputFileName = "";
-		}
-
-		if(!results) {
-			console.error("No results");
-			this.error("No results were produced.");
-		}
-
-		if(this.outputFileName) {
-
-			if(results) {
-				this.saveResults(results);
+		return new Promise((resolve) => {
+			if (!this.running) {
+				resolve();
+				return;
 			}
-			this.finalize();
 
-		} else if(this.currentRuleset && this.currentRuleset.export) {
-			var resultsFile = null;
-
-			if (results && results.file)
-				resultsFile = results.file;
-			else if (results && results.stream) {
-				resultsFile = this.getTempName();
-				this.putFile(results.stream, resultsFile, this.encoding);
+			this.running = false;
+			if(!this.inputFileName){
+				this.inputFileName = "";
 			}
-			else if (results && results.data) {
-				resultsFile = this.getTempName();
-				this.saveFile(results.data, resultsFile, this.encoding);
+
+			if(!results) {
+				console.error("No results");
+				this.error("No results were produced.");
 			}
-			else if(results)
-				this.error("Unrecognized results structure.");
 
-			this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
-				.then(() => {},
+			if(this.outputFileName) {
 
-					(error) => {
-						this.error("Export failed: " + error)	;
+				if(results) {
+					this.saveResults(results);
+				}
+				this.finalize().then(() => resolve());
+
+			} else if(this.currentRuleset && this.currentRuleset.export) {
+				var resultsFile = null;
+
+				if (results && results.file)
+					resultsFile = results.file;
+				else if (results && results.stream) {
+					resultsFile = this.getTempName();
+					this.putFile(results.stream, resultsFile, this.encoding);
+				}
+				else if (results && results.data) {
+					resultsFile = this.getTempName();
+					this.saveFile(results.data, resultsFile, this.encoding);
+				}
+				else if(results)
+					this.error("Unrecognized results structure.");
+
+				this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
+					.then(() => {},
+
+						(error) => {
+							this.error("Export failed: " + error)	;
+						})
+					.catch((e) => {
+						this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 					})
-				.catch((e) => {
-					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
-				})
-				.then(() => {
-					this.finalize();
-				});
-		} else {
-			this.warning("No output method specified");
-			this.finalize();
-		}
-
+					.then(() => {
+						this.finalize().then(() => resolve());
+					});
+			} else {
+				this.warning("No output method specified");
+				this.finalize().then(() => resolve());
+			}
+		});
 	}
 
 	finalize() {
-		this.data.saveRunRecord(this.runId, this.logger.getLog(),
-			this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
-			.then(() => {}, (error) => console.log('error saving run: ' + error))
-			.catch((e) => console.log('Exception saving run: ' + e))
-			.then(() => this.cleanup());
+		return new Promise((resolve) => {
+			this.data.saveRunRecord(this.runId, this.logger.getLog(),
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+				.then(() => {}, (error) => console.log('error saving run: ' + error))
+				.catch((e) => console.log('Exception saving run: ' + e))
+				.then(() => {
+					this.cleanup();
+					resolve();
+				});
+		});
+
 
 	}
 

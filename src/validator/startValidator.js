@@ -77,6 +77,7 @@ let inputDisplayName = program.inputname;
 //config.scriptName = scriptName;
 const validator = new Validator(config, dataAccess);
 
+
 process.on('uncaughtException', (err) => {
         // Caught an uncaught exception so something went extraordinarily wrong.
         // Log the error and then give up. Do not attempt to write the output file because we have no idea
@@ -100,13 +101,19 @@ process.on('uncaughtException', (err) => {
         console.log("Exiting with unspecified error.");
     }
 
-    validator.finishRun();	// Write the log.
-    process.exit(1);	// Quit.
+    validator.finishRun()	// Write the log.
+        .then(() => {
+            process.exit(1);	// Quit.
+        });
+
 }).on('unhandledRejection', (reason, p) => {
     console.error(reason, 'Unhandled Rejection at Promise', p);
 
-    // validator.finishRun();	// Write the log.
-    process.exit(1);	// Quit.
+    validator.finishRun()	// Write the log.
+        .then(() => {
+            process.exit(1);	// Quit.
+        });
+
 });
 
 try {
