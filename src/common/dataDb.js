@@ -446,7 +446,7 @@ class data {
                     let qry;
                     let version = 0;
 
-                    if(result.rows.length > 0) {
+                    if(result.rows.length > 0 && result.rows[0].version != null) {
 
                         if(result.rows[0].version != ruleset.version) {
                             reject('Cannot update old version');
@@ -454,8 +454,9 @@ class data {
                         }
 
                         version = result.rows[0].version + 1;
-                        ruleset.version = version;
                     }
+
+                    ruleset.version = version;
 
                     qry = this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
                             "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
