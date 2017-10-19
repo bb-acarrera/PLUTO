@@ -5,18 +5,19 @@
 			{
 				"filename" : "RunPythonScript",
 				"config" : {
+					"id" : 1,
 					"pythonScript" : "../test_config/copy.py"
 				}
 			}
 		],
 		"import" : {
-			"scriptPath": "./runtime/rules/LocalCopyImport",
+			"filename": "LocalCopyImport",
 			"config": {
 				"file": "./examples/data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"scriptPath": "./runtime/rules/LocalCopyExport",
+			"filename": "LocalCopyExport",
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
 			}

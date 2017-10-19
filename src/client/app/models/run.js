@@ -6,5 +6,10 @@ export default DS.Model.extend({
   inputfilename : DS.attr('string'),
   outputfilename : DS.attr('string'),
   log: DS.attr('string'),
-  time: DS.attr('date')
+  time: DS.attr('date'),
+  starttime: DS.attr('date'),
+  errorcount: DS.attr('number'),
+  warningcount: DS.attr('number'),
+  isrunning: DS.attr('boolean'),
+  version: DS.attr('number')
 });

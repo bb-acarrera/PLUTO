@@ -2,9 +2,37 @@ const path = require('path');
 const fs = require('fs');
 const util = require('util');
 
+
+function updateSummaries(log, level, ruleID, problemDescription) {
+
+	if(!log.counts.hasOwnProperty(level)) {
+		log.counts[level] = 1;
+	} else {
+		log.counts[level] += 1;
+	}
+
+	if(!log.rules.hasOwnProperty(ruleID)) {
+		log.rules[ruleID] = {
+			counts: {}
+		};
+	}
+
+	const rule = log.rules[ruleID];
+
+	if(!rule.counts.hasOwnProperty(level)) {
+		rule.counts[level] = 1;
+	} else {
+		rule.counts[level] += 1;
+	}
+
+
+}
+
 class ErrorLogger {
 	constructor() {
 		this.reports = [];
+		this.counts = {};
+		this.rules = {};
 	}
 
 	/*
@@ -26,6 +54,8 @@ class ErrorLogger {
 		const report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription };
 		this.reports.push(report);
 
+		updateSummaries(this, level, ruleID, problemDescription);
+
 		//console.log(util.inspect(report, {showHidden: false, depth: null}))
 	}
 
@@ -34,6 +64,44 @@ class ErrorLogger {
 	 */
 	getLog() {
 		return this.reports;
+	}
+
+	/**
+	 * Get the counts of report types
+	 */
+	getCounts() {
+		return this.counts;
+	}
+
+	/**
+	 * Get the counts of report types for a given rule
+	 */
+	getRuleCounts(ruleID) {
+
+		let rule = this.rules[ruleID];
+
+		if(rule) {
+			return rule.counts;
+		}
+
+		return null;
+	}
+
+	getCount(level, ruleID) {
+
+		let counts = null;
+
+		if(ruleID == null) {
+			counts = this.getCounts();
+		} else {
+			counts = this.getRuleCounts(ruleID);
+		}
+
+		if(!counts || !counts[level]) {
+			return 0;
+		}
+
+		return counts[level];
 	}
 }
 

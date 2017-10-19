@@ -13,36 +13,81 @@ class RunsRouter extends BaseRouter {
         // that these two root directories are the same.
 
         if(req.params.id) {
-            const runInfo = this.config.data.getRun(req.params.id);
-            if (!runInfo)
-                return next(new Error(`Unable to retrieve the run '${req.params.id}'.`));
-
-
-            res.json({
-                data:  {
-                    id: req.params.id,
-                    type: 'run',
-                    attributes: runInfo
+            this.config.data.getRun(req.params.id).then((runInfo) => {
+                if (!runInfo)
+                {
+                    res.status(404).send(`Unable to retrieve the run '${req.params.id}'.`);
+                    return;
                 }
-            });
+
+                res.json({
+                    data:  {
+                        id: req.params.id,
+                        type: 'run',
+                        attributes: runInfo
+                    }
+                });
+            }, (error) => {
+                next(error);
+            })
+                .catch(next);
+
         } else {
-            const runs = this.config.data.getRuns();
-            var data = [];
 
-            runs.forEach(runId => {
-                const runInfo = this.config.data.getRun(runId);
-                //var run = Object.assign({id: runId}, runInfo);
-                var run = {
-                    id: runId,
-                    type: 'run',
-                    attributes: runInfo
-                };
-                data.push(run);
-            });
+            let page = parseInt(req.query.page, 10);
+            let size = parseInt(req.query.perPage, 10);
+            let rulesetFilter = req.query.rulesetFilter;
+            let filenameFilter = req.query.filenameFilter;
+            let showErrors = JSON.parse(req.query.errorFilter || true);
+            let showWarnings = JSON.parse(req.query.warningsFilter || true);
+            let showNone = JSON.parse(req.query.noneFilter || true);
+            let dateFilter = null;
 
-            res.json({
-                data: data
-            });
+            if(req.query.dateFilter && req.query.dateFilter.length > 0) {
+                let time = Date.parse(req.query.dateFilter);
+                if(!isNaN(time)) {
+                    dateFilter = new Date(time);
+                }
+            }
+
+
+
+            if(isNaN(page)) {
+                page = 1;
+            }
+
+            if(isNaN(size)) {
+                size = 0;
+            }
+
+          this.config.data.getRuns(page, size, {
+            rulesetFilter: rulesetFilter,
+            filenameFilter: filenameFilter,
+            showErrors: showErrors,
+            showWarnings: showWarnings,
+            showNone: showNone,
+            dateFilter: dateFilter
+          }).then((result) => {
+              var data = [];
+
+              result.runs.forEach(runInfo => {
+                    var run = {
+                        id: runInfo.id,
+                        type: 'run',
+                        attributes: runInfo
+                    };
+                    data.push(run);
+                });
+
+
+
+                res.json({
+                    data: data,
+                    meta: { rowCount: result.rowCount, totalPages: result.pageCount}
+                });
+            }, next)
+                .catch(next);
+
         }
 
 

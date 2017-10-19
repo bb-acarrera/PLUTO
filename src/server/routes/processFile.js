@@ -6,6 +6,7 @@ const fs = require('fs-extra');
 const path = require("path");
 
 
+
 /*
 example request
 {
@@ -31,6 +32,9 @@ class ProcessFileRouter extends BaseRouter {
         console.log('got processFile request');
 
         let ruleset = req.body.ruleset;
+        let inputFile = req.body.input;
+        let outputFile = req.body.output;
+        let importConfig = req.body.import;
 
         if(!ruleset) {
             res.json({
@@ -39,63 +43,152 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
-        //if(!ruleset.endsWith('.json')) {
-        //    ruleset = ruleset + '.json';
-        //}
+        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res));
+    }
 
-        let overrideFile = null;
+    processUpload(req, res, next) {
+        if (!req.files)
+            return res.status(400).send('No files were uploaded.');
+
+        // The name of the input field is used to retrieve the uploaded file
+        let file = req.files.file;
+
+        let fileToProcess = this.getTempName(this.config);
+        let ruleset = req.body.ruleset;
+        let outputFile = this.getTempName(this.config);
+
+        if(!ruleset) {
+            res.json({
+                processing: 'Failed to start: no rule specified'
+            });
+            return;
+        }
+
+        // Use the mv() method to place the file somewhere on your server
+        file.mv(fileToProcess, err => {
+            if (err)
+                return res.status(500).send(err);
+
+            this.generateResponse(res, ruleset,
+                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, () => {
+
+                    fs.unlink(fileToProcess);
+
+                    if (fs.existsSync(outputFile)) {
+                        fs.unlink(outputFile);
+                    }
+                })
+            );
 
 
-        new Promise((resolve) => {
+        });
+    }
 
+    generateResponse(res, ruleset, processFilePromise) {
+        processFilePromise.then((runId) => {
+            res.json({
+                status: "Started",
+                ruleset: ruleset,
+                runId: runId
+            })
+        }, (err) => {
+            res.json({
+                status: 'Failed to start: ' + err,
+                ruleset: ruleset,
+                runId: null
+            });
+        }).catch((e) => {
+            res.json({
+                status: 'Failed to start: ' + e,
+                ruleset: ruleset,
+                runId: null
+            });
+        });
+    }
 
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, finishedFn) {
+        return new Promise((resolve, reject) => {
 
-            if(req.body.import) {
+            var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
+            var spawnCmd = 'node';
+            var spawnArgs = ['validator/startValidator.js', '-r', ruleset, '-c', this.config.validatorConfigPath];
+            let overrideFile = null;
+
+            if (importConfig) {
                 overrideFile = this.getTempName(this.config) + '.json';
-                fs.writeFileSync(overrideFile, JSON.stringify({ import: req.body.import }), 'utf-8');
+                fs.writeFileSync(overrideFile, JSON.stringify({import: importConfig}), 'utf-8');
+                execCmd += ' -v "' + overrideFile + '"';
+                spawnArgs.push('-v');
+                spawnArgs.push(overrideFile);
+            } else {
+                execCmd += ' -i "' + inputFile + '" -o "' + outputFile + '"';
+                spawnArgs.push('-i');
+                spawnArgs.push(inputFile);
+                spawnArgs.push('-o');
+                spawnArgs.push(outputFile);
+
+                if(inputDisplayName) {
+                    execCmd += ' -n ' + inputDisplayName;
+
+                    spawnArgs.push('-n');
+                    spawnArgs.push(inputDisplayName);
+                }
             }
 
             const options = {
                 cwd: path.resolve('.')
             };
 
-            var cmd = 'node validator/validator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
-            if(overrideFile) {
-                cmd += ' -v "' + overrideFile + '"';
-            }
+            console.log('exec cmd: ' + execCmd);
 
-            console.log('exec cmd: ' + cmd);
 
-            child_process.exec(cmd, options, (error, stdout, stderr) => {
+            let proc = child_process.spawn(spawnCmd, spawnArgs, options);
+
+            proc.on('error', (err) => {
+                console.log("spawn error: " + err);
 
                 if(overrideFile) {
                     fs.unlink(overrideFile);
                 }
 
-                if (error) {
-                    console.error(`exec error: ${error}`);
-                    return;
+                if(finishedFn) {
+                    finishedFn();
                 }
-                console.log(`stdout: ${stdout}`);
-                console.log(`stderr: ${stderr}`);
+
+                reject(err);
             });
 
-            res.json({
-                processing: 'started ' + req.body.ruleset
+            proc.stdout.on('data', (data) => {
+                let str = data.toString();
+                console.log('stdout: ' + str);
+
+                if(str.startsWith('runId:')) {
+                    resolve(str.substr(6).trim());
+                }
             });
 
-            resolve();
-        }).catch((e) => {
-            res.json({
-                processing: 'Failed to start: ' + e
+            proc.stderr.on('data', (data) => {
+                console.log('stderr: ' + data.toString());
             });
-        }).then(() => {
-            //do cleanup
-        });
 
+            proc.on('exit', (code) => {
+                console.log('child process exited with code ' + code.toString());
 
+                if(overrideFile) {
+                    fs.unlink(overrideFile);
+                }
 
+                if(finishedFn) {
+                    finishedFn();
+                }
+
+                resolve();
+            });
+
+        })
     }
+
+
 
     // Create a unique temporary filename in the temp directory.
     getTempName(config) {

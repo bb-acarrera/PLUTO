@@ -1,16 +1,20 @@
 {
   "name": "pluto",
-  "version": "0.0.1",
+  "version": "0.2.3",
   "description": "A data validation framework.",
   "main": "server.js",
   "scripts": {
     "test": "sh build/bin/runUnitTests.sh",
-    "docker_build" : "docker build -t pluto:develop ./Release",
-    "docker_run" : "docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -d pluto:develop",
-    "docker_run_bash": "docker run -v $PWD/test_config:/opt/PLUTO/config -p 3000:3000 -ti pluto:develop /bin/sh",
+    "docker_build": "docker build -t pluto:develop ./Release/server",
+    "docker_run_bash": "sh startPlutoInteractive.sh",
     "docker_save": "docker save --output pluto.image.tar pluto:develop",
-    "build" : "sh build/bin/testDeploy.sh",
-    "build_docs" : "sh build/bin/buildDocs.sh"
+    "build": "sh build/bin/build.sh",
+    "start_docker": "sh startPluto.sh",
+    "start_devdb": "sh src/start_dev_db.sh",
+    "clean_devdb": "sh src/clean_dev_db.sh",
+    "build_docs": "sh build/bin/buildDocs.sh",
+    "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets",
+    "tag_images": "sh build/bin/tagImages.sh"
   },
   "repository": {
     "type": "git",
@@ -27,12 +31,19 @@
     "commander": "^2.9.0",
     "csv": "^1.1.1",
     "express": "^4.15.2",
+    "express-fileupload": "^0.2.0",
     "fs-extra": "^3.0.1",
+    "moment": "^2.18.1",
+    "pg": "^7.0",
     "rimraf": "^2.6.1",
     "stream-to-promise": "^2.2.0"
   },
   "devDependencies": {
     "jsdoc": "^3.4.3",
-    "qunitjs": "^2.3.2"
+    "karma": "^1.7.0",
+    "karma-qunit": "^1.2.1",
+    "node-pg-migrate": "^2.11.1",
+    "qunitjs": "^2.3.2",
+    "supervisor": "^0.12.0"
   }
 }

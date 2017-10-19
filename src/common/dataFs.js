@@ -13,7 +13,7 @@ class data {
         if (this.config.rulesetDirectory)
             this.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
         else
-            this.rulesetDirectory = path.resolve('runtime/rulesets');
+            this.rulesetDirectory = path.resolve('rulesets');
 
         if (!fs.existsSync(this.rulesetDirectory))
             throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";
@@ -22,32 +22,26 @@ class data {
         this.logDirectory = path.resolve(this.rootDir, this.config.logDirectory);
     }
 
+    end() {
+    }
+
     /**
      * This method is used by the application to get an in-memory copy of a log file managed by
      * the plugin.
-     * @param logFileName {string} the name of the log file to retrieve.
-     * @returns {string} the contents of the log file.
+     * @param id {string} the id of the log file to retrieve.
+     * @returns {Promise} resolves {object} the contents of the log file.
      * @throws Throws an error if the copy cannot be completed successfully.
-     * @private
      */
     getLog(id) {
-        const logfile = path.resolve(this.logDirectory, id);
-        var log;
-        if (fs.existsSync(logfile)) {
-            const contents = fs.readFileSync(logfile, 'utf8');
-            try {
-                log = JSON.parse(contents);
-            }
-            catch (e) {
-                console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-            }
-        }
-        return log;
+
+        throw("Not implemented");
+
     }
 
     /**
      * This method is used by the application to save the log of results for the given file synchronously.
-     * @param filename {string} the name of the file to save.
+     * @param inputName {string} the name of the file to save.
+     * @param log {object} the log.
      * @throws Throws an error if the directory cannot be found or the file saved.
      * @private
      */
@@ -71,142 +65,126 @@ class data {
     /**
      * This method is used by the application to get an in-memory copy of a run managed by
      * the plugin.
-     * @param runFileName {string} the name of the run file to retrieve.
-     * @returns {string} the contents of the run file.
+     * @param id {string} the name of the run file to retrieve.
+     * @returns {Promise} resolves {object} the contents of the run file.
      * @throws Throws an error if the copy cannot be completed successfully.
-     * @private
      */
     getRun(id) {
-        const runfile = path.resolve(this.runsDirectory, id);
-        var run;
-        if (fs.existsSync(runfile)) {
-            const contents = fs.readFileSync(runfile, 'utf8');
-            try {
-                run = JSON.parse(contents);
-            }
-            catch (e) {
-                console.log(`Failed to load ${id}. Attempt threw:\n${e}\n`);
-            }
-        }
-        return run;
+
+        throw('Not implemented');
     }
 
     /**
      * This method is used by the application to get an in-memory copy of all runs managed by
      * the plugin.
-     * @returns {array} list of the run file.
-     * @private
+     * @returns {Promise} resolves {array} list of the runs.
      */
     getRuns() {
 
-        var runs = [];
+        throw('Not implemented');
 
-        fs.readdirSync(this.runsDirectory).forEach(file => {
-            if(file.substr(file.length-8) === 'run.json') {
-                runs.push(file);
-            }
-        });
-
-        return runs;
     }
 
     /**
      * This method saves record which is used by the client code to reference files for any particular run.
      * @param runId the unique ID of the run.
-     * @param logName the name of the log file
-     * @returns {{id: *, log: *, ruleset: (undefined|*|string), inputfilename: *, outputfilename: *, time: Date}}
-     * @private
+     * @param log the log
+     * @param ruleSetId the id of the ruleset
+     * @param inputFile the name of the input file
+     * @param outputFile the name of the output file
      */
-    saveRunRecord(runId, logId, ruleSetId, inputFile, outputFile) {
-        try {
-            if (!fs.existsSync(this.runsDirectory))
-                fs.mkdirSync(this.runsDirectory);	// Make sure the runsDirectory exists.
-        }
-        catch (e) {
-            console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
-            throw e;
-        }
+    saveRunRecord(runId, log, ruleSetId, inputFile, outputFile) {
 
-        const run = {
-            id: runId,
-            log: logId,
-            ruleset: ruleSetId,
-            inputfilename: inputFile,
-            outputfilename: outputFile,
-            time: new Date()
-        };
+        return new Promise((resolve, reject) => {
+
+            let logId = this.saveLog(inputFile, log);
+
+            try {
+                if (!fs.existsSync(this.runsDirectory))
+                    fs.mkdirSync(this.runsDirectory);	// Make sure the runsDirectory exists.
+            }
+            catch (e) {
+                console.error(this.constructor.name + " failed to create \"" + this.runsDirectory + "\".\n" + e);	// Can't create the logDirectory to write to.
+                reject(e);
+            }
+
+            const run = {
+                id: runId,
+                log: logId,
+                ruleset: ruleSetId,
+                inputfilename: inputFile,
+                outputfilename: outputFile,
+                time: new Date()
+            };
 
 
-        fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
+            fs.writeFileSync(path.resolve(this.runsDirectory, runId), JSON.stringify(run), 'utf8');
 
-        return run;
+            resolve();
+
+        });
+
     }
 
     /**
      * Retrieve a ruleset description.
-     * @param rootDir the directory that may contain the ruleset file.
      * @param ruleset the name of the ruleset or a ruleset (which is then just returned).
-     * @return an object describing a ruleset.
+     * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
+     * @return a promise to an object describing a ruleset.
      */
     retrieveRuleset(ruleset, rulesetOverrideFile) {
-        if (typeof ruleset === 'string') {
-            // Identifying a file to load.
-            const rulesetFile = path.resolve(this.rulesetDirectory, ruleset);
-            var contents;
-            try {
-                contents = require(rulesetFile);
-            }
-            catch (e) {
-                throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
-            }
+        return new Promise((resolve, reject) => {
 
-            if (!contents.ruleset) {
-                throw("Ruleset file \"" + rulesetFile + "\" does not contain a 'ruleset' member.");
-            }
-
-            contents.ruleset.filename = ruleset;
-            contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
-            ruleset = contents.ruleset;
-        }
-
-        if(rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
-            var contents;
-            try {
-                contents = require(rulesetOverrideFile);
-            }
-            catch (e) {
-                throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
-            }
-
-            if(contents.import) {
-                if(!ruleset.import) {
-                    ruleset.import = {};
+            if (typeof ruleset === 'string') {
+                // Identifying a file to load.
+                const rulesetFile = path.resolve(this.rulesetDirectory, ruleset);
+                var contents;
+                try {
+                    contents = require(rulesetFile);
+                }
+                catch (e) {
+                    throw("Failed to load ruleset file \"" + rulesetFile + "\".\n\t" + e);
                 }
 
-                Object.assign(ruleset.import.config, contents.import);
-            }
-
-            if(contents.export) {
-                if(!ruleset.export) {
-                    ruleset.export = {};
+                if (!contents.ruleset) {
+                    throw("Ruleset file \"" + rulesetFile + "\" does not contain a 'ruleset' member.");
                 }
 
-                Object.assign(ruleset.export.config, contents.export);
+                contents.ruleset.filename = ruleset;
+                contents.ruleset.name = contents.ruleset.name || contents.ruleset.filename;
+                ruleset = contents.ruleset;
             }
-        }
 
-        return new RuleSet(ruleset);
+
+            let rulesetObj = new RuleSet(ruleset);
+
+            if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
+                rulesetObj.applyOverride(rulesetOverrideFile);
+            }
+
+            resolve(rulesetObj);
+        });
     }
 
     /**
-     * This file saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
+     * This saves the given ruleset to a file in the configured Ruleset directory. The name of the file is
      * taken from the ruleset's 'filename' property with '.json' appended to it by this function and if a file with
      * that name already exists it will be overwritten. The file is written using 'utf8'.
      * @param ruleset the ruleset to write.
-     * @private
      */
     saveRuleSet(ruleset) {
-        fs.writeFileSync(path.resolve(this.rulesetDirectory, ruleset.filename + ".json"), JSON.stringify(ruleset.toJSON()), 'utf8');
+        throw("Not implemented");
+    }
+
+    /**
+     * This gets the list of rulesets.
+     * @return a promise to an array of ruleset ids.
+     */
+    getRulesets() {
+
+        throw("Not implemented");
+
+
     }
 }
 

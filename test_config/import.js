@@ -38,9 +38,24 @@ class LocalCopyImport {
                 }
 
                 // Tell the Promise that it has been properly resolved.
-                resolve();
+                resolve(path.basename(sourceFileName));
             });
         });
+    }
+
+    static get Type() {
+        return "importer";
+    }
+
+    static get ConfigProperties() {
+        return [
+            {
+                name: 'file',
+                label: 'Source file path',
+                type: 'string',
+                tooltip: 'The full path to where the file to process is located'
+            }
+        ];
     }
 
 };

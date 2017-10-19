@@ -4,49 +4,55 @@
 		"rules" : [
 			{
 				"filename" : "CheckColumnCount",
-				"name" : "Validate column count",
 				"config" : {
+					"id" : 1,
 					"columns" : 9
 				}
 			},
 			{
 				"filename" : "CheckLatLong",
-				"name" : "Validate Lat & Long",
 				"config" : {
-					"numberOfHeaderRows" : 1,
-					"latitudeColumn"  : 2,
-					"longitudeColumn" : 3
+					"id" : 2,
+					"latitudeColumn"  : "lat",
+					"longitudeColumn" : "lng"
 				}
 			},
 			{
 				"filename" : "CheckColumnType",
 				"name" : "Validate Population Column",
 				"config" : {
-					"numberOfHeaderRows" : 1,
+					"id" : 3,
 					"type" : "number",
-					"column" : 4
+					"column" : "pop"
 				}
 			},
 			{
 				"filename" : "CheckColumnRegEx",
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
-					"numberOfHeaderRows" : 1,
-					"column" : 2,
-					"regex" : "[^0-9\\s]*"
+					"id" : 4,
+					"column" : "city",
+					"regex" : "^\\D*$"
 				}
 			}
 		],
 		"import" : {
-			"scriptPath": "/opt/PLUTO/config/import.js",
+			"filename": "sampleImport",
 			"config": {
 				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"scriptPath": "/opt/PLUTO/config/export.js",
+			"filename": "sampleExport",
 			"config" : {
 				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
+			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numHeaderRows" : 1,
+				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
 			}
 		}
 	}

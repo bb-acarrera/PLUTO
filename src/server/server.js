@@ -3,22 +3,28 @@ const program = require("commander");
 const path = require("path");
 const express = require('express');
 const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
 
 const app = express();
 
 const Validator = require("../validator/validator");
 const Router = require("./router");
 
-const version = '0.1'; //require("../../package.json").version;
-
 const Util = require('../common/Util');
-const Data = require('../common/dataFs');
+const Data = require('../common/dataDb');
+
+let version = "0";
+if(fs.existsSync("../../package.json")) {
+	version = require("../../../package.json").version;
+} else if(fs.existsSync("../package.json")) {
+	version = require("../../package.json").version;
+}
 
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {
 	constructor(config, validatorConfig, validatorConfigPath) {
 		this.config = config;
-		this.config.validator = new Validator(validatorConfig);
+		this.config.validator = new Validator(validatorConfig, Data);
 		this.config.validatorConfigPath = validatorConfigPath;
 		this.config.validatorConfig = validatorConfig;
 
@@ -30,6 +36,8 @@ class Server {
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
 
 		this.config.data = Data(this.config.validatorConfig);
+
+		app.use(fileUpload());
 
 		// app.use(bodyParser.json()); // for parsing application/json
 		app.use(bodyParser.json());
@@ -45,6 +53,7 @@ class Server {
 		if (app.get('env') === 'development') {
 
 			app.use(function(err, req, res, next) {
+				console.log(req.url + ': ' + err);
 				res.status(err.status || 500);
 				res.json({
 					message: err.message,

@@ -5,18 +5,23 @@ import os
 from pydoc import locate
 from subprocess import (run, STDOUT)
 
+#look at luigi.notifications: http://luigi.readthedocs.io/en/stable/api/luigi.notifications.html#module-luigi.notifications
+
 class PlutoTask(luigi.Task):
 	configFile = luigi.Parameter()
 	previousTaskModule = luigi.Parameter()
 	previousTaskClass = luigi.Parameter()
+	ruleset = luigi.Parameter()
+	sourceFile = luigi.Parameter()
 
 	def requires(self):
 		'''
 		Use reflection to allow this task to be dynamically dependent on a previous
 		task, such as a download task.
 		'''
+
 		dependentClass = locate(self.previousTaskModule + '.' + self.previousTaskClass)
-		return dependentClass()
+		return dependentClass(self.sourceFile)
 
 	def getOutputName(self):
 		'''
@@ -31,6 +36,7 @@ class PlutoTask(luigi.Task):
 		return luigi.LocalTarget(self.getOutputName())
 
 	def run(self):
+
 		'''
 		Load the JSON config file and use values set in it to run the NodeJS validator.
 		'''
@@ -38,18 +44,17 @@ class PlutoTask(luigi.Task):
 		config = json.load(f)
 
 		nodeExe = "node"
-		cwd = os.path.abspath(config['WorkingDirectory'])
-		validatorExe = os.path.normpath(os.path.join(cwd, config['ValidatorExecutable']))
-		configFile = os.path.normpath(os.path.join(cwd, config['ValidatorConfig']))
-		rulesetFile = os.path.normpath(os.path.join(cwd, config['RuleSet']))
+		cwd = os.path.abspath(config['workingDirectory'])
+		validatorExe = os.path.normpath(os.path.join(cwd, config['validatorExecutable']))
+		configFile = os.path.normpath(os.path.join(cwd, config['validatorConfig']))
 
 		result = run([nodeExe, validatorExe, \
 				"-c", configFile, \
-				"-r", rulesetFile, \
+				"-r", self.ruleset, \
 				"-i", self.input().path, \
 				"-o", self.getOutputName()], \
 				stderr=STDOUT, cwd=cwd)
 
 
 if __name__ == "__main__":
-    luigi.run()
+	luigi.run()

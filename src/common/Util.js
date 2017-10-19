@@ -10,25 +10,11 @@ class Util {
 		return ruleDescriptor.name || ruleDescriptor.name || path.basename(ruleDescriptor.filename);
 	}
 
-	static getRulesets(rootDir) {
-		var rulesets = [];
-
-		fs.readdirSync(rootDir).forEach(file => {
-			if(file.substr(file.length-5) === '.json') {
-				rulesets.push(file);
-			}
-		});
-
-		return rulesets;
-	}
-
-
-
 	static getRootDirectory(config) {
 
 		// Get the root directory for everything.
 		let rootDir = '.';	// Default is the current working directory.
-		if (config.rootDirectory) {
+		if (config && config.rootDirectory) {
 			rootDir = path.resolve(config.rootDirectory);	// Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
 			if (!rootDir.endsWith(path.sep))
 				rootDir = rootDir + path.sep;
@@ -67,7 +53,7 @@ class Util {
 		let tmpDir = this.getRootTempDirectory(config, rootDir);
 
 		// Create a temporary child directory.
-		let basename = path.basename(config.scriptName, ".js");
+		let basename = path.basename(config.scriptName || "tmp", ".js");
 		tmpDir = path.resolve(tmpDir, basename + this.createGUID());
 
 		try {

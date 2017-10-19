@@ -5,46 +5,55 @@
 			{
 				"filename" : "CheckColumnCount",
 				"config" : {
-					"columns" : 9
+					"id" : 1,
+					"columns" : 9,
+					"onError": "abort"
 				}
 			},
 			{
 				"filename" : "CheckLatLong",
 				"config" : {
-					"numberOfHeaderRows" : 1,
-					"latitudeColumn"  : 2,
-					"longitudeColumn" : 3
+					"id" : 2,
+					"latitudeColumn"  : "lat",
+					"longitudeColumn" : "lng"
 				}
 			},
 			{
 				"filename" : "CheckColumnType",
 				"name" : "Validate Population Column",
 				"config" : {
-					"numberOfHeaderRows" : 1,
+					"id" : 3,
 					"type" : "number",
-					"column" : 4
+					"column" : "pop"
 				}
 			},
 			{
 				"filename" : "CheckColumnRegEx",
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
-					"numberOfHeaderRows" : 1,
-					"column" : 2,
-					"regex" : "[^0-9\\s]*"
+					"id" : 4,
+					"column" : "city",
+					"regex" : "^\\D*$"
 				}
 			}
 		],
 		"import" : {
-			"scriptPath": "./runtime/rules/LocalCopyImport",
+			"filename": "LocalCopyImport",
 			"config": {
 				"file": "./examples/data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
-			"scriptPath": "./runtime/rules/LocalCopyExport",
+			"filename": "LocalCopyExport",
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numHeaderRows" : 1,
+				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
 			}
 		}
 	}

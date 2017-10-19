@@ -1,0 +1,78 @@
+/**
+ * Created by cgerber on 2017-07-21.
+ */
+const stream = require('stream');
+
+const ErrorLogger = require("../../ErrorLogger");
+const LabelColumns = require("../../../rules/LabelColumns");
+
+class MemoryWriterStream extends stream.Writable {
+    constructor(options) {
+        super(options);
+        this.buffer = Buffer.from(''); // empty
+    }
+
+    _write(chunk, enc, cb) {
+        // our memory store stores things in buffers
+        const buffer = (Buffer.isBuffer(chunk)) ?
+            chunk :  // already is Buffer use it
+            new Buffer(chunk, enc);  // string, convert
+
+        // concat to the buffer already there
+        this.buffer = Buffer.concat([this.buffer, buffer]);
+
+        // console.log("MemoryWriterStream DEBUG: " + chunk.toString());
+
+        cb(null);
+    }
+
+    getData(encoding) {
+        return this.buffer.toString(encoding);
+    }
+}
+
+QUnit.test( "LabelColumns: No sharedData Creation Test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "columnLabels" : ["COLUMN ONE", "COLUMN TWO"]
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const rule = new LabelColumns(config);
+
+    const done = assert.async();
+    //rule._run( { data: data }).then((result) => {
+    //rule.run();
+    rule.run();
+    assert.ok(rule, null);
+    assert.equal(config.sharedData, undefined, "Expected undefined sharedData");
+            //assert.equal(dataVar, "COLUMN ONE,COLUMN TWO\na,b", "Expected capitalized column names");
+            done();
+
+        //result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    //});
+
+
+});
+
+QUnit.test( "LabelColumns: Label Column Test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger": logger,
+        "columnLabels" : ["COLUMN ONE", "COLUMN TWO"],
+        "sharedData" : {}
+    };
+
+    //const data = "Column 1,Column 2\na,b";
+    const rule = new LabelColumns(config);
+    rule.run();
+
+    const done = assert.async();
+
+    assert.notEqual(config.sharedData.columnLabels, undefined, "Expecting a defined sharedData columnLabels property");
+    assert.equal(config.sharedData.columnLabels.length, 2, "Expected length of 2.");
+    assert.equal(config.sharedData.columnLabels[0], "COLUMN ONE", "Expected capitalized column name.");
+    assert.equal(config.sharedData.columnLabels[1], "COLUMN TWO", "Expected capitalized column name.");
+    done();
+});

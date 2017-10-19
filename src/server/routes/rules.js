@@ -1,48 +1,69 @@
-const fs = require('fs');
-const path = require('path');
-
 const BaseRouter = require('./baseRouter');
+const RuleLoader = require('../../common/ruleLoader');
+const RuleSet = require('../../validator/RuleSet');
 
 class RulesRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
+
+        this.rulesLoader = new RuleLoader(this.config.validator.config.rulesDirectory);
+
+
+
+        this.rulesetConfig = [{
+            id: 0,
+            type: 'rulesetconfigui',
+            attributes: {
+                name: null,
+                filename: null,
+                ui: {
+                    properties: RuleLoader.applyDefaults(RuleSet.ConfigProperties, RuleSet.ConfigDefaults)
+                }
+            }
+        }];
+
 	}
 
-	get(req, res, next) {
-		// Send generic rules. (i.e. not rule instances.)
-		const rules = [];
-		fs.readdirSync(this.config.validator.config.rulesDirectory).forEach(file => {
-			const extension = path.extname(file);
-			if (extension && extension == ".js") {
-				const basename = path.basename(file, extension);
-				const configName = basename + "Config.json";
-				const configFile = path.resolve(this.config.validator.config.rulesDirectory, configName);
-				var config = undefined;
-				if (fs.existsSync(configFile)) {
-					const contents = fs.readFileSync(configFile, 'utf8');
-					try {
-						config = JSON.parse(contents);
-					}
-					catch (e) {
-						console.log(`Failed to load ${configName}. Attempt threw:\n${e}\n`);
-					}
-				}
-				rules.push({
-					id: basename,
-					type: 'rule',
-					attributes: {
-						name: basename,
-						filename: basename,
-						config: config
-					}
-				});
-			}
-		});
+    getRules(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
 
-		res.json({
-			data: rules
-		});
-	}
+        res.json({
+            data: this.rulesLoader.rules
+        });
+    }
+
+    getParsers(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
+
+        res.json({
+            data: this.rulesLoader.parsers
+        });
+    }
+
+    getImporters(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
+
+        res.json({
+            data: this.rulesLoader.importers
+        });
+    }
+
+    getExporters(req, res) {
+        // Send generic rules. (i.e. not rule instances.)
+
+        res.json({
+            data: this.rulesLoader.exporters
+        });
+    }
+
+    getRulesetConfigUI(req, res) {
+
+        res.json({
+            data: this.rulesetConfig
+        });
+    }
+
+
 }
 
 module.exports = RulesRouter;

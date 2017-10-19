@@ -7,14 +7,15 @@ const program = require("commander");
 const rimraf = require('rimraf');
 const stream = require('stream');
 
-const BaseRuleAPI = require("../runtime/api/BaseRuleAPI");
-const MetadataRuleAPI = require("../runtime/api/MetadataRuleAPI");
+const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 const Util = require("../common/Util");
-const Data = require("../common/dataFs");
+const Data = require("../common/dataDb");
 
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
+
+const RuleLoader = require('../common/ruleLoader')
 
 const version = '0.1'; //require("../../package.json").version;
 
@@ -35,76 +36,96 @@ class Validator {
 	 * @param config
 	 * @private
 	 */
-	constructor(config) {
+	constructor(config, Data) {
 		this.config = config || {};
-
-		this.data = Data(this.config);
 
 		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
 			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
 
-		if (this.config.rulesetDirectory)
-			this.config.rulesetDirectory = path.resolve(this.rootDir, this.config.rulesetDirectory);
-		else
-			this.config.rulesetDirectory = path.resolve('runtime/rulesets');
-
-		if (!fs.existsSync(this.config.rulesetDirectory))
-			throw "Failed to find RulesetDirectory \"" + this.config.rulesetDirectory + "\".\n";
-
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
 		else
-			this.config.rulesDirectory = path.resolve('runtime/rulesets');	// By default rules live with the rulesets.
+			this.config.rulesDirectory = path.resolve(this.rootDir, 'rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
-			throw "Failed to find RulesDirectory \"" + this.config.rulesDirectory + "\".\n";
+			console.log("Failed to find custom RulesDirectory \"" + this.config.rulesDirectory + "\".\n");
 
 		this.inputDirectory  = path.resolve(this.rootDir, this.config.inputDirectory || "");
-		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory);
+		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory || "");
 
 		if (!fs.existsSync(this.outputDirectory))
 			fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 
-
 		this.logger = new ErrorLogger(config);
-		this.ruleIterator = null;
 
 		// Remember the name of the current ruleset and rule for error reporting.
 		this.rulesetName = undefined;
 		this.ruleName = undefined;
 
-		// Data that can be shared between rules.
-		this.sharedData = {};
-
 		this.updateConfig(this.config);
-	}
+
+		if(!Data) {
+			throw "No data accessor supplied";
+		}
+
+		// This needs to be done after the above tests and setting of the global config object.
+        this.data = Data(this.config);
+
+		this.ruleLoader = new RuleLoader(this.config.rulesDirectory);
+    }
 
 	/*
 	 * Run the ruleset, as defined by the config file, over the inputFile producing the outputFile.
 	 */
-	runRuleset(inputFile, outputFile, inputEncoding) {
+	runRuleset(inputFile, outputFile, inputEncoding, inputDisplayName) {
 		this.running = true;	// Used by finishRun() to determine if it should clean up. Avoids issues with finishRun() being called twice.
 
-		var ruleset;
 		try {
 			this.tempDir = Util.getTempDirectory(this.config, this.rootDir);
-
-			ruleset = this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride);
 		}
 		catch (e) {
 			this.error(e);
 			throw e;
 		}
 
-		let rulesDirectory;
-		if (ruleset.rulesDirectory)
-			rulesDirectory = path.resolve(this.config.rulesetDirectory, ruleset.rulesDirectory);
-		else
-			rulesDirectory = this.config.rulesDirectory;
+		this.data.createRunRecord(this.config.ruleset).then((runId) => {
 
+			this.runId = runId;
+			console.log("runId:" + runId);
 
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
+				.then((ruleset) => {
+
+						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
+					},
+					(error)=>{
+						this.error(error);
+						this.finishRun();
+					}).catch((e) => {
+					if(!e.message){
+						this.error(e);
+					}
+					else {
+						this.error(e.message);
+					}
+					this.finishRun();
+				}
+			);
+		}, (error) => {
+			console.log("Error creating run record: " + error);
+			console.log("aborting");
+
+		});
+	}
+
+	processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName){
+		if(!ruleset){
+			throw new Error("No Ruleset found for: " + this.config.ruleset);
+		}
+
+		let rulesDirectory = this.config.rulesDirectory;
 
 		this.rulesetName = ruleset.name || "Unnamed";
 
@@ -113,136 +134,178 @@ class Validator {
 		this.currentRuleset = ruleset;
 		this.rulesDirectory = rulesDirectory;
 
+		if(ruleset.parser) {
+			this.parserClass = this.getParserClass(ruleset.parser);
+		}
+
 		if (!this.outputFileName && !ruleset.export) {
 			this.warning("No output file specified.");
 		}
 
-		if(ruleset.import) {
+		if(!ruleset.import && !inputFile) {
+			throw "No input file specified.";
+		}
 
+		if(inputFile) {
+			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
+
+			if(inputDisplayName) {
+				this.displayInputFileName = inputDisplayName;
+			} else {
+				this.displayInputFileName = path.basename(this.inputFileName);
+			}
+
+
+			this.runRules(ruleset, this.inputFileName);
+		} else {
 			this.inputFileName = this.getTempName();
 
-			this.importFile(ruleset.import, this.inputFileName).then( () => {
-					try {
-						this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
-						if (!ruleset.rules || ruleset.rules.length == 0)
-							this.finishRun(this.inputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
-					}
-					catch (e) {
-						this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
-						throw e;
-					}
+			this.importFile(ruleset.import, this.inputFileName).then( (displayInputFileName) => {
+
+					this.displayInputFileName = displayInputFileName;
+
+					this.runRules(ruleset, this.inputFileName);
+
 
 				},error => {
 					this.error("Failed to import file: " + error);
 					this.finishRun();
 				})
-				.catch((e) => {
+				.catch(() => {
 					this.finishRun();
-					throw e;
 				});
-		} else {
-			this.inputFileName = this.config.inputDirectory ? path.resolve(this.config.inputDirectory, inputFile) : path.resolve(inputFile);
-			if (!this.inputFileName)
-				throw "No input file specified.";
-
-			try {
-				this.runRules(rulesDirectory, ruleset.rules, this.inputFileName);
-			}
-			catch (e) {
-				this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
-				throw e;
-			}
 		}
 
-	}
+    }
 
 	/*
 	 * Run the list of rules that are all in the same rulesDirectory, starting with the given file.
 	 * (The output from a rule will generally be a new file which is input to the next rule.)
 	 */
-	runRules(rulesDirectory, rules, file) {
+	runRules(ruleset, file) {
 
-		if (!fs.existsSync(file))
-			throw "Input file \"" + file + "\" does not exist.";
+		let rules = ruleset.rules;
+		this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
+		this.abort = false;
 
-		if (!rules || rules.length == 0) {
-			this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
-			return;
-		}
+		try {
 
-		// As a first step get the file locally. Do this to simplify running the rules (they
-		// all run locally) and make sure the data is all available at the start of the process.
-		const localFileName = this.getTempName();
-		this.getFile(file, localFileName);
 
-		let validator = this;
-		Promise.resolve({ result : { file : localFileName }, index : 0}).then(function loop(lastResult) {
-			if (lastResult.index < rules.length && !validator.shouldAbort )
-				return validator.getRule(rulesDirectory, rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index+1).then(loop);
-			else
-				return lastResult;
-		}).catch((e) => {
-			const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
-			this.error(errorMsg);
-		}).then((lastResult) => {
-			if (lastResult && lastResult.result && lastResult.result.stream) {
-				// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
-				let p = new Promise((resolve, reject) => {
-					let dest = this.putFile(lastResult.result.stream, this.getTempName());
-					dest.stream.on('finish', () => {
-						resolve(dest.path);
-					});
-					dest.stream.on('error', (e) => {
-						reject(e)
-					});
-				});
-				p.then((filename) => {
-					this.finishRun({ file: filename });
-				});
+			if (!fs.existsSync(file))
+				throw "Input file \"" + file + "\" does not exist.";
+
+			if (!rules || rules.length == 0) {
+				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
+				this.finishRun();
+				return;
 			}
-			else
-				this.finishRun(lastResult ? lastResult.result : undefined);
-		});
+
+			// As a first step get the file locally. Do this to simplify running the rules (they
+			// all run locally) and make sure the data is all available at the start of the process.
+			const localFileName = this.getTempName();
+			this.getFile(file, localFileName);
+
+			let validator = this;
+			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
+				if (lastResult.index < rules.length && !validator.abort)
+					return validator.getRule(rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
+				else
+					return lastResult;
+			}).catch((e) => {
+				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
+				this.error(errorMsg);
+			}).then((lastResult) => {
+				if(validator.abort) {
+					this.finishRun();
+				} else if (lastResult && lastResult.result && lastResult.result.stream) {
+					// Need to get the stream into a file before finishing otherwise the exporter may export an empty file.
+					let p = new Promise((resolve, reject) => {
+						let dest = this.putFile(lastResult.result.stream, this.getTempName());
+						dest.stream.on('finish', () => {
+							resolve(dest.path);
+						});
+						dest.stream.on('error', (e) => {
+							reject(e)
+						});
+					});
+					p.then((filename) => {
+						if(validator.abort) {
+							this.finishRun();
+						} else {
+							this.finishRun({file: filename});
+						}
+
+					}, (error) => {
+						this.error('Error writing stream: ' + error);
+						this.finishRun();
+					});
+				}
+				else
+					this.finishRun(lastResult ? lastResult.result : undefined);
+			});
+
+			if (!ruleset.rules || ruleset.rules.length == 0)
+				this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
+
+		} catch(e) {
+			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			throw e;
+		}
 	}
 
-	getRule(rulesDirectory, ruleDescriptor) {
+	getRule(ruleDescriptor) {
 		// TODO: Get all the rules before running them. This way if any rules are missing an error can be
 		// raised without affecting the later running of the rules.
-		var ruleClass = this.loadRule(ruleDescriptor.filename, rulesDirectory);
+		var ruleClass = this.loadRule(ruleDescriptor.filename);
 
-		// Load the default config, if it exists.
-		let suffixIndex = ruleDescriptor.filename.lastIndexOf('.');
-		var defaultConfigName;
-		if (suffixIndex > 0)
-			defaultConfigName = ruleDescriptor.filename.substring(0, suffixIndex) + "Config.json";
-		else
-			defaultConfigName = ruleDescriptor.filename + "Config.json";
-		let defaultConfigPath = path.resolve(rulesDirectory, defaultConfigName);
 
-		var defaultConfig = {};
-		if (fs.existsSync(defaultConfigPath))
-			defaultConfig = require(defaultConfigPath);
-
-		// Get the rule's config. If there isn't one use the default. The config from the ruleset file replaces
-		// the default. It does not amend it.
-		let config = ruleDescriptor.config || defaultConfig;
-		if (typeof config === 'string' && config != defaultConfigPath) {
-			try {
-				config = path.resolve(rulesDirectory, config);
-				config = require(config);
-			}
-			catch (e) {
-				throw(this.constructor.name, "Failed to load rule config file \"" + config + "\".\n\tCause: " + e);
-			}
-		}
+		// Get the rule's config.
+		let config = ruleDescriptor.config || {};
 
 		// Set the validator so that the rule can report errors and such.
 		// TODO: This would still have to be done when running the rules, not before.
 		this.updateConfig(config);
 		config.name = config.name || ruleDescriptor.filename;
 		this.ruleName = config.name;
+		config.errors = ruleDescriptor.errors;
 
-		return new ruleClass(config);
+		let rule =  new ruleClass(config);
+
+		if(ruleClass.NeedsParser) {
+
+			if(!this.parserClass) {
+				throw("Rule requires parser, but no parser in ruleset");
+			}
+
+			if(ruleClass.Parser !== this.parserClass.Type) {
+				throw(`Rule/Parser mistmatch. Rule ${ruleDescriptor} needs ${ruleClass.Parser} parser but ${this.parserConfig.name} is ${this.parserClass.Type}`);
+			}
+
+			this.updateConfig(this.parserConfig);
+
+			rule = new this.parserClass(this.parserConfig, rule);
+
+
+		}
+		return rule;
+	}
+
+	getParserClass(parserDescriptor) {
+		var parserClass = this.ruleLoader.parsersMap[parserDescriptor.filename];
+
+		if(!parserClass) {
+			parserClass = this.loadRule(parserDescriptor.filename);
+		}
+
+
+		let config = parserDescriptor.config;
+
+		this.updateConfig(config);
+		config.name = config.name || parserDescriptor.filename;
+		this.parserName = config.name;
+		this.parserConfig = config;
+
+		return parserClass;
 	}
 
 	/**
@@ -273,25 +336,39 @@ class Validator {
 			return;
 
 		this.running = false;
-		
-		const runId = path.basename(this.inputFileName, path.extname(this.inputFileName)) + '_' + Util.getCurrentDateTimeString() + ".run.json";
+		if(!this.inputFileName){
+			this.inputFileName = "";
+		}
 
-		if (results && this.currentRuleset.export) {
+		if(!results) {
+			console.error("No results");
+			this.error("No results were produced.");
+		}
+
+		if(this.outputFileName) {
+
+			if(results) {
+				this.saveResults(results);
+			}
+			this.finalize();
+
+		} else if(this.currentRuleset && this.currentRuleset.export) {
 			var resultsFile = null;
-			if (results.file)
+
+			if (results && results.file)
 				resultsFile = results.file;
-			else if (results.stream) {
+			else if (results && results.stream) {
 				resultsFile = this.getTempName();
 				this.putFile(results.stream, resultsFile, this.encoding);
 			}
-			else if (results.data) {
+			else if (results && results.data) {
 				resultsFile = this.getTempName();
 				this.saveFile(results.data, resultsFile, this.encoding);
 			}
-			else
+			else if(results)
 				this.error("Unrecognized results structure.");
 
-			this.exportFile(this.currentRuleset.export, resultsFile, runId)
+			this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
 				.then(() => {},
 
 					(error) => {
@@ -301,27 +378,21 @@ class Validator {
 					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 				})
 				.then(() => {
-					this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
-						this.config.ruleset, this.inputFileName, this.outputFileName);
-					this.cleanup();
-					console.log("Done.");
+					this.finalize();
 				});
-		} else if (results) {
-			this.saveResults(results);
-			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
-				this.config.ruleset, this.inputFileName, this.outputFileName);
-			this.cleanup();
-			console.log("Done.");
+		} else {
+			this.warning("No output method specified");
+			this.finalize();
 		}
-		else {
-			console.error("No results");
-			this.error("No results were produced.");
 
-			this.data.saveRunRecord(runId, this.data.saveLog(this.inputFileName, this.logger.getLog()),
-				this.config.ruleset, this.inputFileName, this.outputFileName);
-			this.cleanup();
-			console.log("Done.");
-		}
+	}
+
+	finalize() {
+		this.data.saveRunRecord(this.runId, this.logger.getLog(),
+			this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+			.then(() => {}, (error) => console.log('error saving run: ' + error))
+			.catch((e) => console.log('Exception saving run: ' + e))
+			.then(() => this.cleanup());
 
 	}
 
@@ -330,8 +401,11 @@ class Validator {
 	 * @private
 	 */
 	cleanup() {
-		// Remove the temp directory and contents.
 
+		//kill the database
+		this.data.end();
+
+		// Remove the temp directory and contents.
 		try {
 			rimraf.sync(this.tempDir, null, (e) => {
 				this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
@@ -340,6 +414,7 @@ class Validator {
 			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
 		}
 
+		console.log("Done.");
 
 	}
 
@@ -470,7 +545,7 @@ class Validator {
 	importFile(importConfig, targetFilename) {
 		let validator = this;
 		return new Promise((resolve, reject) => {
-			var importerClass = this.loadImporterExporter(importConfig.scriptPath);
+			var importerClass = this.loadImporter(importConfig);
 
 			if(!importerClass) {
 				reject("Could not find importer " + importConfig.scriptPath);
@@ -485,10 +560,10 @@ class Validator {
 				return;
 			}
 
-			importer.importFile(targetFilename).then(function() {
+			importer.importFile(targetFilename).then(function(displayInputFileName) {
 					// Save the encoding set by the importer.
 					validator.encoding = importConfig.config.encoding || 'utf8';
-					resolve();
+					resolve(displayInputFileName);
 				}, error => {
 					reject("Importer " + importConfig.scriptPath + " failed: " + error);
 				})
@@ -518,7 +593,7 @@ class Validator {
 				return;
 			}
 
-			var exporterClass = this.loadImporterExporter(exportConfig.scriptPath);
+			var exporterClass = this.loadExporter(exportConfig);
 
 			if(!exporterClass) {
 				reject("Could not find exporter " + exportConfig.scriptPath);
@@ -550,19 +625,24 @@ class Validator {
 	 * @param filename the name of the rule file to load.
 	 * @param rulesDirectory the directory rules are kept in. If this is <code>null</code> then an attempt is made
 	 * to resolve the filename against the current working directory. If the rule does not exist in either location
-	 * then an attempt is made to load the plugin from '../runtime/rules' relative to the current working directory.
+	 * then an attempt is made to load the plugin from '../rules' relative to the current working directory.
 	 * @returns {*} the executable rule if it could be loaded.
 	 * @private
 	 */
-	loadRule(filename, rulesDirectory) {
+	loadRule(filename) {
+
 		if (!filename)
 			throw("Rule has no 'filename' property.");
 
+		if(this.ruleLoader.rulesMap[filename]) {
+			return this.ruleLoader.rulesMap[filename];
+		}
+
 		// Find the rule file.
 
-		let ruleFilename = rulesDirectory === undefined ? path.resolve(filename) : path.resolve(rulesDirectory, filename);
+		let ruleFilename = this.config.rulesDirectory === undefined ? path.resolve(filename) : path.resolve(this.config.rulesDirectory, filename);
 		if (!fs.existsSync(ruleFilename) && !fs.existsSync(ruleFilename + '.js')) {
-			ruleFilename = path.resolve(path.resolve(__dirname, '../runtime/rules'), filename);
+			ruleFilename = path.resolve(path.resolve(__dirname, '../rules'), filename);
 		}
 
 		return this.loadPlugin(ruleFilename);
@@ -574,11 +654,39 @@ class Validator {
 	 * @returns {*} the executable importer/exporter if it could be loaded.
 	 * @private
 	 */
-	loadImporterExporter(filename) {
-		if (!filename)
+	loadImporter(config) {
+
+		if(config.filename) {
+			if(this.ruleLoader.importersMap[config.filename]) {
+				return this.ruleLoader.importersMap[config.filename];
+			}
+		}
+
+		if (!config.scriptPath)
+			throw("Importer/Exporter has no 'scriptPath' property.");
+
+		let porterFilename = path.resolve(config.scriptPath);
+		return this.loadPlugin(porterFilename);
+	}
+
+	/**
+	 * A method for loading an importer or exporter object.
+	 * @param filename the name of the importer or exporter file to load.
+	 * @returns {*} the executable importer/exporter if it could be loaded.
+	 * @private
+	 */
+	loadExporter(config) {
+
+		if(config.filename) {
+			if(this.ruleLoader.exportersMap[config.filename]) {
+				return this.ruleLoader.exportersMap[config.filename];
+			}
+		}
+
+		if (!config.scriptPath)
 			throw("Importer/Exporter has no 'filename' property.");
 
-		let porterFilename = path.resolve(filename);
+		let porterFilename = path.resolve(config.scriptPath);
 		return this.loadPlugin(porterFilename);
 	}
 
@@ -594,9 +702,78 @@ class Validator {
 			pluginClass = require(filename);
 		}
 		catch (e) {
-			throw("Failed to load rule " + filename + ".\n\tCause: " + e);
+			throw("Failed to load plugin " + filename + ".\n\tCause: " + e);
 		}
 		return pluginClass;
+	}
+
+	abortRun(reason) {
+
+		if(this.abort) {
+			return;
+		}
+
+		this.abort = true;
+
+		if(this.sharedData) {
+			this.sharedData.abort = true;
+		}
+
+		this.error('Aborting: ' + reason);
+	}
+
+	checkAbort(ruleID) {
+
+		if(this.abort) {
+			return;
+		}
+
+		let errorsToAbort = 1;
+
+		let errorConfig = null;
+		if(this.currentRuleset && this.currentRuleset.general) {
+			errorConfig = this.currentRuleset.general.config;
+		}
+
+		if(errorConfig) {
+			errorsToAbort = errorConfig.errorsToAbort;
+		}
+
+		if(errorsToAbort && errorsToAbort > 0 && this.logger.getCount(ErrorHandlerAPI.ERROR) >= errorsToAbort) {
+			this.abortRun('Too many total errors. Got ' +
+				this.logger.getCount(ErrorHandlerAPI.ERROR) + ' limit was ' + errorsToAbort);
+			return;
+		}
+
+		if(errorConfig) {
+
+			if (errorConfig.warningsToAbort && errorConfig.warningsToAbort > 0 &&
+				this.logger.getCount(ErrorHandlerAPI.WARNING) >= errorConfig.warningsToAbort) {
+				this.abortRun('Too many total warnings. Got ' +
+					this.logger.getCount(ErrorHandlerAPI.WARNING) + ' limit was ' + errorConfig.warningsToAbort);
+				return;
+			}
+		}
+
+		if (this.currentRuleset && ruleID) {
+			let rule = this.currentRuleset.getRuleById(ruleID);
+			if (rule && rule.config) {
+				if (rule.config.errorsToAbort && rule.config.errorsToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
+					this.abortRun('Too many errors for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) + ' limit was ' + rule.config.errorsToAbort);
+					return;
+				}
+
+				if (rule.config.warningsToAbort && rule.config.warningsToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) >= rule.config.warningsToAbort) {
+					this.abortRun('Too many warnings for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.WARNING, ruleID) + ' limit was ' + rule.config.warningsToAbort);
+				}
+			}
+
+		}
+
 	}
 
 	/**
@@ -607,20 +784,22 @@ class Validator {
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
 	 * @param problemDescription {string} a description of the problem encountered.
 	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
-	 * @param shouldAbort should the running of rules stop at the end of the current rule,
 	 * @private
 	 */
-	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
-		this.shouldAbort = shouldAbort || false;
-		if (this.logger)
+	log(level, problemFileName, ruleID, problemDescription) {
+
+		if (this.logger) {
 			this.logger.log(level, problemFileName, ruleID, problemDescription);
-		else {
-			level = level || BaseRuleAPI.INFO;
+		} else {
+			level = level || ErrorHandlerAPI.INFO;
 			problemFileName = problemFileName || "";
 			problemDescription = problemDescription || "";
 			const dateStr = new Date().toLocaleString();
 			console.log(level + ": " + dateStr + ": " + problemFileName + ": " + problemDescription);
 		}
+
+		this.checkAbort(ruleID);
+
 	}
 
 	/**
@@ -629,7 +808,7 @@ class Validator {
 	 * @private
 	 */
 	error(problemDescription) {
-		this.log(BaseRuleAPI.ERROR, this.constructor.name, undefined, problemDescription);
+		this.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined, problemDescription);
 	}
 
 	/**
@@ -638,7 +817,7 @@ class Validator {
 	 * @private
 	 */
 	warning(problemDescription) {
-		this.log(BaseRuleAPI.WARNING, this.constructor.name, undefined, problemDescription);
+		this.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, problemDescription);
 	}
 
 	/**
@@ -647,102 +826,9 @@ class Validator {
 	 * @private
 	 */
 	info(problemDescription) {
-		this.log(BaseRuleAPI.INFO, this.constructor.name, undefined, problemDescription);
+		this.log(ErrorHandlerAPI.INFO, this.constructor.name, undefined, problemDescription);
 	}
 }
-
-let scriptName = process.argv[1];
-if (__filename == scriptName) {	// Are we running this as the validator or the server? Only do the following if running as a validator.
-	program
-		.version(version)
-		.usage('[options]')
-		.description('Validate an input file.')
-		.option('-c, --config <configFile>', 'The configuration file to use.')
-		.option('-e, --encoding [encoding]', 'The encoding to use to load the input file. [utf8]', 'utf8')
-		.option('-i, --input <filename>', 'The name of the input file.')
-		.option('-o, --output <filename>', 'The name of the output file.')
-		.option('-r, --ruleset <rulesetFile>', 'The ruleset file to use.')
-		.option('-v, --rulesetoverride <rulesetOverrideFile>', 'The ruleset overrides file to use.')
-		.parse(process.argv);
-
-	if (!program.config)
-		program.help((text) => {
-			return "A configuration file must be specified.\n" + text;
-		});
-
-	if (!fs.existsSync(program.config)) {
-		console.log("Failed to find configuration file \"" + program.config + "\".\n");
-		process.exit(1);
-	}
-
-	let config;
-	try {
-		config = require(path.resolve(__dirname, program.config));
-	}
-	catch (e) {
-		console.log("The configuration file cannot be loaded.\n" + e);
-		process.exit(1);
-	}
-
-	config.ruleset = program.ruleset || config.ruleset;
-	if (!config.ruleset)
-		program.help((text) => {
-			return "A ruleset must be specified either as an argument or a property in the config. file.\n" + text;
-		});
-
-	if(program.rulesetoverride) {
-		config.rulesetOverride = program.rulesetoverride;
-	}
-
-	// If the input or output are not set they'll be grabbed from the ruleset file later.
-	let inputFile = program.input;	//  ? path.resolve(program.input) : undefined;
-	let outputFile = program.output;
-	let inputEncoding = program.encoding;
-
-	config.scriptName = scriptName;
-	const validator = new Validator(config);
-
-	process.on('uncaughtException', (err) => {
-		// Caught an uncaught exception so something went extraordinarily wrong.
-		// Log the error and then give up. Do not attempt to write the output file because we have no idea
-		// how many rules have been run on it or what state it is in.
-		if (err) {
-			if (typeof err == 'string') {
-				validator.error(err);	// Record the uncaught exception.
-				console.log("Exiting with uncaught exception: " + err);
-			}
-			else if (err.message) {
-				validator.error(err.message);
-				console.log("Exiting with uncaught exception: " + err.message);
-			}
-			else {
-				validator.error(JSON.stringify(err));	// No idea what this is but try to represent it as best we can.
-				console.log("Exiting with uncaught exception: " + JSON.stringify(err));
-			}
-		}
-		else {
-			validator.error(`Unspecified error. Last rule attempted was ${validator.ruleName} in ruleset ${validator.rulesetName}.`)
-			console.log("Exiting with unspecified error.");
-		}
-
-		validator.finishRun();	// Write the log.
-		process.exit(1);	// Quit.
-	}).on('unhandledRejection', (reason, p) => {
-		console.error(reason, 'Unhandled Rejection at Promise', p);
-
-		// validator.finishRun();	// Write the log.
-		process.exit(1);	// Quit.
-	});
-
-	try {
-		validator.runRuleset(inputFile, outputFile, inputEncoding);
-	}
-	catch (e) {
-		console.log("Failed.\n\t" + e);
-		validator.error("Failed: " + e);
-		validator.finishRun();	// Write the log.
-		process.exit(1);
-	}
-}
+//search for processfile
 
 module.exports = Validator;

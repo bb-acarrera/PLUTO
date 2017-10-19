@@ -7,10 +7,9 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-  this.route('index', { path: '/' });
-
-  this.route('run', {path: '/run/:run_id'});
-  this.route('validation');
+  this.route('editRuleset', {path: '/editRuleset/:ruleset_id'}, function() {
+    this.route('run', {path: '/run/:run_id'});
+  });
 });
 
 Router.reopen({
