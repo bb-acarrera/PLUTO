@@ -116,7 +116,8 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 		"_debugLogger" : logger,
 		"regex" : "^a+$",	// A string of 1 or more a's.
 		"numHeaderRows" : 1,
-		"column" : 0
+		"column" : 0,
+		"failType": "Error"
 	};
 
 	const rule = new CheckColumnRegEx(config);
@@ -151,6 +152,31 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
+		done();
+	});
+});
+
+QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value With Warning", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"regex" : "^a+$",	// A string of 1 or more a's.
+		"numHeaderRows" : 1,
+		"column" : 0,
+		"failType": "Warning"
+	};
+
+	const rule = new CheckColumnRegEx(config);
+	const parser = new CSVParser(config, rule);
+	const data = "Column 0\nbbbb";
+	const done = assert.async();
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
+		if (logResults.length == 1) {
+			assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a match of ^a+$ but got bbbb.");
+		}
 		done();
 	});
 });
