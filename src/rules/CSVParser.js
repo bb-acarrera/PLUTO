@@ -176,7 +176,7 @@ class CSVParser extends TableParserAPI {
             {
                 name: 'delimiter',
                 label: 'Delimiter',
-                type: 'combobox',
+                type: 'choice',
                 tooltip: 'Field delimiter of the file. One character only. Defaults to \',\' (comma)',
                 choices: [
                     {value:',', label:', (comma)'},
