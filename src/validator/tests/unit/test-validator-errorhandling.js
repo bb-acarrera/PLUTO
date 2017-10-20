@@ -571,3 +571,46 @@ QUnit.test( "Validator Error Handling: Pass rule warnings, abort on warnings", f
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
 });
+
+QUnit.test( "Validator Error Handling: Exclude row shouldn't abort", function(assert) {
+    const config = getDefaultConfig();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    onError: 'excludeRow'
+                }
+            }
+        ],
+        general : { config : {
+            "errorsToAbort": 1
+        }},
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+    const done = assert.async();
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, false, "Expected run to pass");
+        },
+        done);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});
