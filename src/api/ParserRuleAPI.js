@@ -24,8 +24,8 @@ class ParserRuleAPI extends ErrorHandlerAPI {
     constructor(localConfig) {
         super(localConfig);
 
-        if(this.config && this.config.errors && this.config.errors.onError) {
-            this.excludeRecordOnError = this.config.errors.onError == 'excludeRow';
+        if(this.config && this.config.onError) {
+            this.excludeRecordOnError = this.config.onError == 'excludeRow';
         } else {
             this.excludeRecordOnError = false;
         }
