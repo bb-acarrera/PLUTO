@@ -97,11 +97,12 @@ class CSVParser extends TableParserAPI {
             }
 
             let response = record;
+            let isHeaderRow = rowNumber < rowHeaderOffset;
 
             this.tableRule.resetLastCheckCounts();
 
-            if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
-                response = this.tableRule.processRecordWrapper(record, rowNumber);
+            if (this.tableRule && (!isHeaderRow || processHeaderRows)) {
+                response = this.tableRule.processRecordWrapper(record, rowNumber, isHeaderRow);
             }
 
             rowNumber++;

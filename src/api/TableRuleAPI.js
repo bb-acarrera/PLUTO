@@ -48,12 +48,13 @@ class TableRuleAPI extends ParserRuleAPI {
      * Does pre-processing to pre the record to be processed, calls processRecord
      * @param record {array} one record from the csv file.
      * @param rowId {object | number} row indicator, usually the row number
+     * @param isHeaderRow {boolean} indicates that the row is a header row (when requested via processHeaderRows)
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
-    processRecordWrapper(record, rowId) {
+    processRecordWrapper(record, rowId, isHeaderRow) {
         this.isProcessingRecord = true;
 
-        const response = this.processRecord(record, rowId);
+        const response = this.processRecord(record, rowId, isHeaderRow);
 
         this.isProcessingRecord = false;
 
@@ -64,9 +65,10 @@ class TableRuleAPI extends ParserRuleAPI {
      * Derived classes should implement this method to process individual records.
      * @param record {array} one record from the csv file.
      * @param rowId {object | number} row indicator, usually the row number
+     * @param isHeaderRow {boolean} indicates that the row is a header row (when requested via processHeaderRows)
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
-    processRecord(record, rowId) {
+    processRecord(record, rowId, isHeaderRow = false) {
         // Process the record and return the new record.
         return record;
     }
