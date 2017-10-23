@@ -28,7 +28,6 @@ class CheckColumnRegEx extends TableRuleAPI {
 
 		this.column = this.getValidatedColumnProperty();
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
-		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 
 		if(this.config.failType === ErrorHandlerAPI.WARNING) {
 			this.onFailure = this.warning;
@@ -48,7 +47,7 @@ class CheckColumnRegEx extends TableRuleAPI {
 		// before the rule starts rather than at the end. Otherwise following rules would start with the unmodified
 		// version of the shared data. Not what is desired.
 
-		// Remove the column label from the shared list of column labels.
+		// Add the column label to the list of column labels.
 		if (this.column !== undefined
 			&& this.parser
 			&& this.parser.config
@@ -70,20 +69,21 @@ class CheckColumnRegEx extends TableRuleAPI {
 			record[this.newColumnIndex] = this.config.newColumn;
 		} else	if (this.column !== undefined) {
 			if (this.column >= record.length) {	// Does the record have the correct number of columns?
-				if (this.reportAlways || !this.badColumnCountReported) {
+				if (!this.badColumnCountReported) {
 					this.error(`Row ${rowId} has insufficient columns.`);
 					this.badColumnCountReported = true;
 				}
 			} else if(this.exec) {
 				const result = this.exec(record[this.column]);
 
-				if(this.onFailure && !result) {
-					this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
-				}
-
 				if(result) {
 					record[this.newColumnIndex] = result[0];
 				} else {
+
+					if(this.onFailure) {
+						this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
+					}
+
 					record[this.newColumnIndex] = '';
 				}
 			}

@@ -99,16 +99,20 @@ class CSVParser extends TableParserAPI {
             let response = record;
             let isHeaderRow = rowNumber < rowHeaderOffset;
 
-            this.tableRule.resetLastCheckCounts();
+            if(this.tableRule) {
+                this.tableRule.resetLastCheckCounts();
 
-            if (this.tableRule && (!isHeaderRow || processHeaderRows)) {
-                response = this.tableRule.processRecordWrapper(record, rowNumber, isHeaderRow);
-            }
+                if (!isHeaderRow || processHeaderRows) {
+                    response = this.tableRule.processRecordWrapper(record, rowNumber, isHeaderRow);
+                }
 
-            rowNumber++;
+                rowNumber++;
 
-            if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
-                return null;
+                if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
+                    return null;
+                }
+            } else {
+                rowNumber++;
             }
 
             return response;
