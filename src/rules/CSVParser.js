@@ -123,6 +123,12 @@ class CSVParser extends TableParserAPI {
             this.tableRule.start(this);
         }
 
+        const that = this; //need this so we have context of the pipe that's failing on 'this'
+        function handleError(e) {
+            that.error('Error processing csv: ' + e);
+            outputStream.end();
+        }
+
         if (outputStream) {
             // Only need to stringify if actually outputting anything.
             const stringifier = stringify({
@@ -133,10 +139,14 @@ class CSVParser extends TableParserAPI {
                 relax_column_count: true		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
                 // I'd rather detect it.
             });
-            inputStream.pipe(parser).pipe(transformer).pipe(stringifier).pipe(outputStream);
+            inputStream.pipe(parser).on('error', handleError)
+                .pipe(transformer).on('error', handleError)
+                .pipe(stringifier).on('error', handleError)
+                .pipe(outputStream).on('error', handleError);
         }
         else
-            inputStream.pipe(parser).pipe(transformer);
+            inputStream.pipe(parser).on('error', handleError)
+                .pipe(transformer).on('error', handleError);
     }
 
     run() {
@@ -166,8 +176,14 @@ class CSVParser extends TableParserAPI {
             {
                 name: 'delimiter',
                 label: 'Delimiter',
-                type: 'string',
-                tooltip: 'Field delimiter of the file. One character only. Defaults to \',\' (comma)'
+                type: 'choice',
+                tooltip: 'Field delimiter of the file. One character only. Defaults to \',\' (comma)',
+                choices: [
+                    {value:',', label:', (comma)'},
+                    {value:'\t', label:'tab'},
+                    {value:'|', label:'| (bar)'},
+                    {value:' ', label:'space'}
+                ]
             },
             {
                 name: 'comment',

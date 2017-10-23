@@ -103,21 +103,45 @@ function addBooleanProperty(instance, property) {
   return `<div>${property.label || property.name} <input id="${property.name}" type="checkbox" ${initialValue ? "checked" : ""}/></div>`;
 }
 
-function addChoiceProperty(instance, property) {
-  if (!property.choices || property.choices.length == 0)
-    return "";
+function iterateChoices(choices, fn) {
 
-  let content=`<div>${property.label || property.name} <select id="${property.name}">`
-  let initialValue = instance.config[property.name] || property.default || property.choices[0];
-  for (var i = 0; i < property.choices.length; i++) {
-    let choice = property.choices[i];
-    content += `<option value="${choice}"`;
-    if (choice == initialValue)
-      content += " selected";
-    content += `>${choice}</option>`;
-  }
-  content += "</select></div>";
-  return content;
+	for (var i = 0; i < choices.length; i++) {
+		let item = choices[i];
+		let choice, label;
+
+		if (Array.isArray(item)) {
+			choice = item[0];
+			label = item[1];
+		} else if (typeof item == 'object') {
+			choice = item.value;
+			label = item.label;
+		} else {
+			choice = item;
+			label = item;
+		}
+
+		fn(choice, label);
+	}
+}
+
+function addChoiceProperty(instance, property) {
+	if (!property.choices || property.choices.length == 0)
+		return "";
+
+	let content = `<div>${property.label || property.name}<select id="${property.name}">`;
+	let initialValue = instance.config[property.name] || property.default || property.choices[0];
+
+	iterateChoices(property.choices, (choice, label) => {
+		content += `<option value="${choice}"`;
+		if (choice == initialValue) {
+			content += " selected";
+		}
+
+		content += `>${label}</option>`;
+	});
+
+	content += "</select></div>";
+	return content;
 }
 
 function addColumnProperty(instance, property, columnLabels) {
