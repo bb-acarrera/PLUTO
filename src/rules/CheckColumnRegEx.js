@@ -1,4 +1,5 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
+const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 class CheckColumnRegEx extends TableRuleAPI {
 	constructor(config) {
@@ -23,6 +24,12 @@ class CheckColumnRegEx extends TableRuleAPI {
 		this.column = this.getValidatedColumnProperty();
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
+
+		if(this.config.failType === ErrorHandlerAPI.WARNING) {
+			this.onFailure = this.warning;
+		} else {
+			this.onFailure = this.error;
+		}
 	}
 
 	processRecord(record, rowId) {
@@ -34,7 +41,7 @@ class CheckColumnRegEx extends TableRuleAPI {
 				}
 			}
 			else if (this.test && !this.test(record[this.column]))	// Is the cell in the column valid?
-				this.error(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
+				this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
 		}
 
 		return record;
@@ -55,13 +62,23 @@ class CheckColumnRegEx extends TableRuleAPI {
 				label: 'Regular Expression',
 				type: 'string',
 				tooltip: 'The regular expression to use to validate the given column.'
+			},
+			{
+				name: 'failType',
+				label: 'On failure generate: ',
+				type: 'choice',
+				choices: [
+					ErrorHandlerAPI.ERROR,
+					ErrorHandlerAPI.WARNING]
 			}
 		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return this.appendDefaults({});
+		return this.appendDefaults({
+			failType: ErrorHandlerAPI.ERROR
+		});
 	}
 
 }
