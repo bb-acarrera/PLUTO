@@ -2,8 +2,8 @@ const TableRuleAPI = require("../api/TableRuleAPI");
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 class CheckColumnRegEx extends TableRuleAPI {
-	constructor(config) {
-		super(config);
+	constructor(config, parser) {
+		super(config, parser);
 
 		if (!config) {
 			this.error('No configuration specified.');			// At the moment this does nothing since a config is required for reporting errors.

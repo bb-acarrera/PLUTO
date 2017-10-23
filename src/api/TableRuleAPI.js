@@ -18,8 +18,9 @@ class TableRuleAPI extends ParserRuleAPI {
      * but rule's may want to switch one uncommon encoding for another more common one.)
      * @param localConfig {object} the rule's configuration as defined in the ruleset file or a standalone config file.
      */
-    constructor(localConfig) {
+    constructor(localConfig, parser) {
         super(localConfig);
+        this.parser = parser;
     }
 
     /**
@@ -37,7 +38,7 @@ class TableRuleAPI extends ParserRuleAPI {
 
     /**
      * Derived classes should override this method if they need to do anything after the processing of records is complete.
-     * @see {@link CSVRuleAPI#start|start}
+     *
      */
     finish() {
         // Do any post-processing.
@@ -138,27 +139,12 @@ class TableRuleAPI extends ParserRuleAPI {
         if (propertyValue === undefined)
             this.error(`Configured without a '${propertyName}' property.`);
         else if (isNaN(propertyValue)) {
-            let sharedData = this.config.sharedData;
-            if (sharedData && sharedData.columnLabels) {
-                let columnLabels = sharedData.columnLabels;
-                if (columnLabels.length == undefined) {
-                    this.error(`Shared 'columnLabels' is not an array.`);
-                    return result;
-                }
-                else if (columnLabels.length == 0) {
-                    this.error(`Shared 'columnLabels' has no content.`);
-                    return result;
-                }
-
-                // Found a column label not index.
-                let index = columnLabels.indexOf(propertyValue);
-                if (index < 0)
-                    this.error(`Configured with a column label '${propertyValue}' that is not in sharedData.columnLabels.`);
-                else
-                    result = index;
-            }
-            else
+            if(this.parser) {
+                result = this.parser.getValidatedColumnProperty(propertyValue, propertyName);
+            } else {
                 this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
+            }
+
         }
         else if (propertyValue < 0)
             this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
@@ -168,6 +154,7 @@ class TableRuleAPI extends ParserRuleAPI {
                 this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
         }
         return result;
+
     }
 }
 

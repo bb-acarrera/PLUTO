@@ -269,7 +269,7 @@ class Validator {
 		this.ruleName = config.name;
 		config.errors = ruleDescriptor.errors;
 
-		let rule =  new ruleClass(config);
+		let rule;
 
 		if(ruleClass.NeedsParser) {
 
@@ -283,9 +283,9 @@ class Validator {
 
 			this.updateConfig(this.parserConfig);
 
-			rule = new this.parserClass(this.parserConfig, rule);
-
-
+			rule = new this.parserClass(this.parserConfig, ruleClass, config);
+		} else {
+			rule =  new ruleClass(config);
 		}
 		return rule;
 	}
