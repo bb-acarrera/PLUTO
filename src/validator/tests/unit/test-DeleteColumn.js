@@ -37,15 +37,22 @@ class MemoryWriterStream extends stream.Writable {
 
 QUnit.test( "DeleteColumn: Deletion Test", function(assert){
     const logger = new ErrorLogger();
+    const sharedData = {};
     const config = {
         "_debugLogger" : logger,
-        "column" : 0,
-        "numHeaderRows" : 1
-    }
+        "column" : 'Column 0',
+        sharedData: sharedData
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ],
+        sharedData: sharedData
+    };
 
     const data = "Column 0,Column 1\na,b";
-    const rule = new DeleteColumn(config);
-    const parser = new CSVParser(config, rule);
+    const parser = new CSVParser(parserConfig, DeleteColumn, config);
+
     const done = assert.async();
     parser._run( { data: data }).then((result) => {
         assert.ok(result, "Created");
@@ -67,13 +74,16 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "column" : 1,
-        "numHeaderRows" : 1
-    }
+        "column" : 1
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
+    };
 
     const data = "Column 0,Column 1\na,b";
-    const rule = new DeleteColumn(config);
-    const parser = new CSVParser(config, rule);
+    const parser = new CSVParser(parserConfig, DeleteColumn, config);
     const done = assert.async();
     parser._run( { data: data }).then((result) => {
         assert.ok(result, "Created");
@@ -95,13 +105,17 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger" : logger,
-        "column" : -1,
-        "numHeaderRows" : 1
+        "column" : -1
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
     };
 
     const data = "Column 0,Column 1\na,b";
     const rule = new DeleteColumn(config);
-    const parser = new CSVParser(config, rule);
+    const parser = new CSVParser(parserConfig, rule);
     const done = assert.async();
     parser._run( { data: data }).then((result) => {
         assert.ok(rule, "Created");
@@ -122,13 +136,17 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
 QUnit.test( "DeleteColumn: No Column Property test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "numHeaderRows" : 1
+        "_debugLogger" : logger
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
     };
 
     const data = "Column 0,Column 1\na,b";
     const rule = new DeleteColumn(config);
-    const parser = new CSVParser(config, rule);
+    const parser = new CSVParser(parserConfig, rule);
     const done = assert.async();
     parser._run( { data: data }).then((result) => {
         assert.ok(rule, "Created");

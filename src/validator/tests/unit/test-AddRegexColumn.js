@@ -1,0 +1,363 @@
+/**
+ * Created by cgerber on 2017-07-21.
+ */
+const stream = require('stream');
+
+const ErrorLogger = require("../../ErrorLogger");
+const AddRegExColumn = require("../../../rules/AddRegExColumn");
+const CSVParser = require("../../../rules/CSVParser");
+
+/*
+ * A trivial class which takes input from a stream and captures it in a buffer.
+ */
+class MemoryWriterStream extends stream.Writable {
+    constructor(options) {
+        super(options);
+        this.buffer = Buffer.from(''); // empty
+    }
+
+    _write(chunk, enc, cb) {
+        // our memory store stores things in buffers
+        const buffer = (Buffer.isBuffer(chunk)) ?
+            chunk :  // already is Buffer use it
+            new Buffer(chunk, enc);  // string, convert
+
+        // concat to the buffer already there
+        this.buffer = Buffer.concat([this.buffer, buffer]);
+
+        // console.log("MemoryWriterStream DEBUG: " + chunk.toString());
+
+        cb(null);
+    }
+
+    getData(encoding) {
+        return this.buffer.toString(encoding);
+    }
+}
+
+QUnit.test( "AddRegExColumn: Add column Test", function(assert){
+    const logger = new ErrorLogger();
+    const sharedData = {};
+    const config = {
+        "_debugLogger" : logger,
+        "column" : 'Column 0',
+        newColumn: 'new column',
+        regex: '[\\s\\S]*',
+        sharedData: sharedData
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ],
+        sharedData: sharedData
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
+
+            assert.equal(dataVar, "Column 0,Column 1,new column\na,b,a\n", "Expected 3 columns");
+            done();
+        });
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: Select add column Test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "column" : 1,
+        newColumn: 'new column',
+        regex: '[\\s\\S]*'
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
+
+            assert.equal(dataVar, "Column 0,Column 1,new column\na,b,b\n", "Expected 3 columns");
+            done();
+        });
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: Add column no match Test", function(assert){
+    const logger = new ErrorLogger();
+    const sharedData = {};
+    const config = {
+        "_debugLogger" : logger,
+        "column" : 'Column 0',
+        newColumn: 'new column',
+        regex: '$a',
+        sharedData: sharedData
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ],
+        sharedData: sharedData
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
+
+            assert.equal(dataVar, "Column 0,Column 1,new column\na,b,\n", "Expected 3 columns, with nothing in 3rd");
+
+            assert.equal(logResults.length, 0, "Expected 0 log result.");
+
+            done();
+        });
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: Add column no match warning Test", function(assert){
+    const logger = new ErrorLogger();
+    const sharedData = {};
+    const config = {
+        "_debugLogger" : logger,
+        "column" : 'Column 0',
+        newColumn: 'new column',
+        regex: '$a',
+        failType: 'Warning',
+        sharedData: sharedData
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ],
+        sharedData: sharedData
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
+
+            assert.equal(dataVar, "Column 0,Column 1,new column\na,b,\n", "Expected 3 columns, with nothing in 3rd");
+
+            assert.equal(logResults.length, 1, "Expected 1 log results.");
+
+            if (logResults.length > 0) {
+                assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+            }
+
+            done();
+        });
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: Add column no match error Test", function(assert){
+    const logger = new ErrorLogger();
+    const sharedData = {};
+    const config = {
+        "_debugLogger" : logger,
+        "column" : 'Column 0',
+        newColumn: 'new column',
+        regex: '$a',
+        failType: 'Error',
+        sharedData: sharedData
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ],
+        sharedData: sharedData
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            //console.log("dataVar = " + dataVar);
+
+            assert.equal(dataVar, "Column 0,Column 1,new column\na,b,\n", "Expected 3 columns, with nothing in 3rd");
+
+            assert.equal(logResults.length, 1, "Expected 1 log results.");
+
+            if (logResults.length > 0) {
+                assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+            }
+
+            done();
+        });
+        result.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: Negative Column Test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "column" : -1,
+        newColumn: 'new column',
+        regex: '[\\s\\S]*'
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const rule = new AddRegExColumn(config);
+    const parser = new CSVParser(parserConfig, rule);
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(rule, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            assert.equal(logResults.length, 1, "Expected 1 result.");
+            assert.equal(logResults[0].type, "Error", "Expected \"Error\".");
+            done();
+        });
+        result.stream.pipe(writer);
+
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: No Column Property test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        newColumn: 'new column',
+        regex: '[\\s\\S]*'
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const rule = new AddRegExColumn(config);
+    const parser = new CSVParser(parserConfig, rule);
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        assert.ok(rule, "Created");
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            assert.equal(logResults.length, 1, "Expected 1 result.");
+            assert.equal(logResults[0].type, "Error", "Expected \"Error\".");
+            done();
+        });
+        result.stream.pipe(writer);
+
+    });
+
+});
+
+QUnit.test( "AddRegExColumn: No new Column Property test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        column: 'Column 0',
+        regex: '[\\s\\S]*'
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            assert.equal(logResults.length, 1, "Expected 1 result.");
+            assert.equal(logResults[0].type, "Error", "Expected \"Error\".");
+            done();
+        });
+        result.stream.pipe(writer);
+
+    });
+});
+
+QUnit.test( "AddRegExColumn: No regex Property test", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        column: 'Column 0',
+        newColumn: 'new column'
+    };
+
+    const parserConfig = {
+        "numHeaderRows" : 1,
+        "columnNames" : [ "Column 0", "Column 1" ]
+    };
+
+    const data = "Column 0,Column 1\na,b";
+    const parser = new CSVParser(parserConfig, AddRegExColumn, config);
+    const done = assert.async();
+    parser._run( { data: data }).then((result) => {
+        const logResults = logger.getLog();
+        const writer = new MemoryWriterStream();
+        writer.on('finish', () => {
+            const dataVar = writer.getData();
+            assert.equal(logResults.length, 1, "Expected 1 result.");
+            assert.equal(logResults[0].type, "Error", "Expected \"Error\".");
+            done();
+        });
+        result.stream.pipe(writer);
+
+    });
+});

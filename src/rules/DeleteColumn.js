@@ -1,8 +1,8 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
 
 class DeleteColumn extends TableRuleAPI {
-	constructor(config) {
-		super(config);
+	constructor(config, parser) {
+		super(config, parser);
 
 		this.column = this.getValidatedColumnProperty();
 	}
@@ -24,11 +24,12 @@ class DeleteColumn extends TableRuleAPI {
 
 		// Remove the column label from the shared list of column labels.
 		if (this.column !== undefined
-			&& this.config.sharedData
-			&& this.config.sharedData.columnLabels
-			&& this.config.sharedData.columnLabels.length != undefined
-			&& this.config.sharedData.columnLabels.length >= this.column)
-			this.config.sharedData.columnLabels.splice(this.column, 1);
+			&& this.parser
+			&& this.parser.config
+			&& this.parser.config.columnNames
+			&& this.parser.config.columnNames.length != null
+			&& this.parser.config.columnNames.length >= this.column)
+			this.parser.config.columnNames.splice(this.column, 1);
 	}
 
 	get processHeaderRows() {

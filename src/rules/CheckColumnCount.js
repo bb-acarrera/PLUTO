@@ -1,8 +1,8 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
 
 class CheckColumnCount extends TableRuleAPI {
-	constructor(config) {
-		super(config);
+	constructor(config, parser) {
+		super(config, parser);
 
 		this.columns = undefined;
 		if (!this.config)

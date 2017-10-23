@@ -99,8 +99,11 @@ QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( 
 
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
+	if(logResults.length >= 1) {
+		assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
+		assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
+	}
+
 });
 
 QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {

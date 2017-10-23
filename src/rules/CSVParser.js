@@ -13,10 +13,11 @@ class CSVParser extends TableParserAPI {
      * Derived classes must call this from their constructor.
      * @constructor
      * @param config {object} the config object passed into the derived class's constructor.
-     * @param tableRule {TableRuleAPI} the rule for the parser to execute
+     * @param tableRuleClass {TableRuleAPI class} the rule class for the parser to execute
+     * @param tableRuleConfig {object} the configuration to instantiate an instance of tableRuleClass
      */
-    constructor(config, tableRule) {
-        super(config, tableRule);
+    constructor(config, tableRuleClass, tableRuleConfig) {
+        super(config, tableRuleClass, tableRuleConfig);
 
         this.delimiter = this.config.delimiter || ',';
         this.comment = this.config.comment || '';
@@ -30,9 +31,6 @@ class CSVParser extends TableParserAPI {
 
         this.numHeaderRows = this.getValidatedHeaderRows();
 
-        if(this.config.sharedData && !this.config.sharedData.columnLabels) {
-            this.config.sharedData.columnLabels = this.config.columnNames;
-        }
     }
 
     /**
@@ -99,17 +97,22 @@ class CSVParser extends TableParserAPI {
             }
 
             let response = record;
+            let isHeaderRow = rowNumber < rowHeaderOffset;
 
-            this.tableRule.resetLastCheckCounts();
+            if(this.tableRule) {
+                this.tableRule.resetLastCheckCounts();
 
-            if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
-                response = this.tableRule.processRecordWrapper(record, rowNumber);
-            }
+                if (!isHeaderRow || processHeaderRows) {
+                    response = this.tableRule.processRecordWrapper(record, rowNumber, isHeaderRow);
+                }
 
-            rowNumber++;
+                rowNumber++;
 
-            if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
-                return null;
+                if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
+                    return null;
+                }
+            } else {
+                rowNumber++;
             }
 
             return response;

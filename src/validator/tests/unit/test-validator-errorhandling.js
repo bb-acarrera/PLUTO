@@ -81,8 +81,11 @@ QUnit.test( "Validator Error Handling: One Error", function(assert) {
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.equal(vldtr.abort, true, "Expected run to fail");
             assert.ok(log.length > 0, "Expected at least one log entry");
-            assert.equal(log[0].type, "Error", "Expected an error");
-            assert.equal(log[0].description, "Row 2 has error", 'Expected "Row 2 has error"');
+            if(log.length > 0) {
+                assert.equal(log[0].type, "Error", "Expected an error");
+                assert.equal(log[0].description, "Row 2 has error", 'Expected "Row 2 has error"');
+            }
+
         },
         done);
 
