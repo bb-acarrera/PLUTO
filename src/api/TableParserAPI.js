@@ -14,6 +14,17 @@ class TableParserAPI extends RuleAPI {
     constructor(config, tableRule, tableRuleConfig) {
         super(config);
 
+        if(this.config.sharedData) {
+            if (!this.config.sharedData.Parser) {
+                this.config.sharedData.Parser = { columnNames: this.config.columnNames };
+            }
+
+
+            this.parserSharedData = this.config.sharedData.Parser
+        } else {
+            this.parserSharedData = {};
+        }
+
         if(!tableRule) {
             this.warning(`No rule was supplied to parser`);
         }
@@ -23,6 +34,8 @@ class TableParserAPI extends RuleAPI {
         } else {
             this.tableRule = tableRule;
         }
+
+
 
     }
 
@@ -41,8 +54,8 @@ class TableParserAPI extends RuleAPI {
         if (propertyValue === undefined)
             this.error(`Configured without a '${propertyName}' property.`);
         else if (isNaN(propertyValue)) {
-            if (this.config && this.config.columnNames) {
-                let columnLabels = this.config.columnNames;
+            if (this.parserSharedData.columnNames) {
+                let columnLabels = this.parserSharedData.columnNames;
                 if (columnLabels.length == null) {
                     this.error(`Shared 'columnLabels' is not an array.`);
                     return result;
@@ -70,6 +83,39 @@ class TableParserAPI extends RuleAPI {
                 this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
         }
         return result;
+    }
+
+    addColumn(columnName) {
+
+        let newColumnIndex = null;
+
+        if( this.parserSharedData.columnNames
+            && this.parserSharedData.columnNames.length != null) {
+
+            newColumnIndex = this.parserSharedData.columnNames.length;
+
+            this.parserSharedData.columnNames.push(columnName);
+        }
+
+        return newColumnIndex;
+    }
+
+    removeColumn(columnIndex) {
+        if(this.parserSharedData.columnNames
+            && this.parserSharedData.columnNames.length != null
+            && this.parserSharedData.columnNames.length >= this.column) {
+
+            this.parserSharedData.columnNames.splice(columnIndex, 1);
+        }
+
+    }
+
+	/**
+	 * The list of columns added by the parser
+     * @returns {Array}
+     */
+    get internalColumns() {
+        return [];
     }
 
     /**

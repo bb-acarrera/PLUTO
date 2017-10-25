@@ -9,11 +9,7 @@ class CheckLatLong extends TableRuleAPI {
 			return;	// Might as well give up...
 		}
 
-		this.latitudeColumn = this.getValidatedColumnProperty(this.config.latitudeColumn, 'latitudeColumn');
-		this.longitudeColumn = this.getValidatedColumnProperty(this.config.longitudeColumn, 'longitudeColumn');
 
-		if (this.latitudeColumn && this.latitudeColumn === this.longitudeColumn)
-			this.error(`Configured with identical latitudeColumn and longitudeColumn property values.`);
 
 		this.nullEpsilon = 0.01;
 		if (this.config.nullEpsilon === undefined) {
@@ -29,8 +25,19 @@ class CheckLatLong extends TableRuleAPI {
 		else
 			this.nullEpsilon = this.config.nullEpsilon;
 
+		this.checkValidColumnProperty(this.config.latitudeColumn, 'latitudeColumn');
+		this.checkValidColumnProperty(this.config.longitudeColumn, 'longitudeColumn');
+
+		if (this.config.latitudeColumn && this.config.latitudeColumn === this.config.longitudeColumn)
+			this.error(`Configured with identical latitudeColumn and longitudeColumn property values.`);
+
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
+	}
+
+	start() {
+		this.latitudeColumn = this.getValidatedColumnProperty(this.config.latitudeColumn, 'latitudeColumn');
+		this.longitudeColumn = this.getValidatedColumnProperty(this.config.longitudeColumn, 'longitudeColumn');
 	}
 
 	processRecord(record, rowId) {

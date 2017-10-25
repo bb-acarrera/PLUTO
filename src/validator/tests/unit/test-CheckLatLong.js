@@ -20,60 +20,104 @@ QUnit.test( "CheckLatLong: Creation Test", function( assert ) {
 QUnit.test( "CheckLatLong: Check For Absent LatitudeColumn Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger
+		"_debugLogger" : logger,
+		"numHeaderRows" : 1,
+		"longitudeColumn" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured without a 'latitudeColumn' property.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured without a 'latitudeColumn' property.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number LatitudeColumn Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"latitudeColumn" : "foo"
+		"latitudeColumn" : "foo",
+		"numHeaderRows" : 1,
+		"longitudeColumn" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number 'latitudeColumn'. Got 'foo'.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a non-number 'latitudeColumn'. Got 'foo'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"latitudeColumn" : -1
+		"latitudeColumn" : -1,
+		"numHeaderRows" : 1,
+		"longitudeColumn" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative 'latitudeColumn'. Got '-1'.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a negative 'latitudeColumn'. Got '-1'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"latitudeColumn" : 1.1
+		"latitudeColumn" : 1.1,
+		"numHeaderRows" : 1,
+		"longitudeColumn" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer 'latitudeColumn'. Got '1.1', using 1.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
+		assert.equal(logResults[0].description, "Configured with a non-integer 'latitudeColumn'. Got '1.1', using 1.");
+		done();
+	});
+
+
 });
 
 
@@ -81,15 +125,25 @@ QUnit.test( "CheckLatLong: Check For Absent LongitudeColumn Property", function(
 	const logger = new ErrorLogger();
 	const config = {
 		"_debugLogger" : logger,
-		"latitudeColumn" : 1
+		"latitudeColumn" : 1,
+		"numHeaderRows" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured without a 'longitudeColumn' property.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured without a 'longitudeColumn' property.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", function( assert ) {
@@ -97,15 +151,25 @@ QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", funct
 	const config = {
 		"_debugLogger" : logger,
 		"latitudeColumn" : 1,
-		"longitudeColumn" : "foo"
+		"longitudeColumn" : "foo",
+		"numHeaderRows" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number 'longitudeColumn'. Got 'foo'.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a non-number 'longitudeColumn'. Got 'foo'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", function( assert ) {
@@ -113,15 +177,25 @@ QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", functio
 	const config = {
 		"_debugLogger" : logger,
 		"latitudeColumn" : 1,
-		"longitudeColumn" : -1
+		"longitudeColumn" : -1,
+		"numHeaderRows" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative 'longitudeColumn'. Got '-1'.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a negative 'longitudeColumn'. Got '-1'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", function( assert ) {
@@ -129,15 +203,25 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", func
 	const config = {
 		"_debugLogger" : logger,
 		"latitudeColumn" : 1,
-		"longitudeColumn" : 1.1
+		"longitudeColumn" : 1.1,
+		"numHeaderRows" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer 'longitudeColumn'. Got '1.1', using 1.");
+	const done = assert.async();
+	const data = "Lat,Long\n1,1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+		assert.equal(logResults[0].description, "Configured with a non-integer 'longitudeColumn'. Got '1.1', using 1.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Property Values", function( assert ) {
@@ -145,15 +229,25 @@ QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Prop
 	const config = {
 		"_debugLogger" : logger,
 		"latitudeColumn" : 1,
-		"longitudeColumn" : 1
+		"longitudeColumn" : 1,
+		"numHeaderRows" : 1,
+		"nullEpsilon" : 0.1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with identical latitudeColumn and longitudeColumn property values.");
+	const done = assert.async();
+	const data = "Lat,Long\n1,1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with identical latitudeColumn and longitudeColumn property values.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", function( assert ) {
@@ -161,15 +255,24 @@ QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", functio
 	const config = {
 		"_debugLogger" : logger,
 		"longitudeColumn" : 0,
-		"latitudeColumn" : 1
+		"latitudeColumn" : 1,
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured without a nullEpsilon property. Using 0.01.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+		assert.equal(logResults[0].description, "Configured without a nullEpsilon property. Using 0.01.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", function( assert ) {
@@ -178,15 +281,24 @@ QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", fun
 		"_debugLogger" : logger,
 		"longitudeColumn" : 0,
 		"latitudeColumn" : 1,
-		"nullEpsilon" : "foo"
+		"nullEpsilon" : "foo",
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number nullEpsilon. Got 'foo'.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a non-number nullEpsilon. Got 'foo'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", function( assert ) {
@@ -195,15 +307,24 @@ QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", funct
 		"_debugLogger" : logger,
 		"longitudeColumn" : 0,
 		"latitudeColumn" : 1,
-		"nullEpsilon" : -0.1
+		"nullEpsilon" : -0.1,
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckLatLong(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a negative nullEpsilon. Got '-0.1'. Using 0.1.");
+	const done = assert.async();
+	const data = "Lat,Long\n1";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+		assert.equal(logResults[0].description, "Configured with a negative nullEpsilon. Got '-0.1'. Using 0.1.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckLatLong: Check For Bad Column Index", function( assert ) {

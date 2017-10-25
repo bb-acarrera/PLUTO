@@ -5,6 +5,11 @@ const parse = require('csv-parse');
 const stringify = require('csv-stringify');
 const transform = require('stream-transform');
 
+const DeleteColumn = require('./DeleteInternalColumn');
+const AddRowIdColumn = require('./AddRowIdColumn');
+
+const trackingColumnName = '____trackingRowId___internal___';
+
 /**
 
  */
@@ -30,6 +35,10 @@ class CSVParser extends TableParserAPI {
         this.post_quote = this.config.OutputQuote || '"';
 
         this.numHeaderRows = this.getValidatedHeaderRows();
+
+        if(!this.parserSharedData._internalColumns) {
+            this.parserSharedData._internalColumns = [];
+        }
 
     }
 
@@ -87,10 +96,26 @@ class CSVParser extends TableParserAPI {
         }
         let rowNumber = 1;
         let rowHeaderOffset = this.numHeaderRows + 1;
+        let firstRow = true;
 
 
         // This CSV Transformer is used to call the processRecord() method above.
         const transformer = transform(record => {
+
+            if(!this.parserSharedData.columnNames) {
+                this.parserSharedData.columnNames = [];
+                while(this.parserSharedData.columnNames.length < record.length) {
+                    this.parserSharedData.columnNames.push(this.parserSharedData.columnNames.length);
+                }
+            }
+
+            if(firstRow) {
+                if(this.tableRule) {
+                    this.tableRule.start(this);
+                }
+                firstRow = false;
+            }
+
 
             if(this.config.sharedData && this.config.sharedData.abort) {
                 return null;
@@ -98,22 +123,29 @@ class CSVParser extends TableParserAPI {
 
             let response = record;
             let isHeaderRow = rowNumber < rowHeaderOffset;
+            let rowId = rowNumber;
 
             if(this.tableRule) {
                 this.tableRule.resetLastCheckCounts();
 
                 if (!isHeaderRow || processHeaderRows) {
-                    response = this.tableRule.processRecordWrapper(record, rowNumber, isHeaderRow);
+
+                    if(this.parserSharedData.rowIdColumnIndex != null && record.length > this.parserSharedData.rowIdColumnIndex) {
+                        rowId = record[this.parserSharedData.rowIdColumnIndex];
+                    }
+
+                    response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow);
                 }
 
-                rowNumber++;
+
 
                 if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
                     return null;
                 }
-            } else {
-                rowNumber++;
             }
+
+            rowNumber++;
+
 
             return response;
         });
@@ -122,8 +154,6 @@ class CSVParser extends TableParserAPI {
             transformer.once("finish", () => {
                 this.tableRule.finish();	// Finished so let the derived class know.
             });
-
-            this.tableRule.start(this);
         }
 
         const that = this; //need this so we have context of the pipe that's failing on 'this'
@@ -155,6 +185,58 @@ class CSVParser extends TableParserAPI {
     run() {
         this._processCSV(this.inputStream, this.outputStream);
         return this.asStream(this.outputStream);
+    }
+
+    getSetupRule() {
+        if(this.parserSharedData && !this.parserSharedData.CSVParserSetupAdded) {
+            const config = Object.assign({}, this.config, {
+                newColumn : trackingColumnName
+            });
+
+            this.parserSharedData.CSVParserSetupAdded = true;
+
+            return new CSVParser(this.config, AddRowIdColumn, config);
+        }
+    }
+
+    getCleanupRule() {
+        if(this.parserSharedData && !this.parserSharedData.CSVParserCleanupAdded) {
+            const config = Object.assign({}, this.config, {
+                column : trackingColumnName
+            });
+
+            this.parserSharedData.CSVParserCleanupAdded = true;
+
+            return new CSVParser(this.config, DeleteColumn, config);
+        }
+    }
+
+
+    get internalColumns() {
+        return this.parserSharedData._internalColumns;
+    }
+
+    addInternalColumn(columnName) {
+
+        let newColumnIndex = this.addColumn(columnName);
+
+        if (newColumnIndex != null) {
+            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
+        }
+
+        return newColumnIndex;
+    }
+
+    removeInternalColumn(columnIndex) {
+        this.removeColumn(columnIndex);
+
+        let index = this.parserSharedData._internalColumns.length - 1;
+        while (index >= 0) {
+            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
+                this.parserSharedData._internalColumns.splice(index, 1);
+            }
+            index -= 1;
+        }
     }
 
     static get Type() {

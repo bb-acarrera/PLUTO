@@ -123,6 +123,24 @@ class TableRuleAPI extends ParserRuleAPI {
         return "table_parser";
     }
 
+    /**
+     * Given the value of a property this validates whether a valid column property was supplied
+     * @param {string} propertyValue the value of a config column property. If this is <code>undefined</code> then
+     * <code>this.config.column</code> is used.
+     * @param {string} propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
+     * @returns {boolean} property OK
+     */
+    checkValidColumnProperty(propertyValue, propertyName) {
+        propertyValue = propertyValue == undefined ? this.config.column : propertyValue;
+        propertyName = propertyName == undefined ? 'column' : propertyName;
+
+        if (propertyValue == null) {
+            this.error(`Configured without a '${propertyName}' property.`);
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Given the value of a property this validates whether the given value is a column label or column number
@@ -138,22 +156,23 @@ class TableRuleAPI extends ParserRuleAPI {
         propertyName = propertyName == undefined ? 'column' : propertyName;
 
         var result = undefined;
-        if (propertyValue === undefined)
-            this.error(`Configured without a '${propertyName}' property.`);
-        else if (isNaN(propertyValue)) {
-            if(this.parser) {
-                result = this.parser.getValidatedColumnProperty(propertyValue, propertyName);
-            } else {
-                this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
-            }
+        if (propertyValue != null) {
 
-        }
-        else if (propertyValue < 0)
-            this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
-        else {
-            result = Math.floor(parseFloat(propertyValue));
-            if (!Number.isInteger(parseFloat(propertyValue)))
-                this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
+            if (isNaN(propertyValue)) {
+                if (this.parser) {
+                    result = this.parser.getValidatedColumnProperty(propertyValue, propertyName);
+                } else {
+                    this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
+                }
+
+            }
+            else if (propertyValue < 0)
+                this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
+            else {
+                result = Math.floor(parseFloat(propertyValue));
+                if (!Number.isInteger(parseFloat(propertyValue)))
+                    this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
+            }
         }
         return result;
 

@@ -7,6 +7,8 @@ const OperatorAPI = require("../api/RuleAPI");
 class RunPythonScript extends OperatorAPI {
 	constructor(config) {
 		super(config);
+
+		this.changeFileFormat = this.config.changeFileFormat === true;
 	}
 
 	runPython(inputName) {
@@ -83,6 +85,10 @@ class RunPythonScript extends OperatorAPI {
 			return this.asFile(this.runPython(inputName));
 	}
 
+	get structureChange() {
+		return this.changeFileFormat;
+	}
+
 	static get ConfigProperties() {
 		return this.appendConfigProperties([
 			{
@@ -90,13 +96,19 @@ class RunPythonScript extends OperatorAPI {
 				type: 'string',
 				label: 'Python Script Path',
 				tooltip: 'The path to the python script to run.'
+			},
+			{
+				name: 'changeFileFormat',
+				type: 'boolean',
+				label: 'Script will change file format',
+				tooltip: 'Set to true if this script will alter the format of the file (e.g. csv to geojson)'
 			}
 		]);
 	}
 
 
 	static get ConfigDefaults() {
-		return this.appendDefaults({});
+		return this.appendDefaults({changeFileFormat: false});
 	}
 }
 

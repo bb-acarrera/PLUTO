@@ -184,21 +184,61 @@ class Validator {
 	 */
 	runRules(ruleset, file) {
 
-		let rules = ruleset.rules;
 		this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
 		this.abort = false;
 
 		try {
 
-
 			if (!fs.existsSync(file))
 				throw "Input file \"" + file + "\" does not exist.";
 
-			if (!rules || rules.length == 0) {
+			if (!ruleset.rules || ruleset.rules.length == 0) {
 				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
 				this.finishRun();
 				return;
 			}
+
+			let rules = [];
+			let cleanupRules = [];
+			ruleset.rules.forEach((ruleConfig) => {
+				let rule = this.getRule(ruleConfig);
+
+				if(rule.getSetupRule) {
+					const setup = rule.getSetupRule();
+					if(setup) {
+						rules.push(setup);
+					}
+
+				}
+
+				if(rule.getCleanupRule) {
+					const cleanup = rule.getCleanupRule();
+					if(cleanup) {
+						cleanupRules.push();
+					}
+
+				}
+
+				if(rule.structureChange) {
+					cleanupRules.forEach((cleanupRule) => {
+						rules.push(cleanupRule);
+					});
+					cleanupRules = [];
+				}
+
+				rules.push(rule);
+
+			});
+
+			cleanupRules.forEach((cleanupRule) => {
+				rules.push(cleanupRule);
+			});
+
+			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
+				this.abort = true;
+				throw "Errors in rule configuration. Aborting.";
+			}
+
 
 			// As a first step get the file locally. Do this to simplify running the rules (they
 			// all run locally) and make sure the data is all available at the start of the process.
@@ -208,7 +248,7 @@ class Validator {
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
 				if (lastResult.index < rules.length && !validator.abort)
-					return validator.getRule(rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
+					return rules[lastResult.index]._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
 			}).catch((e) => {

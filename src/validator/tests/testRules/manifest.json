@@ -3,6 +3,9 @@
   "rules": [
     {
       "filename":"RulePassFail"
+    },
+    {
+      "filename":"RuleErrorFromColumn"
     }
   ],
   "importers" : [],
