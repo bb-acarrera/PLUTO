@@ -60,15 +60,23 @@ QUnit.test( "CheckColumnType: Check For Non-Number column Property", function( a
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"column" : "foo"
+		"column" : "foo",
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnType(config);
+	const parser = new CSVParser(config, rule);
+	const done = assert.async();
+	const data = "Column 0\nfoo";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a non-number 'column'. Got 'foo'.");
+		done();
+	});
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number 'column'. Got 'foo'.");
+
 });
 
 QUnit.test( "CheckColumnType: Check For Negative column Property", function( assert ) {
@@ -76,15 +84,22 @@ QUnit.test( "CheckColumnType: Check For Negative column Property", function( ass
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"column" : -1
+		"column" : -1,
+		"numHeaderRows" : 1
 	};
 
-	const rule = new CheckColumnType(config);
+	const rule = new CheckColumnType(config);const parser = new CSVParser(config, rule);
+	const done = assert.async();
+	const data = "Column 0\nfoo";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a negative 'column'. Got '-1'.");
+		done();
+	});
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative 'column'. Got '-1'.");
+
 });
 
 QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( assert ) {
@@ -92,17 +107,24 @@ QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( 
 	const config = {
 		"_debugLogger" : logger,
 		"type" : "number",
-		"column" : 1.1
+		"column" : 1.1,
+		"numHeaderRows" : 1
 	};
 
-	const rule = new CheckColumnType(config);
+	const rule = new CheckColumnType(config);const parser = new CSVParser(config, rule);
+	const done = assert.async();
+	const data = "Column 0\nfoo";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		if(logResults.length >= 1) {
+			assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
+			assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
+		}
+		done();
+	});
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	if(logResults.length >= 1) {
-		assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-		assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
-	}
+
 
 });
 

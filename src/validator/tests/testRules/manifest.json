@@ -3,6 +3,12 @@
   "rules": [
     {
       "filename":"RulePassFail"
+    },
+    {
+      "filename":"RuleErrorFromColumn"
+    },
+    {
+      "filename":"RuleCountRows"
     }
   ],
   "importers" : [],

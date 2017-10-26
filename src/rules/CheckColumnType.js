@@ -41,9 +41,14 @@ class CheckColumnType extends TableRuleAPI {
 			}
 		}
 
-		this.column = this.getValidatedColumnProperty();
+		this.checkValidColumnProperty();
+
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
+	}
+
+	start() {
+		this.column = this.getValidatedColumnProperty();
 	}
 
 	processRecord(record, rowId) {

@@ -1,7 +1,7 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
-class CheckColumnRegEx extends TableRuleAPI {
+class AddRegExColumn extends TableRuleAPI {
 	constructor(config, parser) {
 		super(config, parser);
 
@@ -21,12 +21,14 @@ class CheckColumnRegEx extends TableRuleAPI {
 			}
 		}
 
+		this.checkValidColumnProperty();
+
 		if(!this.config.newColumn) {
 			this.error(`No 'newColumn' name defined.`);
 			return;
 		}
 
-		this.column = this.getValidatedColumnProperty();
+
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 
 		if(this.config.failType === ErrorHandlerAPI.WARNING) {
@@ -36,6 +38,7 @@ class CheckColumnRegEx extends TableRuleAPI {
 		} else {
 			this.onFailure = null;
 		}
+
 	}
 
 	get processHeaderRows() {
@@ -43,27 +46,22 @@ class CheckColumnRegEx extends TableRuleAPI {
 	}
 
 	start() {
-		// Because of the asynchronous nature of streams this modification of the shared data must be done
-		// before the rule starts rather than at the end. Otherwise following rules would start with the unmodified
-		// version of the shared data. Not what is desired.
+		this.column = this.getValidatedColumnProperty();
 
-		// Add the column label to the list of column labels.
-		if (this.column !== undefined
-			&& this.parser
-			&& this.parser.config
-			&& this.parser.config.columnNames
-			&& this.parser.config.columnNames.length != null
-			&& this.parser.config.columnNames.length >= this.column) {
-
-			this.newColumnIndex = this.parser.config.columnNames.length;
-
-			this.parser.config.columnNames.push(this.config.newColumn);
-
+		if(this.newColumnIndex == null && this.parser) {
+			this.newColumnIndex = this.parser.addColumn(this.config.newColumn);
 		}
-
 	}
 
 	processRecord(record, rowId, isHeaderRow) {
+
+		if(this.newColumnIndex == null) {
+			this.newColumnIndex = record.length;
+		}
+
+		while(record.length <= this.newColumnIndex) {
+			record.push(null);
+		}
 
 		if(isHeaderRow) {
 			record[this.newColumnIndex] = this.config.newColumn;
@@ -107,13 +105,13 @@ class CheckColumnRegEx extends TableRuleAPI {
 				name: 'newColumn',
 				label: 'New Column Name',
 				type: 'string',
-				tooltip: 'The column to run the regular expression against.'
+				tooltip: 'The name of the new column.'
 			},
 			{
 				name: 'regex',
 				label: 'Regular Expression',
 				type: 'string',
-				tooltip: 'The regular expression to use to validate the given column.'
+				tooltip: 'The regular expression to use to generate the new column.'
 			},
 			{
 				name: 'failType',
@@ -137,4 +135,4 @@ class CheckColumnRegEx extends TableRuleAPI {
 
 }
 
-module.exports = CheckColumnRegEx;
+module.exports = AddRegExColumn;

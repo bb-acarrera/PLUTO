@@ -4,7 +4,7 @@ class DataProxy {
     constructor(ruleset, afterSave, done) {
         this.ruleset = ruleset;
         this.afterSave = afterSave;
-        this.done = done;
+        this.done = done || function() {};
     }
 
     getDataObj(config) {

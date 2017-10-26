@@ -10,6 +10,8 @@ class CheckColumnRegEx extends TableRuleAPI {
 			return;	// Might as well give up...
 		}
 
+		this.checkValidColumnProperty();
+
 		if (!this.config.regex) {
 			this.error(`No 'regex' property defined'.`);
 			return;
@@ -21,7 +23,6 @@ class CheckColumnRegEx extends TableRuleAPI {
 			}
 		}
 
-		this.column = this.getValidatedColumnProperty();
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
 
@@ -30,6 +31,10 @@ class CheckColumnRegEx extends TableRuleAPI {
 		} else {
 			this.onFailure = this.error;
 		}
+	}
+
+	start() {
+		this.column = this.getValidatedColumnProperty();
 	}
 
 	processRecord(record, rowId) {

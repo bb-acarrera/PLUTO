@@ -1,10 +1,12 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
 
-class DeleteColumn extends TableRuleAPI {
+/* internal rule used by the CSVParser, do not add to the manifest */
+
+class DeleteInternalColumn extends TableRuleAPI {
 	constructor(config, parser) {
 		super(config, parser);
 
-		this.checkValidColumnProperty();
+
 	}
 
 	processRecord(record) {
@@ -18,18 +20,14 @@ class DeleteColumn extends TableRuleAPI {
 	}
 
 	start() {
-		// Because of the asynchronous nature of streams this modification of the shared data must be done
-		// before the rule starts rather than at the end. Otherwise following rules would start with the unmodified
-		// version of the shared data. Not what is desired.
 
 		this.column = this.getValidatedColumnProperty();
-
 	}
 
 	finish() {
 		// Remove the column label from the shared list of column labels.
-		if (this.column !== undefined && this.parser) {
-			this.parser.removeColumn(this.column);
+		if (this.column !== undefined && this.parser && this.parser.removeInternalColumn) {
+			this.parser.removeInternalColumn(this.column);
 		}
 	}
 
@@ -54,4 +52,4 @@ class DeleteColumn extends TableRuleAPI {
 	}
 }
 
-module.exports = DeleteColumn;
+module.exports = DeleteInternalColumn;

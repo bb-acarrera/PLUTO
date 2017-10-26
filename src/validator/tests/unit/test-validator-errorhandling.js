@@ -617,3 +617,210 @@ QUnit.test( "Validator Error Handling: Exclude row shouldn't abort", function(as
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
 });
+
+QUnit.test( "Validator Error Handling: Exclude row actually removed", function(assert) {
+    const config = getDefaultConfig();
+
+    const done = assert.async();
+
+    const checkFile = () => {
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RuleCountRows",
+                    config : {
+                        id : 1,
+                        rowCount: 3
+                    }
+                }
+            ],
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, false, "Expected no errors on rowcount check");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/results/excludeRow.csv", "output.csv", 'UTF8');
+    };
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    onError: 'excludeRow'
+                }
+            }
+        ],
+        general : { config : {
+            "errorsToAbort": 1
+        }},
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, false, "Expected initial run to pass");
+        }, checkFile);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "excludeRow.csv", 'UTF8');
+
+
+
+
+});
+
+QUnit.test( "Validator Error Handling: Exclude row following row warning correct id", function(assert) {
+    const config = getDefaultConfig();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "RulePassFail",
+                config : {
+                    id : 1,
+                    rows: {
+                        "2": ErrorHandlerAPI.ERROR
+                    },
+                    onError: 'excludeRow'
+                }
+            },
+            {
+                filename : "RuleErrorFromColumn",
+                config : {
+                    id : 1,
+                    column: 9
+                }
+            }
+        ],
+        general : { config : {
+            "errorsToAbort": 1
+        }},
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+    const done = assert.async();
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, false, "Expected run to pass");
+
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.WARNING) == 2, "Expected two warnings");
+            assert.equal(log[1].description, 'Row 3 has warning');
+        },
+        done);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile2.csv", "output2.csv", 'UTF8');
+
+});
+
+QUnit.test( "Validator Error Handling: internal rowId column actually removed", function(assert) {
+    const config = getDefaultConfig();
+
+    const done = assert.async();
+
+    const checkFile = () => {
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "CheckColumnCount",
+                    config : {
+                        id : 1,
+                        columns : 9
+                    }
+                }
+            ],
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, false, "Expected no errors on column count check");
+                assert.equal(log.length, 0, "Expected no warnings or errors");
+
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/results/excludeRow.csv", "output.csv", 'UTF8');
+    };
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "CheckColumnCount",
+                config : {
+                    id : 1,
+                    columns : 9
+                }
+            }
+        ],
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1
+            }
+        }
+    };
+
+
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.equal(vldtr.abort, false, "Expected initial run to pass");
+        }, checkFile);
+
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "excludeRow.csv", 'UTF8');
+
+
+
+
+});
