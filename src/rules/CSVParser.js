@@ -137,11 +137,6 @@ class CSVParser extends TableParserAPI {
                     response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow);
                 }
 
-
-
-                if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
-                    return null;
-                }
             }
 
             rowNumber++;

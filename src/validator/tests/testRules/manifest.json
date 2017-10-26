@@ -6,6 +6,9 @@
     },
     {
       "filename":"RuleErrorFromColumn"
+    },
+    {
+      "filename":"RuleCountRows"
     }
   ],
   "importers" : [],

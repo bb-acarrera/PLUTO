@@ -214,7 +214,7 @@ class Validator {
 				if(rule.getCleanupRule) {
 					const cleanup = rule.getCleanupRule();
 					if(cleanup) {
-						cleanupRules.push();
+						cleanupRules.push(cleanup);
 					}
 
 				}
