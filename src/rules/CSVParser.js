@@ -5,8 +5,8 @@ const parse = require('csv-parse');
 const stringify = require('csv-stringify');
 const transform = require('stream-transform');
 
-const DeleteColumn = require('./DeleteInternalColumn');
-const AddRowIdColumn = require('./AddRowIdColumn');
+const DeleteColumn = require('./internal/DeleteInternalColumn');
+const AddRowIdColumn = require('./internal/AddRowIdColumn');
 
 const trackingColumnName = '____trackingRowId___internal___';
 
@@ -125,22 +125,17 @@ class CSVParser extends TableParserAPI {
             let isHeaderRow = rowNumber < rowHeaderOffset;
             let rowId = rowNumber;
 
-            if(this.tableRule) {
-                this.tableRule.resetLastCheckCounts();
+            if(this.tableRule && (!isHeaderRow || processHeaderRows)) {
 
-                if (!isHeaderRow || processHeaderRows) {
-
-                    if(this.parserSharedData.rowIdColumnIndex != null && record.length > this.parserSharedData.rowIdColumnIndex) {
-                        rowId = record[this.parserSharedData.rowIdColumnIndex];
-                    }
-
-                    response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow);
+                if(this.parserSharedData.rowIdColumnIndex != null && record.length > this.parserSharedData.rowIdColumnIndex) {
+                    rowId = record[this.parserSharedData.rowIdColumnIndex];
                 }
+
+                response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow);
 
             }
 
             rowNumber++;
-
 
             return response;
         });
