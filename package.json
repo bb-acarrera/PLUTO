@@ -44,6 +44,7 @@
     "karma": "^1.7.0",
     "karma-qunit": "^1.2.1",
     "node-pg-migrate": "^2.11.1",
+    "proxyquire": "^1.8.0",
     "qunitjs": "2.4.1",
     "supervisor": "^0.12.0"
   }

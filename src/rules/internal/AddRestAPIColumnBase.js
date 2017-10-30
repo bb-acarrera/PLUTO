@@ -34,6 +34,7 @@ class AddRestAPIColumnBase extends TableRuleAPI {
 
 			if(isHeaderRow) {
 				record[this.newColumnIndex] = this.config.newColumn;
+				resolve(record);
 			} else {
 
 				try{

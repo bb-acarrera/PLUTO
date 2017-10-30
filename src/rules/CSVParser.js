@@ -110,10 +110,11 @@ class CSVParser extends TableParserAPI {
             }
 
             if(firstRow) {
+                firstRow = false;
                 if(this.tableRule) {
                     this.tableRule.start(this);
                 }
-                firstRow = false;
+
             }
 
 
