@@ -475,6 +475,7 @@ class Validator {
 		config.encoding = config.encoding || this.encoding;
 		config.validator = this;
 		config.sharedData = this.sharedData;
+		config.currentRuleset = this.currentRuleset;
 	}
 
 	// Create a unique temporary filename in the temp directory.
