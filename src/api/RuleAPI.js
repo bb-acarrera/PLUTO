@@ -352,6 +352,16 @@ run() {
 			this._outputStream = new stream.PassThrough();
 		return this._outputStream;
 	}
+
+	/**
+	 * This method indicates if this rule will alter the structure of the file(s) being processed (e.g. csv to GeoJson)
+	 * requiring any temporary changes to the file to be cleaned up (e.g. internal rowids added to each row from the
+	 * CSVParser)
+	 * @returns {boolean} true if this rule will change the structure of the file(s)
+	 */
+	get structureChange() {
+		return false;
+	}
 }
 
 module.exports = RuleAPI;	// Export this so derived classes can extend it.

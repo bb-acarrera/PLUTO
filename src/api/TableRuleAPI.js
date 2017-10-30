@@ -1,5 +1,6 @@
 const ParserRuleAPI = require('./ParserRuleAPI');
 const ErrorHandlerAPI = require('./errorHandlerAPI');
+const BaseRuleAPI = require('./BaseRuleAPI');
 
 /**
  * This API class is used to describe the interface to rule operations. This base class can be used by rules that
@@ -18,8 +19,9 @@ class TableRuleAPI extends ParserRuleAPI {
      * but rule's may want to switch one uncommon encoding for another more common one.)
      * @param localConfig {object} the rule's configuration as defined in the ruleset file or a standalone config file.
      */
-    constructor(localConfig) {
+    constructor(localConfig, parser) {
         super(localConfig);
+        this.parser = parser;
     }
 
     /**
@@ -37,7 +39,7 @@ class TableRuleAPI extends ParserRuleAPI {
 
     /**
      * Derived classes should override this method if they need to do anything after the processing of records is complete.
-     * @see {@link CSVRuleAPI#start|start}
+     *
      */
     finish() {
         // Do any post-processing.
@@ -47,14 +49,20 @@ class TableRuleAPI extends ParserRuleAPI {
      * Does pre-processing to pre the record to be processed, calls processRecord
      * @param record {array} one record from the csv file.
      * @param rowId {object | number} row indicator, usually the row number
+     * @param isHeaderRow {boolean} indicates that the row is a header row (when requested via processHeaderRows)
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
-    processRecordWrapper(record, rowId) {
+    processRecordWrapper(record, rowId, isHeaderRow) {
         this.isProcessingRecord = true;
+        this.excludeRow = false;
 
-        const response = this.processRecord(record, rowId);
+        const response = this.processRecord(record, rowId, isHeaderRow);
 
         this.isProcessingRecord = false;
+
+        if(this.excludeRow) {
+            return null;
+        }
 
         return response;
     }
@@ -63,9 +71,10 @@ class TableRuleAPI extends ParserRuleAPI {
      * Derived classes should implement this method to process individual records.
      * @param record {array} one record from the csv file.
      * @param rowId {object | number} row indicator, usually the row number
+     * @param isHeaderRow {boolean} indicates that the row is a header row (when requested via processHeaderRows)
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
-    processRecord(record, rowId) {
+    processRecord(record, rowId, isHeaderRow = false) {
         // Process the record and return the new record.
         return record;
     }
@@ -99,6 +108,7 @@ class TableRuleAPI extends ParserRuleAPI {
             level = ErrorHandlerAPI.WARNING;
             shouldAbort = false;
             problemDescription = '(Record dropped) ' + problemDescription;
+            this.excludeRow = true;
         }
 
         return super.log(level, problemFileName, ruleID, problemDescription, shouldAbort);
@@ -112,6 +122,57 @@ class TableRuleAPI extends ParserRuleAPI {
         return false;
     }
 
+    /**
+     * Append config properties to a supplied list
+     * @param inProperties the list of properties to append to
+     * @returns {Array}
+     */
+    static appendConfigProperties(inProperties) {
+
+        const properties = [
+            {
+                name: 'onError',
+                label: 'Action on error: ',
+                type: 'choice',
+                choices: [
+                    'abort',
+                    'excludeRow']
+            }
+        ];
+
+        let props;
+
+        if(inProperties) {
+            props = inProperties.concat(properties);
+        } else {
+            props = [].concat(properties);
+        }
+
+        return BaseRuleAPI.appendConfigProperties(props);
+    }
+
+    /**
+     * Append config defaults to a supplied list
+     * @param inDefaults the defaults to append to
+     * @returns {Object}
+     */
+    static appendDefaults(inDefaults) {
+
+        const defaults = {
+            onError: 'abort'
+        };
+
+        let defs;
+
+        if(inDefaults) {
+            defs = Object.assign({}, inDefaults, defaults);
+        } else {
+            defs = Object.assign({}, defaults);
+        }
+
+        return BaseRuleAPI.appendDefaults(defs);
+    }
+
     static get Type() {
         return "table_rule";
     }
@@ -120,6 +181,24 @@ class TableRuleAPI extends ParserRuleAPI {
         return "table_parser";
     }
 
+    /**
+     * Given the value of a property this validates whether a valid column property was supplied
+     * @param {string} propertyValue the value of a config column property. If this is <code>undefined</code> then
+     * <code>this.config.column</code> is used.
+     * @param {string} propertyName the name of the property - used in error messages. Defaults to 'column' if not set.
+     * @returns {boolean} property OK
+     */
+    checkValidColumnProperty(propertyValue, propertyName) {
+        propertyValue = propertyValue == undefined ? this.config.column : propertyValue;
+        propertyName = propertyName == undefined ? 'column' : propertyName;
+
+        if (propertyValue == null) {
+            this.error(`Configured without a '${propertyName}' property.`);
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Given the value of a property this validates whether the given value is a column label or column number
@@ -135,39 +214,26 @@ class TableRuleAPI extends ParserRuleAPI {
         propertyName = propertyName == undefined ? 'column' : propertyName;
 
         var result = undefined;
-        if (propertyValue === undefined)
-            this.error(`Configured without a '${propertyName}' property.`);
-        else if (isNaN(propertyValue)) {
-            let sharedData = this.config.sharedData;
-            if (sharedData && sharedData.columnLabels) {
-                let columnLabels = sharedData.columnLabels;
-                if (columnLabels.length == undefined) {
-                    this.error(`Shared 'columnLabels' is not an array.`);
-                    return result;
-                }
-                else if (columnLabels.length == 0) {
-                    this.error(`Shared 'columnLabels' has no content.`);
-                    return result;
+        if (propertyValue != null) {
+
+            if (isNaN(propertyValue)) {
+                if (this.parser) {
+                    result = this.parser.getValidatedColumnProperty(propertyValue, propertyName);
+                } else {
+                    this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
                 }
 
-                // Found a column label not index.
-                let index = columnLabels.indexOf(propertyValue);
-                if (index < 0)
-                    this.error(`Configured with a column label '${propertyValue}' that is not in sharedData.columnLabels.`);
-                else
-                    result = index;
             }
-            else
-                this.error(`Configured with a non-number '${propertyName}'. Got '${propertyValue}'.`);
-        }
-        else if (propertyValue < 0)
-            this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
-        else {
-            result = Math.floor(parseFloat(propertyValue));
-            if (!Number.isInteger(parseFloat(propertyValue)))
-                this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
+            else if (propertyValue < 0)
+                this.error(`Configured with a negative '${propertyName}'. Got '${propertyValue}'.`);
+            else {
+                result = Math.floor(parseFloat(propertyValue));
+                if (!Number.isInteger(parseFloat(propertyValue)))
+                    this.warning(`Configured with a non-integer '${propertyName}'. Got '${propertyValue}', using ${result}.`);
+            }
         }
         return result;
+
     }
 }
 

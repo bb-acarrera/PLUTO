@@ -1,5 +1,5 @@
 const ErrorHandlerAPI = require('./errorHandlerAPI');
-const BaseRuleAPI = require('./BaseRuleAPI');
+
 
 
 
@@ -24,64 +24,13 @@ class ParserRuleAPI extends ErrorHandlerAPI {
     constructor(localConfig) {
         super(localConfig);
 
-        if(this.config && this.config.errors && this.config.errors.onError) {
-            this.excludeRecordOnError = this.config.errors.onError == 'excludeRow';
+        if(this.config && this.config.onError) {
+            this.excludeRecordOnError = this.config.onError == 'excludeRow';
         } else {
             this.excludeRecordOnError = false;
         }
 
 
-    }
-
-    /**
-     * Append config properties to a supplied list
-     * @param inProperties the list of properties to append to
-     * @returns {Array}
-     */
-    static appendConfigProperties(inProperties) {
-
-        const properties = [
-            {
-                name: 'onError',
-                label: 'Action on error: ',
-                type: 'choice',
-                choices: [
-                    'abort',
-                    'excludeRow']
-            }
-        ];
-
-        let props;
-
-        if(inProperties) {
-            props = inProperties.concat(properties);
-        } else {
-            props = [].concat(properties);
-        }
-
-        return BaseRuleAPI.appendConfigProperties(props);
-    }
-
-    /**
-     * Append config defaults to a supplied list
-     * @param inDefaults the defaults to append to
-     * @returns {Object}
-     */
-    static appendDefaults(inDefaults) {
-
-        const defaults = {
-            onError: 'abort'
-        };
-
-        let defs;
-
-        if(inDefaults) {
-            defs = Object.assign({}, inDefaults, defaults);
-        } else {
-            defs = Object.assign({}, defaults);
-        }
-
-        return BaseRuleAPI.appendDefaults(defs);
     }
 
     /**

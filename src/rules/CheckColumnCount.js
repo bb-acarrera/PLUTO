@@ -1,8 +1,8 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
 
 class CheckColumnCount extends TableRuleAPI {
-	constructor(config) {
-		super(config);
+	constructor(config, parser) {
+		super(config, parser);
 
 		this.columns = undefined;
 		if (!this.config)
@@ -21,17 +21,21 @@ class CheckColumnCount extends TableRuleAPI {
 
 	}
 
-	start(parser) {
-		this.parser = parser;
-	}
-
 	processRecord(record, rowId) {
 
+		let internalColumnCount = 0;
+		if(this.parser && this.parser.internalColumns) {
+			internalColumnCount = this.parser.internalColumns.length;
+		}
+
 		if (this.columns !== undefined) {
-			if (record.length < this.columns) {
-				this.error(`Row ${rowId} has too few columns. Got ${record.length}.`);
-			} else if(record.length > this.columns) {
-				this.warning(`Row ${rowId} has too many columns. Got ${record.length}.`)
+
+			const numRecords = record.length - internalColumnCount;
+
+			if (numRecords < this.columns) {
+				this.error(`Row ${rowId} has too few columns. Got ${numRecords}.`);
+			} else if(numRecords > this.columns) {
+				this.warning(`Row ${rowId} has too many columns. Got ${numRecords}.`)
 			}
 		}
 

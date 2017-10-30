@@ -1,8 +1,8 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
 
 class CheckColumnType extends TableRuleAPI {
-	constructor(config) {
-		super(config);
+	constructor(config, parser) {
+		super(config, parser);
 
 		if (!config) {
 			this.error('No configuration specified.');			// At the moment this does nothing since a config is required for reporting errors.
@@ -41,9 +41,14 @@ class CheckColumnType extends TableRuleAPI {
 			}
 		}
 
-		this.column = this.getValidatedColumnProperty();
+		this.checkValidColumnProperty();
+
 		this.badColumnCountReported = false;	// If a bad number of columns is found report it only once, not once per record.
 		this.reportAlways = this.config.reportAlways || true;	// Should every occurrence be reported?
+	}
+
+	start() {
+		this.column = this.getValidatedColumnProperty();
 	}
 
 	processRecord(record, rowId) {

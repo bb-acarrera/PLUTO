@@ -4,6 +4,7 @@
 const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnRegEx = require("../../../rules/CheckColumnRegEx");
 const CSVParser = require("../../../rules/CSVParser");
+const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
 
 QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
@@ -16,10 +17,7 @@ QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 	// Check general rule creation and as well as absent "Type" property.
 	assert.ok(rule, "Rule was created.");
 
-	const logResults = logger.getLog();
-	assert.equal(logResults.length, 1, "Expect single result.");
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "No 'regex' property defined'.");
+	assert.ok(logger.getCount(ErrorHandlerAPI.ERROR) > 0, "Expected errors");
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Absent column Property", function( assert ) {
@@ -42,15 +40,24 @@ QUnit.test( "CheckColumnRegEx: Check For Non-Number column Property", function( 
 	const config = {
 		"_debugLogger" : logger,
 		"regex" : "^a+$",
-		"column" : "foo"
+		"column" : "foo",
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnRegEx(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a non-number 'column'. Got 'foo'.");
+	const data = "Column 0\nfoo";
+	const done = assert.async();
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a non-number 'column'. Got 'foo'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Negative column Property", function( assert ) {
@@ -58,15 +65,24 @@ QUnit.test( "CheckColumnRegEx: Check For Negative column Property", function( as
 	const config = {
 		"_debugLogger" : logger,
 		"regex" : "^a+$",
-		"column" : -1
+		"column" : -1,
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnRegEx(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description, "Configured with a negative 'column'. Got '-1'.");
+	const data = "Column 0\nfoo";
+	const done = assert.async();
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+		assert.equal(logResults[0].description, "Configured with a negative 'column'. Got '-1'.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Non-Integer column Property", function( assert ) {
@@ -74,15 +90,24 @@ QUnit.test( "CheckColumnRegEx: Check For Non-Integer column Property", function(
 	const config = {
 		"_debugLogger" : logger,
 		"regex" : "^a+$",
-		"column" : 1.1
+		"column" : 1.1,
+		"numHeaderRows" : 1
 	};
 
 	const rule = new CheckColumnRegEx(config);
+	const parser = new CSVParser(config, rule);
 
-	const logResults = logger.getLog();
-	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
-	assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
-	assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
+	const data = "Column 0\nfoo";
+	const done = assert.async();
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
+		assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
+		assert.equal(logResults[0].description, "Configured with a non-integer 'column'. Got '1.1', using 1.");
+		done();
+	});
+
+
 });
 
 QUnit.test( "CheckColumnRegEx: Check For Bad Column Index", function( assert ) {
@@ -116,7 +141,8 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 		"_debugLogger" : logger,
 		"regex" : "^a+$",	// A string of 1 or more a's.
 		"numHeaderRows" : 1,
-		"column" : 0
+		"column" : 0,
+		"failType": "Error"
 	};
 
 	const rule = new CheckColumnRegEx(config);
@@ -151,6 +177,31 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 	parser._run( { data: data }).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
+		done();
+	});
+});
+
+QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value With Warning", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		"_debugLogger" : logger,
+		"regex" : "^a+$",	// A string of 1 or more a's.
+		"numHeaderRows" : 1,
+		"column" : 0,
+		"failType": "Warning"
+	};
+
+	const rule = new CheckColumnRegEx(config);
+	const parser = new CSVParser(config, rule);
+	const data = "Column 0\nbbbb";
+	const done = assert.async();
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
+		if (logResults.length == 1) {
+			assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+			assert.equal(logResults[0].description, "Row 2, Column 0: Expected a match of ^a+$ but got bbbb.");
+		}
 		done();
 	});
 });

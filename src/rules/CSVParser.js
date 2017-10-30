@@ -5,6 +5,11 @@ const parse = require('csv-parse');
 const stringify = require('csv-stringify');
 const transform = require('stream-transform');
 
+const DeleteColumn = require('./DeleteInternalColumn');
+const AddRowIdColumn = require('./AddRowIdColumn');
+
+const trackingColumnName = '____trackingRowId___internal___';
+
 /**
 
  */
@@ -13,10 +18,11 @@ class CSVParser extends TableParserAPI {
      * Derived classes must call this from their constructor.
      * @constructor
      * @param config {object} the config object passed into the derived class's constructor.
-     * @param tableRule {TableRuleAPI} the rule for the parser to execute
+     * @param tableRuleClass {TableRuleAPI class} the rule class for the parser to execute
+     * @param tableRuleConfig {object} the configuration to instantiate an instance of tableRuleClass
      */
-    constructor(config, tableRule) {
-        super(config, tableRule);
+    constructor(config, tableRuleClass, tableRuleConfig) {
+        super(config, tableRuleClass, tableRuleConfig);
 
         this.delimiter = this.config.delimiter || ',';
         this.comment = this.config.comment || '';
@@ -30,9 +36,10 @@ class CSVParser extends TableParserAPI {
 
         this.numHeaderRows = this.getValidatedHeaderRows();
 
-        if(this.config.sharedData && !this.config.sharedData.columnLabels) {
-            this.config.sharedData.columnLabels = this.config.columnNames;
+        if(!this.parserSharedData._internalColumns) {
+            this.parserSharedData._internalColumns = [];
         }
+
     }
 
     /**
@@ -89,28 +96,51 @@ class CSVParser extends TableParserAPI {
         }
         let rowNumber = 1;
         let rowHeaderOffset = this.numHeaderRows + 1;
+        let firstRow = true;
 
 
         // This CSV Transformer is used to call the processRecord() method above.
         const transformer = transform(record => {
+
+            if(!this.parserSharedData.columnNames) {
+                this.parserSharedData.columnNames = [];
+                while(this.parserSharedData.columnNames.length < record.length) {
+                    this.parserSharedData.columnNames.push(this.parserSharedData.columnNames.length);
+                }
+            }
+
+            if(firstRow) {
+                if(this.tableRule) {
+                    this.tableRule.start(this);
+                }
+                firstRow = false;
+            }
+
 
             if(this.config.sharedData && this.config.sharedData.abort) {
                 return null;
             }
 
             let response = record;
+            let isHeaderRow = rowNumber < rowHeaderOffset;
+            let rowId = rowNumber;
 
-            this.tableRule.resetLastCheckCounts();
+            if(this.tableRule) {
+                this.tableRule.resetLastCheckCounts();
 
-            if (this.tableRule && rowNumber >= rowHeaderOffset || processHeaderRows) {
-                response = this.tableRule.processRecordWrapper(record, rowNumber);
+                if (!isHeaderRow || processHeaderRows) {
+
+                    if(this.parserSharedData.rowIdColumnIndex != null && record.length > this.parserSharedData.rowIdColumnIndex) {
+                        rowId = record[this.parserSharedData.rowIdColumnIndex];
+                    }
+
+                    response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow);
+                }
+
             }
 
             rowNumber++;
 
-            if(this.tableRule.lastCheckHadErrors() && this.tableRule.excludeRecordOnError) {
-                return null;
-            }
 
             return response;
         });
@@ -119,8 +149,12 @@ class CSVParser extends TableParserAPI {
             transformer.once("finish", () => {
                 this.tableRule.finish();	// Finished so let the derived class know.
             });
+        }
 
-            this.tableRule.start(this);
+        const that = this; //need this so we have context of the pipe that's failing on 'this'
+        function handleError(e) {
+            that.error('Error processing csv: ' + e);
+            outputStream.end();
         }
 
         if (outputStream) {
@@ -133,15 +167,71 @@ class CSVParser extends TableParserAPI {
                 relax_column_count: true		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
                 // I'd rather detect it.
             });
-            inputStream.pipe(parser).pipe(transformer).pipe(stringifier).pipe(outputStream);
+            inputStream.pipe(parser).on('error', handleError)
+                .pipe(transformer).on('error', handleError)
+                .pipe(stringifier).on('error', handleError)
+                .pipe(outputStream).on('error', handleError);
         }
         else
-            inputStream.pipe(parser).pipe(transformer);
+            inputStream.pipe(parser).on('error', handleError)
+                .pipe(transformer).on('error', handleError);
     }
 
     run() {
         this._processCSV(this.inputStream, this.outputStream);
         return this.asStream(this.outputStream);
+    }
+
+    getSetupRule() {
+        if(this.parserSharedData && !this.parserSharedData.CSVParserSetupAdded) {
+            const config = Object.assign({}, this.config, {
+                newColumn : trackingColumnName
+            });
+
+            this.parserSharedData.CSVParserSetupAdded = true;
+
+            return new CSVParser(this.config, AddRowIdColumn, config);
+        }
+    }
+
+    getCleanupRule() {
+        if(this.parserSharedData && !this.parserSharedData.CSVParserCleanupAdded) {
+            const config = Object.assign({}, this.config, {
+                column : trackingColumnName
+            });
+
+            this.parserSharedData.CSVParserCleanupAdded = true;
+
+            return new CSVParser(this.config, DeleteColumn, config);
+        }
+    }
+
+
+    get internalColumns() {
+        return this.parserSharedData._internalColumns;
+    }
+
+    addInternalColumn(columnName) {
+
+        let newColumnIndex = this.addColumn(columnName);
+
+        if (newColumnIndex != null) {
+            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
+        }
+
+        return newColumnIndex;
+    }
+
+    removeInternalColumn(columnIndex) {
+        this.removeColumn(columnIndex);
+
+        let index = this.parserSharedData._internalColumns.length - 1;
+        while (index >= 0) {
+            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
+                this.parserSharedData._internalColumns.splice(index, 1);
+            }
+            index -= 1;
+        }
     }
 
     static get Type() {
@@ -166,8 +256,14 @@ class CSVParser extends TableParserAPI {
             {
                 name: 'delimiter',
                 label: 'Delimiter',
-                type: 'string',
-                tooltip: 'Field delimiter of the file. One character only. Defaults to \',\' (comma)'
+                type: 'choice',
+                tooltip: 'Field delimiter of the file. One character only. Defaults to \',\' (comma)',
+                choices: [
+                    {value:',', label:', (comma)'},
+                    {value:'\t', label:'tab'},
+                    {value:'|', label:'| (bar)'},
+                    {value:' ', label:'space'}
+                ]
             },
             {
                 name: 'comment',

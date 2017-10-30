@@ -349,3 +349,81 @@ QUnit.test( "Validator: End to End Promise Rejection Test", function(assert){
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
 });
+
+QUnit.test( "Validator: End to End add column, delete column, and test length", function(assert){
+    const logger = new ErrorLogger();
+    const config = {
+        "_debugLogger" : logger,
+        "rootDirectory" : "./src",
+        "rulesDirectory" : "rules",
+        "tempDirectory" : "./tmp",
+        "inputDirectory" : "",
+        "outputDirectory" : "results",
+        "ruleset" : "Test Data Ruleset"
+    };
+
+    const done = assert.async();
+
+    const ruleset = {
+        name : "Test Data Ruleset",
+        rules : [
+            {
+                filename : "CheckColumnCount",
+                config : {
+                    id : 1,
+                    columns : 9
+                }
+            },
+            {
+                filename : "AddRegExColumn",
+                config : {
+                    id : 2,
+                    column : 'city',
+                    newColumn: 'new column',
+                    regex: '[\\s\\S]*'
+                }
+            },
+            {
+                filename : "CheckColumnCount",
+                config : {
+                    id : 3,
+                    columns : 10
+                }
+            },
+            {
+                filename : "DeleteColumn",
+                config : {
+                    id : 4,
+                    column : 'new column'
+                }
+            },
+            {
+                filename : "CheckColumnCount",
+                config : {
+                    id : 1,
+                    columns : 9
+                }
+            }
+        ],
+        parser: {
+            filename: "CSVParser",
+            config: {
+                numHeaderRows : 1,
+                columnNames: ['city','city_ascii','lat','lng','pop','country','iso2','iso3','province']
+            }
+        }
+    };
+
+    const dbProxy = new DataProxy(ruleset,
+        (runId, log, ruleSetID, inputFile, outputFile) => {
+            assert.ok(log, "Expected log to be created");
+            assert.equal(log.length, 0, "Expected no log entries, had some");
+        },
+        done);
+
+    const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+    vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});

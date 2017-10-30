@@ -104,14 +104,14 @@ class Validator {
 						this.error(error);
 						this.finishRun();
 					}).catch((e) => {
-					if(!e.message){
-						this.error(e);
+						if(!e.message){
+							this.error(e);
+						}
+						else {
+							this.error(e.message);
+						}
+						this.finishRun();
 					}
-					else {
-						this.error(e.message);
-					}
-					this.finishRun();
-				}
 			);
 		}, (error) => {
 			console.log("Error creating run record: " + error);
@@ -184,21 +184,61 @@ class Validator {
 	 */
 	runRules(ruleset, file) {
 
-		let rules = ruleset.rules;
 		this.sharedData = ruleset.config && ruleset.config.sharedData ? ruleset.config.sharedData : {};
 		this.abort = false;
 
 		try {
 
-
 			if (!fs.existsSync(file))
 				throw "Input file \"" + file + "\" does not exist.";
 
-			if (!rules || rules.length == 0) {
+			if (!ruleset.rules || ruleset.rules.length == 0) {
 				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
 				this.finishRun();
 				return;
 			}
+
+			let rules = [];
+			let cleanupRules = [];
+			ruleset.rules.forEach((ruleConfig) => {
+				let rule = this.getRule(ruleConfig);
+
+				if(rule.getSetupRule) {
+					const setup = rule.getSetupRule();
+					if(setup) {
+						rules.push(setup);
+					}
+
+				}
+
+				if(rule.getCleanupRule) {
+					const cleanup = rule.getCleanupRule();
+					if(cleanup) {
+						cleanupRules.push(cleanup);
+					}
+
+				}
+
+				if(rule.structureChange) {
+					cleanupRules.forEach((cleanupRule) => {
+						rules.push(cleanupRule);
+					});
+					cleanupRules = [];
+				}
+
+				rules.push(rule);
+
+			});
+
+			cleanupRules.forEach((cleanupRule) => {
+				rules.push(cleanupRule);
+			});
+
+			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
+				this.abort = true;
+				throw "Errors in rule configuration. Aborting.";
+			}
+
 
 			// As a first step get the file locally. Do this to simplify running the rules (they
 			// all run locally) and make sure the data is all available at the start of the process.
@@ -208,7 +248,7 @@ class Validator {
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
 				if (lastResult.index < rules.length && !validator.abort)
-					return validator.getRule(rules[lastResult.index])._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
+					return rules[lastResult.index]._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
 			}).catch((e) => {
@@ -269,7 +309,7 @@ class Validator {
 		this.ruleName = config.name;
 		config.errors = ruleDescriptor.errors;
 
-		let rule =  new ruleClass(config);
+		let rule;
 
 		if(ruleClass.NeedsParser) {
 
@@ -283,9 +323,9 @@ class Validator {
 
 			this.updateConfig(this.parserConfig);
 
-			rule = new this.parserClass(this.parserConfig, rule);
-
-
+			rule = new this.parserClass(this.parserConfig, ruleClass, config);
+		} else {
+			rule =  new ruleClass(config);
 		}
 		return rule;
 	}
@@ -332,67 +372,77 @@ class Validator {
 	 * @private
 	 */
 	finishRun(results) {
-		if (!this.running)
-			return;
 
-		this.running = false;
-		if(!this.inputFileName){
-			this.inputFileName = "";
-		}
-
-		if(!results) {
-			console.error("No results");
-			this.error("No results were produced.");
-		}
-
-		if(this.outputFileName) {
-
-			if(results) {
-				this.saveResults(results);
+		return new Promise((resolve) => {
+			if (!this.running) {
+				resolve();
+				return;
 			}
-			this.finalize();
 
-		} else if(this.currentRuleset && this.currentRuleset.export) {
-			var resultsFile = null;
-
-			if (results && results.file)
-				resultsFile = results.file;
-			else if (results && results.stream) {
-				resultsFile = this.getTempName();
-				this.putFile(results.stream, resultsFile, this.encoding);
+			this.running = false;
+			if(!this.inputFileName){
+				this.inputFileName = "";
 			}
-			else if (results && results.data) {
-				resultsFile = this.getTempName();
-				this.saveFile(results.data, resultsFile, this.encoding);
+
+			if(!results) {
+				console.error("No results");
+				this.error("No results were produced.");
 			}
-			else if(results)
-				this.error("Unrecognized results structure.");
 
-			this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
-				.then(() => {},
+			if(this.outputFileName) {
 
-					(error) => {
-						this.error("Export failed: " + error)	;
+				if(results) {
+					this.saveResults(results);
+				}
+				this.finalize().then(() => resolve());
+
+			} else if(this.currentRuleset && this.currentRuleset.export) {
+				var resultsFile = null;
+
+				if (results && results.file)
+					resultsFile = results.file;
+				else if (results && results.stream) {
+					resultsFile = this.getTempName();
+					this.putFile(results.stream, resultsFile, this.encoding);
+				}
+				else if (results && results.data) {
+					resultsFile = this.getTempName();
+					this.saveFile(results.data, resultsFile, this.encoding);
+				}
+				else if(results)
+					this.error("Unrecognized results structure.");
+
+				this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
+					.then(() => {},
+
+						(error) => {
+							this.error("Export failed: " + error)	;
+						})
+					.catch((e) => {
+						this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
 					})
-				.catch((e) => {
-					this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
-				})
-				.then(() => {
-					this.finalize();
-				});
-		} else {
-			this.warning("No output method specified");
-			this.finalize();
-		}
-
+					.then(() => {
+						this.finalize().then(() => resolve());
+					});
+			} else {
+				this.warning("No output method specified");
+				this.finalize().then(() => resolve());
+			}
+		});
 	}
 
 	finalize() {
-		this.data.saveRunRecord(this.runId, this.logger.getLog(),
-			this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
-			.then(() => {}, (error) => console.log('error saving run: ' + error))
-			.catch((e) => console.log('Exception saving run: ' + e))
-			.then(() => this.cleanup());
+		return new Promise((resolve) => {
+			this.data.saveRunRecord(this.runId, this.logger.getLog(),
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+				.then(() => {}, (error) => console.log('error saving run: ' + error))
+				.catch((e) => console.log('Exception saving run: ' + e))
+				.then(() => {
+					this.cleanup();
+					resolve();
+				});
+		});
+
 
 	}
 
@@ -547,8 +597,10 @@ class Validator {
 		return new Promise((resolve, reject) => {
 			var importerClass = this.loadImporter(importConfig);
 
+			const importerName = importConfig.filename || importConfig.scriptPath;
+
 			if(!importerClass) {
-				reject("Could not find importer " + importConfig.scriptPath);
+				reject("Could not find importer " + importerName );
 				return;
 			}
 
@@ -556,7 +608,7 @@ class Validator {
 			let importer = new importerClass(importConfig.config);
 
 			if(!importer.importFile) {
-				reject("Importer " + importConfig.scriptPath + " does not have importFile method");
+				reject("Importer " + importerName + " does not have importFile method");
 				return;
 			}
 
@@ -565,10 +617,10 @@ class Validator {
 					validator.encoding = importConfig.config.encoding || 'utf8';
 					resolve(displayInputFileName);
 				}, error => {
-					reject("Importer " + importConfig.scriptPath + " failed: " + error);
+					reject("Importer " + importerName + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Importer" + importConfig.scriptPath + " fail unexpectedly: " + e);
+					reject("Importer" + importerName + " fail unexpectedly: " + e);
 				});
 		});
 	}
@@ -584,19 +636,19 @@ class Validator {
 	exportFile(exportConfig, filename, runId) {
 		return new Promise((resolve, reject) => {
 
+			const exporterName = exportConfig.filename || exportConfig.scriptPath;
+
 			if (!filename) {
-				reject(`Exporter ${exportConfig.scriptPath} failed: no filename specified.`);
-				return;
+				this.warning(`Exporter ${exporterName}: no filename specified.`);
 			}
 			else if(!fs.existsSync(filename)) {
-				reject(`Exporter ${exportConfig.scriptPath} failed: ${filename} does not exist.`);
-				return;
+				this.warning(`Exporter ${exporterName}: ${filename} does not exist.`);
 			}
 
 			var exporterClass = this.loadExporter(exportConfig);
 
 			if(!exporterClass) {
-				reject("Could not find exporter " + exportConfig.scriptPath);
+				reject("Could not find exporter " + exporterName);
 				return;
 			}
 
@@ -604,17 +656,17 @@ class Validator {
 			let exporter = new exporterClass(exportConfig.config);
 
 			if(!exporter.exportFile) {
-				reject("Exporter " + exportConfig.scriptPath + " does not have exportFile method");
+				reject("Exporter " + exporterName + " does not have exportFile method");
 				return;
 			}
 
 			exporter.exportFile(filename, runId, this.logger.getLog()).then(function() {
 					resolve();
 				}, error => {
-					reject("Exporter " + exportConfig.scriptPath + " failed: " + error);
+					reject("Exporter " + exporterName + " failed: " + error);
 				})
 				.catch((e) => {
-					reject("Exporter" + exportConfig.scriptPath + " fail unexpectedly: " + e);
+					reject("Exporter" + exporterName + " fail unexpectedly: " + e);
 				});
 
 		});
