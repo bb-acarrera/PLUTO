@@ -20,16 +20,6 @@ class ErrorHandlerAPI {
 	}
 
 	/**
-	 * This method indicates whether or not an entire run of a ruleset should fail if this rule fails. Rules which do
-	 * simple filtering can probably fail without breaking the entire run of the ruleset but rules which rearrange the
-	 * data, for example, should cause the entire run to fail if they fail.
-	 * @abstract
-	 * @returns {boolean} <code>false</code> by default. Derived classes should choose whether an entire ruleset run should
-	 * fail if they fail.
-	 */
-	shouldRulesetFailOnError() { return true; }
-
-	/**
 	 * Use this with {@link Validator#log} to log significant errors.
 	 * @static
 	 * @returns {string}
@@ -61,38 +51,42 @@ class ErrorHandlerAPI {
 	 * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
 	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
 	 * @private
 	 */
-	log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
+	log(level, problemFileName, ruleID, problemDescription, dataItemId) {
 		if (this.config && this.config.validator)
-			this.config.validator.log(level, problemFileName, ruleID, problemDescription, shouldAbort || false);
+			this.config.validator.log(level, problemFileName, ruleID, problemDescription, dataItemId);
 		else if (this.config && this.config._debugLogger)
-			this.config._debugLogger.log(level, problemFileName, ruleID, problemDescription);
+			this.config._debugLogger.log(level, problemFileName, ruleID, problemDescription, dataItemId);
 	}
 
 	/**
 	 * Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
 	 * <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
 	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
 	 */
-	error(problemDescription) {
-		this.log(ErrorHandlerAPI.ERROR, this.constructor.name, this.config.id, problemDescription, this.shouldRulesetFailOnError());
+	error(problemDescription, dataItemId) {
+		this.log(ErrorHandlerAPI.ERROR, this.constructor.name, this.config.id, problemDescription, dataItemId);
 	}
 
 	/**
 	 * Add a warning to the log.
 	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
 	 */
-	warning(problemDescription) {
-		this.log(ErrorHandlerAPI.WARNING, this.constructor.name, this.config.id, problemDescription);
+	warning(problemDescription, dataItemId) {
+		this.log(ErrorHandlerAPI.WARNING, this.constructor.name, this.config.id, problemDescription, dataItemId);
 	}
 
 	/**
 	 * Add an information report to the log.
 	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
 	 */
-	info(problemDescription) {
-		this.log(ErrorHandlerAPI.INFO, this.constructor.name, this.config.id, problemDescription);
+	info(problemDescription, dataItemId) {
+		this.log(ErrorHandlerAPI.INFO, this.constructor.name, this.config.id, problemDescription, dataItemId);
 	}
 
 

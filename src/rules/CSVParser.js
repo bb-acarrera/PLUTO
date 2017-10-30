@@ -100,7 +100,7 @@ class CSVParser extends TableParserAPI {
 
 
         // This CSV Transformer is used to call the processRecord() method above.
-        const transformer = transform(record => {
+        const transformer = transform((record, callback) => {
 
             if(!this.parserSharedData.columnNames) {
                 this.parserSharedData.columnNames = [];
@@ -118,7 +118,8 @@ class CSVParser extends TableParserAPI {
 
 
             if(this.config.sharedData && this.config.sharedData.abort) {
-                return null;
+                callback(null, null);
+                return;
             }
 
             let response = record;
@@ -135,9 +136,22 @@ class CSVParser extends TableParserAPI {
 
             }
 
-            rowNumber++;
+            if(response instanceof Promise) {
+                response.then((result) => {
+                    callback(null, result);
+                }, () => {
+                    //rejected for some reason that should have logged
+                    callback(null, response);
+                }).catch(() => {
+                    callback(null, response);
+                })
+            } else {
+                callback(null, response);
+            }
 
-            return response;
+
+
+            rowNumber++;
         });
 
         if(this.tableRule) {
@@ -149,8 +163,17 @@ class CSVParser extends TableParserAPI {
         const that = this; //need this so we have context of the pipe that's failing on 'this'
         function handleError(e) {
             that.error('Error processing csv: ' + e);
-            outputStream.end();
+
+            if(outputStream) {
+                outputStream.end(e);
+            } else {
+                transformer.destroy(e);
+            }
+
         }
+
+        let pipeline = inputStream.pipe(parser).on('error', handleError)
+            .pipe(transformer).on('error', handleError);
 
         if (outputStream) {
             // Only need to stringify if actually outputting anything.
@@ -162,14 +185,10 @@ class CSVParser extends TableParserAPI {
                 relax_column_count: true		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
                 // I'd rather detect it.
             });
-            inputStream.pipe(parser).on('error', handleError)
-                .pipe(transformer).on('error', handleError)
-                .pipe(stringifier).on('error', handleError)
+
+            pipeline = pipeline.pipe(stringifier).on('error', handleError)
                 .pipe(outputStream).on('error', handleError);
         }
-        else
-            inputStream.pipe(parser).on('error', handleError)
-                .pipe(transformer).on('error', handleError);
     }
 
     run() {
