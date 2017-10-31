@@ -44,7 +44,7 @@ class CheckLatLong extends TableRuleAPI {
 		if (this.latitudeColumn !== undefined && this.longitudeColumn !== undefined) {
 			if (this.latitudeColumn >= record.length || this.longitudeColumn >= record.length) {
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${rowId} has insufficient columns.`);
+					this.error(`Row ${rowId} has insufficient columns.`, rowId);
 					this.badColumnCountReported = true;
 				}
 			}
@@ -52,17 +52,17 @@ class CheckLatLong extends TableRuleAPI {
 				const lat = record[this.latitudeColumn];
 				const long = record[this.longitudeColumn];
 				if (isNaN(lat))
-					this.error(`Latitude is not a number in row ${rowId}. Got '${lat}'.`);
+					this.error(`Latitude is not a number in row ${rowId}. Got '${lat}'.`, rowId);
 				else if (lat < -90 || lat > 90)
-					this.error(`Latitude is out of range in row ${rowId}. Got '${lat}'.`);
+					this.error(`Latitude is out of range in row ${rowId}. Got '${lat}'.`, rowId);
 
 				if (isNaN(long))
-					this.error(`Longitude is not a number in row ${rowId}. Got '${long}'.`);
+					this.error(`Longitude is not a number in row ${rowId}. Got '${long}'.`, rowId);
 				else if (long < -180 || long > 180)
-					this.error(`Longitude is out of range in row ${rowId}. Got '${long}'.`);
+					this.error(`Longitude is out of range in row ${rowId}. Got '${long}'.`, rowId);
 
 				if (Math.abs(lat) <= this.nullEpsilon && Math.abs(long) <= this.nullEpsilon)
-					this.warning(`Found null island in row ${rowId}.`);	// Should this be enabled conditionally?
+					this.warning(`Found null island in row ${rowId}.`, rowId);	// Should this be enabled conditionally?
 
 				// TODO: Any other tests?
 			}

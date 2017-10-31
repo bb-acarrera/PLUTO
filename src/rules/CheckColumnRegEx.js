@@ -41,12 +41,12 @@ class CheckColumnRegEx extends TableRuleAPI {
 		if (this.column !== undefined) {
 			if (this.column >= record.length) {	// Does the record have the correct number of columns?
 				if (this.reportAlways || !this.badColumnCountReported) {
-					this.error(`Row ${rowId} has insufficient columns.`);
+					this.error(`Row ${rowId} has insufficient columns.`, rowId);
 					this.badColumnCountReported = true;
 				}
 			}
 			else if (this.test && !this.test(record[this.column]))	// Is the cell in the column valid?
-				this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
+				this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`, rowId);
 		}
 
 		return record;

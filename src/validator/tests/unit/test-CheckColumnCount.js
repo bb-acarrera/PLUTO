@@ -109,10 +109,12 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	parser._run( { data: data } ).then(() => {
+	parser._run( { data: data } ).then((result) => {
+
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
+
 	});
 });
 

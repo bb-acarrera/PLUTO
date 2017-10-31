@@ -3,7 +3,7 @@ const fs = require('fs');
 const util = require('util');
 
 
-function updateSummaries(log, level, ruleID, problemDescription) {
+function updateSummaries(log, level, ruleID, problemDescription, dataItemId) {
 
 	if(!log.counts.hasOwnProperty(level)) {
 		log.counts[level] = 1;
@@ -25,6 +25,23 @@ function updateSummaries(log, level, ruleID, problemDescription) {
 		rule.counts[level] += 1;
 	}
 
+	if(dataItemId != null) {
+		if(!log.dataItems.hasOwnProperty(dataItemId)) {
+			log.dataItems[dataItemId] = {
+				counts: {}
+			};
+		}
+
+		const dataItem = log.dataItems[dataItemId];
+
+		if(!dataItem.counts.hasOwnProperty(level)) {
+			dataItem.counts[level] = 1;
+		} else {
+			dataItem.counts[level] += 1;
+		}
+	}
+
+
 
 }
 
@@ -33,6 +50,7 @@ class ErrorLogger {
 		this.reports = [];
 		this.counts = {};
 		this.rules = {};
+		this.dataItems = {};
 	}
 
 	/*
@@ -44,17 +62,25 @@ class ErrorLogger {
 	 * @param problemFileName the name of the file causing the log to be generated.
 	 * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	 * @param problemDescription a description of the problem encountered.
+	 * @param dataItemId the unique id of the item in a dataset being processed, null if NA
 	 */
-	log(level, problemFileName, ruleID, problemDescription) {
+	log(level, problemFileName, ruleID, problemDescription, dataItemId) {
 		level = level || "UNDEFINED";
 		problemFileName = problemFileName || "";
 		problemDescription = problemDescription || "";
 		const dateStr = new Date().toLocaleString();
 
-		const report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription };
+		const report = {
+			type : level,
+			when : dateStr,
+			problemFile : problemFileName,
+			ruleID : ruleID,
+			description : problemDescription,
+			dataItemId: dataItemId
+		};
 		this.reports.push(report);
 
-		updateSummaries(this, level, ruleID, problemDescription);
+		updateSummaries(this, level, ruleID, problemDescription, dataItemId);
 
 		//console.log(util.inspect(report, {showHidden: false, depth: null}))
 	}
@@ -96,6 +122,26 @@ class ErrorLogger {
 		} else {
 			counts = this.getRuleCounts(ruleID);
 		}
+
+		if(!counts || !counts[level]) {
+			return 0;
+		}
+
+		return counts[level];
+	}
+
+	getDataItemCounts(dataItemId) {
+		let dataitem = this.dataItems[dataItemId];
+
+		if(dataitem) {
+			return dataitem.counts;
+		}
+
+		return null;
+	}
+
+	getDataItemCount(dataItemId, level) {
+		const counts = getDataItemCounts(dataItemId);
 
 		if(!counts || !counts[level]) {
 			return 0;
