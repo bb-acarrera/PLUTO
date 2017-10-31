@@ -6,6 +6,13 @@
 				"filename" : "RunPythonScript",
 				"config" : {
 					"id" : 1,
+					"pythonScript" : "../test_config/validateFilename.py"
+				}
+			},
+			{
+				"filename" : "RunPythonScript",
+				"config" : {
+					"id" : 2,
 					"pythonScript" : "../test_config/copy.py"
 				}
 			}
@@ -20,6 +27,13 @@
 			"filename": "LocalCopyExport",
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numHeaderRows" : 1,
+				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
 			}
 		}
 	}

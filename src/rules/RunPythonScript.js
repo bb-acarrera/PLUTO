@@ -1,4 +1,5 @@
 const fs = require('fs-extra');
+const net = require('net');
 const path = require("path");
 const spawnSync = require('child_process').spawnSync;
 
@@ -9,6 +10,11 @@ class RunPythonScript extends OperatorAPI {
 		super(config);
 
 		this.changeFileFormat = this.config.changeFileFormat === true;
+		
+		// Create a unique socket.
+		var scriptName = path.basename(this.config.pythonScript, ".py");
+		this.socketName = path.resolve(config.tempDirectory, scriptName + config.id + ".socket");
+		this.tempDir = this.config.tempDirectory;
 	}
 
 	runPython(inputName) {
@@ -33,10 +39,28 @@ class RunPythonScript extends OperatorAPI {
 			return;
 		}
 
-		let scriptName = path.basename(this.config.pythonScript);
+		const server = net.createServer((c) => {
+			// 'connection' listener
+			console.log('client connected');
+			c.on('end', () => {
+				console.log('client disconnected');
+			});
+			c.write(JSON.stringify(this.config));
+//			c.pipe(c);	Can't find documentation on what this does and the code works without it.
+			c.end();
+			server.unref();
+		});
+		server.listen(this.socketName);
+		
+		server.on('error', (err) => {
+			this.error(`${pythonScript} caused an error creating configuration socket.`);
+			this.info(err);
+		});
+
+		let scriptName = path.basename(this.config.pythonScript);		// Why is the script's path stripped off?
 		try {
 			// Run the python script. This complains if the script doesn't exist.
-			const results = spawnSync('python', [pythonScript, inputName, outputName, this.config.encoding || 'utf8']);
+			const results = spawnSync('python', [pythonScript, inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
 
 			if (results) {
 				// Write any stdout/stderr output to the error log.
