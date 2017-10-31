@@ -13,7 +13,8 @@ class RunPythonScript extends OperatorAPI {
 		
 		// Create a unique socket.
 		var scriptName = path.basename(this.config.pythonScript, ".py");
-		this.socketName = path.resolve(config.tempDirectory, scriptName + config.id + ".socket");
+		if (config.tempDirectory)
+			this.socketName = path.resolve(config.tempDirectory, scriptName + config.id + ".socket");
 		this.tempDir = this.config.tempDirectory;
 	}
 
@@ -39,24 +40,26 @@ class RunPythonScript extends OperatorAPI {
 			return;
 		}
 
-		const server = net.createServer((c) => {
-			// 'connection' listener
-			console.log('client connected');
-			c.on('end', () => {
-				console.log('client disconnected');
+		if (this.socketName) {
+			const server = net.createServer((c) => {
+				// 'connection' listener
+				console.log('client connected');
+				c.on('end', () => {
+					console.log('client disconnected');
+				});
+				c.write(JSON.stringify(this.config));
+	//			c.pipe(c);	Can't find documentation on what this does and the code works without it.
+				c.end();
+				server.unref();
 			});
-			c.write(JSON.stringify(this.config));
-//			c.pipe(c);	Can't find documentation on what this does and the code works without it.
-			c.end();
-			server.unref();
-		});
-		server.listen(this.socketName);
-		
-		server.on('error', (err) => {
-			this.error(`${pythonScript} caused an error creating configuration socket.`);
-			this.info(err);
-		});
-
+			server.listen(this.socketName);
+			
+			server.on('error', (err) => {
+				this.error(`${pythonScript} caused an error creating configuration socket.`);
+				this.info(err);
+			});
+		}
+	
 		let scriptName = path.basename(this.config.pythonScript);		// Why is the script's path stripped off?
 		try {
 			// Run the python script. This complains if the script doesn't exist.
