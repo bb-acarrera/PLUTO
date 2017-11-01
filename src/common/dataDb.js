@@ -391,13 +391,6 @@ class data {
             if ( result.rows.length > 0 ) {
                 let dbRuleset = result.rows[ 0 ].rules;
 
-                // PJT 17/09/01 - Unfortunately at the moment there are three senses for an ID on a ruleset.
-                // They are the database row number, the "filename" (which till now has also been the "id")
-                // and the "ruleset_id". We want to simplify this to just two, the database row number (henceforth
-                // the "id") which uniquely identifies a ruleset by ruleset_id & version, and the ruleset_id which
-                // excludes the version (and will eventually be used to get the most up-to-date version of a ruleset.)
-                // Here we get rid of the sense that the id is the same as the filename and instead make it the
-                // same as the database row.
                 dbRuleset.id = result.rows[ 0 ].id;
 
                 dbRuleset.filename = ruleset_id;
@@ -428,103 +421,45 @@ class data {
         } );
     }
 
+
+
     /**
      * This file saves the given ruleset to the database
      * @param ruleset the ruleset to write.
      * @private
      */
-    saveRuleSet ( ruleset ) {
+    saveRuleSet ( ruleset, user, group, admin ) {
+
+        let isAdmin = admin === true;
 
         return new Promise( ( resolve, reject ) => {
 
-            let name = ruleset.filename;
+            if(!user) {
+                user = null;
+            }
 
-            this.db.query(
-                updateTableNames("SELECT max(version) as version, max(id) as id FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
-                [name])
-                .then((result) => {
-                    let qry;
-                    let version = 0;
+            if(!group) {
+                group = null;
+            }
 
-                    if(result.rows.length > 0 && result.rows[0].version != null) {
+            checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
+                let version = result.nextVersion;
+                let rowGroup = group;
 
-                        if(result.rows[0].version != ruleset.version) {
-                            reject('Cannot update old version');
-                            return;
-                        }
-
-                        version = result.rows[0].version + 1;
-                    }
-
-                    ruleset.version = version;
-
-                    qry = this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules) " +
-                            "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
-                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset)]);
-
-                    qry.then((result) => {
-                        resolve(name, result.rows[0].id);
-                    }, (error) => {
-                        reject(error)
-                    });
-
-                }, (error) => {
-                    console.log(error);
-                    reject(error);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
-
-
-    }
-
-    /**
-     * This deletes the given ruleset from the database
-     * @param ruleset the ruleset to delete.
-     * @private
-     */
-    deleteRuleSet ( ruleset ) {
-
-        return new Promise( ( resolve, reject ) => {
-
-            let ruleset_id = ruleset.ruleset_id || ruleset.filename;
-
-            //first, check and see if this ruleset is used at all
-            let countQry = "select count(*) from {{rulesets}} " +
-                "INNER JOIN runs on {{rulesets}}.id = {{runs}}.ruleset_id " +
-                "WHERE {{rulesets}}.ruleset_id = $1";
-
-            this.db.query(updateTableNames(countQry, this.tables), [ruleset_id]).then((result) => {
-
-                let qry = null;
-
-                if(result.rows[0].count > 0) {
-
-                    //it is used, so mark them all as deleted
-
-                    qry = this.db.query(
-                        updateTableNames("UPDATE {{rulesets}} SET deleted = TRUE WHERE ruleset_id = $1", this.tables),
-                        [ruleset_id]);
-                } else {
-
-                    //it's not used, just deleted it
-
-                    qry = this.db.query(updateTableNames("DELETE FROM {{rulesets}} WHERE ruleset_id = $1", this.tables),
-                        [ruleset_id])
-
+                if(result && result.rows.length > 0) {
+                    rowGroup = result.rows[0].owner_group;
                 }
 
-                qry.then(() => {
-                    resolve(ruleset_id);
+                ruleset.version = version;
+
+                this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, owner_user, owner_group) " +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id", this.tables),
+                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup])
+                .then((result) => {
+                    resolve(ruleset.filename);
                 }, (error) => {
-                    console.log(error);
-                    reject(error);
+                    reject(error)
                 });
-
-
 
             }, (error) => {
                 console.log(error);
@@ -535,6 +470,62 @@ class data {
             });
 
 
+        });
+
+    }
+
+    /**
+     * This deletes the given ruleset from the database
+     * @param ruleset the ruleset to delete.
+     * @private
+     */
+    deleteRuleSet ( ruleset, user, group, admin ) {
+
+        let isAdmin = admin === true;
+
+        return new Promise( ( resolve, reject ) => {
+
+            let ruleset_id = ruleset.filename;
+
+            checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
+
+                if(result && result.rows.length > 0) {
+
+                    const row = result.rows[0];
+                    ruleset.version = result.nextVersion;
+
+                    this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, owner_user, owner_group, deleted) " +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, true])
+                        .then((result) => {
+
+                            this.db.query(
+                                updateTableNames("UPDATE {{rulesets}} SET deleted = TRUE WHERE ruleset_id = $1", this.tables),
+                                [ruleset_id])
+                                .then(() => {
+                                    resolve(ruleset_id);
+                                }, (error) => {
+                                    console.log(error);
+                                    reject(error);
+                                });
+
+                        }, (error) => {
+                            reject(error)
+                        });
+
+
+                } else {
+                    reject('No ruleset found to delete')
+                }
+
+
+            }, (error) => {
+                console.log(error);
+                reject(error);
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
 
         });
 
@@ -673,7 +664,7 @@ function getRunResult(row) {
     };
 }
 
-function getRuleset(db, ruleset_id, version, dbId, tables, callback) {
+function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted) {
 
     if ( !ruleset_id && !dbId ) {
         return new Promise( ( resolve, reject ) => {
@@ -689,7 +680,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback) {
         let query = 'SELECT rules, id, ruleset_id, version  FROM ';
         let values = [];
 
-        if(dbId != null || version != null) {
+        if(dbId != null || version != null || getDeleted) {
             query += '{{rulesets}} ';
         } else {
             query += '{{currentRuleset}}';
@@ -710,6 +701,8 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback) {
 
         }
 
+        query += " ORDER BY version DESC";
+
         db.query(updateTableNames(query, tables), values)
             .then((result) => {
 
@@ -722,10 +715,44 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback) {
     } );
 }
 
+function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
+
+    return new Promise((resolve, reject) => {
+        getRuleset(db, ruleset.filename, null, null, tables, (result, resolve, reject) => {
+            resolve(result);
+        }, true).then((result) => {
+
+            if (result.rows.length > 0) {
+
+                if(result.rows[0].deleted == false) {
+                    if (result.rows[0].version != ruleset.version) {
+                        reject(`${ruleset.filename} has been changed by another user. Cannot update old version`);
+                        return;
+                    }
+
+                    if (result.rows[0].owner_group != null && !admin && result.rows[0].owner_group != group) {
+                        reject('Cannot change a ruleset that has been created by another group. Owner is ' + result.rows[0].owner_group);
+                        return;
+                    }
+                }
+                result.nextVersion = result.rows[0].version + 1;
+
+            } else {
+                result.nextVersion = 0;
+            }
+
+            resolve(result);
+
+        });
+
+    });
+
+}
+
 let dataInstance = null;
 
-module.exports = ( config ) => {
-    if ( dataInstance ) {
+module.exports = ( config, newInstance ) => {
+    if ( dataInstance && !newInstance ) {
         return dataInstance;
     }
 
