@@ -6,12 +6,34 @@
   ],
   "rules": [
     {
-      "filename":"validateFilename.py",
-      "path": "../../test_config"
+      "filename":"CheckColumnCount"
     },
     {
-      "filename":"copy.py",
+      "filename":"CheckColumnRegEx"
+    },
+    {
+      "filename":"CheckColumnType"
+    },
+    {
+      "filename":"CheckLatLong"
+    },
+    {
+      "filename":"DeleteColumn"
+    },
+    {
+      "filename":"AddRegExColumn"
+    },
+    {
+      "filename":"validateFilename",
       "path": "../../test_config",
+      "suffix" : ".py",
+      "executable" : "python"
+    },
+    {
+      "filename":"copy",
+      "path": "../../test_config",
+      "suffix" : ".py",
+      "executable" : "python",
       "ui" : [
 		{
 			"name": "regex",
