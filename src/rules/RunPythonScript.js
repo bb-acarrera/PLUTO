@@ -48,9 +48,25 @@ class RunPythonScript extends OperatorAPI {
 					console.log('client disconnected');
 				});
 				
-				c.write(JSON.stringify(this.config, (key, value) => {
+				var config = {};
+				config.encoding = this.config.encoding;
+				config.name = this.config.name;
+				config.pythonScript = this.config.pythonScript;
+				config.rootDirectory = this.config.rootDirectory;
+				config.tempDirectory = this.config.tempDirectory;
+				config.sharedData = this.config.sharedData;
+				if (this.config.validator && this.config.validator.currentRuleset) {
+					config.parserConfig = this.config.validator.parserConfig || {};
+					
+					if (this.config.validator.currentRuleset.import)
+						config.importConfig = this.config.validator.currentRuleset.import.config || {};
+					if (this.config.validator.currentRuleset.export)
+						config.exportConfig = this.config.validator.currentRuleset.export.config || {};
+				}
+				
+				c.write(JSON.stringify(config, (key, value) => {
 					if (key == 'validator')
-						return null;
+						return undefined;	// Filter out the validator that is on the parserConfig.
 					else
 						return value;
 				}));
