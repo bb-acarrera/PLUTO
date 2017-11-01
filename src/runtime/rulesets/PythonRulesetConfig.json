@@ -3,17 +3,15 @@
 		"name" : "Python Example RuleSet",
 		"rules" : [
 			{
-				"filename" : "RunPythonScript",
+				"filename" : "../test_config/validateFilename.py",
 				"config" : {
-					"id" : 1,
-					"pythonScript" : "../test_config/validateFilename.py"
+					"id" : 1
 				}
 			},
 			{
-				"filename" : "RunPythonScript",
+				"filename" : "../test_config/copy.py",
 				"config" : {
-					"id" : 2,
-					"pythonScript" : "../test_config/copy.py"
+					"id" : 2
 				}
 			}
 		],

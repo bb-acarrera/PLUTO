@@ -45,7 +45,7 @@ class RuleLoader {
             manifest = JSON.parse(contents);
 
         } catch(e) {
-            console.log('Error loading manifset from ' + manifestFile + ': ' + e);
+            console.log('Error loading manifest from ' + manifestFile + ': ' + e);
             return;
         }
 
@@ -88,17 +88,30 @@ class RuleLoader {
 
     loadFromManifest(dir, item, type) {
 
-        let file;
+        let file, suffixedFile;
 
         try {
 
             file = item.filename;
-            let ruleFile;
+            
+            suffixedFile = file;
+            if (!suffixedFile.endsWith(".py") && !suffixedFile.endsWith(".js"))
+            		suffixedFile = suffixedFile + '.js';
+            
+            let ruleFile, pythonScript;
 
-            if(item.path) {
-                ruleFile = path.resolve(dir, item.path);
+            if (suffixedFile.endsWith(".py")) {
+            		ruleFile = path.resolve(dir, "RunPythonScript.js"); 
+                if(item.path) {
+                		pythonScript = path.resolve(dir, item.path, suffixedFile);
+                } else {
+                		pythonScript = path.resolve(dir, suffixedFile);
+                }
+            }
+            else if(item.path) {
+                ruleFile = path.resolve(dir, item.path, suffixedFile);
             } else {
-                ruleFile = path.resolve(dir, file + '.js');
+                ruleFile = path.resolve(dir, suffixedFile);
             }
 
             var ruleClass = null;
@@ -110,6 +123,24 @@ class RuleLoader {
                 this.classMap[file] = ruleClass;
 
                 var properties = RuleLoader.getClassProperties(ruleClass);
+                
+                if (item.ui) {
+	            		properties = properties || [];
+	            		if (item.ui instanceof Array)
+	            			properties = properties.concat(item.ui);
+	            		else
+	            			properties.append(item.ui);
+                }
+                
+                var moreProperties = RuleLoader.getJSONProperties(pythonScript || suffixedFile);
+                if (moreProperties) {
+                		properties = properties || [];
+                		if (moreProperties instanceof Array)
+                			properties = properties.concat(moreProperties);
+                		else
+                			properties.append(moreProperties);
+                }
+                
                 if(properties) {
 
                     return {
@@ -118,6 +149,7 @@ class RuleLoader {
                         attributes: {
                             name: file,
                             filename: file,
+                            pythonScript: pythonScript, 
                             ui: {
                                 properties: properties
                             }
@@ -138,6 +170,22 @@ class RuleLoader {
         return null;
     }
 
+    static getJSONProperties(ruleFile) {
+    		// Load ui properties from a companion JSON file. This allows the plug-in developer to add properties without
+    		// requiring the manifest maintainer to do anything special when adding the plug-in.
+    		let jsonFile = ruleFile + '.json';
+    		if (fs.existsSync(jsonFile)) {
+    	        try {
+    	        		const contents = fs.readFileSync(jsonFile, 'utf8');
+    	            return JSON.parse(contents);
+    	        } catch(e) {
+    	            console.log('Error loading JSON from ' + jsonFile + ': ' + e);
+    	            return;
+    	        }
+    		}
+    		return;
+    }
+    
     static getClassProperties(ruleClass) {
 
         if(ruleClass.ConfigProperties) {

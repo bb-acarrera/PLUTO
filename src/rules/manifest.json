@@ -6,25 +6,20 @@
   ],
   "rules": [
     {
-      "filename":"CheckColumnCount"
+      "filename":"validateFilename.py",
+      "path": "../../test_config"
     },
     {
-      "filename":"CheckColumnRegEx"
-    },
-    {
-      "filename":"CheckColumnType"
-    },
-    {
-      "filename":"CheckLatLong"
-    },
-    {
-      "filename":"DeleteColumn"
-    },
-    {
-      "filename":"RunPythonScript"
-    },
-    {
-      "filename":"AddRegExColumn"
+      "filename":"copy.py",
+      "path": "../../test_config",
+      "ui" : [
+		{
+			"name": "regex",
+			"label": "Regular Expression",
+			"type": "string",
+			"tooltip": "An example of a ui component defined in the manifest file."
+		}
+	  ]
     }
   ],
   "importers" : [
