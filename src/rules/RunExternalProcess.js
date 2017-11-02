@@ -54,12 +54,12 @@ class RunExternalProcess extends OperatorAPI {
 			return;
 		}
 
+		var server;
 		if (this.socketName) {
-			const server = net.createServer((c) => {
+			server = net.createServer((c) => {
 				// 'connection' listener
-				console.log('client connected');	// TODO: Remove this.
 				c.on('end', () => {
-					console.log('client disconnected');	// TODO: Do something here?
+		            server.unref();
 				});
 				
 				var config = {};
@@ -132,12 +132,14 @@ class RunExternalProcess extends OperatorAPI {
 			
 			process.on('error', (err) => {
 	            this.error(`${attributes.executable}: Launching script failed with error: ${err}`);
+	            server.unref();
 			});
 			
 			python.on('close', (code) => {
 				if (code != 0)
 					this.error(`${attributes.executable} exited with status ${code}.`);
 				
+				server.unref();
 				resolve(outputName);
 			});
 		});
