@@ -5,20 +5,19 @@ const spawn = require('child_process').spawn;
 
 const OperatorAPI = require("../api/RuleAPI");
 
-class RunPythonScript extends OperatorAPI {
+class RunScript extends OperatorAPI {
 	constructor(config) {
 		super(config);
 
 		this.changeFileFormat = this.config.changeFileFormat === true;
 		
 		// Create a unique socket.
-		var scriptName = path.basename(this.config.pythonScript, ".py");
-		if (config.tempDirectory)
-			this.socketName = path.resolve(config.tempDirectory, scriptName + config.id + ".socket");
+		if (config.tempDirectory && config.attributes && config.attributes.executable)
+			this.socketName = path.resolve(config.tempDirectory, config.attributes.executable + config.id + ".socket");
 		this.tempDir = this.config.tempDirectory;
 	}
 
-	runPython(inputName) {
+	runExecutable(inputName) {
 		let outputName = this.outputFile;
 
 		if (!this.config) {
@@ -27,15 +26,30 @@ class RunPythonScript extends OperatorAPI {
 			return;
 		}
 
-		if (!this.config.pythonScript) {
-			this.error('No pythonScript in the configuration.');
+		const attributes = this.config.attributes;
+		
+		if (!attributes) {
+            this.error('No attributes in the configuration.');
+
+            return;
+		}
+		
+		if (!attributes.executable) {
+			this.error('No executable in the configuration.');
+
+			return;
+		}
+		
+		if (!attributes.script) {
+			this.warning('No script in the configuration.');
 
 			return;
 		}
 
-		let pythonScript = path.resolve(this.config.pythonScript);
-		if (!fs.existsSync(pythonScript)) {
-			this.error(`${pythonScript} does not exist.`);
+		// Don't check for the existence of the executable. It might be available in the PATH instead of being a fully qualified reference.
+		
+		if (attributes.script && !fs.existsSync(attributes.script)) {
+			this.error(`${script} does not exist.`);
 
 			return;
 		}
@@ -43,15 +57,15 @@ class RunPythonScript extends OperatorAPI {
 		if (this.socketName) {
 			const server = net.createServer((c) => {
 				// 'connection' listener
-				console.log('client connected');
+				console.log('client connected');	// TODO: Remove this.
 				c.on('end', () => {
-					console.log('client disconnected');
+					console.log('client disconnected');	// TODO: Do something here?
 				});
 				
 				var config = {};
 				config.encoding = this.config.encoding;
 				config.name = this.config.name;
-				config.pythonScript = this.config.pythonScript;
+				config.attributes = this.config.attributes;
 				config.rootDirectory = this.config.rootDirectory;
 				config.tempDirectory = this.config.tempDirectory;
 				config.sharedData = this.config.sharedData;
@@ -78,16 +92,20 @@ class RunPythonScript extends OperatorAPI {
 			server.listen(this.socketName);
 			
 			server.on('error', (err) => {
-				this.error(`${pythonScript} caused an error creating configuration socket.`);
+				this.error(`${executable} caused an error creating configuration socket.`);
 				this.info(err);
 			});
 		}
 	
-		let scriptName = path.basename(this.config.pythonScript);	
 		return new Promise((resolve, reject) => {
-			// Run the python script. This complains if the script doesn't exist.
-			const python = spawn('python', [pythonScript, inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
-			python.stdout.on('data', (data) => {
+			// Run the executable. This complains if the executable doesn't exist.
+			var process;
+			if (attributes.script)
+				process = spawn(attributes.executable, [attributes.script, inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
+			else
+				process = spawn(attributes.executable, [inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
+			
+			process.stdout.on('data', (data) => {
 				if (typeof data === 'string')
 					this.warning(data);
 				else if (data && typeof data.toString === 'function') {
@@ -95,12 +113,12 @@ class RunPythonScript extends OperatorAPI {
 					let strs = str.split("\n");
 					for (var i = 0; i < strs.length; i++) {
 						if (strs[i].length > 0)
-							this.warning(`${scriptName} wrote to stdout: ${strs[i]}.`);
+							this.warning(`${executable} wrote to stdout: ${strs[i]}.`);
 					}
 				}
 			});
 			
-			python.stderr.on('data', (data) => {
+			process.stderr.on('data', (data) => {
 				if (typeof data === 'string')
 					this.error(data);
 				else if (data && typeof data.toString === 'function') {
@@ -108,17 +126,17 @@ class RunPythonScript extends OperatorAPI {
 					let strs = str.split("\n");
 					for (var i = 0; i < strs.length; i++)
 						if (strs[i].length > 0)
-							this.error(`${scriptName} wrote to stderr: ${strs[i]}.`);
+							this.error(`${executable} wrote to stderr: ${strs[i]}.`);
 				}
 			});
 			
-			python.on('error', (err) => {
-	            this.error(`${scriptName}: Launching script failed with error: ${err}`);
+			process.on('error', (err) => {
+	            this.error(`${executable}: Launching script failed with error: ${err}`);
 			});
 			
 			python.on('close', (code) => {
 				if (code != 0)
-					this.error(`${scriptName} exited with status ${code}.`);
+					this.error(`${executable} exited with status ${code}.`);
 				
 				resolve(outputName);
 			});
@@ -129,13 +147,13 @@ class RunPythonScript extends OperatorAPI {
 		let inputName = this.inputFile;
 		if (inputName instanceof Promise) {
 			return inputName.then((filename) => {
-				return this.runPython(filename);
+				return this.runExecutable(filename);
 			}, (error) => {
 				return error;
 			});
 		}
 		else
-			return this.asFile(this.runPython(inputName));
+			return this.asFile(this.runExecutable(inputName));
 	}
 
 	get structureChange() {
@@ -144,12 +162,6 @@ class RunPythonScript extends OperatorAPI {
 
 	static get ConfigProperties() {
 		return this.appendConfigProperties([
-			{
-				name: 'pythonScript',
-				type: 'string',
-				label: 'Python Script Path',
-				tooltip: 'The path to the python script to run.'
-			},
 			{
 				name: 'changeFileFormat',
 				type: 'boolean',
@@ -165,4 +177,4 @@ class RunPythonScript extends OperatorAPI {
 	}
 }
 
-module.exports = RunPythonScript;	// Export this so derived classes can extend it.
+module.exports = RunScript;	// Export this so derived classes can extend it.

@@ -3,13 +3,13 @@
 		"name" : "Python Example RuleSet",
 		"rules" : [
 			{
-				"filename" : "../test_config/validateFilename.py",
+				"filename" : "validateFilename",
 				"config" : {
 					"id" : 1
 				}
 			},
 			{
-				"filename" : "../test_config/copy.py",
+				"filename" : "copy",
 				"config" : {
 					"id" : 2
 				}

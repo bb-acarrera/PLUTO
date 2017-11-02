@@ -309,6 +309,10 @@ class Validator {
 		this.ruleName = config.name;
 		config.errors = ruleDescriptor.errors;
 
+		let properties = this.ruleLoader.rulePropertiesMap[ruleDescriptor.filename];
+		if (properties && properties.attributes)
+		    config.attributes = properties.attributes;
+		
 		let rule;
 
 		if(ruleClass.NeedsParser) {

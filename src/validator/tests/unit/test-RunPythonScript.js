@@ -5,13 +5,20 @@ const fs = require('fs-extra');
 const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
-const RunPythonScript = require("../../../rules/RunPythonScript");
+const RunPythonScript = require("../../../rules/RunScript");
 
 QUnit.test( "RunPythonScript: Run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger": logger,
-        "pythonScript": "../../../test_config/copy.py",
+        "path": "../../../test_config",
+        "ui" : {
+        		"properties" : {
+        	        "script": "copy",
+        	        "suffix": ".py",
+        	        "executable" : "python"
+        		}
+        }
     };
 
     const data = "Hello World";

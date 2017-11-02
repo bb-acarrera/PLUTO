@@ -26,13 +26,13 @@
     {
       "filename":"validateFilename",
       "path": "../../test_config",
-      "suffix" : ".py",
+      "script" : "validateFilename.py",
       "executable" : "python"
     },
     {
       "filename":"copy",
       "path": "../../test_config",
-      "suffix" : ".py",
+      "script" : "copy.py",
       "executable" : "python",
       "ui" : [
 		{

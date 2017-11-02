@@ -15,6 +15,7 @@ class RuleLoader {
         this.parsersMap = {};
         this.importersMap = {};
         this.exportersMap = {};
+        this.rulePropertiesMap = {};
 
         this.classMap = {};
 
@@ -56,6 +57,7 @@ class RuleLoader {
                 if(properties) {
                     target.push(properties);
                     map[item.filename] = this.classMap[item.filename];
+                    this.rulePropertiesMap[item.filename] = properties;
                 }
             }
         };
@@ -88,24 +90,26 @@ class RuleLoader {
 
     loadFromManifest(dir, item, type) {
 
-        let file, suffixedFile;
+        let file, suffixedFile, executable;
 
         try {
-
+        	    executable = item.executable;
             file = item.filename;
             
             suffixedFile = file;
-            if (!suffixedFile.endsWith(".py") && !suffixedFile.endsWith(".js"))
+            if (!executable && !suffixedFile.endsWith('.js'))
             		suffixedFile = suffixedFile + '.js';
             
-            let ruleFile, pythonScript;
+            let ruleFile, script;
 
-            if (suffixedFile.endsWith(".py")) {
-            		ruleFile = path.resolve(dir, "RunPythonScript.js"); 
-                if(item.path) {
-                		pythonScript = path.resolve(dir, item.path, suffixedFile);
-                } else {
-                		pythonScript = path.resolve(dir, suffixedFile);
+            if (executable) {
+            	    ruleFile = path.resolve(dir, "RunScript.js");
+            	    if (item.script) {
+                    if(item.path) {
+                    		script = path.resolve(dir, item.path, item.script);
+                    } else {
+                    		script = path.resolve(dir, item.script);
+                    }
                 }
             }
             else if(item.path) {
@@ -125,6 +129,7 @@ class RuleLoader {
                 var properties = RuleLoader.getClassProperties(ruleClass);
                 
                 if (item.ui) {
+                    // For executables without scripts their UI must be defined in the manifest.
 	            		properties = properties || [];
 	            		if (item.ui instanceof Array)
 	            			properties = properties.concat(item.ui);
@@ -132,13 +137,16 @@ class RuleLoader {
 	            			properties.append(item.ui);
                 }
                 
-                var moreProperties = RuleLoader.getJSONProperties(pythonScript || suffixedFile);
-                if (moreProperties) {
-                		properties = properties || [];
-                		if (moreProperties instanceof Array)
-                			properties = properties.concat(moreProperties);
-                		else
-                			properties.append(moreProperties);
+                if (script) {
+                    // Scripts, not being JavaScript, need an external UI description file.
+                    var moreProperties = RuleLoader.getJSONProperties(script);
+                    if (moreProperties) {
+                    		properties = properties || [];
+                    		if (moreProperties instanceof Array)
+                    			properties = properties.concat(moreProperties);
+                    		else
+                    			properties.append(moreProperties);
+                    }
                 }
                 
                 if(properties) {
@@ -149,7 +157,9 @@ class RuleLoader {
                         attributes: {
                             name: file,
                             filename: file,
-                            pythonScript: pythonScript, 
+                            path: item.path,
+                            script: script,
+                            executable: executable,
                             ui: {
                                 properties: properties
                             }
