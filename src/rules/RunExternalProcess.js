@@ -49,7 +49,7 @@ class RunExternalProcess extends OperatorAPI {
 		// Don't check for the existence of the executable. It might be available in the PATH instead of being a fully qualified reference.
 		
 		if (attributes.script && !fs.existsSync(attributes.script)) {
-			this.error(`${script} does not exist.`);
+			this.error(`${attributes.script} does not exist.`);
 
 			return;
 		}
@@ -92,7 +92,7 @@ class RunExternalProcess extends OperatorAPI {
 			server.listen(this.socketName);
 			
 			server.on('error', (err) => {
-				this.error(`${executable} caused an error creating configuration socket.`);
+				this.error(`${attributes.executable} caused an error creating configuration socket.`);
 				this.info(err);
 			});
 		}
@@ -113,7 +113,7 @@ class RunExternalProcess extends OperatorAPI {
 					let strs = str.split("\n");
 					for (var i = 0; i < strs.length; i++) {
 						if (strs[i].length > 0)
-							this.warning(`${executable} wrote to stdout: ${strs[i]}.`);
+							this.warning(`${attributes.executable} wrote to stdout: ${strs[i]}.`);
 					}
 				}
 			});
@@ -126,17 +126,17 @@ class RunExternalProcess extends OperatorAPI {
 					let strs = str.split("\n");
 					for (var i = 0; i < strs.length; i++)
 						if (strs[i].length > 0)
-							this.error(`${executable} wrote to stderr: ${strs[i]}.`);
+							this.error(`${attributes.executable} wrote to stderr: ${strs[i]}.`);
 				}
 			});
 			
 			process.on('error', (err) => {
-	            this.error(`${executable}: Launching script failed with error: ${err}`);
+	            this.error(`${attributes.executable}: Launching script failed with error: ${err}`);
 			});
 			
 			python.on('close', (code) => {
 				if (code != 0)
-					this.error(`${executable} exited with status ${code}.`);
+					this.error(`${attributes.executable} exited with status ${code}.`);
 				
 				resolve(outputName);
 			});
@@ -165,8 +165,8 @@ class RunExternalProcess extends OperatorAPI {
 			{
 				name: 'changeFileFormat',
 				type: 'boolean',
-				label: 'Script will change file format',
-				tooltip: 'Set to true if this script will alter the format of the file (e.g. csv to geojson)'
+				label: 'Process will change file format',
+				tooltip: 'Set to true if this process will alter the format of the file (e.g. csv to geojson)'
 			}
 		]);
 	}
