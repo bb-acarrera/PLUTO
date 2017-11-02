@@ -125,8 +125,15 @@ class RunExternalProcess extends OperatorAPI {
 					let str = data.toString().trim();
 					let strs = str.split("\n");
 					for (var i = 0; i < strs.length; i++)
-						if (strs[i].length > 0)
-							this.error(`${attributes.executable} wrote to stderr: ${strs[i]}.`);
+						if (strs[i].length > 0) {
+						    try {
+	                            const error = JSON.parse(strs[i]);
+	                            this.log(error.type, error.when, error.problemFile, error.description, error.type == "Error" && this.shouldRulesetFailOnError());
+						    }
+						    catch (e) {
+						        this.error(`${attributes.executable} wrote to stderr: ${strs[i]}.`);
+						    }
+						}
 				}
 			});
 			
