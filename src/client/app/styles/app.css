@@ -165,3 +165,7 @@ div.footer {
   position: relative;
   top: -27px;
 }
+
+select:disabled {
+	background: #dddddd;
+}

@@ -385,7 +385,9 @@ class data {
      * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
      * @return a promise to an object describing a ruleset.
      */
-    retrieveRuleset ( ruleset_id, rulesetOverrideFile, version, dbId ) {
+    retrieveRuleset ( ruleset_id, rulesetOverrideFile, version, dbId, group, admin ) {
+
+        let isAdmin = admin === true;
 
         return getRuleset( this.db, ruleset_id, version, dbId, this.tables, ( result, resolve, reject ) => {
             if ( result.rows.length > 0 ) {
@@ -396,6 +398,19 @@ class data {
                 dbRuleset.filename = ruleset_id;
                 dbRuleset.name = dbRuleset.name || ruleset_id;
                 dbRuleset.version = result.rows[0].version;
+
+                dbRuleset.group = result.rows[0].owner_group;
+                dbRuleset.update_user = result.rows[0].update_user;
+                dbRuleset.update_time = result.rows[0].update_time;
+
+                if(dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
+                    dbRuleset.canedit = false;
+                } else {
+                    dbRuleset.canedit = true;
+                }
+
+                dbRuleset.deleted = result.rows[0].deleted;
+
                 let ruleset = new RuleSet( dbRuleset );
 
                 if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
@@ -452,7 +467,7 @@ class data {
 
                 ruleset.version = version;
 
-                this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, owner_user, owner_group) " +
+                this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group) " +
                         "VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id", this.tables),
                     [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup])
                 .then((result) => {
@@ -494,7 +509,7 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
-                    this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, owner_user, owner_group, deleted) " +
+                    this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, deleted) " +
                             "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
                         [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, true])
                         .then((result) => {
@@ -677,7 +692,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
 
     return new Promise( ( resolve, reject ) => {
 
-        let query = 'SELECT rules, id, ruleset_id, version  FROM ';
+        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted FROM ';
         let values = [];
 
         if(dbId != null || version != null || getDeleted) {
@@ -724,7 +739,7 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
 
             if (result.rows.length > 0) {
 
-                if(result.rows[0].deleted == false) {
+                if(!result.rows[0].deleted) {
                     if (result.rows[0].version != ruleset.version) {
                         reject(`${ruleset.filename} has been changed by another user. Cannot update old version`);
                         return;

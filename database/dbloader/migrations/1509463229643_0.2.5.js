@@ -1,5 +1,5 @@
 let rulesetColumns = {
-	owner_user: {
+	update_user: {
 		type: 'text'
 	},
 	owner_group: {
@@ -28,7 +28,7 @@ exports.up = (pgm) => {
 		'    m.version,' +
 		'    m.rules,' +
 		'    m.deleted, '  +
-		'    m.owner_user, '  +
+		'    m.update_user, '  +
 		'    m.owner_group, '  +
 		'    m.update_time '  +
 		'FROM rulesets m ' +

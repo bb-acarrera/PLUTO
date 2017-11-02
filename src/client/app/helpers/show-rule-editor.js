@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
-export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, importers, exporters, rulesetconfiguis}) {
+export function showRuleEditor(params, {ruleInstance, rules, ruleset,
+	parsers, importers, exporters, rulesetconfiguis, readOnly}) {
   var content = "<div>";
 
   if (!ruleInstance || !rules)
@@ -35,21 +36,21 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, i
 
   let name = ruleInstance.name || ruleInstance.filename;
   if(name) {
-    content += `<div>Name <input id="name" type="text" value="${name}"/></div><br/>`;
+    content += `<div>Name <input id="name" type="text" value="${name}" disabled=${readOnly}/></div><br/>`;
   }
 
 
   if (ruleInstance && uiConfig && uiConfig.properties) {
     // Place the name prompt at the top, always.
 
-    content += addProperties(ruleInstance, uiConfig.properties, columnLabels);
+    content += addProperties(ruleInstance, uiConfig.properties, columnLabels, readOnly);
   }
   else if (ruleInstance && ruleInstance.config) {
     // If there is no UI do the best we can.
     // Place the name prompt at the top, always.
    for (var key in ruleInstance.config) {
       // if (key != 'name')
-        content += `<div>${key} <input id="${key}" type="text" value="${ruleInstance.config[key]}"/></div>`;
+        content += `<div>${key} <input id="${key}" type="text" value="${ruleInstance.config[key]} disabled=${readOnly}"/></div>`;
     }
   }
   content += "</div>";
@@ -57,7 +58,7 @@ export function showRuleEditor(params, {ruleInstance, rules, ruleset, parsers, i
   return Ember.String.htmlSafe(content);
 }
 
-function addProperties(instance, properties, columnLabels) {
+function addProperties(instance, properties, columnLabels, readOnly) {
   var content = "";
   for (var i = 0; i < properties.length; i++) {
     let property = properties[i];
@@ -66,41 +67,41 @@ function addProperties(instance, properties, columnLabels) {
 
     switch (property.type) {
       case 'boolean':
-        content += addBooleanProperty(instance, property);
+        content += addBooleanProperty(instance, property, readOnly);
         break;
       case 'choice':
-        content += addChoiceProperty(instance, property);
+        content += addChoiceProperty(instance, property, readOnly);
         break;
       case 'column':
-        content += addColumnProperty(instance, property, columnLabels);
+        content += addColumnProperty(instance, property, columnLabels, readOnly);
         break;
       case 'date':
-        content += addDateProperty(instance, property);
+        content += addDateProperty(instance, property, readOnly);
         break;
       case 'float':
       case 'number':
-        content += addFloatProperty(instance, property);
+        content += addFloatProperty(instance, property, readOnly);
         break;
       case 'integer':
-        content += addIntegerProperty(instance, property);
+        content += addIntegerProperty(instance, property, readOnly);
         break;
       case 'time':
-        content += addTimeProperty(instance, property);
+        content += addTimeProperty(instance, property, readOnly);
         break;
       case 'validator':
-        content += addValidator(instance, property);
+        content += addValidator(instance, property, readOnly);
         break;
       case 'string': // Fall through to default.
       default:
-        content += addStringProperty(instance, property);
+        content += addStringProperty(instance, property, readOnly);
     }
   }
   return content;
 }
 
-function addBooleanProperty(instance, property) {
+function addBooleanProperty(instance, property, readOnly) {
   let initialValue = instance.config[property.name] || property.default || false;
-  return `<div>${property.label || property.name} <input id="${property.name}" type="checkbox" ${initialValue ? "checked" : ""}/></div>`;
+  return `<div>${property.label || property.name} <input id="${property.name}" type="checkbox" ${initialValue ? "checked" : ""} disabled=${readOnly}/></div>`;
 }
 
 function iterateChoices(choices, fn) {
@@ -124,11 +125,11 @@ function iterateChoices(choices, fn) {
 	}
 }
 
-function addChoiceProperty(instance, property) {
+function addChoiceProperty(instance, property, readOnly) {
 	if (!property.choices || property.choices.length == 0)
 		return "";
 
-	let content = `<div>${property.label || property.name}<select id="${property.name}">`;
+	let content = `<div>${property.label || property.name}<select id="${property.name}" disabled=${readOnly}>`;
 	let initialValue = instance.config[property.name] || property.default || property.choices[0];
 
 	iterateChoices(property.choices, (choice, label) => {
@@ -144,11 +145,11 @@ function addChoiceProperty(instance, property) {
 	return content;
 }
 
-function addColumnProperty(instance, property, columnLabels) {
+function addColumnProperty(instance, property, columnLabels, readOnly) {
   if (!columnLabels || columnLabels.length == 0)
     return "";
 
-  let content=`<div>${property.label || property.name} <select id="${property.name}">`
+  let content=`<div>${property.label || property.name} <select id="${property.name}" disabled=${readOnly}>`
   let initialValue = instance.config[property.name] || property.default || columnLabels[0];
   for (var i = 0; i < columnLabels.length; i++) {
     let choice = columnLabels[i];
@@ -161,10 +162,10 @@ function addColumnProperty(instance, property, columnLabels) {
   return content;
 }
 
-function addDateProperty(instance, property) {
+function addDateProperty(instance, property, readOnly) {
   var today = new Date();
   let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || (today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate());
-  let content = `<div>${property.label || property.name} <input id="${property.name}" type="date" value="${initialValue}"`;
+  let content = `<div>${property.label || property.name} <input id="${property.name}" type="date" value="${initialValue}" disabled=${readOnly}`;
   if (property.minimum)
     content += ` min="${property.minimum}"`;
   if (property.maximum)
@@ -174,9 +175,9 @@ function addDateProperty(instance, property) {
 
 }
 
-function addFloatProperty(instance, property) {
+function addFloatProperty(instance, property, readOnly) {
   let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || 0;
-  let content = `<div>${property.label || property.name} <input id="${property.name}" type="number" value="${initialValue}" step="0.01"`;  // TODO: Calculate a better step value?
+  let content = `<div>${property.label || property.name} <input id="${property.name}" type="number" value="${initialValue}" step="0.01" disabled=${readOnly}`;  // TODO: Calculate a better step value?
   if (property.minimum)
     content += ` min="${property.minimum}"`;
   if (property.maximum)
@@ -185,9 +186,9 @@ function addFloatProperty(instance, property) {
   return content;
 }
 
-function addIntegerProperty(instance, property) {
+function addIntegerProperty(instance, property, readOnly) {
   let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || 0;
-  let content = `<div>${property.label || property.name} <input id="${property.name}" type="number" value="${initialValue}"`;
+  let content = `<div>${property.label || property.name} <input id="${property.name}" type="number" value="${initialValue}" disabled=${readOnly}`;
   if (property.minimum)
     content += ` min="${property.minimum}"`;
   if (property.maximum)
@@ -196,15 +197,15 @@ function addIntegerProperty(instance, property) {
   return content;
 }
 
-function addStringProperty(instance, property) {
+function addStringProperty(instance, property, readOnly) {
   let initialValue = instance.config[property.name] || property.default || "";
-  return `<div>${property.label || property.name} <input id="${property.name}" type="text" value="${initialValue}"/></div>`;
+  return `<div>${property.label || property.name} <input id="${property.name}" type="text" value="${initialValue}" disabled=${readOnly}/></div>`;
 }
 
-function addTimeProperty(instance, property) {
+function addTimeProperty(instance, property, readOnly) {
   var today = new Date();
   let initialValue = instance.config[property.name] || property.default || property.minimum || property.maximum || (today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds());
-  let content = `<div>${property.label || property.name} <input id="${property.name}" type="time" value="${initialValue}"`;
+  let content = `<div>${property.label || property.name} <input id="${property.name}" type="time" value="${initialValue}" disabled=${readOnly}`;
   if (property.minimum)
     content += ` min="${property.minimum}"`;
   if (property.maximum)
@@ -214,10 +215,10 @@ function addTimeProperty(instance, property) {
 
 }
 
-function addValidator(instance, property) {
+function addValidator(instance, property, readOnly) {
   let initialValue = instance.config[property.name] || property.default || "";
   let validator = property.validator || "*";
-  return `<div>${property.label || property.name} <input id="${property.name}" type="text" pattern="${validator}" value="${initialValue}"/></div>`;
+  return `<div>${property.label || property.name} <input id="${property.name}" type="text" pattern="${validator}" value="${initialValue}" disabled=${readOnly}/></div>`;
 }
 
 export default Ember.Helper.helper(showRuleEditor);

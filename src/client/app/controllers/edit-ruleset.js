@@ -25,6 +25,9 @@ export default Ember.Controller.extend( {
         }
     } ),
     ruleToEdit: null,
+	disableEdit: Ember.computed('model.ruleset.canedit', function() {
+		return !this.get('model.ruleset.canedit');
+	}),
     actions: {
         toggleUpload (id) {
             this.set("processing", true);
@@ -173,7 +176,7 @@ export default Ember.Controller.extend( {
     }
 } );
 
-function save ( ruleset, controller ) {
+function save ( ruleset ) {
     var name = document.getElementById( "rulesetName" ).value;
     ruleset.set( "name", name );
 
@@ -186,7 +189,7 @@ function save ( ruleset, controller ) {
         else if ( xmlHttp.readyState == 4 ) {
             alert( `Failed to save. Status = ${xmlHttp.status}` );
         }
-    }
+    };
 
     let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
     let theJSON = ruleset.toJSON();
