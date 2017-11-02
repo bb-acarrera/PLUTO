@@ -22,7 +22,7 @@
                     <div class="section-header">Ruleset</div>
                     <div class="section-content">{{model.ruleset.filename}}</div>
                     <div class="section-content">Description: <input id="rulesetName" type="text"
-                                                                     value="{{model.ruleset.name}}" class="text-input" disabled=disableEdit/>
+                                                                     value="{{model.ruleset.name}}" class="text-input" disabled={{disableEdit}}/>
                     </div>
 
                     <div class="section-content rule-selectable" id="general" {{action "toggleRowHighlight" "general"
