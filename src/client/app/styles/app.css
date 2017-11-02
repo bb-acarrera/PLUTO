@@ -133,6 +133,11 @@ div.footer {
   color: gray;
 }
 
+div.footer .version {
+	float: right;
+	margin-right: 5px;
+}
+
 .fileUpload {
   position: relative;
   overflow: hidden;
