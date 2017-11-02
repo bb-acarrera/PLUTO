@@ -5,9 +5,9 @@ const fs = require('fs-extra');
 const stream = require('stream');
 
 const ErrorLogger = require("../../ErrorLogger");
-const RunPythonScript = require("../../../rules/RunScript");
+const RunExternalProcess = require("../../../rules/RunExternalProcess");
 
-QUnit.test( "RunPythonScript: Run test", function(assert) {
+QUnit.test( "RunExternalProcess: Run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         "_debugLogger": logger,
@@ -22,7 +22,7 @@ QUnit.test( "RunPythonScript: Run test", function(assert) {
     };
 
     const data = "Hello World";
-    const rule = new RunPythonScript(config);
+    const rule = new RunExternalProcess(config);
     rule.tempDir = "/var/tmp";
 
     const done = assert.async();

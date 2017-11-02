@@ -103,7 +103,7 @@ class RuleLoader {
             let ruleFile, script;
 
             if (executable) {
-            	    ruleFile = path.resolve(dir, "RunScript.js");
+            	    ruleFile = path.resolve(dir, "RunExternalProcess.js");
             	    if (item.script) {
                     if(item.path) {
                     		script = path.resolve(dir, item.path, item.script);

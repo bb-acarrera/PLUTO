@@ -5,7 +5,7 @@ const spawn = require('child_process').spawn;
 
 const OperatorAPI = require("../api/RuleAPI");
 
-class RunScript extends OperatorAPI {
+class RunExternalProcess extends OperatorAPI {
 	constructor(config) {
 		super(config);
 
@@ -17,7 +17,7 @@ class RunScript extends OperatorAPI {
 		this.tempDir = this.config.tempDirectory;
 	}
 
-	runExecutable(inputName) {
+	runProcess(inputName) {
 		let outputName = this.outputFile;
 
 		if (!this.config) {
@@ -147,13 +147,13 @@ class RunScript extends OperatorAPI {
 		let inputName = this.inputFile;
 		if (inputName instanceof Promise) {
 			return inputName.then((filename) => {
-				return this.runExecutable(filename);
+				return this.runProcess(filename);
 			}, (error) => {
 				return error;
 			});
 		}
 		else
-			return this.asFile(this.runExecutable(inputName));
+			return this.asFile(this.runProcess(inputName));
 	}
 
 	get structureChange() {
@@ -177,4 +177,4 @@ class RunScript extends OperatorAPI {
 	}
 }
 
-module.exports = RunScript;	// Export this so derived classes can extend it.
+module.exports = RunExternalProcess;	// Export this so derived classes can extend it.
