@@ -23,3 +23,4 @@ Factories.csv
 .project
 .settings
 docs/.*.html
+.pydevproject
