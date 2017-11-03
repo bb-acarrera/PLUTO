@@ -138,6 +138,12 @@ div.footer .version {
 	margin-right: 5px;
 }
 
+div.authDetails {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+
 .fileUpload {
   position: relative;
   overflow: hidden;
