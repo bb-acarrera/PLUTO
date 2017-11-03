@@ -47,7 +47,7 @@ class RulesetRouter extends BaseRouter {
 				rulesetid = req.query.rulesetid
 			}
 
-			this.config.data.retrieveRuleset(id, null, version, dbId, auth.group).then((ruleset) => {
+			this.config.data.retrieveRuleset(id, null, version, dbId, auth.group, auth.admin).then((ruleset) => {
 				if (!ruleset) {
 					res.status(404).send(`Unable to retrieve ruleset '${id}'.`);
 					return;
