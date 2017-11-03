@@ -58,7 +58,9 @@ class PythonAPIRule(object):
     def processRecord(self, record):
         return record
 
-def processData(pythonRuleClass, argv):
+def processData(pythonRuleClass):
+    argv = sys.argv
+    
     if pythonRuleClass is None:
         print("No python class specified.", file=sys.stderr)
         return
@@ -97,4 +99,4 @@ def processData(pythonRuleClass, argv):
     instance = pythonRuleClass(config)
     instance.run(inputName, outputName, encoding)
     
-processData(PythonAPIRule, sys.argv)
+processData(PythonAPIRule)
