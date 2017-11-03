@@ -1,6 +1,8 @@
+from __future__ import print_function
 from datetime import datetime
 import csv
 import json
+from shutil import copyfile
 import socket
 import sys
 
@@ -47,7 +49,15 @@ class PythonAPIRule(object):
         self.log("Info", type(self).__name__, self.config.id, problemDescription);
         
     def run(self, inputFile, outputFile, encoding):
-        with open(inputFile, 'r', encoding=encoding) as src, open(outputFile, 'w', encoding=encoding) as dst:
+        copyfile(inputFile, outputFile)
+        
+    
+class PythonCSVRule(PythonAPIRule):
+    def __init__(self, config):
+        super(ValidateFilename, self).__init__(config)
+        
+    def run(self, inputFile, outputFile, encoding):
+        with open(inputFile, 'r') as src, open(outputFile, 'w') as dst: # FIXME: Python 2 doesn't support encoding here.
             csvreader = csv.reader(src, delimiter=',')  # FIXME: Get CSV properties from the config object. See https://docs.python.org/3/library/csv.html#csv-fmt-params
             csvwriter = csv.writer(dst, delimiter=',')
             for row in csvreader:
@@ -58,7 +68,7 @@ class PythonAPIRule(object):
     def processRecord(self, record):
         return record
 
-def processData(pythonRuleClass):
+def process(pythonRuleClass):
     argv = sys.argv
     
     if pythonRuleClass is None:
@@ -91,6 +101,7 @@ def processData(pythonRuleClass):
             chunks += chunk.decode('utf-8')
     
     except socket.error as err:
+        print("Failed to read from " + socketAddr, file=sys.stderr)
         print(err, file=sys.stderr)
         sys.exit(1)
     
@@ -98,5 +109,3 @@ def processData(pythonRuleClass):
 
     instance = pythonRuleClass(config)
     instance.run(inputName, outputName, encoding)
-    
-processData(PythonAPIRule)

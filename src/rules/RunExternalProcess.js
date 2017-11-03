@@ -53,52 +53,56 @@ class RunExternalProcess extends OperatorAPI {
 
 			return;
 		}
-
-		var server;
-		if (this.socketName) {
-			server = net.createServer((c) => {
-				// 'connection' listener
-				c.on('end', () => {
-		            server.unref();
-				});
-				
-				var config = {};
-				config.encoding = this.config.encoding;
-				config.name = this.config.name;
-				config.attributes = this.config.attributes;
-				config.rootDirectory = this.config.rootDirectory;
-				config.tempDirectory = this.config.tempDirectory;
-				config.sharedData = this.config.sharedData;
-				if (this.config.validator && this.config.validator.currentRuleset) {
-					config.parserConfig = this.config.validator.parserConfig || {};
-					
-					if (this.config.validator.currentRuleset.import)
-						config.importConfig = this.config.validator.currentRuleset.import.config || {};
-					if (this.config.validator.currentRuleset.export)
-						config.exportConfig = this.config.validator.currentRuleset.export.config || {};
-				}
-				
-				c.write(JSON.stringify(config, (key, value) => {
-					if (key == 'validator')
-						return undefined;	// Filter out the validator that is on the parserConfig.
-					else
-						return value;
-				}));
-				
-	//			c.pipe(c);	Can't find documentation on what this does and the code works without it.
-				c.end();
-				server.unref();
-			});
-			server.listen(this.socketName);
-			
-			server.on('error', (err) => {
-				this.error(`${attributes.executable} caused an error creating configuration socket.`);
-				this.info(err);
-			});
-		}
 	
 		return new Promise((resolve, reject) => {
-			// Run the executable. This complains if the executable doesn't exist.
+	        var server;
+	        if (this.socketName) {
+	            server = net.createServer((c) => {
+	                // 'connection' listener
+	                c.on('end', () => {
+	                    server.unref();
+	                });
+	                
+	                var config = {};
+	                config.encoding = this.config.encoding;
+	                config.name = this.config.name;
+	                config.attributes = this.config.attributes;
+	                config.rootDirectory = this.config.rootDirectory;
+	                config.tempDirectory = this.config.tempDirectory;
+	                config.sharedData = this.config.sharedData;
+	                if (this.config.validator && this.config.validator.currentRuleset) {
+	                    config.parserConfig = this.config.validator.parserConfig || {};
+	                    
+	                    if (this.config.validator.currentRuleset.import)
+	                        config.importConfig = this.config.validator.currentRuleset.import.config || {};
+	                    if (this.config.validator.currentRuleset.export)
+	                        config.exportConfig = this.config.validator.currentRuleset.export.config || {};
+	                }
+	                
+	                c.write(JSON.stringify(config, (key, value) => {
+	                    if (key == 'validator')
+	                        return undefined;   // Filter out the validator that is on the parserConfig.
+	                    else
+	                        return value;
+	                }));
+	                
+	    //          c.pipe(c);  Can't find documentation on what this does and the code works without it.
+	                c.end();
+	                server.unref();
+	            });
+	            server.listen(this.socketName);
+	            
+	            server.on('error', (err) => {
+	                this.error(`${attributes.executable} caused an error creating configuration socket.`);
+	                this.info(err);
+	            });
+	            
+	            server.on('close', () => {
+	                this.error("Socket closed.");
+	            });
+	        }
+
+	        // Run the executable. This complains if the executable doesn't exist.
 			var process;
 			if (attributes.script)
 				process = spawn(attributes.executable, [attributes.script, inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
@@ -142,7 +146,7 @@ class RunExternalProcess extends OperatorAPI {
 	            server.unref();
 			});
 			
-			python.on('close', (code) => {
+			process.on('exit', (code) => {
 				if (code != 0)
 					this.error(`${attributes.executable} exited with status ${code}.`);
 				

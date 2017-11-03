@@ -30,7 +30,7 @@
     },
     {
       "filename":"copy",
-      "script" : "test_config/copy.py",
+      "script" : "copy.py",
       "executable" : "python",
       "ui" : [
 		{

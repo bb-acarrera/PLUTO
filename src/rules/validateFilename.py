@@ -1,30 +1,10 @@
-import json
-import socket
-import sys
-from shutil import copyfile
+from __future__ import print_function
 
-inputFile = sys.argv[1]
-outputFile = sys.argv[2]
-encoding = sys.argv[3]
-socketAddr = sys.argv[4]
+import imp
+api = imp.load_source('PythonAPI', 'api/PythonAPI.py')
 
-# Create a UDS socket to receive the chunks info.
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-chunks = ''
-try:
-	sock.connect(socketAddr)
-	while True:
-		chunk = sock.recv(1024)
-		if chunk == '':
-			break
-		chunks += chunk
-
-except socket.error, msg:
-	print >>sys.stderr, msg
-	sys.exit(1)
-
-config = json.loads(chunks)
-
-copyfile(sys.argv[1], sys.argv[2])
-
+class ValidateFilename(api.PythonAPIRule):
+	def __init__(self, config):
+		super(ValidateFilename, self).__init__(config)
+		
+api.process(ValidateFilename)

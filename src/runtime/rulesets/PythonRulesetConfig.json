@@ -5,7 +5,8 @@
 			{
 				"filename" : "validateFilename",
 				"config" : {
-					"id" : 1
+					"id" : 1,
+					"regex" : "*.csv"
 				}
 			},
 			{
