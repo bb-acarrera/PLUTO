@@ -25,14 +25,12 @@
     },
     {
       "filename":"validateFilename",
-      "path": "../../test_config",
-      "script" : "validateFilename.py",
+      "script" : "../../test_config/validateFilename.py",
       "executable" : "python"
     },
     {
       "filename":"copy",
-      "path": "../../test_config",
-      "script" : "copy.py",
+      "script" : "./../test_config/copy.py",
       "executable" : "python",
       "ui" : [
 		{

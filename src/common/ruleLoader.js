@@ -105,11 +105,7 @@ class RuleLoader {
             if (executable) {
             	    ruleFile = path.resolve(dir, "RunExternalProcess.js");
             	    if (item.script) {
-                    if(item.path) {
-                    		script = path.resolve(dir, item.path, item.script);
-                    } else {
-                    		script = path.resolve(dir, item.script);
-                    }
+                		script = path.resolve(dir, item.script);
                 }
             }
             else if(item.path) {
