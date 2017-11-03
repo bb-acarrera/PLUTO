@@ -106,7 +106,7 @@ export default Ember.Controller.extend({
 			var rulesetId = this.modaltext;
 
 			var rulesetCopy = ruleset.toJSON().rules;
-			ruleset.name = "Copy of " + ruleset.name;
+			rulesetCopy.name = "Copy of " + rulesetCopy.name;
 
 			addRuleset(this, rulesetId, rulesetCopy);
 		},
