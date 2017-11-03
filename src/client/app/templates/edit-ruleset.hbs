@@ -7,7 +7,11 @@
         <h2>Run Details</h2>
 	{{else}}
 		{{#if (not collapsed)}}
-            <h2>Edit Ruleset</h2>
+            <h2>Edit Ruleset {{model.ruleset.filename}}</h2>
+            <div>
+                <div>Owned by {{ownedBy}}</div>
+                <div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
+            </div>
 		{{/if}}
 	{{/if}}
 </div>
@@ -19,8 +23,6 @@
 
             <div style="float:none;">
                 <div class="column">
-                    <div class="section-header">Ruleset</div>
-                    <div class="section-content">{{model.ruleset.filename}}</div>
                     <div class="section-content">Description: <input id="rulesetName" type="text"
                                                                      value="{{model.ruleset.name}}" class="text-input" disabled={{disableEdit}}/>
                     </div>
@@ -153,13 +155,16 @@
                     </table>
 
 					{{#if (not disableEdit)}}
-                        <button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
-                        </button>
-                        <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i
-                                class="fa fa-trash"></i></button>
-                        <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
-                        </button>
+
+							<button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
+							</button>
+							<button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i
+									class="fa fa-trash"></i></button>
+							<button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
+							</button>
+
 					{{/if}}
+
 
                 </div>
                 <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">

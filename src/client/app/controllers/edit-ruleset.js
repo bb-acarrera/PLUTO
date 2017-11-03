@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import moment from 'moment';
 
 export default Ember.Controller.extend( {
     queryParams: [ "collapsed", "collapsedRun", "run" ],
@@ -27,6 +28,27 @@ export default Ember.Controller.extend( {
     ruleToEdit: null,
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
 		return !this.get('model.ruleset.canedit');
+	}),
+	ownedBy: Ember.computed('model.ruleset.group', function() {
+		let group = this.get('model.ruleset.group');
+		if(group) return group;
+
+		return 'Nobody';
+	}),
+	lastEditedBy: Ember.computed('model.ruleset.updateuser', function() {
+		let user = this.get('model.ruleset.updateuser');
+		if(user) return user;
+
+		return 'Unknown';
+	}),
+	lastEdited: Ember.computed('model.ruleset.updatetime', function() {
+		let changeTime = this.get('model.ruleset.updatetime');
+
+		if(changeTime) {
+			return moment(changeTime).format('MMMM Do YYYY, h:mm a');
+		}
+
+		return 'Unknown';
 	}),
     actions: {
         toggleUpload (id) {
