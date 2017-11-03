@@ -13,7 +13,7 @@ function addRuleset(controller, rulesetId, ruleset) {
       controller.transitionToRoute('editRuleset', rulesetId);
     }
     else if (xmlHttp.readyState == 4) {
-      alert(`Failed to create. Status = ${xmlHttp.status}`);
+      alert(`Failed to create: ${xmlHttp.statusText}`);
     }
   };
 
@@ -110,7 +110,7 @@ export default Ember.Controller.extend({
     },
 
     deleteRuleset(ruleset, rulesets) {
-      if (confirm(`Delete "${ruleset.get("name") || ruleset.get("filename")}"?`)) {
+      if (confirm(`Delete "${ruleset.get("filename")}"?`)) {
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.onreadystatechange = function() {
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -118,7 +118,7 @@ export default Ember.Controller.extend({
             rulesets.notifyPropertyChange("length");
           }
           else if (xmlHttp.readyState == 4) {
-            alert(`Failed to delete. Status = ${xmlHttp.status}`);
+            alert(`Failed to delete: ${xmlHttp.statusText}`);
           }
         };
 
@@ -130,10 +130,6 @@ export default Ember.Controller.extend({
         xmlHttp.setRequestHeader("Content-Type", "application/json");
         xmlHttp.send(JSON.stringify(theJSON));
       }
-    },
-
-    editRuleset() {
-      alert("Edit ruleset not yet implemented.");
     }
   },
   init: function() {

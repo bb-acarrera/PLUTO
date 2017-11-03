@@ -54,10 +54,11 @@ class Server {
 
 			app.use(function(err, req, res, next) {
 				console.log(req.url + ': ' + err);
+				res.statusMessage = err.message || err;
 				res.status(err.status || 500);
 				res.json({
-					message: err.message,
-					error: err
+					message: err.message || err,
+					error: {}
 				});
 			});
 
@@ -66,9 +67,10 @@ class Server {
 		// production error handler
 		// no stacktraces leaked to user
 		app.use(function(err, req, res, next) {
+			res.statusMessage = err.message || err;
 			res.status(err.status || 500);
 			res.json({
-				message: err.message,
+				message: err.message || err,
 				error: {}
 			});
 		});
