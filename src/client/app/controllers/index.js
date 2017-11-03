@@ -114,10 +114,11 @@ export default Ember.Controller.extend({
 		deleteRuleset(ruleset, rulesets) {
 			if (confirm(`Delete "${ruleset.get("filename")}"?`)) {
 				var xmlHttp = new XMLHttpRequest();
-				xmlHttp.onreadystatechange = function() {
+				xmlHttp.onreadystatechange = () => {
 					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 						rulesets.removeObject(ruleset);
 						rulesets.notifyPropertyChange("length");
+						this.get('target.router').refresh();
 					}
 					else if (xmlHttp.readyState == 4) {
 						alert(`Failed to delete: ${xmlHttp.statusText}`);
