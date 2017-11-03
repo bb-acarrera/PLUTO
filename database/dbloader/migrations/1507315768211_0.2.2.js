@@ -29,7 +29,10 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-    pgm.dropColumns('rulesets', rulesetColumns );
 
     pgm.sql('DROP VIEW "currentRuleset";');
+
+    pgm.dropColumns('rulesets', rulesetColumns );
+
+
 };

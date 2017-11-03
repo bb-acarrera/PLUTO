@@ -1,6 +1,4 @@
-/**
- * Created by cgerber on 2017-07-21.
- */
+
 const proxyquire = require('proxyquire');
 const stream = require('stream');
 
