@@ -34,7 +34,9 @@ class TestTableRule extends TableRuleAPI {
 QUnit.test( "CSVParser: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"numHeaderRows" : 1
 	};
 
@@ -50,7 +52,9 @@ QUnit.test( "CSVParser: Creation Test", function( assert ) {
 QUnit.test( "CSVParser: Creation Test No Rule", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"numHeaderRows" : 1
 	};
 
@@ -67,7 +71,9 @@ QUnit.test( "CSVParser: Creation Test No Rule", function( assert ) {
 QUnit.test( "CSVParser: Check For Absent NumberOfHeaderRows property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 	};
 
 	const rule = new CSVParser(config, new TestTableRule());
@@ -81,7 +87,9 @@ QUnit.test( "CSVParser: Check For Absent NumberOfHeaderRows property", function(
 QUnit.test( "CSVParser: Check For Non-Number NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"numHeaderRows" : "foo"
 	};
 
@@ -96,7 +104,9 @@ QUnit.test( "CSVParser: Check For Non-Number NumberOfHeaderRows", function( asse
 QUnit.test( "CSVParser: Check For Negative NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"numHeaderRows" : -1
 	};
 
@@ -111,7 +121,9 @@ QUnit.test( "CSVParser: Check For Negative NumberOfHeaderRows", function( assert
 QUnit.test( "CSVParser: Check For Non-Integer NumberOfHeaderRows", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"numHeaderRows" : 1.1
 	};
 
@@ -126,7 +138,9 @@ QUnit.test( "CSVParser: Check For Non-Integer NumberOfHeaderRows", function( ass
 QUnit.test( "CSVParser: Check Valid Rows processed Exluding Header", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"numHeaderRows" : 1
 	};
 

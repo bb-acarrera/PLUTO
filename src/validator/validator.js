@@ -474,11 +474,14 @@ class Validator {
 
 	// Add some useful things to a config object.
 	updateConfig(config) {
-		config.rootDirectory = config.rootDirectory || this.rootDir;
-		config.tempDirectory = config.tempDirectory || this.tempDir;
-		config.encoding = config.encoding || this.encoding;
-		config.validator = this;
-		config.sharedData = this.sharedData;
+	    // Put non-rule stuff in the internal "__state" object.
+	    config.__state = {};
+	    
+	    config.__state.rootDirectory = config.rootDirectory || this.rootDir;
+	    config.__state.tempDirectory = config.tempDirectory || this.tempDir;
+	    config.__state.encoding = config.encoding || this.encoding;
+	    config.__state.validator = this;
+	    config.__state.sharedData = this.sharedData;
 //		config.currentRuleset = this.currentRuleset;
 	}
 

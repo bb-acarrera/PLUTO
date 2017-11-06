@@ -6,7 +6,7 @@
 				"filename" : "validateFilename",
 				"config" : {
 					"id" : 1,
-					"regex" : "*.csv"
+					"regex" : ".*\\.csv"
 				}
 			},
 			{

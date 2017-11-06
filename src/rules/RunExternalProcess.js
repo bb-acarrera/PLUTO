@@ -12,9 +12,9 @@ class RunExternalProcess extends OperatorAPI {
 		this.changeFileFormat = this.config.changeFileFormat === true;
 		
 		// Create a unique socket.
-		if (config.tempDirectory && config.attributes && config.attributes.executable)
-			this.socketName = path.resolve(config.tempDirectory, config.attributes.executable + config.id + ".socket");
-		this.tempDir = this.config.tempDirectory;
+		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
+			this.socketName = path.resolve(config.__state.tempDirectory, config.attributes.executable + config.id + ".socket");
+		this.tempDir = this.config.__state.tempDirectory;
 	}
 
 	runProcess(inputName) {
@@ -63,28 +63,23 @@ class RunExternalProcess extends OperatorAPI {
 	                    server.unref();
 	                });
 	                
-	                var config = {};
-	                config.encoding = this.config.encoding;
-	                config.name = this.config.name;
-	                config.attributes = this.config.attributes;
-	                config.rootDirectory = this.config.rootDirectory;
-	                config.tempDirectory = this.config.tempDirectory;
-	                config.sharedData = this.config.sharedData;
-	                if (this.config.validator && this.config.validator.currentRuleset) {
-	                    config.parserConfig = this.config.validator.parserConfig || {};
+	                var config = Object.assign({}, this.config);
+	                if (this.config.__state && this.config.__state.validator && this.config.__state.validator.currentRuleset) {
+	                    config.parserConfig = this.config.__state.validator.parserConfig || {};
 	                    
-	                    if (this.config.validator.currentRuleset.import)
-	                        config.importConfig = this.config.validator.currentRuleset.import.config || {};
-	                    if (this.config.validator.currentRuleset.export)
-	                        config.exportConfig = this.config.validator.currentRuleset.export.config || {};
+	                    if (this.config.__state.validator.currentRuleset.import)
+	                        config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
+	                    if (this.config.__state.validator.currentRuleset.export)
+	                        config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
 	                }
 	                
-	                c.write(JSON.stringify(config, (key, value) => {
-	                    if (key == 'validator')
-	                        return undefined;   // Filter out the validator that is on the parserConfig.
-	                    else
-	                        return value;
-	                }));
+	                var json = JSON.stringify(config, (key, value) => {
+                        if (key.startsWith('_'))
+                            return undefined;   // Filter out anything that starts with an underscore that is on the parserConfig.
+                        else
+                            return value;
+                    });
+                    c.write(json);
 	                
 	    //          c.pipe(c);  Can't find documentation on what this does and the code works without it.
 	                c.end();
@@ -103,11 +98,12 @@ class RunExternalProcess extends OperatorAPI {
 	        }
 
 	        // Run the executable. This complains if the executable doesn't exist.
+	        var encoding = (this.config && this.config.__state && this.config.__state.encoding) ? this.config.__state.encoding : 'utf8';
 			var process;
 			if (attributes.script)
-				process = spawn(attributes.executable, [attributes.script, inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
+				process = spawn(attributes.executable, [attributes.script, inputName, outputName, encoding, this.socketName]);
 			else
-				process = spawn(attributes.executable, [inputName, outputName, this.config.encoding || 'utf8', this.socketName]);
+				process = spawn(attributes.executable, [inputName, outputName, encoding, this.socketName]);
 			
 			process.stdout.on('data', (data) => {
 				if (typeof data === 'string')

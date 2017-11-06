@@ -6,7 +6,9 @@ const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
 
 function getDefaultConfig() {
     return {
-        "_debugLogger" : new ErrorLogger(),
+        __state : {
+            "_debugLogger" : new ErrorLogger()
+        },
         "rootDirectory" : "./src",
         "rulesDirectory" : "./validator/tests/testRules",
         "tempDirectory" : "./tmp",

@@ -117,7 +117,7 @@ class CSVParser extends TableParserAPI {
             }
 
 
-            if(this.config.sharedData && this.config.sharedData.abort) {
+            if(this.config.__state && this.config.__state.sharedData && this.config.__state.sharedData.abort) {
                 return null;
             }
 

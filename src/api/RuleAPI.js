@@ -207,15 +207,15 @@ run() {
 			return this._objectPromise;	// User really shouldn't query this more than once but we also don't want to create multiple Promises.
 
 		if (this.hasFilename())
-			this._object = this.config.validator.loadFile(this._data.file, this.config.encoding);
+			this._object = this.config.__state.validator.loadFile(this._data.file, this.config.__state.encoding);
 		else if (this.hasStream()) {
 			const writer = new _MemoryWriterStream();
 			this._data.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
-			this._object = writer.getData(this.config.encoding);
+			this._object = writer.getData(this.config.__state.encoding);
 
 			this._objectPromise = streamToPromise(writer).then(() => {
 				this._objectPromise = undefined;
-				this._object = writer.getData(this.config.encoding);
+				this._object = writer.getData(this.config.__state.encoding);
 				return this._object;
 			});
 			return this._objectPromise;
@@ -273,7 +273,7 @@ run() {
 			return this._inputPromise;
 		}
 		else
-			this._inputFile = this.saveLocalTempFile(this._data.data, this.config.encoding);
+			this._inputFile = this.saveLocalTempFile(this._data.data, this.config.__state.encoding);
 
 		return this._inputFile;
 	}

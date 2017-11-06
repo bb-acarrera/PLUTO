@@ -12,15 +12,19 @@ QUnit.test( "DeleteColumn: Deletion Test", function(assert){
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
+            __state : {
+                "_debugLogger" : logger,
+                sharedData: sharedData
+            },
         "column" : 'Column 0',
-        sharedData: sharedData
     };
 
     const parserConfig = {
         "numHeaderRows" : 1,
         "columnNames" : [ "Column 0", "Column 1" ],
-        sharedData: sharedData
+        __state : {
+            sharedData: sharedData
+        },
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -46,7 +50,9 @@ QUnit.test( "DeleteColumn: Deletion Test", function(assert){
 QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
+            __state : {
+                "_debugLogger" : logger
+            },
         "column" : 1
     };
 
@@ -77,7 +83,9 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
 QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
+            __state : {
+                "_debugLogger" : logger
+            },
         "column" : -1
     };
 
@@ -109,7 +117,9 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
 QUnit.test( "DeleteColumn: No Column Property test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger
+            __state : {
+                "_debugLogger" : logger
+            },
     };
 
     const parserConfig = {

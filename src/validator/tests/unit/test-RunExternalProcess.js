@@ -10,7 +10,9 @@ const RunExternalProcess = require("../../../rules/RunExternalProcess");
 QUnit.test( "RunExternalProcess: Run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger": logger,
+            __state : {
+                "_debugLogger" : logger
+            },
         "path": "../../../test_config",
         "ui" : {
         		"properties" : {

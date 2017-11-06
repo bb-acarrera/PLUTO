@@ -14,13 +14,13 @@ class TableParserAPI extends RuleAPI {
     constructor(config, tableRule, tableRuleConfig) {
         super(config);
 
-        if(this.config.sharedData) {
-            if (!this.config.sharedData.Parser) {
-                this.config.sharedData.Parser = { columnNames: this.config.columnNames };
+        if(this.config.__state && this.config.__state.sharedData) {
+            if (!this.config.__state.sharedData.Parser) {
+                this.config.__state.sharedData.Parser = { columnNames: this.config.columnNames };
             }
 
 
-            this.parserSharedData = this.config.sharedData.Parser
+            this.parserSharedData = this.config.__state.sharedData.Parser
         } else {
             this.parserSharedData = {};
         }
