@@ -19,7 +19,7 @@ class ValidateFilename(api.PythonAPIRule):
 		else:
 			filename = os.path.basename(self.config["importConfig"]["file"])
 			prog = re.compile(self.config["regex"], re.UNICODE)
-			if not prog.match(filename):
+			if prog.match(filename) is None:
 				self.error(filename + " does not match the regular expression " + self.config["regex"])
 		
 		# Copy the file.	
