@@ -95,7 +95,7 @@ class Validator {
 			this.runId = runId;
 			console.log("runId:" + runId);
 
-			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride, this.ruleLoader)
 				.then((ruleset) => {
 
 						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);

@@ -65,9 +65,12 @@ class PythonCSVRule(PythonAPIRule):
         super(ValidateFilename, self).__init__(config)
         
     def run(self, inputFile, outputFile, encoding):
+        delimiter = self.config.delimiter if "delimiter" in self.config else ","
+        escapechar = self.config.escape if "escape" in self.config else '"'
+        quotechar = self.config.quote if "quote" in self.config else '"'
         with open(inputFile, 'r') as src, open(outputFile, 'w') as dst: # FIXME: Python 2 doesn't support encoding here.
-            csvreader = csv.reader(src, delimiter=',')  # FIXME: Get CSV properties from the config object. See https://docs.python.org/3/library/csv.html#csv-fmt-params
-            csvwriter = csv.writer(dst, delimiter=',')
+            csvreader = csv.reader(src, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar) 
+            csvwriter = csv.writer(dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar)
             for row in csvreader:
                 updatedRecord = self.processRecord(row)
                 if updatedRecord is not None:

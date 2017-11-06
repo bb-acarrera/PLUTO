@@ -385,7 +385,7 @@ class data {
      * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
      * @return a promise to an object describing a ruleset.
      */
-    retrieveRuleset ( ruleset_id, rulesetOverrideFile, version, dbId ) {
+    retrieveRuleset ( ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId ) {
 
         return getRuleset( this.db, ruleset_id, version, dbId, this.tables, ( result, resolve, reject ) => {
             if ( result.rows.length > 0 ) {
@@ -403,12 +403,12 @@ class data {
                 dbRuleset.filename = ruleset_id;
                 dbRuleset.name = dbRuleset.name || ruleset_id;
                 dbRuleset.version = result.rows[0].version;
-                let ruleset = new RuleSet( dbRuleset );
+                let ruleset = new RuleSet( dbRuleset, ruleLoader );
 
                 if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
                     ruleset.applyOverride( rulesetOverrideFile );
                 }
-
+                
                 resolve( ruleset );
 
             } else {
