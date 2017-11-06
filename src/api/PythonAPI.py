@@ -26,8 +26,16 @@ class PythonAPIRule(object):
 
         # For now just write the report to stderr with one JSON object per line.
         #report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription }
-        print('{ "type" : "{0}", "when" : "{1}", "problemFile" : "{2}", "ruleID" : "{3}", "description" : "{4}" }\n' 
-              .format(level, dateStr, problemFileName, ruleID, problemDescription), file=sys.stderr)
+        response = {
+            "type" : level,
+            "when" : dateStr,
+            "problemFile" : problemFileName,
+            "ruleID" : ruleID,
+            "description" : problemDescription
+        }
+        jsonStr = json.dumps(response) 
+        jsonStr = jsonStr.replace("\n", " ")
+        print(jsonStr, file=sys.stderr)
 
         # this.reports.push(report);
         # updateSummaries(this, level, ruleID, problemDescription);
@@ -36,17 +44,17 @@ class PythonAPIRule(object):
     # <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
     # @param problemDescription {string} a description of the problem encountered.
     def error(self, problemDescription):
-        self.log("Error", type(self).__name__, self.config.id, problemDescription)    # FIXME: Support shouldAbort?
+        self.log("Error", self.__class__.__name__, self.config["id"], problemDescription)    # FIXME: Support shouldAbort?
 
     # Add a warning to the log.
     # @param problemDescription {string} a description of the problem encountered.
     def warning(self, problemDescription):
-        self.log("Warning", type(self).__name__, self.config.id, problemDescription);
+        self.log("Warning", self.__class__.__name__, self.config["id"], problemDescription);
 
     # Add an information report to the log.
     # @param problemDescription {string} a description of the problem encountered.
     def info(self, problemDescription):
-        self.log("Info", type(self).__name__, self.config.id, problemDescription);
+        self.log("Info", self.__class__.__name__, self.config["id"], problemDescription);
         
     def run(self, inputFile, outputFile, encoding):
         copyfile(inputFile, outputFile)
