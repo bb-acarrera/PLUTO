@@ -13,7 +13,7 @@ function addRuleset(controller, rulesetId, ruleset) {
 			controller.transitionToRoute('editRuleset', rulesetId);
 		}
 		else if (xmlHttp.readyState == 4) {
-			alert(`Failed to create. Status = ${xmlHttp.status}`);
+			alert(`Failed to create: ${xmlHttp.statusText}`);
 		}
 	};
 
@@ -106,6 +106,7 @@ export default Ember.Controller.extend({
 			this.set("showdialog", true);
 			this.set("isclone", false);
 			this.set("dialogruleset", null);
+			this.set("modaltext", "");
 		},
 		openCloneDialog(cloneName, ruleset){
 			this.set("ptarget", "Please name the clone of ");
@@ -114,6 +115,7 @@ export default Ember.Controller.extend({
 			this.set("showdialog", true);
 			this.set("isclone", true);
 			this.set("dialogruleset", ruleset);
+			this.set("modaltext", "");
 
 		},
 		addRuleset() {
@@ -126,21 +128,22 @@ export default Ember.Controller.extend({
 			var rulesetId = this.modaltext;
 
 			var rulesetCopy = ruleset.toJSON().rules;
-			ruleset.name = "Copy of " + ruleset.name;
+			rulesetCopy.name = "Copy of " + rulesetCopy.name;
 
 			addRuleset(this, rulesetId, rulesetCopy);
 		},
 
 		deleteRuleset(ruleset, rulesets) {
-			if (confirm(`Delete "${ruleset.get("name") || ruleset.get("filename")}"?`)) {
+			if (confirm(`Delete "${ruleset.get("filename")}"?`)) {
 				var xmlHttp = new XMLHttpRequest();
-				xmlHttp.onreadystatechange = function() {
+				xmlHttp.onreadystatechange = () => {
 					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 						rulesets.removeObject(ruleset);
 						rulesets.notifyPropertyChange("length");
+						this.get('target.router').refresh();
 					}
 					else if (xmlHttp.readyState == 4) {
-						alert(`Failed to delete. Status = ${xmlHttp.status}`);
+						alert(`Failed to delete: ${xmlHttp.statusText}`);
 					}
 				};
 
@@ -152,10 +155,6 @@ export default Ember.Controller.extend({
 				xmlHttp.setRequestHeader("Content-Type", "application/json");
 				xmlHttp.send(JSON.stringify(theJSON));
 			}
-		},
-
-		editRuleset() {
-			alert("Edit ruleset not yet implemented.");
 		}
 	},
 	init: function() {

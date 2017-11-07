@@ -43,13 +43,10 @@ class RulesetRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			if(req.query.rulesetid) {
-				rulesetid = req.query.rulesetid
-			}
-
 			this.config.data.retrieveRuleset(id, null, version, dbId, auth.group, auth.admin).then((ruleset) => {
 				if (!ruleset) {
-					res.status(404).send(`Unable to retrieve ruleset '${id}'.`);
+					res.statusMessage = `Unable to retrieve ruleset '${id}'.`;
+					res.status(404).end();
 					return;
 				}
 
@@ -180,7 +177,8 @@ class RulesetRouter extends BaseRouter {
 
 		this.config.data.rulesetExists(new_rulesetId).then((exists) => {
 			if(exists) {
-				res.status(422).send(`Ruleset '${new_rulesetId}' already exsists.`);
+				res.statusMessage = `Ruleset '${new_rulesetId}' already exsists.`
+				res.status(422).end();
 				return;
 			}
 

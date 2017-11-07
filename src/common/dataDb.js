@@ -717,7 +717,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
 
     if ( !ruleset_id && !dbId ) {
         return new Promise( ( resolve, reject ) => {
-            reject( "No ruleset_id provided" )
+            reject( "You must specify a Ruleset name or id" );
         } );
     }
 
