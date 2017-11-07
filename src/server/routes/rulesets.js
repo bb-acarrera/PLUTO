@@ -4,12 +4,12 @@ const Util = require('../../common/Util');
 
 function getAuth(req) {
 
-	const adminStr = req.header('AUTH_ADMIN');
+	const adminStr = req.header('AUTH-ADMIN');
 	const admin = (adminStr && adminStr.length > 0 && adminStr.toLowerCase().startsWith('t')) == true;
 
 	return {
-		user: req.header('AUTH_USER'),
-		group: req.header('AUTH_GROUP'),
+		user: req.header('AUTH-USER'),
+		group: req.header('AUTH-GROUP'),
 		admin: admin
 	}
 }
@@ -105,8 +105,6 @@ class RulesetRouter extends BaseRouter {
 			let page = parseInt(req.query.page, 10);
 			let size = parseInt(req.query.perPage, 10);
 
-			let rulesetFilter = req.query.rulesetFilter;
-
 			if(isNaN(page)) {
 				page = 1;
 			}
@@ -116,7 +114,8 @@ class RulesetRouter extends BaseRouter {
 			}
 
 			this.config.data.getRulesets(page, size, {
-				rulesetFilter: rulesetFilter
+				rulesetFilter: req.query.rulesetFilter,
+				groupFilter: req.query.groupFilter
 			}).then((result) => {
 				const rulesets = [];
 
@@ -130,6 +129,9 @@ class RulesetRouter extends BaseRouter {
 
 					ruleset["database-id"] = id;
 					delete ruleset.id;
+
+					ruleset.group = ruleset.owner_group;
+					delete ruleset.owner_group;
 
 					rulesets.push({
 						type: "ruleset",

@@ -12,5 +12,6 @@ export default DS.Model.extend({
   warningcount: DS.attr('number'),
   isrunning: DS.attr('boolean'),
   version: DS.attr('number'),
-  deleted: DS.attr('boolean')
+  deleted: DS.attr('boolean'),
+  group: DS.attr('string')
 });

@@ -60,32 +60,33 @@ class RunsRouter extends BaseRouter {
                 size = 0;
             }
 
-          this.config.data.getRuns(page, size, {
-            rulesetFilter: rulesetFilter,
-            filenameFilter: filenameFilter,
-            showErrors: showErrors,
-            showWarnings: showWarnings,
-            showNone: showNone,
-            dateFilter: dateFilter
-          }).then((result) => {
-              var data = [];
+            this.config.data.getRuns(page, size, {
+                rulesetFilter: rulesetFilter,
+                filenameFilter: filenameFilter,
+                showErrors: showErrors,
+                showWarnings: showWarnings,
+                showNone: showNone,
+                dateFilter: dateFilter,
+                groupFilter: req.query.groupFilter
+            }).then((result) => {
+                    var data = [];
 
-              result.runs.forEach(runInfo => {
-                    var run = {
-                        id: runInfo.id,
-                        type: 'run',
-                        attributes: runInfo
-                    };
-                    data.push(run);
-                });
+                    result.runs.forEach(runInfo => {
+                        var run = {
+                            id: runInfo.id,
+                            type: 'run',
+                            attributes: runInfo
+                        };
+                        data.push(run);
+                    });
 
 
 
-                res.json({
-                    data: data,
-                    meta: { rowCount: result.rowCount, totalPages: result.pageCount}
-                });
-            }, next)
+                    res.json({
+                        data: data,
+                        meta: { rowCount: result.rowCount, totalPages: result.pageCount}
+                    });
+                }, next)
                 .catch(next);
 
         }
