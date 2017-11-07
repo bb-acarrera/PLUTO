@@ -1,0 +1,110 @@
+/**
+ * Created by cgerber on 2017-07-24.
+ */
+const fs = require('fs-extra');
+const stream = require('stream');
+
+const ErrorLogger = require("../../ErrorLogger");
+const MemoryWriterStream = require("../MemoryWriterStream");
+
+const RunExternalProcess = require("../../../rules/RunExternalProcess");
+
+QUnit.test( "RunExternalProcess: Creation test", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"validateFilename",
+            "script" : "src/rules/validateFilename.py",
+            "executable" : "python"
+        },
+        "id" : 1,
+        "regex" : ".*\\.csv",
+        "importConfig" : {
+            "file" : "foo.csv"
+        }
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
+    
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+    
+    const done = assert.async();
+
+    assert.ok(rule, "Rule was created.");
+
+    rule._run({data: data}).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 0, "Expected no error results, got " + logResults.length + "."); // \n\t" + logResults[0].type + ": " + logResults[0].description + "\n...");
+        assert.ok(result, "Expected a result.");
+        assert.ok(result.hasOwnProperty("file"), "Expected a file property on the result.");
+        assert.ok(result.file instanceof Promise, "Expected the file property to be a Promise");
+        
+        result.file.then((file) => {
+            console.log("PJT: " + file);
+            assert.ok(fs.existsSync(file), "Result file does not exist.");
+            done();
+        });
+        // assert.ok(result.file, "File Created");
+        // assert.ok(fs.existsSync(result.file), "Doesn't Exist.");
+
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
+
+QUnit.test( "RunExternalProcess: Error test", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"validateFilename",
+            "script" : "src/rules/validateFilename.py",
+            "executable" : "python"
+        },
+        "id" : 1,
+        "regex" : ".*\\.csv",
+        "importConfig" : {
+            "file" : "foo.bar"
+        }
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
+    
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+
+    const done = assert.async();
+
+    assert.ok(rule, "Rule was created.");
+
+    rule._run({data: data}).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 1, "Expected one error result.");
+        done();
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
