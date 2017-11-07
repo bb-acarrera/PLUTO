@@ -14,6 +14,9 @@ class RunExternalProcess extends OperatorAPI {
 		// Create a unique socket.
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
 			this.socketName = path.resolve(config.__state.tempDirectory, config.attributes.executable + config.id + ".socket");
+		else
+		    this.error("Cannot create socket.");
+		
 		this.tempDir = this.config.__state.tempDirectory;
 	}
 
@@ -80,7 +83,7 @@ class RunExternalProcess extends OperatorAPI {
                             return value;
                     });
                     c.write(json);
-	                
+	                                    
 	    //          c.pipe(c);  Can't find documentation on what this does and the code works without it.
 	                c.end();
 	                server.unref();
@@ -93,7 +96,7 @@ class RunExternalProcess extends OperatorAPI {
 	            });
 	            
 	            server.on('close', () => {
-	                this.error("Socket closed.");
+//	                this.error("Socket closed.");
 	            });
 	        }
 
@@ -104,7 +107,7 @@ class RunExternalProcess extends OperatorAPI {
 				process = spawn(attributes.executable, [attributes.script, inputName, outputName, encoding, this.socketName]);
 			else
 				process = spawn(attributes.executable, [inputName, outputName, encoding, this.socketName]);
-			
+			            
 			process.stdout.on('data', (data) => {
 				if (typeof data === 'string')
 					this.warning(data);
@@ -128,7 +131,8 @@ class RunExternalProcess extends OperatorAPI {
 						if (strs[i].length > 0) {
 						    try {
 	                            const error = JSON.parse(strs[i]);
-	                            this.log(error.type, error.when, error.problemFile, error.description, error.type == "Error" && this.shouldRulesetFailOnError());
+	                            if (error)
+	                                this.log(error.type, error.when, error.problemFile, error.description, error.type == "Error" && this.shouldRulesetFailOnError());
 						    }
 						    catch (e) {
 						        this.error(`${attributes.executable} wrote to stderr: ${strs[i]}.`);
@@ -139,14 +143,16 @@ class RunExternalProcess extends OperatorAPI {
 			
 			process.on('error', (err) => {
 	            this.error(`${attributes.executable}: Launching script failed with error: ${err}`);
-	            server.unref();
+	            if (server)
+	                server.unref();
 			});
 			
 			process.on('exit', (code) => {
 				if (code != 0)
 					this.error(`${attributes.executable} exited with status ${code}.`);
-				
-				server.unref();
+								
+				if (server)
+				    server.unref();
 				resolve(outputName);
 			});
 		});

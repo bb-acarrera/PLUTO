@@ -2,7 +2,14 @@ from __future__ import print_function
 import os.path
 import re
 import imp
-api = imp.load_source('PythonAPI', 'api/PythonAPI.py')
+import sys
+
+api = None
+try:
+	api = imp.load_source('PythonAPI', 'api/PythonAPI.py')
+except IOError:
+	print("Failed to load the PythonAPI.", file=sys.stderr)
+	sys.exit(1)
 
 class ValidateFilename(api.PythonAPIRule):
 	def __init__(self, config):
