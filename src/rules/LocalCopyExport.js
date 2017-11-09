@@ -16,7 +16,13 @@ class LocalCopyExport {
             }
 
             if(sourceFileName) {
-                const targetFileName = path.resolve(this.config.file);
+                let targetFileName;
+
+	            if(this.config.base) {
+		            targetFileName = path.resolve(this.config.base, this.config.file);
+	            } else {
+		            targetFileName = path.resolve(this.config.file);
+	            }
 
                 fs.copySync(sourceFileName, targetFileName);
 				resolve(path.basename(targetFileName));

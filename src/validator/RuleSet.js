@@ -25,6 +25,8 @@ class RuleSet {
 		this.export = ruleset.export;
 		this.parser = ruleset.parser;
 		this.general = ruleset.general;
+		this.source = ruleset.source;
+		this.target = ruleset.target;
 
 		this.config = ruleset.config;
 
@@ -82,6 +84,71 @@ class RuleSet {
 				Object.assign(this.export.config, contents.export);
 			}
 		}
+	}
+
+	resolve(ruleLoader) {
+
+		function updateConfig(dbItem, locItem, targetItem) {
+			for(const key in locItem) {
+				if(locItem.hasOwnProperty(key)) {
+					targetItem[key] = locItem[key];
+				}
+			}
+
+			for(const key in dbItem) {
+				if(dbItem.hasOwnProperty(key)) {
+					targetItem[key] = dbItem[key];
+				}
+			}
+		}
+
+		return new Promise((resolve) => {
+
+			let promises = [];
+
+			if(this.source) {
+				promises.push(new Promise((resolve) => {
+					ruleLoader.getDbRule(this.source.filename).then((sourceConfig) => {
+						if(sourceConfig && sourceConfig.type === 'source') {
+							this.import = {
+								filename: sourceConfig.base,
+								config: {}
+							};
+
+							updateConfig(sourceConfig.config, this.source.config, this.import.config);
+						}
+
+						resolve();
+					});
+				}));
+			}
+
+			if(this.target) {
+				promises.push(new Promise((resolve) => {
+					ruleLoader.getDbRule(this.target.filename).then((targetConfig) => {
+						if(targetConfig && targetConfig.type === 'source') {
+							this.export = {
+								filename: targetConfig.base,
+								config: {}
+							};
+
+							updateConfig(targetConfig.config, this.target.config, this.export.config);
+						}
+
+						resolve();
+					});
+				}));
+			}
+
+
+			Promise.all(promises).then(() => {
+				resolve();
+			}).catch(() => {
+				resolve();
+			});
+		});
+
+
 	}
 
 	getRuleById(ruleId) {

@@ -20,6 +20,7 @@ class Importer {
         }
 
         this.rulesetsTable = schemaName + 'rulesets';
+        this.rulesTable = schemaName + 'rules';
 
         this.db = new DB(this.config);
     }
@@ -29,12 +30,12 @@ class Importer {
     run() {
 
         this.db.testConnection().then(() => {
-            this.addRulesets();
+            this.processFolder();
         });
     }
 
 
-    addRulesets() {
+    processFolder() {
 
         let promises = [];
 
@@ -42,21 +43,22 @@ class Importer {
 
             if (file.substr(file.length - 5) === '.json') {
 
-                let name = file.substr(0, file.length - 5);
-
                 let contents = null;
 
                 try {
                     contents = require(path.resolve(this.rulesetFolder, file));
                 }
                 catch (e) {
-                    console.log("Failed to load ruleset file \"" + file + "\".\n\t" + e);
+                    console.log("Failed to load file \"" + file + "\" as json.\n\t" + e);
                 }
 
-                if (!contents || !contents.ruleset) {
-                    console.log("Ruleset file \"" + file + "\" does not contain a 'ruleset' member.");
-                } else {
+                if(contents && contents.ruleset) {
+                    let name = file.substr(0, file.length - 5);
                     promises.push(this.addRuleset(name, contents.ruleset, file));
+                } else if(contents && Array.isArray(contents.rules) ) {
+                    promises.push(this.addRules(contents.rules, file));
+                } else  {
+                    console.log("File \"" + file + "\" does not contain a proper 'ruleset' or 'rules' member.");
                 }
             }
         });
@@ -106,6 +108,65 @@ class Importer {
 
     }
 
+    addRules(rules, file) {
+        return new Promise((resolve) => {
+            let promises = [];
+
+            rules.forEach((rule) => {
+                promises.push(this.addRule(rule, file));
+            });
+
+            Promise.all(promises).then(() => {
+                resolve();
+            }).catch((e) => {
+                console.log(`Error adding rules from ${file}: ${e}`);
+                resolve();
+            });
+
+        });
+    }
+
+    addRule(rule, file) {
+        return new Promise((resolve) => {
+            this.db.query("SELECT version FROM " + this.rulesTable + " WHERE rule_id = $1 ORDER BY version DESC", [rule.rule_id])
+                .then((result) => {
+
+                    if(result.rows.length === 0 || this.config.forceWrite) {
+
+                        let version = 0;
+                        let update = false;
+
+                        if(result.rows.length > 0 && this.config.forceWrite) {
+                            const version = result.rows[0].version + 1;
+                            update = true;
+                        }
+
+                        this.db.query("INSERT INTO " + this.rulesTable + " (rule_id, description, version, config, type, base) " +
+                                "VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
+                            [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base])
+                            .then(() => {
+
+                                if(update) {
+                                    console.log('Updated rule ' + rule.rule_id + ' from ' + file);
+                                } else {
+                                    console.log('Inserted rule ' + rule.rule_id + ' from ' + file);
+                                }
+
+                                resolve();
+                            });
+                    } else {
+                        console.log(rule.rule_id + ' from ' + file + ' already in database');
+                        resolve();
+                    }
+
+                })
+                .catch((e) => {
+                    console.log('Error writing to database: ' + e.message);
+                    resolve();
+                });
+        });
+    }
+
     exportTable(tableName) {
         this.db.query("SELECT * FROM " + tableName, []).then((results) => {
             console.log(JSON.stringify(results.rows));
@@ -130,7 +191,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .option('-W, --password <password>', 'user password')
         .option('-e, --export <tablename>', 'table name to export')
         .option('-s, --schema <schema>', 'database schema')
-        .option('-r, --ruleset <rulesetFolder>', 'folder that contains the rulesets, default current folder')
+        .option('-r, --ruleset <rulesetFolder>', 'folder that contains the rulesets and rules, default current folder')
         .option('-f, --force', 'force overwrite of rulesets if present')
         .parse(process.argv);
 

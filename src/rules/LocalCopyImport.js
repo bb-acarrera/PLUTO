@@ -18,7 +18,13 @@ class LocalCopyImport {
                 reject('No source file name');
             }
 
-            const sourceFileName = path.resolve(this.config.file);
+            let sourceFileName;
+
+            if(this.config.base) {
+                sourceFileName = path.resolve(this.config.base, this.config.file);
+            } else {
+                sourceFileName = path.resolve(this.config.file);
+            }
 
             if(!fs.existsSync(sourceFileName)) {
                 reject(this.config.file + ' does not exist');

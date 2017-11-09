@@ -3,8 +3,9 @@ const path = require('path');
 
 class RuleLoader {
 
-    constructor(customRulePath) {
+    constructor(customRulePath, database) {
         this.customRulesPath = customRulePath;
+        this.db = database;
 
         this.rules = [];
         this.parsers = [];
@@ -138,6 +139,23 @@ class RuleLoader {
         return null;
     }
 
+    getDbRule(id) {
+
+        return new Promise((resolve) => {
+            if(!this.db) {
+                resolve(null);
+                return;
+            }
+
+            this.db.retrieveRule(id).then((rule) => {
+                resolve(rule);
+            }, () => {
+                resolve(null);
+            })
+        });
+    }
+
+
     static getClassProperties(ruleClass) {
 
         if(ruleClass.ConfigProperties) {
@@ -165,6 +183,7 @@ class RuleLoader {
 
         return properties;
     }
+
 }
 
 module.exports = RuleLoader;

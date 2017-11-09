@@ -8,6 +8,7 @@ const ErrorHandlerAPI = require( '../api/errorHandlerAPI' );
 const moment = require('moment');
 
 
+
 class data {
     constructor ( config ) {
         this.config = config || {};
@@ -27,7 +28,9 @@ class data {
         this.tables = {
             runs: schemaName + 'runs',
             rulesets: schemaName + 'rulesets',
-            currentRuleset: schemaName + '"currentRuleset"'
+            currentRuleset: schemaName + '"currentRuleset"',
+            rules: schemaName + 'rules',
+            currentRule: schemaName + '"currentRule"',
         }
     }
 
@@ -621,6 +624,54 @@ class data {
 
 
     }
+
+
+
+
+
+
+    rulesExists(rule_id) {
+
+        return new Promise((resolve) => {
+            getRule( this.db, rule_id, null, null, this.tables).then((result) => {
+                if ( result.rows.length > 0 ) {
+                    resolve( true );
+
+                } else {
+                    resolve( false );
+                }
+            }, () => {
+                resolve( false );
+            });
+        });
+    }
+
+    /**
+     * Retrieve a rule description.
+     * @param rule_id the name of the rule.
+     * @return a promise to an object describing a rule.
+     */
+    retrieveRule ( rule_id, version, dbId, group, admin ) {
+
+        let isAdmin = admin === true;
+
+        return new Promise((resolve, reject) => {
+            getRule( this.db, rule_id, version, dbId, this.tables).then((result) => {
+                if ( result.rows.length > 0 ) {
+
+                    var rule = getRuleResult(result, isAdmin, group);
+
+                    resolve( rule );
+
+                } else {
+                    resolve( null );
+                }
+            }, (e) => {
+                reject(e);
+            });
+        });
+
+    }
 }
 
 
@@ -762,6 +813,79 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
 
     });
 
+}
+
+function getRule(db, rule_id, version, dbId, tables, getDeleted) {
+
+    if ( !rule_id && !dbId ) {
+        return new Promise( ( resolve, reject ) => {
+            reject( "You must specify a rule name or id" );
+        } );
+    }
+
+    return new Promise( ( resolve, reject ) => {
+
+        let query = 'SELECT id, rule_id, type, base, config, version, owner_group, update_user, update_time, deleted FROM ';
+        let values = [];
+
+        if(dbId != null || version != null || getDeleted) {
+            query += '{{rules}} ';
+        } else {
+            query += '{{currentRule}}';
+        }
+
+        if(dbId) {
+            query += "where id = $1";
+
+            values.push(dbId);
+        } else {
+            query += "where rule_id = $1";
+            values.push(ruleset_id);
+
+            if(version != null) {
+                query += " AND version = $2";
+                values.push(version);
+            }
+
+        }
+
+        query += " ORDER BY version DESC";
+
+        db.query(updateTableNames(query, tables), values)
+            .then((result) => {
+
+                resolve(result);
+
+            }, ( error ) => {
+                reject( error );
+            } );
+
+    } );
+}
+
+function getRuleResult(result, isAdmin, group) {
+    const row = result.rows[0];
+
+    let rule = {
+        id: row.id,
+        version: row.version,
+        rule_id: row.rule_id,
+        description: row.description,
+        type: row.type,
+        base: row.base,
+        config: row.config,
+        group: row.owner_group,
+        update_user: row.update_user,
+        update_time: row.update_time,
+        deleted: row.deleted
+    };
+
+    if (rule.group && !isAdmin && rule.group !== group) {
+        rule.canedit = false;
+    } else {
+        rule.canedit = true;
+    }
+    return rule;
 }
 
 let dataInstance = null;

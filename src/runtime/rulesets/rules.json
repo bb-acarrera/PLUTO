@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "rule_id": "testSource",
+      "type": "source",
+      "description": "test source",
+      "base": "LocalCopyImport",
+      "config": {
+        "base": "./examples/data"
+      }
+    },
+    {
+      "rule_id": "testTarget",
+      "type": "target",
+      "description": "test target",
+      "base": "LocalCopyExport",
+      "config": {
+        "base": "./tmp"
+      }
+    }
+  ]
+}
