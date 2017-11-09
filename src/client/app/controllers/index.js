@@ -29,13 +29,27 @@ function addRuleset(controller, rulesetId, ruleset) {
 }
 
 export default Ember.Controller.extend({
-	queryParams: ["page", "perPage", "rulePage", "rulePerPage", "filenameFilter", "rulesetFilter", "showErrors", "showWarnings", "showNone", "dateFilter", "rulesetNameFilter"],
+	queryParams: ["page",
+		"perPage",
+		"rulePage",
+		"rulePerPage",
+		"filenameFilter",
+		"rulesetFilter",
+		"showErrors",
+		"showWarnings",
+		"showNone",
+		"dateFilter",
+		"rulesetNameFilter",
+		"rulesetGroupFilter",
+		"runGroupFilter"
+	],
 	ptarget: "default",
 	showdialog: false,
 	dialogtarget: "",
 	buttontext: "Save",
 	isclone: false,
 	dialogruleset: null,
+	applicationController: Ember.inject.controller('application'),
 
 	// set default values, can cause problems if left out
 	// if value matches default, it won't display in the URL
@@ -50,19 +64,27 @@ export default Ember.Controller.extend({
 	showNone: true,
 	dateFilter: '',
 	rulesetNameFilter: '',
+	rulesetGroupFilter: '',
+	runGroupFilter: '',
 
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
 
-	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter', 'filenameFilter', 'dateFilter',
+	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
+		'filenameFilter', 'dateFilter', 'runGroupFilter',
 		function() {
 			this.set('page', 1);
 		}),
 
-	rulesetFilterChanged: Ember.observer('rulesetNameFilter',
+	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
 		function() {
 			this.set('rulePage', 1);
 		}),
+
+	userChanged: Ember.observer('applicationController.currentUser', function() {
+		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
+		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
+	}),
 
 	actions: {
 		decPage() {
@@ -136,5 +158,7 @@ export default Ember.Controller.extend({
 		}
 	},
 	init: function() {
+		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
+		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}
 });

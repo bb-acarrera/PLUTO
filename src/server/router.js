@@ -7,6 +7,7 @@ const LogsRouter = require('./routes/logs');
 const RulesRouter = require('./routes/rules');
 const RunsRouter = require('./routes/runs');
 const ProcessFileRouter = require('./routes/processFile');
+const UserRouter = require('./routes/user');
 
 class Router {
 	constructor(config) {
@@ -17,6 +18,7 @@ class Router {
 		this.rulesRouter = new RulesRouter(config);
 		this.runsRouter = new RunsRouter(config);
 		this.processFileRouter = new ProcessFileRouter(config);
+		this.userRouter = new UserRouter(config);
 
 
 
@@ -37,6 +39,8 @@ class Router {
 		this._router.patch('/rulesets/:id', (req, res, next) => this.rulesetRouter.patch(req, res, next) );
         this._router.delete('/rulesets/:id', (req, res, next) => this.rulesetRouter.delete(req, res, next) );
 		this._router.post('/rulesets', (req, res, next) => this.rulesetRouter.insert(req, res, next) );
+
+		this._router.get('/users/:id', (req, res, next) => this.userRouter.get(req, res, next));
 
         this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
 		this._router.post('/processupload', (req, res, next) => this.processFileRouter.processUpload(req, res, next));

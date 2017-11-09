@@ -14,7 +14,8 @@
     "clean_devdb": "sh src/clean_dev_db.sh",
     "build_docs": "sh build/bin/buildDocs.sh",
     "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets",
-    "tag_images": "sh build/bin/tagImages.sh"
+    "tag_images": "sh build/bin/tagImages.sh",
+    "start_test_nginx": "docker run -v $PWD/dev_nginx.conf:/etc/nginx/nginx.conf:ro -p 9001:9001 -p 9002:9002 -p 9003:9003 -p 9004:9004 --name dev_pluto_nginx -d nginx:stable-alpine"
   },
   "repository": {
     "type": "git",
