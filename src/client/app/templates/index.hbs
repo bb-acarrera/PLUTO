@@ -1,6 +1,6 @@
 {{outlet}}
 <div>
-    <h2>PLUTO Runs</h2>
+	<h2>PLUTO Runs</h2>
     <table id="runsTable" class="runs-table">
 		<tr style="border-bottom: 1px solid grey;">
 			<td class="icon-cell">
@@ -20,8 +20,9 @@
 				{{/bs-dropdown}}
 			</td>
 			<td>{{input type="date" value=dateFilter}}</td>
-			<td>{{input placeholder="filter" value=filenameFilter}}</td>
-			<td>{{input placeholder="filter" value=rulesetFilter}}</td>
+			<td>{{input placeholder="Filename" value=filenameFilter}}</td>
+			<td>{{input placeholder="Ruleset" value=rulesetFilter}}</td>
+            <td>{{input placeholder="Ruleset Owner" value=runGroupFilter}}</td>
 			<td></td>
 		</tr>
 
@@ -33,6 +34,7 @@
             <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.inputfilename}}</td>
             <td>{{runInstance.ruleset}}</td>
+			<td>{{runInstance.group}}</td>
             {{#if runInstance.isrunning}}
               <td>running</td>
             {{else}}
@@ -49,12 +51,14 @@
 
   <table id="rulesetTable" class="ruleset-table">
 	  <tr style="border-bottom: 1px solid grey;">
-		  <td>{{input placeholder="filter" value=rulesetNameFilter}}</td>
+		  <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
+          <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
 		  <td/>
 	  </tr>
     {{#each model.rulesets.result as |rulesetInstance index|}}
       <tr id="{{concat 'rulesetTableRow' index}}">
         <td>{{rulesetInstance.filename}}</td>
+        <td>{{rulesetInstance.group}}</td>
         <td align="right">
 			{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
 				<i class="fa fa-trash"></i>

@@ -277,6 +277,18 @@ class data {
                 countWhere += "CAST(finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
             }
 
+            if(filters.groupFilter && filters.groupFilter.length) {
+                let groupWhere = safeStringLike( filters.groupFilter );
+
+                extendWhere();
+
+                values.push( groupWhere );
+                where += "{{rulesets}}.owner_group ILIKE $" + values.length;
+
+                countValues.push( groupWhere );
+                countWhere += "{{rulesets}}.owner_group ILIKE $" + countValues.length;
+            }
+
             let runSQL = getRunQuery( this.tables ) + " " + updateTableNames( where, this.tables ) +
                 " ORDER BY finishtime DESC NULLS LAST LIMIT $1 OFFSET $2";
 
@@ -572,11 +584,20 @@ class data {
             let values = [ size, offset ];
             let countValues = [];
 
+            function extendWhere() {
+                if ( where.length === 0 ) {
+                    where = "WHERE ";
+                    countWhere = "WHERE ";
+                } else {
+                    where += " AND ";
+                    countWhere += " AND ";
+                }
+            }
+
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
                 let rulesetWhere = safeStringLike( filters.rulesetFilter );
 
-                where = "WHERE ";
-                countWhere = where;
+                extendWhere();
 
                 values.push( rulesetWhere );
                 where += "{{currentRuleset}}.ruleset_id ILIKE $" + values.length;
@@ -586,8 +607,20 @@ class data {
 
             }
 
+            if(filters.groupFilter && filters.groupFilter.length) {
+                let groupWhere = safeStringLike( filters.groupFilter );
+
+                extendWhere();
+
+                values.push( groupWhere );
+                where += "{{currentRuleset}}.owner_group ILIKE $" + values.length;
+
+                countValues.push( groupWhere );
+                countWhere += "{{currentRuleset}}.owner_group ILIKE $" + countValues.length;
+            }
+
             let rulesetsQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRuleset}} " + where + " " +
-                "ORDER BY name ASC LIMIT $1 OFFSET $2", this.tables ), values );
+                "ORDER BY id DESC LIMIT $1 OFFSET $2", this.tables ), values );
 
             let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{currentRuleset}} " + countWhere, this.tables ), countValues );
 
@@ -654,7 +687,7 @@ function updateTableNames ( query, tableNames ) {
 
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
-        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted " +
+        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
 }
@@ -675,7 +708,8 @@ function getRunResult(row) {
         warningcount: row.num_warnings,
         isrunning: isRunning,
         version: row.version,
-        deleted: row.deleted
+        deleted: row.deleted,
+        group: row.owner_group
     };
 }
 
