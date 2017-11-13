@@ -44,6 +44,7 @@ class RunExternalProcess extends OperatorAPI {
         }
         
 	    if (!this.socketName) {
+	        // Not likely to occur. Would need config.__state.tempDirectory to be absent.
             this.error("Internal Error: Failed to initialize RunExternalProcess properly.");
             resolve(null);
             return;
@@ -104,9 +105,8 @@ class RunExternalProcess extends OperatorAPI {
 	            this.error(`${attributes.executable} caused an error creating configuration socket: ${msg}`);
             });
 
-            server.on('close', () => {
-//	                this.error("Socket closed.");
-            });
+//            server.on('close', () => {
+//            });
         }
 
         // Run the executable. This complains if the executable doesn't exist.
