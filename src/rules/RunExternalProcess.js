@@ -51,11 +51,8 @@ class RunExternalProcess extends OperatorAPI {
 			return;
 		}
 		
-		if (!attributes.script) {
+		if (!attributes.script)
 			this.warning('No script in the configuration.');
-            resolve(null);
-			return;
-		}
 
 		// Don't check for the existence of the executable. It might be available in the PATH instead of being a fully qualified reference.
 		
@@ -64,7 +61,6 @@ class RunExternalProcess extends OperatorAPI {
             resolve(null);
 			return;
 		}
-	
 
         var server;
         if (this.socketName) {
