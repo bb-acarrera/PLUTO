@@ -6,7 +6,11 @@ const ErrorLogger = require("../../ErrorLogger");
 const validator = require("../../../validator/validator");
 const DataProxy = require("../dbProxy");
 
-QUnit.test( "Validator: No Config Creation Test", function(assert){
+QUnit.module("Validator", () => {
+
+
+
+QUnit.test( " No Config Creation Test", function(assert){
 
     assert.throws(
         function() {
@@ -20,7 +24,7 @@ QUnit.test( "Validator: No Config Creation Test", function(assert){
 
 });
 
-QUnit.test( "Validator: Nonexistent RootDirectory Test", function(assert){
+QUnit.test( " Nonexistent RootDirectory Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -41,7 +45,7 @@ QUnit.test( "Validator: Nonexistent RootDirectory Test", function(assert){
 
 });
 
-QUnit.test( "Validator: No rulesDirectory Test", function(assert){
+QUnit.test( " No rulesDirectory Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -55,7 +59,7 @@ QUnit.test( "Validator: No rulesDirectory Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End Test", function(assert) {
+QUnit.test( " End to End Test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -87,7 +91,7 @@ QUnit.test( "Validator: End to End Test", function(assert) {
 
 });
 
-QUnit.test( "Validator: End to End with ruleset Test", function(assert){
+QUnit.test( " End to End with ruleset Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -137,7 +141,7 @@ QUnit.test( "Validator: End to End with ruleset Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End no ruleset Test", function(assert){
+QUnit.test( " End to End no ruleset Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -167,7 +171,7 @@ QUnit.test( "Validator: End to End no ruleset Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert){
+QUnit.test( " End to End CheckColumnCount Rule Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -217,7 +221,7 @@ QUnit.test( "Validator: End to End CheckColumnCount Rule Test", function(assert)
 
 });
 
-QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
+QUnit.test( " End to End CheckLatLong Warning Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -269,7 +273,7 @@ QUnit.test( "Validator: End to End CheckLatLong Warning Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End Null Promise Test", function(assert){
+QUnit.test( " End to End Null Promise Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -302,7 +306,7 @@ QUnit.test( "Validator: End to End Null Promise Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End Throw Error Test", function(assert){
+QUnit.test( " End to End Throw Error Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -335,7 +339,7 @@ QUnit.test( "Validator: End to End Throw Error Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End Promise Rejection Test", function(assert){
+QUnit.test( " End to End Promise Rejection Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -370,7 +374,7 @@ QUnit.test( "Validator: End to End Promise Rejection Test", function(assert){
 
 });
 
-QUnit.test( "Validator: End to End add column, delete column, and test length", function(assert){
+QUnit.test( " End to End add column, delete column, and test length", function(assert){
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -447,5 +451,7 @@ QUnit.test( "Validator: End to End add column, delete column, and test length", 
 
 
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+});
 
 });

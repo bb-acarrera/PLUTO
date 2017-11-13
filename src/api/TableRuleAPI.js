@@ -22,6 +22,14 @@ class TableRuleAPI extends ParserRuleAPI {
     constructor(localConfig, parser) {
         super(localConfig);
         this.parser = parser;
+
+        this.excludeRow = {};
+
+        if(this.config && this.config.onError) {
+            this.excludeRecordOnError = this.config.onError == 'excludeRow';
+        } else {
+            this.excludeRecordOnError = false;
+        }
     }
 
     /**
@@ -53,14 +61,28 @@ class TableRuleAPI extends ParserRuleAPI {
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
     processRecordWrapper(record, rowId, isHeaderRow) {
-        this.isProcessingRecord = true;
-        this.excludeRow = false;
 
         const response = this.processRecord(record, rowId, isHeaderRow);
 
-        this.isProcessingRecord = false;
+        if(response instanceof Promise) {
+            return new Promise((resolve, reject) => {
+               response.then(
+                   (result) => {
 
-        if(this.excludeRow) {
+                       if(this.excludeRow[rowId]) {
+                           resolve(null);
+                       } else {
+                           resolve(result);
+                       }
+
+                   },
+                   () => {
+                        reject();
+                   });
+            });
+        }
+
+        if(this.excludeRow[rowId]) {
             return null;
         }
 
@@ -79,19 +101,6 @@ class TableRuleAPI extends ParserRuleAPI {
         return record;
     }
 
-    /**
-     * Overrides errorHandlerAPI method so when dropping rows processing isn't aborted
-     * @abstract
-     * @returns {boolean} <code>false</code> by default. Derived classes should choose whether an entire ruleset run should
-     * fail if they fail.
-     */
-    shouldRulesetFailOnError() {
-        if(this.isProcessingRecord && this.excludeRecordOnError) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * Overrides errorHandlerAPI method so when dropping rows processing isn't aborted, and error is converted to warning
@@ -101,17 +110,17 @@ class TableRuleAPI extends ParserRuleAPI {
      * @param problemFileName {string} the name of the file causing the log to be generated. (ex. the rule's filename)
      * @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
      * @param problemDescription {string} a description of the problem encountered.
+     * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
      * @private
      */
-    log(level, problemFileName, ruleID, problemDescription, shouldAbort) {
-        if(this.isProcessingRecord && this.excludeRecordOnError && level === ErrorHandlerAPI.ERROR) {
+    log(level, problemFileName, ruleID, problemDescription, dataItemId) {
+        if(dataItemId && this.excludeRecordOnError && level === ErrorHandlerAPI.ERROR) {
             level = ErrorHandlerAPI.WARNING;
-            shouldAbort = false;
             problemDescription = '(Record dropped) ' + problemDescription;
-            this.excludeRow = true;
+            this.excludeRow[dataItemId] = true;
         }
 
-        return super.log(level, problemFileName, ruleID, problemDescription, shouldAbort);
+        return super.log(level, problemFileName, ruleID, problemDescription, dataItemId);
     }
 
     /**

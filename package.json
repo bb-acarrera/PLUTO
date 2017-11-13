@@ -1,6 +1,6 @@
 {
   "name": "pluto",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A data validation framework.",
   "main": "server.js",
   "scripts": {
@@ -14,7 +14,8 @@
     "clean_devdb": "sh src/clean_dev_db.sh",
     "build_docs": "sh build/bin/buildDocs.sh",
     "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets",
-    "tag_images": "sh build/bin/tagImages.sh"
+    "tag_images": "sh build/bin/tagImages.sh",
+    "start_test_nginx": "docker run -v $PWD/dev_nginx.conf:/etc/nginx/nginx.conf:ro -p 9001:9001 -p 9002:9002 -p 9003:9003 -p 9004:9004 --name dev_pluto_nginx -d nginx:stable-alpine"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
   "homepage": "https://github.com/unchartedsoftware/PLUTO#readme",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "bottleneck": "^1.16.0",
     "commander": "^2.9.0",
     "csv": "^1.1.1",
     "express": "^4.15.2",
@@ -35,6 +37,7 @@
     "fs-extra": "^3.0.1",
     "moment": "^2.18.1",
     "pg": "^7.0",
+    "request": "^2.83.0",
     "rimraf": "^2.6.1",
     "stream-to-promise": "^2.2.0"
   },
@@ -43,7 +46,8 @@
     "karma": "^1.7.0",
     "karma-qunit": "^1.2.1",
     "node-pg-migrate": "^2.11.1",
-    "qunitjs": "^2.3.2",
+    "proxyquire": "^1.8.0",
+    "qunitjs": "2.4.1",
     "supervisor": "^0.12.0"
   }
 }

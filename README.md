@@ -121,11 +121,7 @@ To create a new migration script:
 
 which will place the script in the database/dbloader/migrations folder.  Follow the docs on how to create new migrations.
 
-## Deploying
-
-After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
-
-## building the client for development
+## Building the client for development
 
 first time:
 ```shell
@@ -143,6 +139,11 @@ to monitor and build automatically:
 cd src/client
 ember server
 ```
+
+## Deploying
+
+After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
+
 
 ## More..
 

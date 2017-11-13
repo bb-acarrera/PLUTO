@@ -28,9 +28,15 @@ export default Ember.Route.extend(RouteMixin, {
     dateFilter: {
       refreshModel: true
     },
-      rulesetNameFilter: {
-          refreshModel: true
-      }
+	rulesetNameFilter: {
+	    refreshModel: true
+	},
+	  rulesetGroupFilter: {
+		  refreshModel: true
+	  },
+	  runGroupFilter: {
+		  refreshModel: true
+	  }
   },
   loadQueryParams(params){
     this.transitionTo({queryParams: params});
@@ -40,7 +46,8 @@ export default Ember.Route.extend(RouteMixin, {
       rulesets: this.store.query('ruleset', {
         page: params.rulePage,
         perPage: params.rulePerPage,
-          rulesetFilter: params.rulesetNameFilter
+          rulesetFilter: params.rulesetNameFilter,
+	      groupFilter: params.rulesetGroupFilter
       }).then(function (result) {
           let meta = result.get('meta');
           return { result: result, meta: meta};
@@ -53,7 +60,8 @@ export default Ember.Route.extend(RouteMixin, {
         errorFilter: params.showErrors,
         warningsFilter: params.showWarnings,
         noneFilter: params.showNone,
-        dateFilter: params.dateFilter
+        dateFilter: params.dateFilter,
+	    groupFilter: params.runGroupFilter
       }).then(function (result) {
         let meta = result.get('meta');
         return { result: result, meta: meta};

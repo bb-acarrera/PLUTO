@@ -17,7 +17,9 @@ function getDefaultConfig() {
     };
 }
 
-QUnit.test( "Validator Error Handling: No Warnings or Errors", function(assert) {
+QUnit.module("Validator Error Handling", () => {
+
+QUnit.test( "No Warnings or Errors", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -53,7 +55,8 @@ QUnit.test( "Validator Error Handling: No Warnings or Errors", function(assert) 
 
 });
 
-QUnit.test( "Validator Error Handling: One Error", function(assert) {
+
+QUnit.test( "One Error", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -98,7 +101,7 @@ QUnit.test( "Validator Error Handling: One Error", function(assert) {
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on two errors, only one error", function(assert) {
+QUnit.test( "Abort on two errors, only one error", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -140,7 +143,7 @@ QUnit.test( "Validator Error Handling: Abort on two errors, only one error", fun
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on two errors, has two error", function(assert) {
+QUnit.test( "Abort on two errors, has two error", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -183,7 +186,7 @@ QUnit.test( "Validator Error Handling: Abort on two errors, has two error", func
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on one warning", function(assert) {
+QUnit.test( "Abort on one warning", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -225,7 +228,7 @@ QUnit.test( "Validator Error Handling: Abort on one warning", function(assert) {
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on two warnings, have one warning", function(assert) {
+QUnit.test( "Abort on two warnings, have one warning", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -267,7 +270,7 @@ QUnit.test( "Validator Error Handling: Abort on two warnings, have one warning",
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on two warnings", function(assert) {
+QUnit.test( "Abort on two warnings", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -314,7 +317,7 @@ QUnit.test( "Validator Error Handling: Abort on two warnings", function(assert) 
 
 });
 
-QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
+QUnit.test( "Abort on rule errors", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -357,7 +360,7 @@ QUnit.test( "Validator Error Handling: Abort on rule errors", function(assert) {
 
 });
 
-QUnit.test( "Validator Error Handling: Pass rule errors, Abort on errors", function(assert) {
+QUnit.test( "Pass rule errors, Abort on errors", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -412,7 +415,7 @@ QUnit.test( "Validator Error Handling: Pass rule errors, Abort on errors", funct
 
 });
 
-QUnit.test( "Validator Error Handling: Pass rule errors, Pass on errors", function(assert) {
+QUnit.test( "Pass rule errors, Pass on errors", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -467,7 +470,7 @@ QUnit.test( "Validator Error Handling: Pass rule errors, Pass on errors", functi
 
 });
 
-QUnit.test( "Validator Error Handling: Pass rule warnings, Pass on warnings", function(assert) {
+QUnit.test( "Pass rule warnings, Pass on warnings", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -522,7 +525,7 @@ QUnit.test( "Validator Error Handling: Pass rule warnings, Pass on warnings", fu
 
 });
 
-QUnit.test( "Validator Error Handling: Pass rule warnings, abort on warnings", function(assert) {
+QUnit.test( "Pass rule warnings, abort on warnings", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -577,7 +580,7 @@ QUnit.test( "Validator Error Handling: Pass rule warnings, abort on warnings", f
 
 });
 
-QUnit.test( "Validator Error Handling: Exclude row shouldn't abort", function(assert) {
+QUnit.test( "Exclude row shouldn't abort", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -620,7 +623,7 @@ QUnit.test( "Validator Error Handling: Exclude row shouldn't abort", function(as
 
 });
 
-QUnit.test( "Validator Error Handling: Exclude row actually removed", function(assert) {
+QUnit.test( "Exclude row actually removed", function(assert) {
     const config = getDefaultConfig();
 
     const done = assert.async();
@@ -699,7 +702,7 @@ QUnit.test( "Validator Error Handling: Exclude row actually removed", function(a
 
 });
 
-QUnit.test( "Validator Error Handling: Exclude row following row warning correct id", function(assert) {
+QUnit.test( "Exclude row following row warning correct id", function(assert) {
     const config = getDefaultConfig();
 
     const ruleset = {
@@ -752,7 +755,7 @@ QUnit.test( "Validator Error Handling: Exclude row following row warning correct
 
 });
 
-QUnit.test( "Validator Error Handling: internal rowId column actually removed", function(assert) {
+QUnit.test( "internal rowId column actually removed", function(assert) {
     const config = getDefaultConfig();
 
     const done = assert.async();
@@ -824,5 +827,7 @@ QUnit.test( "Validator Error Handling: internal rowId column actually removed", 
 
 
 
+
+});
 
 });

@@ -33,9 +33,9 @@ class CheckColumnCount extends TableRuleAPI {
 			const numRecords = record.length - internalColumnCount;
 
 			if (numRecords < this.columns) {
-				this.error(`Row ${rowId} has too few columns. Got ${numRecords}.`);
+				this.error(`Row ${rowId} has too few columns. Got ${numRecords}.`, rowId);
 			} else if(numRecords > this.columns) {
-				this.warning(`Row ${rowId} has too many columns. Got ${numRecords}.`)
+				this.warning(`Row ${rowId} has too many columns. Got ${numRecords}.`, rowId)
 			}
 		}
 

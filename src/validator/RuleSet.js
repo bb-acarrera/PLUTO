@@ -28,6 +28,21 @@ class RuleSet {
 
 		this.config = ruleset.config;
 
+		this.group = ruleset.group;
+		this.updateuser = ruleset.update_user;
+		this.updatetime = ruleset.update_time;
+
+		if(ruleset.canedit != null) {
+			this.canedit = ruleset.canedit;
+		} else {
+			this.canedit = true;
+		}
+
+		if(ruleset.deleted) {
+			this.deleted = true;
+		}
+
+
 		addGeneralConfig.call(this);
 
 		addRules.call(this, ruleset.rules);

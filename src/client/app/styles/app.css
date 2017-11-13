@@ -133,6 +133,17 @@ div.footer {
   color: gray;
 }
 
+div.footer .version {
+	float: right;
+	margin-right: 5px;
+}
+
+div.authDetails {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+
 .fileUpload {
   position: relative;
   overflow: hidden;
@@ -164,4 +175,8 @@ div.footer {
   float: right;
   position: relative;
   top: -27px;
+}
+
+select:disabled {
+	background: #dddddd;
 }

@@ -1,4 +1,4 @@
-const TableRuleAPI = require("../api/TableRuleAPI");
+const TableRuleAPI = require("../../api/TableRuleAPI");
 
 /* internal rule used by the CSVParser, do not add to the manifest */
 
