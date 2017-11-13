@@ -24,33 +24,31 @@ class RunExternalProcess extends OperatorAPI {
 		// Create a unique socket.
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
 			this.socketName = cleanPipeName(path.resolve(config.__state.tempDirectory, config.attributes.executable + config.id + ".socket"));
-		else
-		    this.error("Cannot create socket.");
 		
 		this.tempDir = this.config.__state.tempDirectory;
 	}
 
 	runProcess(inputName, outputName, resolve) {
-		if (!this.config) {
-			this.error(`No configuration specified.`);
-			resolve(null);
-			return;
-		}
-
-		const attributes = this.config.attributes;
-		
-		if (!attributes) {
-            this.error('No attributes in the configuration.');
+        const attributes = this.config.attributes;
+        
+        if (!attributes) {
+            this.error('No rule attributes set.');
             resolve(null);
             return;
-		}
-		
-		if (!attributes.executable) {
-			this.error('No executable in the configuration.');
+        }
+        
+        if (!attributes.executable) {
+            this.error('No executable in the configuration.');
             resolve(null);
-			return;
-		}
-		
+            return;
+        }
+        
+	    if (!this.socketName) {
+            this.error("Internal Error: Failed to initialize RunExternalProcess properly.");
+            resolve(null);
+            return;
+	    }
+	        
 		if (!attributes.script)
 			this.warning('No script in the configuration.');
 

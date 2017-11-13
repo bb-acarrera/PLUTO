@@ -70,7 +70,7 @@ QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
         assert.equal(contents, data, "Generated file is not correct.");
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -117,7 +117,112 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
+        done();
+    });
+});
+
+// We have to assume at least a minimal config is passed in.
+//QUnit.test( "RunExternalProcess: Missing config test", function(assert) {
+//    const logger = new ErrorLogger();
+//
+//    const data = "Hello World";
+//    const rule = new RunExternalProcess(null);
+//
+//    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+//    // exists it means a different rule created an identically named socket which is a problem.)
+//    if (fs.existsSync(rule.socketName))
+//        fs.unlinkSync(rule.socketName);
+//
+//    const done = assert.async();
+//
+//    assert.ok(rule, "Rule was created.");
+//
+//    rule._run({data: data}).then((result) => {
+//        console.log(result);
+//        assert.ok(typeof(result) == "string", "Expected a string result.");
+//        done();
+//    }, (error) => {
+//        assert.ok(error.includes("Internal Error: Failed to properly construct the RunExternalProcess rule."), "Expected an error stating 'Internal Error: Failed to properly construct the RunExternalProcess rule.'.");
+//        done();
+//    });
+//});
+
+// Also need at least a tempDirectory.
+//QUnit.test( "RunExternalProcess: Missing tempDirectory test", function(assert) {
+// const logger = new ErrorLogger();
+// const config = {
+//         __state : {
+//             "_debugLogger" : logger,
+//         },
+//         "attributes" : {
+//             "filename":"validateFilename",
+//             "script" : "rules/validateFilename.py",
+//             "executable" : "python"
+//         },
+//         "id" : 1,
+//         "importConfig" : {
+//             "file" : "foo.bar"  // Should catch this error.
+//         }
+//     };
+//
+// const data = "Hello World";
+// const rule = new RunExternalProcess(config);
+//
+// // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+// // exists it means a different rule created an identically named socket which is a problem.)
+// if (fs.existsSync(rule.socketName))
+//     fs.unlinkSync(rule.socketName);
+//
+// const done = assert.async();
+//
+// assert.ok(rule, "Rule was created.");
+//
+// rule._run({data: data}).then((result) => {
+//     const logResults = logger.getLog();
+//     assert.ok(logResults.length == 1, "Expected one error result.");
+//     assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+//     assert.ok(logResults[0].description.includes("Internal Error: No tempDirectory."), "Expected the error to contain 'Internal Error: No tempDirectory.'.")
+//     done();
+// }, (error) => {
+//     assert.notOk(true, error);
+//     done();
+// });
+//});
+
+QUnit.test( "RunExternalProcess: Missing attributes test", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+          __state : {
+              "_debugLogger" : logger,
+              "tempDirectory" : "/var/tmp" 
+          },
+          "id" : 1,
+          "importConfig" : {
+              "file" : "foo.bar"  // Should catch this error.
+          }
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+    
+    const done = assert.async();
+    
+    assert.ok(rule, "Rule was created.");
+    
+    rule._run({data: data}).then((result) => {
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 1, "Expected one error result.");
+        assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+        assert.ok(logResults[0].description.includes("No rule attributes set."), "Expected the error to contain 'No rule attributes set.'.")
+        done();
+    }, (error) => {
+        assert.notOk(true, error);
         done();
     });
 });
@@ -160,7 +265,7 @@ QUnit.test( "RunExternalProcess: Missing regex test", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -199,7 +304,7 @@ QUnit.test( "RunExternalProcess: Missing importConfig test.", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -240,7 +345,7 @@ QUnit.test( "RunExternalProcess: Missing importConfig.file test.", function(asse
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -287,7 +392,7 @@ QUnit.test( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -333,7 +438,7 @@ QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -379,7 +484,7 @@ QUnit.test( "RunExternalProcess: Can't find executable test", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -425,7 +530,7 @@ QUnit.test( "RunExternalProcess: Failing executable test", function(assert) {
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
@@ -471,7 +576,7 @@ QUnit.test( "RunExternalProcess: Executable writing to stdout test", function(as
         
         done();
     }, (error) => {
-        assert.notOk(true, error.message);
+        assert.notOk(true, error);
         done();
     });
 });
