@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+	ajax: Ember.inject.service(),
 	base: Ember.computed('model.rule.base', function() {
 		const bases = this.get('bases');
 		let base = null;
@@ -24,20 +25,6 @@ export default Ember.Controller.extend({
 			bases = this.get('model.exporters');
 		}
 
-		/*
-		const outBases = [];
-		if(bases.get('length') > 0) {
-
-			bases.forEach((base) => {
-				outBases.push(base);
-			});
-
-			outBases.push({
-				id: 'None'
-			});
-		}
-		*/
-
 		return bases;
 
 	}),
@@ -59,11 +46,49 @@ export default Ember.Controller.extend({
 		return !canedit;
 
 	}),
+	linkedtarget: Ember.computed('model.rule.config.linkedtargetid', function() {
+		const type = this.get('model.rule.type');
+		if(type === 'source') {
+			let targetId = this.get('model.rule.config.linkedtargetid');
+
+			if(targetId) {
+				let url = `/configuredrules/${targetId}`;
+				return this.get('ajax').request(url).then((resp) => resp.data);
+			}
+			return null;
+		}
+
+		return null;
+
+	}),
 	nullValue: null,
 	actions: {
 		saveRule (  ) {
 
 			save( this );
+		},
+		chooseTarget (target) {
+			if(target) {
+				this.set('model.rule.config.linkedtargetid', target.attributes['rule-id']);
+			} else {
+				this.set('model.rule.config.linkedtargetid', null);
+			}
+
+		},
+		searchTarget(term) {
+			let url = `/configuredrules?perPage=25&typeFilter=target&ruleFilter=${term}`;
+			return this.get('ajax').request(url)
+				.then((resp) => {
+					return resp.data
+				});
+		},
+		chooseBase (base) {
+			if(base) {
+				this.set('model.rule.base', base.get('id'));
+			} else {
+				this.set('model.rule.base', null);
+			}
+
 		}
 	}
 
