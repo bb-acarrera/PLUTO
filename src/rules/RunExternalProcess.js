@@ -33,7 +33,7 @@ class RunExternalProcess extends OperatorAPI {
 	runProcess(inputName, outputName, resolve) {
 		if (!this.config) {
 			this.error(`No configuration specified.`);
-
+			resolve(null);
 			return;
 		}
 
@@ -41,19 +41,19 @@ class RunExternalProcess extends OperatorAPI {
 		
 		if (!attributes) {
             this.error('No attributes in the configuration.');
-
+            resolve(null);
             return;
 		}
 		
 		if (!attributes.executable) {
 			this.error('No executable in the configuration.');
-
+            resolve(null);
 			return;
 		}
 		
 		if (!attributes.script) {
 			this.warning('No script in the configuration.');
-
+            resolve(null);
 			return;
 		}
 
@@ -61,7 +61,7 @@ class RunExternalProcess extends OperatorAPI {
 		
 		if (attributes.script && !fs.existsSync(attributes.script)) {
 			this.error(`${attributes.script} does not exist.`);
-
+            resolve(null);
 			return;
 		}
 	
@@ -176,7 +176,6 @@ class RunExternalProcess extends OperatorAPI {
 	}
 
 	run() {
-
 		return new Promise((resolve, reject) => {
 
 			let outputFile = this.outputFile;
