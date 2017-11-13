@@ -1,0 +1,28 @@
+<h2>{{title}} {{model.rule.rule_id}}</h2>
+
+<div>
+    <div>
+		Description:
+		<input id="ruleName" type="text" value="{{model.rule.description}}" class="text-input" disabled={{disableEdit}}/>
+    </div>
+	<div>
+		Base:
+        <select onchange={{action (mut model.rule.base) value="target.value"}}>
+			{{#each bases as |baseChoice|}}
+                <option value={{baseChoice.id}} selected={{eq model.rule.base baseChoice.id}}>{{baseChoice.id}}</option>
+			{{/each}}
+			{{#if (eq model.rule.base nullValue)}}
+                <option value="" selected=true>Choose</option>
+			{{/if}}
+
+        </select>
+	</div>
+	<div>
+		Properties
+		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disabled}}
+	</div>
+</div>
+
+<button {{action "saveRule"}}>Save</button>
+
+{{outlet}}

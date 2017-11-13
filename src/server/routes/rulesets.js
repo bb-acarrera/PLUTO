@@ -2,18 +2,6 @@ const BaseRouter = require('./baseRouter');
 const RuleSet = require('../../validator/RuleSet');
 const Util = require('../../common/Util');
 
-function getAuth(req) {
-
-	const adminStr = req.header('AUTH-ADMIN');
-	const admin = (adminStr && adminStr.length > 0 && adminStr.toLowerCase().startsWith('t')) == true;
-
-	return {
-		user: req.header('AUTH-USER'),
-		group: req.header('AUTH-GROUP'),
-		admin: admin
-	}
-}
-
 class RulesetRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
@@ -25,7 +13,7 @@ class RulesetRouter extends BaseRouter {
 		// directory points to rulesets, rule plugins and such. It can be configured such
 		// that these two root directories are the same.
 
-		const auth = getAuth(req);
+		const auth = this.getAuth(req);
 
 		if(req.params.id || req.query.id || req.query.dbid) {
 
@@ -151,7 +139,7 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	patch(req, res, next) {
-		const auth = getAuth(req);
+		const auth = this.getAuth(req);
 		const ruleset = new RuleSet(req.body);
 		this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
             req.body.version = ruleset.version;
@@ -162,7 +150,7 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	delete(req, res, next) {
-		const auth = getAuth(req);
+		const auth = this.getAuth(req);
         const ruleset = new RuleSet(req.body);
         this.config.data.deleteRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
@@ -172,7 +160,7 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	insert(req, res, next) {
-		const auth = getAuth(req);
+		const auth = this.getAuth(req);
 		let new_rulesetId = req.body.rulesetId;
 
 		this.config.data.rulesetExists(new_rulesetId).then((exists) => {

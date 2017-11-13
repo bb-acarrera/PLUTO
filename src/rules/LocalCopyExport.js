@@ -38,10 +38,16 @@ class LocalCopyExport {
         return [
             {
                 name: 'file',
-                label: 'Desitation file path',
+                label: 'Destination file path',
                 type: 'string',
                 tooltip: 'The full path to where the processed file should be placed'
-            }
+            },
+	        {
+		        name: 'base',
+		        label: 'Destination file base path',
+		        type: 'string',
+		        tooltip: 'The full path to a base folder where the file should be placed (optional and pre-pended to the file)'
+	        }
         ];
     }
 
