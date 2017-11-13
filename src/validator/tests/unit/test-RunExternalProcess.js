@@ -573,6 +573,7 @@ QUnit.test( "RunExternalProcess: Executable writing to stdout test", function(as
         assert.equal(logResults[0].type, "Warning", "Expected first result to be a 'Warning'.");
         assert.equal(logResults[1].type, "Warning", "Expected second result to be an 'Warning'.");
         assert.ok(logResults[1].description.includes("echo wrote to stdout"), "Expected the error to contain 'echo wrote to stdout'.")
+        assert.notOk(fs.existsSync(result.file), result.file + " does exist."); // The result should not be created by an echo command.
         
         done();
     }, (error) => {
