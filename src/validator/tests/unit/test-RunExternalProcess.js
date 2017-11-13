@@ -9,6 +9,21 @@ const MemoryWriterStream = require("../MemoryWriterStream");
 
 const RunExternalProcess = require("../../../rules/RunExternalProcess");
 
+var originalCWD;
+
+QUnit.module("RunExternalProcess tests", {
+    before: function() {
+        originalCWD = process.cwd();
+
+        if (!process.cwd().endsWith("src"))
+            process.chdir("src");
+    },
+    after: function() {
+        process.chdir(originalCWD);
+    }
+
+});
+
 QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
@@ -27,9 +42,6 @@ QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
             "file" : "foo.csv"
         }
     };
-
-    if (!process.cwd().endsWith("src"))
-        process.chdir("src");
     
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
@@ -155,4 +167,3 @@ QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
         done();
     });
 });
-
