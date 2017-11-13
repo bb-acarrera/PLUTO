@@ -1,5 +1,5 @@
 <div>
-	{{uiItem.label}} {{input type="checkbox" value=(mut (get config uiItem.name)) disabled=disabled}}
+	{{uiItem.label}} {{input type="checkbox" checked=(mut (get config uiItem.name)) disabled=disabled}}
 </div>
 {{yield}}
 

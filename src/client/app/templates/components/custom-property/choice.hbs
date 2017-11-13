@@ -2,11 +2,15 @@
 	{{uiItem.label}}
     <select onchange={{action (mut (get config uiItem.name)) value="target.value"}} disabled={{disabled}}>
 		{{#each uiItem.choices as |choice|}}
-            <option value={{choice.[0]}} selected={{eq (get config uiItem.name) choice.[0]}}>{{choice.[1]}}</option>
+			{{#if (is-array choice)}}
+            	<option value={{choice.[0]}} selected={{eq (get config uiItem.name) choice.[0]}}>{{choice.[1]}}</option>
+			{{else}}
+                <option value={{choice}} selected={{eq (get config uiItem.name) choice}}>{{choice}}</option>
+			{{/if}}
 		{{/each}}
-		{{#if (eq (get config uiItem.name) nullValue)}}
-            <option value="" selected=true>Choose</option>
-		{{/if}}
+		{{#unless (get config uiItem.name)}}
+		    <option value="" selected=true>Choose</option>
+		{{/unless}}
 
     </select>
 </div>

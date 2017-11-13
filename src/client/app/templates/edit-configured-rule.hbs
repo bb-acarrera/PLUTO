@@ -11,9 +11,9 @@
 			{{#each bases as |baseChoice|}}
                 <option value={{baseChoice.id}} selected={{eq model.rule.base baseChoice.id}}>{{baseChoice.id}}</option>
 			{{/each}}
-			{{#if (eq model.rule.base nullValue)}}
-                <option value="" selected=true>Choose</option>
-			{{/if}}
+			{{#unless model.rule.base}}
+			    <option value="" selected=true>Choose</option>
+			{{/unless}}
 
         </select>
 	</div>
