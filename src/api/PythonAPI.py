@@ -22,13 +22,13 @@ class PythonAPIRule(object):
         level = "UNDEFINED" if level is None else level
         problemFileName = "" if problemFileName is None else problemFileName
         problemDescription = "" if problemDescription is None else problemDescription
-        dateStr = datetime.now().isoformat(' ') # FIXME: match the node time output format.
+#         dateStr = datetime.now().isoformat(' ') # FIXME: match the node time output format.
 
         # For now just write the report to stderr with one JSON object per line.
         #report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription }
         response = {
             "type" : level,
-            "when" : dateStr,
+#             "when" : dateStr,
             "problemFile" : problemFileName,
             "ruleID" : ruleID,
             "description" : problemDescription

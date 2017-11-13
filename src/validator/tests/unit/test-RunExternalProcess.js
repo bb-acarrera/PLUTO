@@ -9,7 +9,7 @@ const MemoryWriterStream = require("../MemoryWriterStream");
 
 const RunExternalProcess = require("../../../rules/RunExternalProcess");
 
-QUnit.test( "RunExternalProcess: Creation test", function(assert) {
+QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -18,7 +18,7 @@ QUnit.test( "RunExternalProcess: Creation test", function(assert) {
         },
         "attributes" : {
             "filename":"validateFilename",
-            "script" : "src/rules/validateFilename.py",
+            "script" : "rules/validateFilename.py",
             "executable" : "python"
         },
         "id" : 1,
@@ -28,6 +28,9 @@ QUnit.test( "RunExternalProcess: Creation test", function(assert) {
         }
     };
 
+    if (!process.cwd().endsWith("src"))
+        process.chdir("src");
+    
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
     assert.ok(rule.socketName, "Rule did not allocate a socketName.");
@@ -47,16 +50,13 @@ QUnit.test( "RunExternalProcess: Creation test", function(assert) {
         assert.ok(logResults.length == 0, "Expected no error results, got " + logResults.length + "."); // \n\t" + logResults[0].type + ": " + logResults[0].description + "\n...");
         assert.ok(result, "Expected a result.");
         assert.ok(result.hasOwnProperty("file"), "Expected a file property on the result.");
-        assert.ok(result.file instanceof Promise, "Expected the file property to be a Promise");
+        assert.ok(typeof result.file == "string", "Expected the file property to be a String");
+        assert.ok(result.file, "File Created");
+        assert.ok(fs.existsSync(result.file), result.file + " doesn't exist.");
         
-        result.file.then((file) => {
-            console.log("PJT: " + file);
-            assert.ok(fs.existsSync(file), "Result file does not exist.");
-            done();
-        });
-        // assert.ok(result.file, "File Created");
-        // assert.ok(fs.existsSync(result.file), "Doesn't Exist.");
-
+        var contents = fs.readFileSync(result.file);
+        assert.equal(contents, data, "Generated file is not correct.");
+        done();
     }, (error) => {
         assert.notOk(true, error.message);
         done();
@@ -73,13 +73,13 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
         },
         "attributes" : {
             "filename":"validateFilename",
-            "script" : "src/rules/validateFilename.py",
+            "script" : "rules/validateFilename.py",
             "executable" : "python"
         },
         "id" : 1,
         "regex" : ".*\\.csv",
         "importConfig" : {
-            "file" : "foo.bar"
+            "file" : "foo.bar"  // Should catch this error.
         }
     };
 
@@ -101,6 +101,9 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
+        assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+        assert.ok(logResults[0].description.includes("does not match"), "Expected the error to contain 'does not match'.")
+        
         done();
     }, (error) => {
         assert.notOk(true, error.message);

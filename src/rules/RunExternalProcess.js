@@ -147,7 +147,7 @@ class RunExternalProcess extends OperatorAPI {
 					    try {
                             const error = JSON.parse(strs[i]);
                             if (error)
-                                this.log(error.type, error.when, error.problemFile, error.description, error.type == "Error" && this.shouldRulesetFailOnError());
+                                this.log(error.type, error.problemFile, error.ruleID, error.description, error.type == "Error" && this.shouldRulesetFailOnError());
 					    }
 					    catch (e) {
 					        this.error(strs[i]);//`${attributes.executable} wrote to stderr: ${strs[i]}.`);
