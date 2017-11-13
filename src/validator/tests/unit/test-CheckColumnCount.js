@@ -8,7 +8,9 @@ const CheckColumnCount = require("../../../rules/CheckColumnCount");
 QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"numHeaderRows" : 1
 	};
 
@@ -26,7 +28,9 @@ QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
 QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "foo",
 		"numHeaderRows" : 1
 	};
@@ -44,7 +48,9 @@ QUnit.test( "CheckColumnCount: Check Non-Number Columns Property Test", function
 QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "-1",
 		"numHeaderRows" : 1
 	};
@@ -62,7 +68,9 @@ QUnit.test( "CheckColumnCount: Check Negative Columns Property Test", function( 
 QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "1.1",
 		"numHeaderRows" : 1
 	};
@@ -80,7 +88,9 @@ QUnit.test( "CheckColumnCount: Check Non-Integer Columns Property Test", functio
 QUnit.test( "CheckColumnCount: Check Valid Columns Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "1",
 		"numHeaderRows" : 1
 	};
@@ -96,7 +106,9 @@ QUnit.test( "CheckColumnCount: Check Valid Columns Property Test", function( ass
 QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "1",
 		"numHeaderRows" : 1
 	};
@@ -121,7 +133,9 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "1",
 		"numHeaderRows" : 1
 	};
@@ -144,7 +158,9 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "2",
 		"numHeaderRows" : 1
 	};
@@ -169,7 +185,9 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
 		"columns" : "1",
 		"numHeaderRows" : 1
 	};

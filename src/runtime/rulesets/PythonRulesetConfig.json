@@ -3,10 +3,10 @@
 		"name" : "Python Example RuleSet",
 		"rules" : [
 			{
-				"filename" : "RunPythonScript",
+				"filename" : "validateFilename",
 				"config" : {
 					"id" : 1,
-					"pythonScript" : "../test_config/copy.py"
+					"regex" : ".*\\.csv"
 				}
 			}
 		],
@@ -20,6 +20,13 @@
 			"filename": "LocalCopyExport",
 			"config" : {
 				"file": "./tmp/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numHeaderRows" : 1,
+				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
 			}
 		}
 	}

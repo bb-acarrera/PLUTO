@@ -38,22 +38,26 @@ QUnit.test( "Util: getRuleName Test", function(assert){
 QUnit.test( "Util: getRootTempDirectory", function(assert){
    const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger,
-       "rootDir" : "."
+           __state : {
+               "_debugLogger" : logger,
+               "rootDir" : "."
+           }
    };
 
-   const result = Util.getRootTempDirectory(config, config.rootDir);
+   const result = Util.getRootTempDirectory(config, config.__state.rootDir);
    assert.ok(result, "Expected a result.");
 });
 
 QUnit.test( "Util: getTempDirectory Test", function(assert){
    const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger,
-       "rootDir" : "."
+           __state : {
+               "_debugLogger" : logger,
+               "rootDir" : "."
+           }
    }
 
-   const result = Util.getTempDirectory(config, config.rootDir);
+   const result = Util.getTempDirectory(config, config.__state.rootDir);
    assert.notEqual(result, null, "Expected");
 
 });
@@ -62,7 +66,9 @@ QUnit.test( "Util: getTempDirectory Test", function(assert){
 QUnit.test( "Util: createGUID Test", function(assert){
    const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger
+           __state : {
+               "_debugLogger" : logger
+           }
    };
 
    const result = Util.createGUID();
@@ -72,7 +78,9 @@ QUnit.test( "Util: createGUID Test", function(assert){
 QUnit.test( "Util: getCurrentDateTimeString", function(assert){
    const logger = new ErrorLogger();
    const config = {
-       "_debugLogger" : logger
+           __state : {
+               "_debugLogger" : logger
+           }
    };
 
    const result = Util.getCurrentDateTimeString();

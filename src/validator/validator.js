@@ -95,7 +95,7 @@ class Validator {
 			this.runId = runId;
 			console.log("runId:" + runId);
 
-			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride, this.ruleLoader)
 				.then((ruleset) => {
 
 					if(!ruleset){
@@ -316,6 +316,10 @@ class Validator {
 		this.ruleName = config.name;
 		config.errors = ruleDescriptor.errors;
 
+		let properties = this.ruleLoader.rulePropertiesMap[ruleDescriptor.filename];
+		if (properties && properties.attributes)
+		    config.attributes = properties.attributes;
+		
 		let rule;
 
 		if(ruleClass.NeedsParser) {
@@ -477,11 +481,15 @@ class Validator {
 
 	// Add some useful things to a config object.
 	updateConfig(config) {
-		config.rootDirectory = config.rootDirectory || this.rootDir;
-		config.tempDirectory = config.tempDirectory || this.tempDir;
-		config.encoding = config.encoding || this.encoding;
-		config.validator = this;
-		config.sharedData = this.sharedData;
+	    // Put non-rule stuff in the internal "__state" object.
+	    config.__state = {};
+	    
+	    config.__state.rootDirectory = config.rootDirectory || this.rootDir;
+	    config.__state.tempDirectory = config.tempDirectory || this.tempDir;
+	    config.__state.encoding = config.encoding || this.encoding;
+	    config.__state.validator = this;
+	    config.__state.sharedData = this.sharedData;
+//		config.currentRuleset = this.currentRuleset;
 	}
 
 	// Create a unique temporary filename in the temp directory.

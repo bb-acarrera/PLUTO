@@ -16,6 +16,7 @@ class RuleLoader {
         this.parsersMap = {};
         this.importersMap = {};
         this.exportersMap = {};
+        this.rulePropertiesMap = {};
 
         this.classMap = {};
 
@@ -46,7 +47,7 @@ class RuleLoader {
             manifest = JSON.parse(contents);
 
         } catch(e) {
-            console.log('Error loading manifset from ' + manifestFile + ': ' + e);
+            console.log('Error loading manifest from ' + manifestFile + ': ' + e);
             return;
         }
 
@@ -57,6 +58,7 @@ class RuleLoader {
                 if(properties) {
                     target.push(properties);
                     map[item.filename] = this.classMap[item.filename];
+                    this.rulePropertiesMap[item.filename] = properties;
                 }
             }
         };
@@ -89,17 +91,28 @@ class RuleLoader {
 
     loadFromManifest(dir, item, type) {
 
-        let file;
+        let file, suffixedFile, executable;
 
         try {
-
+        	    executable = item.executable;
             file = item.filename;
-            let ruleFile;
+            
+            suffixedFile = file;
+            if (!executable && !suffixedFile.endsWith('.js'))
+            		suffixedFile = suffixedFile + '.js';
+            
+            let ruleFile, script;
 
-            if(item.path) {
-                ruleFile = path.resolve(dir, item.path);
+            if (executable) {
+            	    ruleFile = path.resolve(dir, "RunExternalProcess.js");
+            	    if (item.script) {
+                		script = path.resolve(dir, item.script);
+                }
+            }
+            else if(item.path) {
+                ruleFile = path.resolve(dir, item.path, suffixedFile);
             } else {
-                ruleFile = path.resolve(dir, file + '.js');
+                ruleFile = path.resolve(dir, suffixedFile);
             }
 
             var ruleClass = null;
@@ -111,6 +124,28 @@ class RuleLoader {
                 this.classMap[file] = ruleClass;
 
                 var properties = RuleLoader.getClassProperties(ruleClass);
+                
+                if (item.ui) {
+                    // For executables without scripts their UI must be defined in the manifest.
+	            		properties = properties || [];
+	            		if (item.ui instanceof Array)
+	            			properties = properties.concat(item.ui);
+	            		else
+	            			properties.append(item.ui);
+                }
+                
+                if (script) {
+                    // Scripts, not being JavaScript, need an external UI description file.
+                    var moreProperties = RuleLoader.getJSONProperties(script);
+                    if (moreProperties) {
+                    		properties = properties || [];
+                    		if (moreProperties instanceof Array)
+                    			properties = properties.concat(moreProperties);
+                    		else
+                    			properties.append(moreProperties);
+                    }
+                }
+                
                 if(properties) {
 
                     return {
@@ -119,6 +154,9 @@ class RuleLoader {
                         attributes: {
                             name: file,
                             filename: file,
+                            path: item.path,
+                            script: script,
+                            executable: executable,
                             ui: {
                                 properties: properties
                             }
@@ -155,6 +193,21 @@ class RuleLoader {
         });
     }
 
+    static getJSONProperties(ruleFile) {
+    		// Load ui properties from a companion JSON file. This allows the plug-in developer to add properties without
+    		// requiring the manifest maintainer to do anything special when adding the plug-in.
+    		let jsonFile = ruleFile + '.json';
+    		if (fs.existsSync(jsonFile)) {
+    	        try {
+    	        		const contents = fs.readFileSync(jsonFile, 'utf8');
+    	            return JSON.parse(contents);
+    	        } catch(e) {
+    	            console.log('Error loading JSON from ' + jsonFile + ': ' + e);
+    	            return;
+    	        }
+    		}
+    		return;
+    }
 
     static getClassProperties(ruleClass) {
 

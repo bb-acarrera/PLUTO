@@ -12,18 +12,22 @@ QUnit.test( "AddRegExColumn: Add column Test", function(assert){
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
         "column" : 'Column 0',
         newColumn: 'new column',
         regex: '[\\s\\S]*',
-        sharedData: sharedData
+        __state: {
+            "_debugLogger" : logger,
+            sharedData: sharedData
+        }
     };
 
     const parserConfig = {
         "_debugLogger" : logger,
         "numHeaderRows" : 1,
         "columnNames" : [ "Column 0", "Column 1" ],
-        sharedData: sharedData
+        __state: {
+            sharedData: sharedData
+        }
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -49,7 +53,9 @@ QUnit.test( "AddRegExColumn: Add column Test", function(assert){
 QUnit.test( "AddRegExColumn: Select add column Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
         "column" : 1,
         newColumn: 'new column',
         regex: '[\\s\\S]*'
@@ -84,18 +90,22 @@ QUnit.test( "AddRegExColumn: Add column no match Test", function(assert){
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
         "column" : 'Column 0',
         newColumn: 'new column',
         regex: '$a',
-        sharedData: sharedData
+        __state: {
+            "_debugLogger" : logger,
+            sharedData: sharedData
+        }
     };
 
     const parserConfig = {
         "_debugLogger" : logger,
         "numHeaderRows" : 1,
         "columnNames" : [ "Column 0", "Column 1" ],
-        sharedData: sharedData
+        __state: {
+            sharedData: sharedData
+        }
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -125,19 +135,23 @@ QUnit.test( "AddRegExColumn: Add column no match warning Test", function(assert)
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
         "column" : 'Column 0',
         newColumn: 'new column',
         regex: '$a',
         failType: 'Warning',
-        sharedData: sharedData
+        __state: {
+            "_debugLogger" : logger,
+            sharedData: sharedData
+        }
     };
 
     const parserConfig = {
         "_debugLogger" : logger,
         "numHeaderRows" : 1,
         "columnNames" : [ "Column 0", "Column 1" ],
-        sharedData: sharedData
+        __state: {
+            sharedData: sharedData
+        }
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -171,19 +185,23 @@ QUnit.test( "AddRegExColumn: Add column no match error Test", function(assert){
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
         "column" : 'Column 0',
         newColumn: 'new column',
         regex: '$a',
         failType: 'Error',
-        sharedData: sharedData
+        __state: {
+            "_debugLogger" : logger,
+            sharedData: sharedData
+        }
     };
 
     const parserConfig = {
         "_debugLogger" : logger,
         "numHeaderRows" : 1,
         "columnNames" : [ "Column 0", "Column 1" ],
-        sharedData: sharedData
+        __state: {
+            sharedData: sharedData
+        }
     };
 
     const data = "Column 0,Column 1\na,b";
@@ -216,7 +234,9 @@ QUnit.test( "AddRegExColumn: Add column no match error Test", function(assert){
 QUnit.test( "AddRegExColumn: Negative Column Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
         "column" : -1,
         newColumn: 'new column',
         regex: '[\\s\\S]*'
@@ -251,7 +271,9 @@ QUnit.test( "AddRegExColumn: Negative Column Test", function(assert){
 QUnit.test( "AddRegExColumn: No Column Property test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
         newColumn: 'new column',
         regex: '[\\s\\S]*'
     };
@@ -286,7 +308,9 @@ QUnit.test( "AddRegExColumn: No new Column Property test", function(assert){
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
         column: 'Column 0',
         regex: '[\\s\\S]*',
         sharedData: sharedData
@@ -320,7 +344,9 @@ QUnit.test( "AddRegExColumn: No regex Property test", function(assert){
     const logger = new ErrorLogger();
     const sharedData = {};
     const config = {
-        "_debugLogger" : logger,
+        __state : {
+            "_debugLogger" : logger
+        },
         column: 'Column 0',
         newColumn: 'new column',
         sharedData: sharedData

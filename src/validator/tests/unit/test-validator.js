@@ -27,8 +27,10 @@ QUnit.test( " No Config Creation Test", function(assert){
 QUnit.test( " Nonexistent RootDirectory Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "/foo/bar"
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "/foo/bar"
+        }
     };
 
     assert.throws(
@@ -46,8 +48,10 @@ QUnit.test( " Nonexistent RootDirectory Test", function(assert){
 QUnit.test( " No rulesDirectory Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src"
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src"
+        }
     };
 
     const vldtr = new validator(config, () => {});
@@ -58,10 +62,12 @@ QUnit.test( " No rulesDirectory Test", function(assert){
 QUnit.test( " End to End Test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : ".",
         "outputDirectory" : "results"
     };
@@ -88,10 +94,12 @@ QUnit.test( " End to End Test", function(assert) {
 QUnit.test( " End to End with ruleset Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -136,10 +144,12 @@ QUnit.test( " End to End with ruleset Test", function(assert){
 QUnit.test( " End to End no ruleset Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
     };
@@ -164,10 +174,12 @@ QUnit.test( " End to End no ruleset Test", function(assert){
 QUnit.test( " End to End CheckColumnCount Rule Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -212,10 +224,12 @@ QUnit.test( " End to End CheckColumnCount Rule Test", function(assert){
 QUnit.test( " End to End CheckLatLong Warning Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -262,10 +276,12 @@ QUnit.test( " End to End CheckLatLong Warning Test", function(assert){
 QUnit.test( " End to End Null Promise Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -293,10 +309,12 @@ QUnit.test( " End to End Null Promise Test", function(assert){
 QUnit.test( " End to End Throw Error Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -324,10 +342,12 @@ QUnit.test( " End to End Throw Error Test", function(assert){
 QUnit.test( " End to End Promise Rejection Test", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -357,10 +377,12 @@ QUnit.test( " End to End Promise Rejection Test", function(assert){
 QUnit.test( " End to End add column, delete column, and test length", function(assert){
     const logger = new ErrorLogger();
     const config = {
-        "_debugLogger" : logger,
-        "rootDirectory" : "./src",
+        __state : {
+            "_debugLogger" : logger,
+            "rootDirectory" : "./src",
+            "tempDirectory" : "./tmp"
+        },
         "rulesDirectory" : "rules",
-        "tempDirectory" : "./tmp",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"

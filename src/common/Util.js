@@ -19,6 +19,12 @@ class Util {
 			if (!rootDir.endsWith(path.sep))
 				rootDir = rootDir + path.sep;
 		}
+		else if (config && config.__state && config.__state.rootDirectory) {
+            rootDir = path.resolve(config.__state.rootDirectory);   // Don't check for read/write/exist as this leads to possible race conditions later. Instead check at time of access.
+            if (!rootDir.endsWith(path.sep))
+                rootDir = rootDir + path.sep;
+        }
+		
 		return rootDir;
 	}
 
@@ -26,6 +32,8 @@ class Util {
 		let tmpDir;
 		if (config.tempDirectory)
 			tmpDir = config.tempDirectory;
+		else if (config && config.__state && config.__state.tempDirectory)
+            tmpDir = config.__state.tempDirectory;
 		else
 			tmpDir = "tmp";
 

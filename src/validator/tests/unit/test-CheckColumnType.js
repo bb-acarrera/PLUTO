@@ -8,7 +8,9 @@ const CSVParser = require("../../../rules/CSVParser");
 QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"column" : 1
 	};
 
@@ -26,7 +28,9 @@ QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "foo",
 		"column" : 1
 	};
@@ -43,7 +47,9 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 QUnit.test( "CheckColumnType: Check For Absent column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number"
 	};
 
@@ -58,7 +64,9 @@ QUnit.test( "CheckColumnType: Check For Absent column Property", function( asser
 QUnit.test( "CheckColumnType: Check For Non-Number column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number",
 		"column" : "foo",
 		"numHeaderRows" : 1
@@ -82,7 +90,9 @@ QUnit.test( "CheckColumnType: Check For Non-Number column Property", function( a
 QUnit.test( "CheckColumnType: Check For Negative column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number",
 		"column" : -1,
 		"numHeaderRows" : 1
@@ -105,7 +115,9 @@ QUnit.test( "CheckColumnType: Check For Negative column Property", function( ass
 QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number",
 		"column" : 1.1,
 		"numHeaderRows" : 1
@@ -131,7 +143,9 @@ QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( 
 QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number",
 		"numHeaderRows" : 1,
 		"column" : 1
@@ -155,7 +169,9 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -179,7 +195,9 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "number",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -199,7 +217,9 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "float",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -223,7 +243,9 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "float",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -243,7 +265,9 @@ QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( ass
 QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "float",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -263,7 +287,9 @@ QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", functio
 QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "integer",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -287,7 +313,9 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "integer",
 		"numHeaderRows" : 1,
 		"column" : 0
@@ -311,7 +339,9 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "integer",
 		"numHeaderRows" : 1,
 		"column" : 0
