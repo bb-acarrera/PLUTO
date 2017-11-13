@@ -2,7 +2,7 @@ const Util = require("../common/Util");
 
 class RuleSet {
 
-	constructor(ruleset) {
+	constructor(ruleset, ruleLoader) {
 		this.name = ruleset.name;
 		this.filename = ruleset.filename;
 
@@ -46,8 +46,24 @@ class RuleSet {
 		addGeneralConfig.call(this);
 
 		addRules.call(this, ruleset.rules);
+		
+		this.addParserDefaults(ruleLoader);
 	}
 
+	addParserDefaults(ruleLoader) {
+        if (ruleLoader && this.parser && this.parser.filename) {
+            var parserClass = ruleLoader.parsersMap[this.parser.filename];
+            if (parserClass && parserClass.ConfigDefaults) {
+                var defaults = parserClass.ConfigDefaults;
+                for (var key in defaults) {
+                    if (defaults.hasOwnProperty(key) && !this.parser.hasOwnProperty(key)) {
+                        this.parser[key] = defaults[key];
+                    }
+                }
+            }
+        }
+	}
+	
 	applyOverride(rulesetOverrideFile) {
 		if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
 			var contents;

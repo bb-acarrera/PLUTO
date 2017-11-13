@@ -9,7 +9,9 @@ const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
 QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 	};
 
 	const rule = new CheckColumnRegEx(config);
@@ -23,7 +25,9 @@ QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 QUnit.test( "CheckColumnRegEx: Check For Absent column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$"
 	};
 
@@ -38,7 +42,9 @@ QUnit.test( "CheckColumnRegEx: Check For Absent column Property", function( asse
 QUnit.test( "CheckColumnRegEx: Check For Non-Number column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$",
 		"column" : "foo",
 		"numHeaderRows" : 1
@@ -63,7 +69,9 @@ QUnit.test( "CheckColumnRegEx: Check For Non-Number column Property", function( 
 QUnit.test( "CheckColumnRegEx: Check For Negative column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$",
 		"column" : -1,
 		"numHeaderRows" : 1
@@ -88,7 +96,9 @@ QUnit.test( "CheckColumnRegEx: Check For Negative column Property", function( as
 QUnit.test( "CheckColumnRegEx: Check For Non-Integer column Property", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$",
 		"column" : 1.1,
 		"numHeaderRows" : 1
@@ -113,7 +123,9 @@ QUnit.test( "CheckColumnRegEx: Check For Non-Integer column Property", function(
 QUnit.test( "CheckColumnRegEx: Check For Bad Column Index", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$",
 		"numHeaderRows" : 1,
 		"column" : 1
@@ -138,7 +150,9 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Index", function( assert ) {
 QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$",	// A string of 1 or more a's.
 		"numHeaderRows" : 1,
 		"column" : 0,
@@ -163,7 +177,9 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"type" : "regex",
 		"regex" : "^a+$",
 		"numHeaderRows" : 1,
@@ -184,7 +200,9 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value With Warning", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
-		"_debugLogger" : logger,
+	        __state : {
+	            "_debugLogger" : logger
+	        },
 		"regex" : "^a+$",	// A string of 1 or more a's.
 		"numHeaderRows" : 1,
 		"column" : 0,

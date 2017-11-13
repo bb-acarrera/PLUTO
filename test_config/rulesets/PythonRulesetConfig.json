@@ -3,10 +3,15 @@
 		"name" : "Python Example RuleSet",
 		"rules" : [
 			{
-				"filename" : "RunPythonScript",
+				"filename" : "validateFilename",
 				"config" : {
-					"id" : 1,
-					"pythonScript" : "/opt/PLUTO/config/copy.py"
+					"id" : 1
+				}
+			},
+			{
+				"filename" : "copy",
+				"config" : {
+					"id" : 2
 				}
 			}
 		],

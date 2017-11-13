@@ -132,7 +132,7 @@ class data {
      * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
      * @return a promise to an object describing a ruleset.
      */
-    retrieveRuleset(ruleset, rulesetOverrideFile) {
+    retrieveRuleset(ruleset, rulesetOverrideFile, ruleLoader) {
         return new Promise((resolve, reject) => {
 
             if (typeof ruleset === 'string') {
@@ -156,7 +156,7 @@ class data {
             }
 
 
-            let rulesetObj = new RuleSet(ruleset);
+            let rulesetObj = new RuleSet(ruleset, ruleLoader);
 
             if (rulesetOverrideFile && typeof rulesetOverrideFile === 'string') {
                 rulesetObj.applyOverride(rulesetOverrideFile);

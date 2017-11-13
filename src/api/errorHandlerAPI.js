@@ -55,10 +55,10 @@ class ErrorHandlerAPI {
 	 * @private
 	 */
 	log(level, problemFileName, ruleID, problemDescription, dataItemId) {
-		if (this.config && this.config.validator)
-			this.config.validator.log(level, problemFileName, ruleID, problemDescription, dataItemId);
-		else if (this.config && this.config._debugLogger)
-			this.config._debugLogger.log(level, problemFileName, ruleID, problemDescription, dataItemId);
+		if (this.config && this.config.__state && this.config.__state.validator)
+			this.config.__state.validator.log(level, problemFileName, ruleID, problemDescription, dataItemId);
+		else if (this.config && this.config.__state && this.config.__state._debugLogger)
+			this.config.__state._debugLogger.log(level, problemFileName, ruleID, problemDescription, dataItemId);
 	}
 
 	/**

@@ -397,7 +397,7 @@ class data {
      * @param rulesetOverrideFile the filename of an override file to apply to the ruleset
      * @return a promise to an object describing a ruleset.
      */
-    retrieveRuleset ( ruleset_id, rulesetOverrideFile, version, dbId, group, admin ) {
+    retrieveRuleset ( ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin ) {
 
         let isAdmin = admin === true;
 
@@ -423,12 +423,12 @@ class data {
 
                 dbRuleset.deleted = result.rows[0].deleted;
 
-                let ruleset = new RuleSet( dbRuleset );
+                let ruleset = new RuleSet( dbRuleset, ruleLoader );
 
                 if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
                     ruleset.applyOverride( rulesetOverrideFile );
                 }
-
+                
                 resolve( ruleset );
 
             } else {

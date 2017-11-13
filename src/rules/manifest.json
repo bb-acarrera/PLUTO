@@ -21,10 +21,12 @@
       "filename":"DeleteColumn"
     },
     {
-      "filename":"RunPythonScript"
+      "filename":"AddRegExColumn"
     },
     {
-      "filename":"AddRegExColumn"
+      "filename":"validateFilename",
+      "script" : "validateFilename.py",
+      "executable" : "python"
     }
   ],
   "importers" : [
