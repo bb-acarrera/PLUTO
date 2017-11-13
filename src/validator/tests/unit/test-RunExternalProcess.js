@@ -122,6 +122,176 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
     });
 });
 
+QUnit.test( "RunExternalProcess: Missing regex test", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"validateFilename",
+            "script" : "rules/validateFilename.py",
+            "executable" : "python"
+        },
+        "id" : 1,
+        "importConfig" : {
+            "file" : "foo.bar"  // Should catch this error.
+        }
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+
+    const done = assert.async();
+
+    assert.ok(rule, "Rule was created.");
+
+    rule._run({data: data}).then((result) => {
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 1, "Expected one error result.");
+        assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+        assert.ok(logResults[0].description.includes("No regex specified."), "Expected the error to contain 'No regex specified.'.")
+        
+        done();
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
+QUnit.test( "RunExternalProcess: Missing importConfig test.", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"validateFilename",
+            "script" : "rules/validateFilename.py",
+            "executable" : "python"
+        },
+        "id" : 1,
+        "regex" : ".*\\.csv"
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+
+    const done = assert.async();
+
+    rule._run({data: data}).then((result) => {
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 1, "Expected one error result.");
+        assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+        assert.ok(logResults[0].description.includes("No importConfig specified in the rule config."), "Expected the error to contain 'No importConfig specified in the rule config.'.")
+        
+        done();
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
+QUnit.test( "RunExternalProcess: Missing importConfig.file test.", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"validateFilename",
+            "script" : "rules/validateFilename.py",
+            "executable" : "python"
+        },
+        "id" : 1,
+        "importConfig" : {
+        },
+        "regex" : ".*\\.csv"
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+
+    const done = assert.async();
+
+    rule._run({data: data}).then((result) => {
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 1, "Expected one error result.");
+        assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+        assert.ok(logResults[0].description.includes("No file specified in the rule config.importConfig."), "Expected the error to contain 'No file specified in the rule config.importConfig.'.")
+        
+        done();
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
+QUnit.test( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"validateFilename",
+            "script" : "src/rules/validateFilename.py",
+            "executable" : "python"
+        },
+        "id" : 1,
+        "importConfig" : {
+        },
+        "regex" : ".*\\.csv"
+    };
+
+    const cwd = process.cwd();
+    process.chdir("..");
+    
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+
+    const done = assert.async();
+
+    rule._run({data: data}).then((result) => {
+        process.chdir(cwd); // NOTE: If this isn't run then other tests in the entire test suite will fail.
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 2, "Expected one error result.");
+        assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
+        assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
+        assert.ok(logResults[0].description.includes("Failed to load the PythonAPI."), "Expected the error to contain 'Failed to load the PythonAPI.'.")
+        assert.ok(logResults[1].description.includes("exited with status 1"), "Expected the error to contain 'exited with status 1'.")
+        
+        done();
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
 QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
