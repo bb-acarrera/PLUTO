@@ -205,7 +205,7 @@ QUnit.test( "RunExternalProcess: Can't find executable test", function(assert) {
         assert.ok(logResults.length == 2, "Expected two errors in result.");
         assert.equal(logResults[0].type, "Warning", "Expected first result to be a 'Warning'.");
         assert.equal(logResults[1].type, "Error", "Expected second result to be an 'Error'.");
-        assert.ok(logResults[1].description.includes("fluffyBunny ENOENT"), "Expected the error to contain 'fluffyBunny ENOENT'.")
+        assert.ok(logResults[1].description.includes("Launching script failed with error"), "Expected the error to contain 'Launching script failed with error'.")
         
         done();
     }, (error) => {
@@ -252,6 +252,52 @@ QUnit.test( "RunExternalProcess: Failing executable test", function(assert) {
         assert.equal(logResults[0].type, "Warning", "Expected first result to be a 'Warning'.");
         assert.equal(logResults[1].type, "Error", "Expected second result to be an 'Error'.");
         assert.ok(logResults[1].description.includes("exited with status 1"), "Expected the error to contain 'exited with status 1'.")
+        
+        done();
+    }, (error) => {
+        assert.notOk(true, error.message);
+        done();
+    });
+});
+
+QUnit.test( "RunExternalProcess: Executable writing to stdout test", function(assert) {
+    const logger = new ErrorLogger();
+    const config = {
+        __state : {
+            "_debugLogger" : logger,
+            "tempDirectory" : "/var/tmp" 
+        },
+        "attributes" : {
+            "filename":"Echo",
+            "executable" : "echo"
+        },
+        "id" : 1,
+        "importConfig" : {
+            "file" : "foo.bar"  // Should catch this error.
+        }
+    };
+
+    const data = "Hello World";
+    const rule = new RunExternalProcess(config);
+
+    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
+    
+    // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
+    // exists it means a different rule created an identically named socket which is a problem.)
+    if (fs.existsSync(rule.socketName))
+        fs.unlinkSync(rule.socketName);
+
+    const done = assert.async();
+
+    assert.ok(rule, "Rule was created.");
+
+    rule._run({data: data}).then((result) => {
+        assert.ok(result, "Created");
+        const logResults = logger.getLog();
+        assert.ok(logResults.length == 2, "Expected two errors in result.");
+        assert.equal(logResults[0].type, "Warning", "Expected first result to be a 'Warning'.");
+        assert.equal(logResults[1].type, "Warning", "Expected second result to be an 'Warning'.");
+        assert.ok(logResults[1].description.includes("echo wrote to stdout"), "Expected the error to contain 'echo wrote to stdout'.")
         
         done();
     }, (error) => {
