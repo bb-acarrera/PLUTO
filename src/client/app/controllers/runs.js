@@ -99,6 +99,20 @@ export default Ember.Controller.extend({
 		incRulePage() {
 			this.transitionToRoute({queryParams: {rulePage: Math.min(this.rulePage + 1, this.get('totalRulePages'))}});
 		},
+
+        toggleRowHighlight ( rowID ) {
+
+            const row = document.getElementById( rowID );
+
+            const selected = row.classList.contains( 'selected' );
+
+            deselectItems( );
+
+            if ( !selected ) {
+                row.classList.add( 'selected' );
+            }
+
+        },
 //		openNewDialog(){
 //			this.set("ptarget", "Name the new ruleset");
 //			this.set("dialogtarget", "");
@@ -162,3 +176,14 @@ export default Ember.Controller.extend({
 		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}
 });
+
+function deselectItems ( ) {
+    const rulesElem = document.getElementById( 'runsTable' );
+
+    const items = rulesElem.childNodes;
+    for ( var i = 0; i < items.length; i++ ) {
+        const item = items[ i ];
+        if ( item.nodeName.toLowerCase() == "tr" && item.classList )
+            item.classList.remove( 'selected' );
+    }
+}

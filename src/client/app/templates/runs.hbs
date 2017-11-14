@@ -27,7 +27,8 @@
 		</tr>
 
       {{#each model.runs.result as |runInstance index|}}
-          <tr id="{{concat 'runsTableRow' index}}">
+          <tr id="{{concat 'runsTableRow' index}}" {{action "toggleRowHighlight"
+							(concat 'runsTableRow' index) }} class="rule-selectable">
 			  <td class="icon-cell">
 				  <i class="fa fa-exclamation-triangle {{rule-log-icons runInstance}}"></i>
 			  </td>

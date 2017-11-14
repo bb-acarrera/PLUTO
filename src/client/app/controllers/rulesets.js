@@ -156,10 +156,35 @@ export default Ember.Controller.extend({
 				xmlHttp.setRequestHeader("Content-Type", "application/json");
 				xmlHttp.send(JSON.stringify(theJSON));
 			}
-		}
+		},
+
+        toggleRowHighlight ( rowID ) {
+
+            const row = document.getElementById( rowID );
+
+            const selected = row.classList.contains( 'selected' );
+
+            deselectItems( );
+
+            if ( !selected ) {
+                row.classList.add( 'selected' );
+            }
+
+        }
 	},
 	init: function() {
 //		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 //		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}
 });
+
+function deselectItems ( ) {
+    const rulesElem = document.getElementById( 'rulesetTable' );
+
+    const items = rulesElem.childNodes;
+    for ( var i = 0; i < items.length; i++ ) {
+        const item = items[ i ];
+        if ( item.nodeName.toLowerCase() == "tr" && item.classList )
+            item.classList.remove( 'selected' );
+    }
+}
