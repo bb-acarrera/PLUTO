@@ -28,6 +28,29 @@ function addRuleset(controller, rulesetId, ruleset) {
 	xmlHttp.send(JSON.stringify(theJSON));
 }
 
+function runRuleset(controller, rulesetId) {
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = () => {
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+			controller.get('target.router').refresh();
+//			controller.transitionToRoute('editRuleset', rulesetId);
+			alert("Process started successfully.");
+		}
+		else if (xmlHttp.readyState == 4) {
+			alert(`Failed to create: ${xmlHttp.statusText}`);
+		}
+	};
+
+	let theUrl = document.location.origin + "/processFile/";
+	let theJSON = {
+		ruleset: rulesetId
+	};
+
+	xmlHttp.open("POST", theUrl, true); // true for asynchronous
+	xmlHttp.setRequestHeader("Content-Type", "application/json");
+	xmlHttp.send(JSON.stringify(theJSON));
+}
+
 export default Ember.Controller.extend({
 	queryParams: [
 //		"page",
@@ -42,7 +65,8 @@ export default Ember.Controller.extend({
 //		"dateFilter",
 		"rulesetNameFilter",
 		"rulesetGroupFilter",
-		"runGroupFilter"
+		"runGroupFilter",
+		"run"
 	],
 	ptarget: "default",
 	showdialog: false,
@@ -71,6 +95,8 @@ export default Ember.Controller.extend({
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
 
+	run: false,
+	
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter',
 		function() {
@@ -158,6 +184,10 @@ export default Ember.Controller.extend({
 			}
 		},
 
+		runRuleset(ruleset) {
+			runRuleset(this, ruleset.get("ruleset_id"));
+		},
+		
         toggleRowHighlight ( rowID ) {
 
             const row = document.getElementById( rowID );
