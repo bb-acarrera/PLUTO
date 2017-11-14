@@ -29,31 +29,7 @@ class Util {
 	}
 
 	static getRootTempDirectory(config, rootDir) {
-		let tmpDir;
-		if (config.tempDirectory)
-			tmpDir = config.tempDirectory;
-		else if (config && config.__state && config.__state.tempDirectory)
-            tmpDir = config.__state.tempDirectory;
-		else
-			tmpDir = "tmp";
-
-		// Make absolute.
-		tmpDir = path.resolve(rootDir, tmpDir);
-
-		// Make sure the parent directory exists.
-		try {
-			fs.accessSync(tmpDir, fs.constants.R_OK | fs.constants.W_OK | fs.constants.F_OK);
-		}
-		catch (e) {
-			try {
-				fs.mkdirSync(tmpDir);
-			}
-			catch (e) {
-				throw "Failed to create \"" + tmpDir + ".\n" + e;
-			}
-		}
-
-		return tmpDir;
+		return "/tmp";  // Always use /tmp.
 	}
 
 	static getTempDirectory(config, rootDir) {
@@ -61,8 +37,7 @@ class Util {
 		let tmpDir = this.getRootTempDirectory(config, rootDir);
 
 		// Create a temporary child directory.
-		let basename = path.basename(config.scriptName || "tmp", ".js");
-		tmpDir = path.resolve(tmpDir, basename + this.createGUID());
+		tmpDir = path.resolve(tmpDir, this.createGUID());
 
 		try {
 			fs.mkdirSync(tmpDir);
