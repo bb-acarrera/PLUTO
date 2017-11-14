@@ -1,0 +1,42 @@
+<h2>{{title}} {{model.rule.rule_id}}</h2>
+
+<div>
+    <div>
+		Description:
+		<input id="ruleName" type="text" value="{{model.rule.description}}" class="text-input" disabled={{disableEdit}}/>
+    </div>
+	<div>
+		Base:
+        {{#power-select
+			options=bases
+			onchange=(action "chooseBase")
+			selected=base
+			allowClear=true
+			as |baseChoice|}}
+				{{baseChoice.id}}
+		{{/power-select}}
+	</div>
+	<div>
+		Properties
+		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disabled}}
+	</div>
+
+	{{#if (eq model.rule.type "source") }}
+		<div>
+			Linked Target:
+			{{#power-select
+				search=(action "searchTarget")
+				onchange=(action "chooseTarget")
+				selected=linkedtarget
+				allowClear=true
+				as |targetChoice|}}
+				{{targetChoice.attributes.rule-id}}: {{targetChoice.attributes.description}}
+			{{/power-select}}
+			<!--{{target.id}} <button {{action "chooseTarget"}}>Choose linked target</button> -->
+		</div>
+	{{/if}}
+</div>
+
+<button {{action "saveRule"}}>Save</button>
+
+{{outlet}}

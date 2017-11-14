@@ -73,7 +73,7 @@ class Validator {
 		// This needs to be done after the above tests and setting of the global config object.
         this.data = Data(this.config);
 
-		this.ruleLoader = new RuleLoader(this.config.rulesDirectory);
+		this.ruleLoader = new RuleLoader(this.config.rulesDirectory, this.data);
     }
 
 	/*
@@ -98,20 +98,27 @@ class Validator {
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride, this.ruleLoader)
 				.then((ruleset) => {
 
-						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
-					},
-					(error)=>{
-						this.error(error);
-						this.finishRun();
-					}).catch((e) => {
-						if(!e.message){
-							this.error(e);
-						}
-						else {
-							this.error(e.message);
-						}
-						this.finishRun();
+					if(!ruleset){
+						throw new Error("No Ruleset found for: " + this.config.ruleset);
 					}
+
+					ruleset.resolve(this.ruleLoader).then(() => {
+						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
+					});
+
+				},
+				(error)=>{
+					this.error(error);
+					this.finishRun();
+				}).catch((e) => {
+					if(!e.message){
+						this.error(e);
+					}
+					else {
+						this.error(e.message);
+					}
+					this.finishRun();
+				}
 			);
 		}, (error) => {
 			console.log("Error creating run record: " + error);

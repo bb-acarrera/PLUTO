@@ -8,6 +8,7 @@ const ErrorHandlerAPI = require( '../api/errorHandlerAPI' );
 const moment = require('moment');
 
 
+
 class data {
     constructor ( config ) {
         this.config = config || {};
@@ -27,7 +28,9 @@ class data {
         this.tables = {
             runs: schemaName + 'runs',
             rulesets: schemaName + 'rulesets',
-            currentRuleset: schemaName + '"currentRuleset"'
+            currentRuleset: schemaName + '"currentRuleset"',
+            rules: schemaName + 'rules',
+            currentRule: schemaName + '"currentRule"',
         }
     }
 
@@ -654,6 +657,256 @@ class data {
 
 
     }
+
+
+
+
+
+
+    ruleExists(rule_id) {
+
+        return new Promise((resolve) => {
+            getRule( this.db, rule_id, null, null, this.tables).then((result) => {
+                if ( result.rows.length > 0 ) {
+                    resolve( true );
+
+                } else {
+                    resolve( false );
+                }
+            }, () => {
+                resolve( false );
+            });
+        });
+    }
+
+    /**
+     * Retrieve a rule description.
+     * @param rule_id the name of the rule.
+     * @return a promise to an object describing a rule.
+     */
+    retrieveRule ( rule_id, version, dbId, group, admin ) {
+
+        let isAdmin = admin === true;
+
+        return new Promise((resolve, reject) => {
+            getRule( this.db, rule_id, version, dbId, this.tables).then((result) => {
+                if ( result.rows.length > 0 ) {
+
+                    var rule = getRuleResult(result.rows[0], isAdmin, group);
+
+                    resolve( rule );
+
+                } else {
+                    resolve( null );
+                }
+            }, (e) => {
+                reject(e);
+            });
+        });
+
+    }
+
+    getRules ( page, size, filters, group, admin ) {
+
+        let isAdmin = admin === true;
+
+        return new Promise((resolve, reject) => {
+
+            if ( !size ) {
+                size = this.rulesetLimit;
+            }
+
+            let offset;
+            if ( !page ) {
+                offset = 0;
+            } else {
+                offset = (page - 1) * size;
+            }
+
+            let where = "";
+            let countWhere = "";
+
+            let values = [ size, offset ];
+            let countValues = [];
+
+            function extendWhere() {
+                if ( where.length === 0 ) {
+                    where = "WHERE ";
+                    countWhere = "WHERE ";
+                } else {
+                    where += " AND ";
+                    countWhere += " AND ";
+                }
+            }
+
+            if ( filters.typeFilter && filters.typeFilter.length ) {
+                let typeWhere = filters.typeFilter;
+
+                extendWhere();
+
+                values.push( typeWhere );
+                where += "{{currentRule}}.type = $" + values.length;
+
+                countValues.push( typeWhere );
+                countWhere += "{{currentRule}}.type = $" + countValues.length;
+
+            }
+
+            if(filters.ruleFilter && filters.ruleFilter.length) {
+                let ruleWhere = safeStringLike( filters.ruleFilter );
+
+                extendWhere();
+
+                values.push( ruleWhere );
+                where += "{{currentRule}}.rule_id ILIKE $" + values.length;
+
+                countValues.push( ruleWhere );
+                countWhere += "{{currentRule}}.rule_id ILIKE $" + countValues.length;
+            }
+
+            if(filters.groupFilter && filters.groupFilter.length) {
+                let groupWhere = safeStringLike( filters.groupFilter );
+
+                extendWhere();
+
+                values.push( groupWhere );
+                where += "{{currentRule}}.owner_group ILIKE $" + values.length;
+
+                countValues.push( groupWhere );
+                countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
+            }
+
+            let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
+                "ORDER BY id DESC LIMIT $1 OFFSET $2", this.tables ), values );
+
+            let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{currentRule}} " + countWhere, this.tables ), countValues );
+
+            Promise.all( [ ruleQuery, countQuery ] ).then( ( values ) => {
+
+                let result = values[ 0 ];
+                let countResult = values[ 1 ];
+
+                let rowCount = countResult.rows[ 0 ].count;
+                let pageCount = Math.ceil( rowCount / size );
+
+                var rules = [];
+
+                result.rows.forEach( ( row ) => {
+                    rules.push( getRuleResult(row, isAdmin, group) );
+                } );
+
+                resolve( {
+                    rules: rules,
+                    rowCount: rowCount,
+                    pageCount: pageCount
+                } );
+
+
+            }, ( error ) => {
+                reject( error );
+            } );
+
+        } );
+
+    }
+
+    saveRule ( rule, user, group, admin ) {
+
+        let isAdmin = admin === true;
+
+        return new Promise( ( resolve, reject ) => {
+
+            if(!user) {
+                user = null;
+            }
+
+            if(!group) {
+                group = null;
+            }
+
+            checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+                let version = result.nextVersion;
+                let rowGroup = group;
+
+                if(result && result.rows.length > 0) {
+                    rowGroup = result.rows[0].owner_group;
+                }
+
+                rule.version = version;
+
+                this.db.query(updateTableNames("INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group) " +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
+                    [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup])
+                    .then((result) => {
+                        resolve(rule.rule_id);
+                    }, (error) => {
+                        reject(error)
+                    });
+
+            }, (error) => {
+                console.log(error);
+                reject(error);
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+
+
+        });
+
+    }
+
+    deleteRule ( rule, user, group, admin ) {
+
+        let isAdmin = admin === true;
+
+        return new Promise( ( resolve, reject ) => {
+
+            let rule_id = rule.rule_id;
+
+            checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+
+                if(result && result.rows.length > 0) {
+                    const row = result.rows[0];
+                    rule.version = result.nextVersion;
+
+                    this.db.query(updateTableNames("INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, deleted) " +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
+                        [rule.rule_id, rule.description, rule.version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, row.owner_group, true])
+                        .then((result) => {
+
+                            this.db.query(
+                                updateTableNames("UPDATE {{rules}} SET deleted = TRUE WHERE rule_id = $1", this.tables),
+                                [rule_id])
+                                .then(() => {
+                                    resolve(rule_id);
+                                }, (error) => {
+                                    console.log(error);
+                                    reject(error);
+                                });
+
+                        }, (error) => {
+                            reject(error)
+                        });
+
+
+                } else {
+                    reject('No rule found to delete')
+                }
+
+
+            }, (error) => {
+                console.log(error);
+                reject(error);
+            }).catch((error) => {
+                console.log(error);
+                reject(error);
+            });
+
+        });
+
+
+    }
 }
 
 
@@ -796,6 +1049,113 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
 
     });
 
+}
+
+
+
+function getRule(db, rule_id, version, dbId, tables, getDeleted) {
+
+    if ( !rule_id && !dbId ) {
+        return new Promise( ( resolve, reject ) => {
+            reject( "You must specify a rule name or id" );
+        } );
+    }
+
+    return new Promise( ( resolve, reject ) => {
+
+        let query = 'SELECT * FROM ';
+        let values = [];
+
+        if(dbId != null || version != null || getDeleted) {
+            query += '{{rules}} ';
+        } else {
+            query += '{{currentRule}}';
+        }
+
+        if(dbId) {
+            query += "where id = $1";
+
+            values.push(dbId);
+        } else {
+            query += "where rule_id = $1";
+            values.push(rule_id);
+
+            if(version != null) {
+                query += " AND version = $2";
+                values.push(version);
+            }
+
+        }
+
+        query += " ORDER BY version DESC";
+
+        db.query(updateTableNames(query, tables), values)
+            .then((result) => {
+
+                resolve(result);
+
+            }, ( error ) => {
+                reject( error );
+            } );
+
+    } );
+}
+
+function checkCanChangeRule(db, tables, rule, group, admin) {
+
+    return new Promise((resolve, reject) => {
+
+        const rule_id = rule.rule_id;
+
+        getRule(db, rule_id, null, null, tables, true).then((result) => {
+            if (result.rows.length > 0) {
+
+                if(!result.rows[0].deleted) {
+                    if (result.rows[0].version != rule.version) {
+                        reject(`${rule_id} has been changed by another user. Cannot update old version`);
+                        return;
+                    }
+
+                    if (result.rows[0].owner_group != null && !admin && result.rows[0].owner_group != group) {
+                        reject('Cannot change a rule that has been created by another group. Owner is ' + result.rows[0].owner_group);
+                        return;
+                    }
+                }
+                result.nextVersion = result.rows[0].version + 1;
+
+            } else {
+                result.nextVersion = 0;
+            }
+
+            resolve(result);
+        });
+
+
+    });
+
+}
+
+function getRuleResult(row, isAdmin, group) {
+    let rule = {
+        id: row.id,
+        version: row.version,
+        rule_id: row.rule_id,
+        description: row.description,
+        type: row.type,
+        base: row.base,
+        config: row.config,
+        group: row.owner_group,
+        update_user: row.update_user,
+        update_time: row.update_time,
+        deleted: row.deleted
+    };
+
+    if (rule.group && !isAdmin && rule.group !== group) {
+        rule.canedit = false;
+    } else {
+        rule.canedit = true;
+    }
+    return rule;
 }
 
 let dataInstance = null;
