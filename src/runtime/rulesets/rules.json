@@ -10,6 +10,16 @@
       }
     },
     {
+      "rule_id": "testSourceTarget",
+      "type": "source",
+      "description": "test source",
+      "base": "LocalCopyImport",
+      "config": {
+        "base": "./examples/data",
+        "linkedtargetid": "testTarget"
+      }
+    },
+    {
       "rule_id": "testTarget",
       "type": "target",
       "description": "test target",

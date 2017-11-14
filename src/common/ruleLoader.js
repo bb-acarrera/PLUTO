@@ -110,7 +110,7 @@ class RuleLoader {
                 }
             }
             else if(item.path) {
-                ruleFile = path.resolve(dir, item.path, suffixedFile);
+                ruleFile = path.resolve(dir, item.path);
             } else {
                 ruleFile = path.resolve(dir, suffixedFile);
             }

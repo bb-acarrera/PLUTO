@@ -144,7 +144,14 @@ class RuleSet {
 				}
 
 				if(sourceConfig.config.linkedtargetid && !this.target) {
-					this.target = sourceConfig.config.linkedtargetid;
+					//apply the source config to the target config; there is an assumption that the source and
+					// target have the same top-level configuration if they are linked
+					this.target = {
+						filename: sourceConfig.config.linkedtargetid,
+						config: {}
+					};
+
+					updateConfig(this.source.config, {}, this.target.config);
 
 					this.updateTarget(ruleLoader).then(() => {
 						resolve();
