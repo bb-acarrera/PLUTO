@@ -1,0 +1,12 @@
+<h1>Admin</h1>
+
+
+<span>
+	{{#link-to 'admin.configuredrule' (query-params typeFilter='source')}}<a href="">Sources</a>{{/link-to}}
+</span>
+
+<span>
+	{{#link-to 'admin.configuredrule' (query-params typeFilter='target')}}<a href="">Targets</a>{{/link-to}}
+</span>
+
+{{outlet}}

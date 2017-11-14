@@ -39,7 +39,7 @@
             {{#if runInstance.isrunning}}
               <td>running</td>
             {{else}}
-              <td>{{#link-to "editRuleset.run" "_run_" runInstance.id (query-params run=true)}}Details{{/link-to}}</td>
+              <td>{{#link-to "run" runInstance.id}}Details {{/link-to}}</td>
             {{/if}}
 
           </tr>

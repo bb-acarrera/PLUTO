@@ -3,8 +3,9 @@ const path = require('path');
 
 class RuleLoader {
 
-    constructor(customRulePath) {
+    constructor(customRulePath, database) {
         this.customRulesPath = customRulePath;
+        this.db = database;
 
         this.rules = [];
         this.parsers = [];
@@ -109,7 +110,7 @@ class RuleLoader {
                 }
             }
             else if(item.path) {
-                ruleFile = path.resolve(dir, item.path, suffixedFile);
+                ruleFile = path.resolve(dir, item.path);
             } else {
                 ruleFile = path.resolve(dir, suffixedFile);
             }
@@ -176,6 +177,22 @@ class RuleLoader {
         return null;
     }
 
+    getDbRule(id) {
+
+        return new Promise((resolve) => {
+            if(!this.db) {
+                resolve(null);
+                return;
+            }
+
+            this.db.retrieveRule(id).then((rule) => {
+                resolve(rule);
+            }, () => {
+                resolve(null);
+            })
+        });
+    }
+
     static getJSONProperties(ruleFile) {
     		// Load ui properties from a companion JSON file. This allows the plug-in developer to add properties without
     		// requiring the manifest maintainer to do anything special when adding the plug-in.
@@ -191,7 +208,7 @@ class RuleLoader {
     		}
     		return;
     }
-    
+
     static getClassProperties(ruleClass) {
 
         if(ruleClass.ConfigProperties) {
@@ -219,6 +236,7 @@ class RuleLoader {
 
         return properties;
     }
+
 }
 
 module.exports = RuleLoader;

@@ -1,0 +1,36 @@
+<div>
+    <div class="column">
+        <div class="section-header">Input Filename</div>
+        <div class="section-content">{{model.run.inputfilename}}</div>
+        <div class="section-header">Ruleset</div>
+        <div class="section-content">{{model.ruleset.filename}}</div>
+        <div class="section-content">Description: {{model.ruleset.name}}</div>
+        <div class="section-header">Parser</div>
+        <div class="section-content">{{model.ruleset.parser.name}}</div>
+        <div class="section-header">Rules</div>
+        <table id="rulesTable" class="ruleset-table">
+			{{#each ruleData as |ruleInstance index|}}
+                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
+                    class="rule-selectable">
+                    <td class="icon-cell">
+                        <i class="fa fa-exclamation-triangle fa {{rule-log-icons ruleInstance}}"></i>
+                    </td>
+                    <td>{{ruleInstance.name}}</td>
+                </tr>
+			{{/each}}
+        </table>
+		{{#if model.ruleset}}
+			{{#if (not model.ruleset.deleted)}}
+				{{#link-to 'editRuleset' model.ruleset.filename (query-params run=false)}}Edit Current Ruleset{{/link-to}}
+			{{/if}}
+		{{/if}}
+    </div>
+    <div class="column">
+        <!-- The column for showing rule errors. -->
+        <div class="section-header">{{errorTitle}}:</div>
+
+		{{show-errors errors=errors}}
+		{{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage')}}
+    </div>
+</div>
+{{yeild}}
