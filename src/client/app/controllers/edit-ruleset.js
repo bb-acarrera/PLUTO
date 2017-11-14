@@ -2,11 +2,9 @@ import Ember from 'ember';
 import moment from 'moment';
 
 export default Ember.Controller.extend( {
-    queryParams: [ "collapsed", "collapsedRun", "run" ],
-    collapsed: false,
+    queryParams: [ "collapsedRun" ],
     collapsedRun: false,
     processing: false,
-    run: false,
 
     poll: Ember.inject.service(),
 
@@ -72,9 +70,7 @@ export default Ember.Controller.extend( {
         showProcessing(){
             this.set("processing", true);
         },
-        toggle () {
-          this.set("collapsed", !this.get("collapsed"));
-        },
+
         saveRuleSet ( ruleset ) {
             updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
               this.model.importers, this.model.exporters, this.model.rulesetconfiguis );

@@ -1,4 +1,4 @@
-<div>
+<div style="display: flex;">
     <div class="column">
         <div class="section-header">Input Filename</div>
         <div class="section-content">{{model.run.inputfilename}}</div>
@@ -19,11 +19,7 @@
                 </tr>
 			{{/each}}
         </table>
-		{{#if model.ruleset}}
-			{{#if (not model.ruleset.deleted)}}
-				{{#link-to 'editRuleset' model.ruleset.filename (query-params run=false)}}Edit Current Ruleset{{/link-to}}
-			{{/if}}
-		{{/if}}
+
     </div>
     <div class="column">
         <!-- The column for showing rule errors. -->
