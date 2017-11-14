@@ -14,6 +14,8 @@ Router.map(function() {
     this.route('configuredrule');
   });
   this.route('editConfiguredRule', {path: '/editConfiguredRule/:rule_id'});
+
+  this.route('run', {path: '/run/:run_id'});
 });
 
 Router.reopen({
