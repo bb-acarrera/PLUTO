@@ -10,6 +10,7 @@ Router.map(function() {
   this.route('editRuleset', {path: '/editRuleset/:ruleset_id'}, function() {
     this.route('run', {path: '/run/:run_id'});
   });
+  this.route('runs');
 });
 
 Router.reopen({
