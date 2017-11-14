@@ -1,0 +1,65 @@
+{{outlet}}
+<div>
+  <h2>PLUTO Rulesets</h2>
+
+  <table id="rulesetTable" class="ruleset-table">
+	  <tr style="border-bottom: 1px solid grey;">
+		  <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
+          <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
+		  <td/>
+	  </tr>
+    {{#each model.rulesets.result as |rulesetInstance index|}}
+      <tr id="{{concat 'rulesetTableRow' index}}">
+        <td>{{rulesetInstance.filename}}</td>
+        <td>{{rulesetInstance.group}}</td>
+        <td align="right">
+			{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
+				<i class="fa fa-trash"></i>
+				{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
+			{{/bs-button}}
+
+			{{#bs-button onClick=(action "openCloneDialog" rulesetInstance.filename rulesetInstance)}}
+				<i class="fa fa-clone"></i>
+				{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
+			{{/bs-button}}
+
+          {{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
+			  {{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
+			  <i class="fa fa-pencil"></i>
+		  {{/link-to}}
+        </td>
+      </tr>
+    {{/each}}
+	  {{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
+  </table>
+
+
+	{{#bs-modal open=showdialog onHidden=(action (mut showdialog) false) as |modal|}}
+		{{#modal.header}}
+			<h4 class="modal-title">
+				{{ptarget}}{{dialogtarget}}
+			</h4>
+		{{/modal.header}}
+		{{#modal.body}}
+				{{input type="text"  class="form-control"  autofocus="autofocus" value=modaltext}}
+		{{/modal.body}}
+		{{#modal.footer}}
+			{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
+			{{#if isclone}}
+				{{#bs-button type="success" onClick=(action "cloneRuleset" dialogruleset)}}{{buttontext}}{{/bs-button}}
+			{{else}}
+				{{#bs-button type="success" onClick=(action  "addRuleset")}}{{buttontext}}{{/bs-button}}
+			{{/if}}
+
+		{{/modal.footer}}
+	{{/bs-modal}}
+
+
+	{{#bs-button onClick=(action "openNewDialog")}}
+		<i class="fa fa-plus"></i>
+		{{#bs-tooltip placement="top"}}Add ruleset{{/bs-tooltip}}
+	{{/bs-button}}
+
+
+
+</div>

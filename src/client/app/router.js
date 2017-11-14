@@ -11,6 +11,7 @@ Router.map(function() {
     this.route('run', {path: '/run/:run_id'});
   });
   this.route('runs');
+  this.route('rulesets');
 });
 
 Router.reopen({

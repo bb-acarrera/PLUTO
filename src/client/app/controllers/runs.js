@@ -55,8 +55,8 @@ export default Ember.Controller.extend({
 	// if value matches default, it won't display in the URL
 	page: 1,
 	perPage: 10,
-	rulePage: 1,
-	rulePerPage: 10,
+//	rulePage: 1,
+//	rulePerPage: 10,
 	rulesetFilter: '',
 	filenameFilter: '',
 	showErrors: true,
