@@ -10,6 +10,11 @@
 	  <tr style="border-bottom: 1px solid grey;">
 		  <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
           <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
+          <td align="center">
+          	{{#if run}}
+          		Last Run Results
+          	{{/if}}
+          </td>
 		  <td/>
 	  </tr>
     {{#each model.rulesets.result as |rulesetInstance index|}}
@@ -17,25 +22,28 @@
 							(concat 'runsTableRow' index) }} class="rule-selectable">
         <td>{{rulesetInstance.filename}}</td>
         <td>{{rulesetInstance.group}}</td>
-        <td align="right">
-        		{{#if run}}
+        <td align="center">
+       		{{#if run}}
         			{{#if (if-in rulesetInstance.filename processing) }}
     					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
-    				{{else}}
-	    				{{if (if-in rulesetInstance.filename mixedRuns) }}
-	    					<i class="fa fa-exclamation-triangle warning-and-error-icon"></i>
-	    				{{else if (if-in rulesetInstance.filename errorRuns) }}
-	    					<i class="fa fa-exclamation-triangle error-icon" style="float: left;"></i>
-	    				{{else if (if-in rulesetInstance.filename warningRuns) }}
-	    					<i class="fa fa-exclamation-triangle warning-icon"></i>
-    					{{else}}
-	    					<i class="fa fa-check good-icon"></i>
-					{{/if}}
-					{{#bs-button onClick=(action "runRuleset" rulesetInstance)}}
-						<i class="fa fa-play"></i>
-						{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
-					{{/bs-button}}
+	 			{{else if (if-in rulesetInstance.filename mixedRuns) }}
+					<i class="fa fa-exclamation-triangle warning-and-error-icon"></i>
+				{{else if (if-in rulesetInstance.filename errorRuns) }}
+					<i class="fa fa-exclamation-triangle error-icon"></i>
+				{{else if (if-in rulesetInstance.filename warningRuns) }}
+					<i class="fa fa-exclamation-triangle warning-icon"></i>
+				{{else if (if-in rulesetInstance.filename goodRuns) }}
+					<i class="fa fa-check good-icon"></i>
 				{{/if}}
+			{{/if}}
+        </td>
+        <td align="right">
+        		{{#if run}}
+        			<!-- TODO: Need to disable this button when processing this ruleset. -->
+				{{#bs-button onClick=(action "runRuleset" rulesetInstance)}}
+					<i class="fa fa-play"></i>
+					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
+				{{/bs-button}}
 			{{else}}			
 				{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
 					<i class="fa fa-trash"></i>
