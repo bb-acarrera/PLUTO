@@ -6,6 +6,7 @@ exports.up = (pgm) => {
 			description: { type : 'text' },
 			type:  { type : 'text' },
 			base: { type : 'text' },
+			group: { type : 'text' },
 			config: { type : 'json' },
 			version: { type : 'integer', default: '0' },
 			deleted: { type: 'boolean', default: 'FALSE' },
@@ -33,6 +34,7 @@ exports.up = (pgm) => {
 		'    m.description,' +
 		'    m.type,' +
 		'    m.base,' +
+		'    m.group,' +
 		'    m.config,' +
 		'    m.version,' +
 		'    m.deleted, '  +

@@ -764,16 +764,28 @@ class data {
                 countWhere += "{{currentRule}}.rule_id ILIKE $" + countValues.length;
             }
 
+            if(filters.ownerFilter && filters.ownerFilter.length) {
+                let ownerWhere = safeStringLike( filters.ownerFilter );
+
+                extendWhere();
+
+                values.push( ownerWhere );
+                where += "{{currentRule}}.owner_group ILIKE $" + values.length;
+
+                countValues.push( ownerWhere );
+                countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
+            }
+
             if(filters.groupFilter && filters.groupFilter.length) {
                 let groupWhere = safeStringLike( filters.groupFilter );
 
                 extendWhere();
 
                 values.push( groupWhere );
-                where += "{{currentRule}}.owner_group ILIKE $" + values.length;
+                where += '{{currentRule}}."group" ILIKE $' + values.length;
 
                 countValues.push( groupWhere );
-                countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
+                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
             }
 
             let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
@@ -834,9 +846,9 @@ class data {
 
                 rule.version = version;
 
-                this.db.query(updateTableNames("INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group) " +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                    [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup])
+                this.db.query(updateTableNames('INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, "group") ' +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
+                    [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup, rule.group])
                     .then((result) => {
                         resolve(rule.rule_id);
                     }, (error) => {
@@ -870,9 +882,9 @@ class data {
                     const row = result.rows[0];
                     rule.version = result.nextVersion;
 
-                    this.db.query(updateTableNames("INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, deleted) " +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
-                        [rule.rule_id, rule.description, rule.version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, row.owner_group, true])
+                    this.db.query(updateTableNames('INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, "group", deleted) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id", this.tables),
+                        [rule.rule_id, rule.description, rule.version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, row.owner_group, rule.group, true])
                         .then((result) => {
 
                             this.db.query(
@@ -1144,13 +1156,14 @@ function getRuleResult(row, isAdmin, group) {
         type: row.type,
         base: row.base,
         config: row.config,
-        group: row.owner_group,
+        owner_group: row.owner_group,
         update_user: row.update_user,
         update_time: row.update_time,
-        deleted: row.deleted
+        deleted: row.deleted,
+        group: row.group
     };
 
-    if (rule.group && !isAdmin && rule.group !== group) {
+    if (rule.owner_group && !isAdmin && rule.owner_group !== group) {
         rule.canedit = false;
     } else {
         rule.canedit = true;

@@ -6,7 +6,8 @@
         <tr style="border-bottom: 1px solid grey;">
             <td>{{input placeholder="Name" value=ruleFilter}}</td>
             <td>Description</td>
-            <td>{{input placeholder="Ruleset Owner" value=runGroupFilter}}</td>
+            <td>{{input placeholder="Group" value=groupFilter}}</td>
+            <td>{{input placeholder="Owner" value=ownerFilter}}</td>
             <td></td>
         </tr>
 
@@ -15,6 +16,7 @@
                 <td>{{ruleInstance.rule_id}}</td>
                 <td>{{ruleInstance.description}}</td>
                 <td>{{ruleInstance.group}}</td>
+                <td>{{ruleInstance.ownergroup}}</td>
                 <td align="right">
 					{{#bs-button onClick=(action "deleteRule" ruleInstance model.rules.result)}}
                         <i class="fa fa-trash"></i>
