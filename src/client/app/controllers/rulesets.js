@@ -32,9 +32,14 @@ function runRuleset(controller, rulesetId) {
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = () => {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-			controller.get('target.router').refresh();
-//			controller.transitionToRoute('editRuleset', rulesetId);
-			alert("Process started successfully.");
+			try {
+				var jsonResponse = JSON.parse(xmlHttp.responseText);
+				startPolling(controller, rulesetId, jsonResponse.runId);
+				controller.get('target.router').refresh();
+			}
+			catch (e) {
+				console.log("rulesetController.runRuleset() expected a JSON response.\n\t" + e);
+			}
 		}
 		else if (xmlHttp.readyState == 4) {
 			alert(`Failed to create: ${xmlHttp.statusText}`);
@@ -49,6 +54,24 @@ function runRuleset(controller, rulesetId) {
 	xmlHttp.open("POST", theUrl, true); // true for asynchronous
 	xmlHttp.setRequestHeader("Content-Type", "application/json");
 	xmlHttp.send(JSON.stringify(theJSON));
+}
+
+function startPolling(controller, rulesetID, runID) {
+    let pollId = controller.get( 'poll' ).addPoll( {
+        interval: 1000, // one second
+        callback: () => {
+        		controller.store.findRecord( 'run', runID ).then(
+                run => {
+                    if ( !run.get('isrunning') ) {
+                        controller.get("processing").removeObject(rulesetID);
+                        var pId = controller.get("pollMap").get(rulesetID);
+                        controller.get( 'poll' ).stopPoll(pId);
+                    }
+                } );
+        }
+    } );
+    controller.get("pollMap").set(rulesetID, pollId);
+	controller.get("processing").pushObject(rulesetID);
 }
 
 export default Ember.Controller.extend({
@@ -96,7 +119,10 @@ export default Ember.Controller.extend({
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
 
 	run: false,
-	
+    poll: Ember.inject.service(),
+    processing: [],
+    pollMap: Ember.Map.create(),
+    
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter',
 		function() {

@@ -19,10 +19,14 @@
         <td>{{rulesetInstance.group}}</td>
         <td align="right">
         		{{#if run}}
-				{{#bs-button onClick=(action "runRuleset" rulesetInstance)}}
-					<i class="fa fa-play"></i>
-					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
-				{{/bs-button}}
+        			{{#if (if-in rulesetInstance.filename processing) }}
+    					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
+    				{{else}}
+					{{#bs-button onClick=(action "runRuleset" rulesetInstance)}}
+						<i class="fa fa-play"></i>
+						{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
+					{{/bs-button}}
+				{{/if}}
 			{{else}}			
 				{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
 					<i class="fa fa-trash"></i>

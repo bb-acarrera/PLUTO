@@ -29,14 +29,17 @@ export default Ember.Route.extend(RouteMixin, {
 //      refreshModel: true
 //    },
 	rulesetNameFilter: {
-	    refreshModel: true
+		refreshModel: true
 	},
-	  rulesetGroupFilter: {
-		  refreshModel: true
-	  },
-	  runGroupFilter: {
-		  refreshModel: true
-	  }
+	rulesetGroupFilter: {
+		refreshModel: true
+	},
+	runGroupFilter: {
+		refreshModel: true
+	},
+	processing: {
+		refreshModel: true
+	}
   },
   loadQueryParams(params){
     this.transitionTo({queryParams: params});
@@ -47,7 +50,7 @@ export default Ember.Route.extend(RouteMixin, {
         page: params.rulePage,
         perPage: params.rulePerPage,
           rulesetFilter: params.rulesetNameFilter,
-	      groupFilter: params.rulesetGroupFilter
+          groupFilter: params.rulesetGroupFilter
       }).then(function (result) {
           let meta = result.get('meta');
           return { result: result, meta: meta};
@@ -71,6 +74,14 @@ export default Ember.Route.extend(RouteMixin, {
   actions: {
     error(reason){
       alert(reason);
+    },
+    willTransition (transition) {
+        if ( transition.targetName != "rulesets" && this.controller ) {
+            this.controller.get( 'poll' ).stopAll();
+            this.controller.get( 'poll' ).clearAll();
+            this.controller.get( 'processing' ).clear();	// Leaving the page so forget everything.
+            this.controller.get( 'pollMap' ).forEach((key, value) => this.remove(key));
+        }
     }
-  }
+    }
 });
