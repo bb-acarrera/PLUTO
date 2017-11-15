@@ -54,7 +54,7 @@ export default Ember.Controller.extend( {
         toggleUpload (id) {
             this.set("processing", true);
             let pollId = this.get( 'poll' ).addPoll( {
-                interval: 1000, // one minute
+                interval: 1000, // one second
                 callback: () => {
                     this.store.findRecord( 'run', id ).then(
                         run => {
