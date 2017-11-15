@@ -66,6 +66,20 @@ function startPolling(controller, rulesetID, runID) {
                         controller.get("processing").removeObject(rulesetID);
                         var pId = controller.get("pollMap").get(rulesetID);
                         controller.get( 'poll' ).stopPoll(pId);
+                        
+                        controller.get('errorRuns').removeObject(rulesetID);
+                        controller.get('warningRuns').removeObject(rulesetID);
+                        controller.get('goodRuns').removeObject(rulesetID);
+                        controller.get('mixedRuns').removeObject(rulesetID);
+                        
+                        if (run.get('errorcount') > 0 && run.get('warningcount') > 0)
+                        		controller.get('mixedRuns').pushObject(rulesetID);
+                        else if (run.get('errorcount') > 0)
+                        		controller.get('errorRuns').pushObject(rulesetID);
+                        else if (run.get('warningcount') > 0)
+                    			controller.get('warningRuns').pushObject(rulesetID);
+                        else
+                    			controller.get('goodRuns').pushObject(rulesetID);
                     }
                 } );
         }
@@ -121,6 +135,10 @@ export default Ember.Controller.extend({
 	run: false,
     poll: Ember.inject.service(),
     processing: [],
+    goodRuns: [],
+    warningRuns: [],
+    errorRuns: [],
+    mixedRuns: [],
     pollMap: Ember.Map.create(),
     
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',

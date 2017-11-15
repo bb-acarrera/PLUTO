@@ -22,6 +22,15 @@
         			{{#if (if-in rulesetInstance.filename processing) }}
     					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
     				{{else}}
+	    				{{if (if-in rulesetInstance.filename mixedRuns) }}
+	    					<i class="fa fa-exclamation-triangle warning-and-error-icon"></i>
+	    				{{else if (if-in rulesetInstance.filename errorRuns) }}
+	    					<i class="fa fa-exclamation-triangle error-icon" style="float: left;"></i>
+	    				{{else if (if-in rulesetInstance.filename warningRuns) }}
+	    					<i class="fa fa-exclamation-triangle warning-icon"></i>
+    					{{else}}
+	    					<i class="fa fa-check good-icon"></i>
+					{{/if}}
 					{{#bs-button onClick=(action "runRuleset" rulesetInstance)}}
 						<i class="fa fa-play"></i>
 						{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
