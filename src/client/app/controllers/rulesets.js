@@ -60,7 +60,8 @@ function startPolling(controller, rulesetID, runID) {
     let pollId = controller.get( 'poll' ).addPoll( {
         interval: 1000, // one second
         callback: () => {
-        		controller.store.findRecord( 'run', runID ).then(
+        		var _runId = controller.get("runMap").get(rulesetID);	// Somehow the passed in runID is getting overwritten eventually.
+        		controller.store.findRecord( 'run', _runId ).then(
                 run => {
                     if ( !run.get('isrunning') ) {
                         controller.get("processing").removeObject(rulesetID);
@@ -86,6 +87,7 @@ function startPolling(controller, rulesetID, runID) {
     } );
     controller.get("pollMap").set(rulesetID, pollId);
 	controller.get("processing").pushObject(rulesetID);
+    controller.get("runMap").set(rulesetID, runID);
 }
 
 export default Ember.Controller.extend({
@@ -140,6 +142,7 @@ export default Ember.Controller.extend({
     errorRuns: [],
     mixedRuns: [],
     pollMap: Ember.Map.create(),
+    runMap: Ember.Map.create(),
     
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter',
