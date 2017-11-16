@@ -52,8 +52,7 @@ export default Ember.Controller.extend({
 			let targetId = this.get('model.rule.config.linkedtargetid');
 
 			if(targetId) {
-				let url = `/configuredrules/${targetId}`;
-				return this.get('ajax').request(url).then((resp) => resp.data);
+				return this.store.queryRecord('configuredrule', {id: targetId})
 			}
 			return null;
 		}
@@ -69,18 +68,18 @@ export default Ember.Controller.extend({
 		},
 		chooseTarget (target) {
 			if(target) {
-				this.set('model.rule.config.linkedtargetid', target.attributes['rule-id']);
+				this.set('model.rule.config.linkedtargetid', target.get('rule_id'));
 			} else {
 				this.set('model.rule.config.linkedtargetid', null);
 			}
 
 		},
 		searchTarget(term) {
-			let url = `/configuredrules?perPage=25&typeFilter=target&ruleFilter=${term}`;
-			return this.get('ajax').request(url)
-				.then((resp) => {
-					return resp.data
-				});
+			return this.store.query('configuredrule', {
+				perPage: 25,
+				ruleFilter: term,
+				typeFilter: 'target'
+			});
 		},
 		chooseBase (base) {
 			if(base) {

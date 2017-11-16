@@ -1,3 +1,9 @@
+let rulesetColumns = {
+	group: {
+		type: 'text'
+	}
+};
+
 exports.up = (pgm) => {
 	pgm.createTable('rules',
 		{
@@ -44,6 +50,31 @@ exports.up = (pgm) => {
 		'FROM rules m ' +
 		'JOIN current_ver c ON c.rule_id::text = m.rule_id::text AND c.version = m.version ' +
 		'WHERE m.deleted = false;');
+
+
+	pgm.addColumns('rulesets', rulesetColumns );
+
+	pgm.sql(
+		'CREATE OR REPLACE VIEW "currentRuleset" AS ' +
+		'WITH current_ver AS (' +
+		'    SELECT rulesets.ruleset_id,' +
+		'    max(rulesets.version) AS version ' +
+		'FROM rulesets ' +
+		'GROUP BY rulesets.ruleset_id' +
+		') ' +
+		'SELECT m.id,' +
+		'    m.ruleset_id,' +
+		'    m.name,' +
+		'    m.version,' +
+		'    m.rules,' +
+		'    m.deleted, '  +
+		'    m.update_user, '  +
+		'    m.owner_group, '  +
+		'    m.update_time, '  +
+		'    m.group '  +
+		'FROM rulesets m ' +
+		'JOIN current_ver c ON c.ruleset_id::text = m.ruleset_id::text AND c.version = m.version ' +
+		'WHERE m.deleted = false;');
 };
 
 exports.down = (pgm) => {
@@ -53,5 +84,30 @@ exports.down = (pgm) => {
 	pgm.dropConstraint('rulesets', 'ruleset_id_version', {ifExists:true});
 
 	pgm.dropTable('rules');
+
+	pgm.sql('DROP VIEW "currentRuleset";');
+
+	pgm.sql(
+		'CREATE OR REPLACE VIEW "currentRuleset" AS ' +
+		'WITH current_ver AS (' +
+		'    SELECT rulesets.ruleset_id,' +
+		'    max(rulesets.version) AS version ' +
+		'FROM rulesets ' +
+		'GROUP BY rulesets.ruleset_id' +
+		') ' +
+		'SELECT m.id,' +
+		'    m.ruleset_id,' +
+		'    m.name,' +
+		'    m.version,' +
+		'    m.rules,' +
+		'    m.deleted, '  +
+		'    m.update_user, '  +
+		'    m.owner_group, '  +
+		'    m.update_time '  +
+		'FROM rulesets m ' +
+		'JOIN current_ver c ON c.ruleset_id::text = m.ruleset_id::text AND c.version = m.version ' +
+		'WHERE m.deleted = false;');
+
+	pgm.dropColumns('rulesets', rulesetColumns );
 
 };

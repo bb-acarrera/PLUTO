@@ -2,7 +2,7 @@ const BaseRouter = require('./baseRouter');
 const RuleSet = require('../../validator/RuleSet');
 const Util = require('../../common/Util');
 
-function massageRule(rule) {
+function massageRule(rule, rulesLoader) {
 	rule["rule-id"] = rule.rule_id;
 	delete rule.rule_id;
 
@@ -14,6 +14,26 @@ function massageRule(rule) {
 	if(!rule.config) {
 		rule.config = {};
 	}
+
+	rule.ui = {
+		properties: []
+	};
+
+	if(rulesLoader) {
+		let baseRule = null;
+		if(rule.base) {
+			baseRule = rulesLoader.rulePropertiesMap[rule.base];
+		}
+
+		if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
+			baseRule.attributes.ui.properties.forEach((prop) => {
+				if(!rule.config[prop.name]) {
+					rule.ui.properties.push(prop);
+				}
+			});
+		}
+	}
+
 
 	return rule;
 }
@@ -54,7 +74,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 					return;
 				}
 
-				rule = massageRule(rule);
+				rule = massageRule(rule, this.config.rulesLoader);
 
 				res.json({
 					data: {

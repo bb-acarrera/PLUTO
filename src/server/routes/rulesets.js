@@ -115,9 +115,6 @@ class RulesetRouter extends BaseRouter {
 					ruleset["database-id"] = id;
 					delete ruleset.id;
 
-					ruleset.group = ruleset.owner_group;
-					delete ruleset.owner_group;
-
 					rulesets.push({
 						type: "ruleset",
 						id: id,

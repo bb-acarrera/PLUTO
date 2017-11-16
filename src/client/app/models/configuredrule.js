@@ -13,5 +13,6 @@ export default DS.Model.extend({
 	ownergroup: DS.attr('string'),
 	updateuser: DS.attr('string'),
 	updatetime: DS.attr('date'),
-	deleted: DS.attr('boolean')
+	deleted: DS.attr('boolean'),
+	ui: DS.attr()
 });

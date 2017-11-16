@@ -2,33 +2,33 @@ import Ember from 'ember';
 import moment from 'moment';
 
 export default Ember.Controller.extend( {
-    queryParams: [ "collapsedRun" ],
-    collapsedRun: false,
-    processing: false,
+	queryParams: [ "collapsedRun" ],
+	collapsedRun: false,
+	processing: false,
 
-    poll: Ember.inject.service(),
+	poll: Ember.inject.service(),
 
-    ruleToEditChanged: Ember.observer( 'ruleToEdit', function () {
-        let val = this.get( 'ruleToEdit' );
-        let oldval = this.get( '_oldRuleToEdit' );
+	ruleToEditChanged: Ember.observer( 'ruleToEdit', function () {
+		let val = this.get( 'ruleToEdit' );
+		let oldval = this.get( '_oldRuleToEdit' );
 
-        if ( val === oldval ) {
-            return;
-        }
+		if ( val === oldval ) {
+			return;
+		}
 
-        this.set( '_oldRuleToEdit', val );
+		this.set( '_oldRuleToEdit', val );
 
-        if ( oldval && val ) {
-            updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers,
-              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
-        }
-    } ),
-    ruleToEdit: null,
+		if ( oldval && val ) {
+			updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers,
+				this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
+		}
+	} ),
+	ruleToEdit: null,
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
 		return !this.get('model.ruleset.canedit');
 	}),
-	ownedBy: Ember.computed('model.ruleset.group', function() {
-		let group = this.get('model.ruleset.group');
+	ownedBy: Ember.computed('model.ruleset.ownergroup', function() {
+		let group = this.get('model.ruleset.ownergroup');
 		if(group) return group;
 
 		return 'Nobody';
@@ -48,365 +48,382 @@ export default Ember.Controller.extend( {
 
 		return 'Unknown';
 	}),
-    actions: {
-        toggleUpload (id) {
-            this.set("processing", true);
-            let pollId = this.get( 'poll' ).addPoll( {
-                interval: 1000, // one minute
-                callback: () => {
-                    this.store.findRecord( 'run', id ).then(
-                        run => {
-                            if ( !run.get('isrunning') ) {
-                                this.set("processing", false);
-                                let rulesetid = this.model.ruleset.get("filename");
-                                this.replaceRoute( "editRuleset.run", rulesetid,  id);
-                            }
-                        } );
-                }
-            } );
+	actions: {
+		toggleUpload (id) {
+			this.set("processing", true);
+			let pollId = this.get( 'poll' ).addPoll( {
+				interval: 1000, // one minute
+				callback: () => {
+					this.store.findRecord( 'run', id ).then(
+						run => {
+							if ( !run.get('isrunning') ) {
+								this.set("processing", false);
+								let rulesetid = this.model.ruleset.get("filename");
+								this.replaceRoute( "editRuleset.run", rulesetid,  id);
+							}
+						} );
+				}
+			} );
 
-            this.set( 'pollId', pollId );
-        },
-        showProcessing(){
-            this.set("processing", true);
-        },
+			this.set( 'pollId', pollId );
+		},
+		showProcessing(){
+			this.set("processing", true);
+		},
 
-        saveRuleSet ( ruleset ) {
-            updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
-              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
-            save( ruleset, this );
-        },
+		saveRuleSet ( ruleset ) {
+			updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
+				this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
+			save( ruleset, this );
+		},
 
-        showAddRule () {
-            this.set( 'showAddRule', true );
-        },
+		showAddRule () {
+			this.set( 'showAddRule', true );
+		},
 
-        hideAddRule () {
-            this.set( 'showAddRule', false );
-        },
+		hideAddRule () {
+			this.set( 'showAddRule', false );
+		},
 
-        addRule ( ruleset, rules ) {
-            addRule( ruleset, rules );
-            this.set( 'showAddRule', false );
-        },
+		addRule ( ruleset, rules ) {
+			addRule( ruleset, rules );
+			this.set( 'showAddRule', false );
+		},
 
-        deleteRule ( tableID, ruleset ) {
-            deleteRule( tableID, ruleset );
-        },
+		deleteRule ( tableID, ruleset ) {
+			deleteRule( tableID, ruleset );
+		},
 
-        updateRule ( ruleInstance ) {
-            updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers,
-              this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
-        },
+		updateRule ( ruleInstance ) {
+			updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers,
+				this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
+		},
 
-        moveRuleUp ( ruleset, index ) {
-            if ( index < 1 )
-                return;
+		moveRuleUp ( ruleset, index ) {
+			if ( index < 1 )
+				return;
 
-            const rules = ruleset.get( 'rules' );
-            const movingRule = rules[ index ];
+			const rules = ruleset.get( 'rules' );
+			const movingRule = rules[ index ];
 
-            rules.splice( index, 1 ); // Remove the rule.
-            rules.splice( index - 1, 0, movingRule ); // Add it back one spot earlier.
-            ruleset.notifyPropertyChange( "rules" );
-        },
+			rules.splice( index, 1 ); // Remove the rule.
+			rules.splice( index - 1, 0, movingRule ); // Add it back one spot earlier.
+			ruleset.notifyPropertyChange( "rules" );
+		},
 
-        moveRuleDown ( ruleset, index ) {
-            const rules = ruleset.get( 'rules' );
-            if ( index >= rules.length )
-                return;
+		moveRuleDown ( ruleset, index ) {
+			const rules = ruleset.get( 'rules' );
+			if ( index >= rules.length )
+				return;
 
-            const movingRule = rules[ index ];
+			const movingRule = rules[ index ];
 
-            rules.splice( index, 1 ); // Remove the rule.
-            rules.splice( index + 1, 0, movingRule ); // Add it back one spot later.
-            ruleset.notifyPropertyChange( "rules" );
-        },
+			rules.splice( index, 1 ); // Remove the rule.
+			rules.splice( index + 1, 0, movingRule ); // Add it back one spot later.
+			ruleset.notifyPropertyChange( "rules" );
+		},
 
-        toggleRowHighlight ( rowID, rule ) {
+		toggleRowHighlight ( rowID, rule ) {
 
-            const row = document.getElementById( rowID );
+			const row = document.getElementById( rowID );
 
-            const selected = row.classList.contains( 'selected' );
+			const selected = row.classList.contains( 'selected' );
 
-            deselectItems( selected, this );
+			deselectItems( selected, this );
 
-            if ( !selected ) {
-                row.classList.add( 'selected' );
+			if ( !selected ) {
+				row.classList.add( 'selected' );
 
-                this.set( 'ruleToEdit', rule );
-            }
+				this.set( 'ruleToEdit', rule );
+			}
 
-        },
+		},
 
-        showChangeParser () {
-            this.set( 'showChangeParser', true );
-        },
+		toggleCollapse ( itemName ) {
 
-        hideChangeParser () {
-            this.set( 'showChangeParser', false );
-        },
+			let value = this.get(itemName);
+			if(value == null) {
+				value = true;
+			}
 
-        changeParser ( ruleset, parsers ) {
-
-            changeParser( ruleset, parsers );
-
-            this.set( 'showChangeParser', false );
-        },
-
-        showChangeImporter () {
-            this.set( 'showChangeImporter', true );
-        },
-
-        hideChangeImporter () {
-            this.set( 'showChangeImporter', false );
-        },
-
-        changeImporter ( ruleset, importers ) {
-
-            changeImporter( ruleset, importers );
-
-            this.set( 'showChangeImporter', false );
-        },
+			this.set(itemName, !value)
+		},
 
 
-        showChangeExporter () {
-            this.set( 'showChangeExporter', true );
-        },
 
-        hideChangeExporter () {
-            this.set( 'showChangeExporter', false );
-        },
+		stopPropagation ( event ) {
+			event.stopPropagation();
+		},
 
-        changeExporter ( ruleset, exporters ) {
+		chooseTarget (target) {
 
-            changeExporter( ruleset, exporters );
+			if(target) {
 
-            this.set( 'showChangeExporter', false );
-        },
+				const rulesetTargetConfig = this.get('model.ruleset.target.config').toJSON();
 
-        stopPropagation ( event ) {
-            event.stopPropagation();
-        }
+				if(this.get('model.ruleset.target.filename') !== target.get('rule_id')) {
 
-    },
-    init: function () {
-    }
+					const newTarget = {
+						filename: target.get('rule_id'),
+						config: {}
+					};
+
+					if(rulesetTargetConfig) {
+
+						target.attributes.ui.properties.forEach((prop) => {
+							if(rulesetTargetConfig[prop.name]) {
+								newTarget.config[prop.name] = rulesetTargetConfig[prop.name];
+							}
+						});
+					}
+
+					this.set('model.ruleset.target', newTarget);
+				}
+			} else {
+				this.set('model.ruleset.target', null);
+			}
+
+		},
+		searchTarget(term) {
+			return this.store.query('configuredrule', {
+				perPage: 25,
+				ruleFilter: term,
+				typeFilter: 'target'
+			});
+		},
+
+		getUiProperties(list, itemName) {
+			let item = null;
+
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			return item.get('ui.properties');
+		}
+
+	},
+	init: function () {
+	}
 } );
 
 function save ( ruleset ) {
-    var name = document.getElementById( "rulesetName" ).value;
-    ruleset.set( "name", name );
+	var name = document.getElementById( "rulesetName" ).value;
+	ruleset.set( "name", name );
 
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ) {
-            window.location.reload(true);
-            alert( "Successfully saved." );
-        }
-        else if ( xmlHttp.readyState == 4 ) {
-            alert( `Failed to save. Status = ${xmlHttp.status}` );
-        }
-    };
+	var xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function () {
+		if ( xmlHttp.readyState == 4 && xmlHttp.status == 200 ) {
+			window.location.reload(true);
+			alert( "Successfully saved." );
+		}
+		else if ( xmlHttp.readyState == 4 ) {
+			alert( `Failed to save. Status = ${xmlHttp.status}` );
+		}
+	};
 
-    let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
-    let theJSON = ruleset.toJSON();
-    // theJSON.id = ruleset.id;
+	let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+	let theJSON = ruleset.toJSON();
+	// theJSON.id = ruleset.id;
 
-    xmlHttp.open( "PATCH", theUrl, true ); // true for asynchronous
-    xmlHttp.setRequestHeader( "Content-Type", "application/json" );
-    xmlHttp.send( JSON.stringify( theJSON ) );
+	xmlHttp.open( "PATCH", theUrl, true ); // true for asynchronous
+	xmlHttp.setRequestHeader( "Content-Type", "application/json" );
+	xmlHttp.send( JSON.stringify( theJSON ) );
 
-    // ruleset.save().then(() => {
-    //   alert("Successfully saved.");
-    // }, () => {
-    //   alert("Failed to save.");
-    // });
+	// ruleset.save().then(() => {
+	//   alert("Successfully saved.");
+	// }, () => {
+	//   alert("Failed to save.");
+	// });
 }
 
 function addRule ( ruleset, rules ) {
-    const newRuleFilename = document.getElementById( "selectRule" ).value;
-    if ( newRuleFilename == "None" )
-        return;
+	const newRuleFilename = document.getElementById( "selectRule" ).value;
+	if ( newRuleFilename == "None" )
+		return;
 
-    rules.forEach( rule => {
-        if ( rule.get( "filename" ) == newRuleFilename ) {
-            const newRule = {};
-            newRule.filename = rule.get( "filename" );
+	rules.forEach( rule => {
+		if ( rule.get( "filename" ) == newRuleFilename ) {
+			const newRule = {};
+			newRule.filename = rule.get( "filename" );
 
-            var uiConfig = rule.get( 'ui' ).properties;
-            var startingConfig = {};
-            uiConfig.forEach( config => {
-                if ( config.default ) {
-                    startingConfig[ config.name ] = config.default;
-                }
-            } );
+			var uiConfig = rule.get( 'ui' ).properties;
+			var startingConfig = {};
+			uiConfig.forEach( config => {
+				if ( config.default ) {
+					startingConfig[ config.name ] = config.default;
+				}
+			} );
 
-            newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
-            newRule.name = newRule.filename;
-            newRule.config.id = createGUID();
+			newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
+			newRule.name = newRule.filename;
+			newRule.config.id = createGUID();
 
-            ruleset.get( "rules" ).push( newRule );
-            ruleset.notifyPropertyChange( "rules" );
-        }
-    } );
+			ruleset.get( "rules" ).push( newRule );
+			ruleset.notifyPropertyChange( "rules" );
+		}
+	} );
 }
 
 function deleteRule ( tableID, ruleset ) {
-    const table = document.getElementById( tableID );
-    var siblings = table.childNodes;
-    var ruleToDelete = -1;
-    var row = 0;
-    for ( var i = 0; i < siblings.length; i++ ) {
-        const sibling = siblings[ i ];
-        if ( sibling.nodeName.toLowerCase() == "tr" && sibling.classList ) {
-            if ( sibling.classList.contains( "selected" ) ) {
-                ruleToDelete = row;
-                break;
-            }
-            row++;
-        }
-    }
+	const table = document.getElementById( tableID );
+	var siblings = table.childNodes;
+	var ruleToDelete = -1;
+	var row = 0;
+	for ( var i = 0; i < siblings.length; i++ ) {
+		const sibling = siblings[ i ];
+		if ( sibling.nodeName.toLowerCase() == "tr" && sibling.classList ) {
+			if ( sibling.classList.contains( "selected" ) ) {
+				ruleToDelete = row;
+				break;
+			}
+			row++;
+		}
+	}
 
-    if ( ruleToDelete < 0 ) {
-        alert( "No rule selected. Nothing to delete." );
-        return;
-    }
+	if ( ruleToDelete < 0 ) {
+		alert( "No rule selected. Nothing to delete." );
+		return;
+	}
 
-    const rules = ruleset.get( 'rules' );
-    const rule = rules[ ruleToDelete ];
-    if ( confirm( `Delete rule "${rule.name}"?` ) ) {
-        rules.splice( ruleToDelete, 1 ); // Remove the rule.
-        ruleset.notifyPropertyChange( "rules" );
-    }
+	const rules = ruleset.get( 'rules' );
+	const rule = rules[ ruleToDelete ];
+	if ( confirm( `Delete rule "${rule.name}"?` ) ) {
+		rules.splice( ruleToDelete, 1 ); // Remove the rule.
+		ruleset.notifyPropertyChange( "rules" );
+	}
 }
 
 function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters, rulesetconfiguis ) {
-    if ( !ruleInstance )
-        return;
+	if ( !ruleInstance )
+		return;
 
-    // Update the name.
-    if ( ruleInstance.hasOwnProperty( "name" ) ) {
-        const value = document.getElementById( 'name' ).value;
-        Ember.set( ruleInstance, 'name', value );
-    }
-
-
-    const itemSets = [ rules, parsers, importers, exporters, rulesetconfiguis ];
-    let items, uiConfig;
-
-    for ( var i = 0; i < itemSets.length; i++ ) {
-        items = itemSets[ i ];
-
-        items.forEach( item => {
-            if ( item.get( "filename" ) == ruleInstance.filename )
-                uiConfig = item.get( "ui" );
-        } );
-
-        if ( uiConfig ) {
-            break;
-        }
-    }
-
-    // Get the properties.
-    if(uiConfig) {
-        uiConfig.properties.forEach( prop => {
-            let element = document.getElementById( prop.name );
-            if ( element ) {
-              var value = prop.type === 'boolean' ? element.checked : element.value;
-              if ( prop.type === "list" ) {
-                var re = /\s*,\s*/;
-                value = value.split( re );
-              }
-              if ( prop.type === "column" ) {
-                value = Ember.$( element ).prop( 'selectedIndex' );
-              }
-
-              Ember.set( ruleInstance.config, prop.name, value );
-            }
-          }
-        );
-    }
+	// Update the name.
+	if ( ruleInstance.hasOwnProperty( "name" ) ) {
+		const value = document.getElementById( 'name' ).value;
+		Ember.set( ruleInstance, 'name', value );
+	}
 
 
-    ruleset.notifyPropertyChange( "rules" );
+	const itemSets = [ rules, parsers, importers, exporters, rulesetconfiguis ];
+	let items, uiConfig;
+
+	for ( var i = 0; i < itemSets.length; i++ ) {
+		items = itemSets[ i ];
+
+		items.forEach( item => {
+			if ( item.get( "filename" ) == ruleInstance.filename )
+				uiConfig = item.get( "ui" );
+		} );
+
+		if ( uiConfig ) {
+			break;
+		}
+	}
+
+	// Get the properties.
+	if(uiConfig) {
+		uiConfig.properties.forEach( prop => {
+				let element = document.getElementById( prop.name );
+				if ( element ) {
+					var value = prop.type === 'boolean' ? element.checked : element.value;
+					if ( prop.type === "list" ) {
+						var re = /\s*,\s*/;
+						value = value.split( re );
+					}
+					if ( prop.type === "column" ) {
+						value = Ember.$( element ).prop( 'selectedIndex' );
+					}
+
+					Ember.set( ruleInstance.config, prop.name, value );
+				}
+			}
+		);
+	}
+
+
+	ruleset.notifyPropertyChange( "rules" );
 }
 
 function createGUID () {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString( 16 );
-    } )
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString( 16 );
+	} )
 }
 
 function deselectItems ( clearProperties, controller ) {
-    const rulesElem = document.getElementById( 'rulesTable' );
+	const rulesElem = document.getElementById( 'rulesTable' );
 
-    const items = rulesElem.childNodes;
-    for ( var i = 0; i < items.length; i++ ) {
-        const item = items[ i ];
-        if ( item.nodeName.toLowerCase() == "tr" && item.classList )
-            item.classList.remove( 'selected' );
-    }
+	const items = rulesElem.childNodes;
+	for ( var i = 0; i < items.length; i++ ) {
+		const item = items[ i ];
+		if ( item.nodeName.toLowerCase() == "tr" && item.classList )
+			item.classList.remove( 'selected' );
+	}
 
-    const otherItems = [ 'parser', 'import', 'export', 'general' ];
+	const otherItems = [ 'parser', 'import', 'export', 'general' ];
 
-    otherItems.forEach( item => {
-        const parserElem = document.getElementById( item );
+	otherItems.forEach( item => {
+		const parserElem = document.getElementById( item );
 
-        if ( parserElem ) {
-            parserElem.classList.remove( 'selected' );
-        }
+		if ( parserElem ) {
+			parserElem.classList.remove( 'selected' );
+		}
 
-    } );
+	} );
 
-    if ( clearProperties ) {
-        controller.set( 'ruleToEdit', null );
-        controller.set( 'showErrors', null );
-    }
+	if ( clearProperties ) {
+		controller.set( 'ruleToEdit', null );
+		controller.set( 'showErrors', null );
+	}
 
 }
 
 function changeParser ( ruleset, parsers ) {
 
-    changeItem( ruleset, parsers, "selectParser", "parser" );
+	changeItem( ruleset, parsers, "selectParser", "parser" );
 }
 
 function changeImporter ( ruleset, importers ) {
-    changeItem( ruleset, importers, "selectImporter", "import" );
+	changeItem( ruleset, importers, "selectImporter", "import" );
 }
 
 function changeExporter ( ruleset, exporters ) {
-    changeItem( ruleset, exporters, "selectExporter", "export" );
+	changeItem( ruleset, exporters, "selectExporter", "export" );
 }
 
 function changeItem ( ruleset, items, elementId, propName ) {
-    const newItemFilename = document.getElementById( elementId ).value;
-    if ( newItemFilename == "None" ) {
-        ruleset.set( propName, null );
-        ruleset.notifyPropertyChange( propName );
-    } else {
-        items.forEach( item => {
-            if ( item.get( "filename" ) == newItemFilename ) {
-                const newItem = {};
-                newItem.filename = item.get( "filename" );
+	const newItemFilename = document.getElementById( elementId ).value;
+	if ( newItemFilename == "None" ) {
+		ruleset.set( propName, null );
+		ruleset.notifyPropertyChange( propName );
+	} else {
+		items.forEach( item => {
+			if ( item.get( "filename" ) == newItemFilename ) {
+				const newItem = {};
+				newItem.filename = item.get( "filename" );
 
-                var uiConfig = item.get( "ui" ).properties;
-                var startingConfig = {};
-                uiConfig.forEach( config => {
-                    if ( config.default ) {
-                        startingConfig[ config.name ] = config.default;
-                    }
-                } );
-                newItem.config = Object.assign( {}, item.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
-                newItem.name = newItem.filename;
-                newItem.config.id = createGUID();
+				var uiConfig = item.get( "ui" ).properties;
+				var startingConfig = {};
+				uiConfig.forEach( config => {
+					if ( config.default ) {
+						startingConfig[ config.name ] = config.default;
+					}
+				} );
+				newItem.config = Object.assign( {}, item.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
+				newItem.name = newItem.filename;
+				newItem.config.id = createGUID();
 
-                ruleset.set( propName, newItem );
-                ruleset.notifyPropertyChange( propName );
-            }
-        } );
-    }
+				ruleset.set( propName, newItem );
+				ruleset.notifyPropertyChange( propName );
+			}
+		} );
+	}
 
 }
 

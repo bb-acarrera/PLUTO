@@ -12,6 +12,7 @@ const Router = require("./router");
 
 const Util = require('../common/Util');
 const Data = require('../common/dataDb');
+const RuleLoader = require('../common/ruleLoader');
 
 let version = "0";
 if(fs.existsSync("../../package.json")) {
@@ -28,6 +29,8 @@ class Server {
 		this.config.validatorConfigPath = validatorConfigPath;
 		this.config.validatorConfig = validatorConfig;
 
+		this.config.data = Data(this.config.validatorConfig);
+		this.config.rulesLoader = new RuleLoader(this.config.validator.config.rulesDirectory);
 
 		this.port = this.config.Port || 3000;
 		this.rootDir = path.resolve(this.config.rootDirectory || this.config.validator.rootDirectory || ".");
@@ -35,7 +38,7 @@ class Server {
 		this.router = new Router(config);
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
 
-		this.config.data = Data(this.config.validatorConfig);
+
 
 		app.use(fileUpload());
 

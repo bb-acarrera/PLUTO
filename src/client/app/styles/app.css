@@ -19,6 +19,12 @@ div.section-header {
   font-size: 125%;
 }
 
+span.section-header {
+	padding: 3px 3px 0px 3px;
+	font-size: 125%;
+}
+
+
 div.section-content {
   /*border:1px solid black;*/
   margin:5px 5px 5px 5px;

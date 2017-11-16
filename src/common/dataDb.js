@@ -414,7 +414,9 @@ class data {
                 dbRuleset.name = dbRuleset.name || ruleset_id;
                 dbRuleset.version = result.rows[0].version;
 
-                dbRuleset.group = result.rows[0].owner_group;
+                dbRuleset.group = result.rows[0].group;
+
+                dbRuleset.owner_group = result.rows[0].owner_group;
                 dbRuleset.update_user = result.rows[0].update_user;
                 dbRuleset.update_time = result.rows[0].update_time;
 
@@ -482,9 +484,9 @@ class data {
 
                 ruleset.version = version;
 
-                this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group) " +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id", this.tables),
-                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup])
+                this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, "group") ' +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.group])
                 .then((result) => {
                     resolve(ruleset.filename);
                 }, (error) => {
@@ -524,9 +526,9 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
-                    this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, deleted) " +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, true])
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, "group", deleted) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, row.group, true])
                         .then((result) => {
 
                             this.db.query(
@@ -991,7 +993,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
 
     return new Promise( ( resolve, reject ) => {
 
-        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted FROM ';
+        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted, "group" FROM ';
         let values = [];
 
         if(dbId != null || version != null || getDeleted) {
