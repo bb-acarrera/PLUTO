@@ -1,4 +1,4 @@
-<div style="float:none;display:flex;">
+<div>
 	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
         <i class="fa fa-angle-double-left"></i>
@@ -8,4 +8,12 @@
 <div>
 	{{run-details model=model type=type page=page ruleid=ruleid}}
 </div>
+<div>
+	{{#if model.ruleset}}
+		{{#if (not model.ruleset.deleted)}}
+			{{#link-to 'editRuleset' model.ruleset.filename}}Edit Current Ruleset{{/link-to}}
+		{{/if}}
+	{{/if}}
+</div>
+
 {{outlet}}
