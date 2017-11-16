@@ -121,12 +121,16 @@ class ProcessFileRouter extends BaseRouter {
                 spawnArgs.push('-v');
                 spawnArgs.push(overrideFile);
             } else {
-                execCmd += ' -i "' + inputFile + '" -o "' + outputFile + '"';
-                spawnArgs.push('-i');
-                spawnArgs.push(inputFile);
-                spawnArgs.push('-o');
-                spawnArgs.push(outputFile);
-
+            	    if (inputFile) {
+                    execCmd += ' -i "' + inputFile;
+                    spawnArgs.push('-i');
+                    spawnArgs.push(inputFile);
+            	    }
+            	    if (outputFile) {
+                    execCmd += '" -o "' + outputFile + '"';
+                    spawnArgs.push('-o');
+                    spawnArgs.push(outputFile);
+            	    }
                 if(inputDisplayName) {
                     execCmd += ' -n ' + inputDisplayName;
 
