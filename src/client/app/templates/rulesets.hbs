@@ -12,7 +12,7 @@
           <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
           <td align="center">
           	{{#if run}}
-          		Last Run Results
+          		Latest Run Results
           	{{/if}}
           </td>
 		  <td/>
@@ -39,8 +39,7 @@
         </td>
         <td align="right">
         		{{#if run}}
-        			<!-- TODO: Need to disable this button when processing this ruleset. -->
-				{{#bs-button onClick=(action "runRuleset" rulesetInstance)}}
+				{{#bs-button onClick=(action "runRuleset" rulesetInstance) disabled=(if-in rulesetInstance.filename processing) }}
 					<i class="fa fa-play"></i>
 					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
 				{{/bs-button}}
