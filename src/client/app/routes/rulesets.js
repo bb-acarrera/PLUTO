@@ -80,11 +80,13 @@ export default Ember.Route.extend(RouteMixin, {
             this.controller.get( 'poll' ).stopAll();
             this.controller.get( 'poll' ).clearAll();
             this.controller.get( 'processing' ).clear();	// Leaving the page so forget everything.
-            this.controller.get( 'pollMap' ).forEach((key, value) => this.remove(key));
             this.controller.get( 'goodRuns' ).clear();
             this.controller.get( 'warningRuns' ).clear();
-			this.controller.get( 'errorRuns' ).clear();
+            this.controller.get( 'errorRuns' ).clear();
 			this.controller.get( 'mixedRuns' ).clear();
+			
+            var pollMap = this.controller.get( 'pollMap' );
+            pollMap.forEach((key, value) => pollMap.delete(key));
         }
     }
     }
