@@ -26,7 +26,9 @@ class LocalCopyExport {
 
                 fs.copySync(sourceFileName, targetFileName);
 				resolve(path.basename(targetFileName));
-			}
+			} else {
+	            resolve(null);
+            }
         });
     }
 
