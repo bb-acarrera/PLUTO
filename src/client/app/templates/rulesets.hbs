@@ -18,8 +18,7 @@
 		  <td/>
 	  </tr>
     {{#each model.rulesets.result as |rulesetInstance index|}}
-      <tr id="{{concat 'rulesetTableRow' index}}" {{action "rulesetTableRow"
-							(concat 'runsTableRow' index) }} class="rule-selectable">
+      <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
         <td>{{rulesetInstance.filename}}</td>
         <td>{{rulesetInstance.group}}</td>
         <td align="center">
