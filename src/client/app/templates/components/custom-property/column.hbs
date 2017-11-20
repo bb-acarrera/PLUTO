@@ -1,0 +1,14 @@
+<div>
+	{{uiItem.label}}
+    <select onchange={{action (mut (get config uiItem.name)) value="target.value"}} disabled={{disabled}}>
+		{{#each columns as |choice|}}
+			<option value={{choice}} selected={{eq (get config uiItem.name) choice}}>{{choice}}</option>
+		{{/each}}
+		{{#unless (get config uiItem.name)}}
+            <option value="" selected=true>Choose</option>
+		{{/unless}}
+
+    </select>
+</div>
+
+{{yield}}

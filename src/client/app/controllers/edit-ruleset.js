@@ -8,22 +8,7 @@ export default Ember.Controller.extend( {
 
 	poll: Ember.inject.service(),
 
-	ruleToEditChanged: Ember.observer( 'ruleToEdit', function () {
-		let val = this.get( 'ruleToEdit' );
-		let oldval = this.get( '_oldRuleToEdit' );
 
-		if ( val === oldval ) {
-			return;
-		}
-
-		this.set( '_oldRuleToEdit', val );
-
-		if ( oldval && val ) {
-			updateRule( oldval, this.model.rules, this.model.ruleset, this.model.parsers,
-				this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
-		}
-	} ),
-	ruleToEdit: null,
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
 		return !this.get('model.ruleset.canedit');
 	}),
@@ -47,6 +32,17 @@ export default Ember.Controller.extend( {
 		}
 
 		return 'Unknown';
+	}),
+	columns:  Ember.computed('model.ruleset.parser.config.columnNames', function() {
+
+		const columnNames = this.get('model.ruleset.parser.config.columnNames');
+
+		if(!columnNames) {
+			return [];
+		}
+
+		return columnNames;
+
 	}),
 	actions: {
 		toggleUpload (id) {
@@ -72,8 +68,7 @@ export default Ember.Controller.extend( {
 		},
 
 		saveRuleSet ( ruleset ) {
-			updateRule( this.get( 'ruleToEdit' ), this.model.rules, this.model.ruleset, this.model.parsers,
-				this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
+
 			save( ruleset, this );
 		},
 
@@ -86,18 +81,73 @@ export default Ember.Controller.extend( {
 		},
 
 		addRule ( ruleset, rules ) {
-			addRule( ruleset, rules );
+
+			const newRuleFilename = document.getElementById( "selectRule" ).value;
+			if ( newRuleFilename == "None" )
+				return;
+
+			let newRule = null;
+
+			rules.forEach( rule => {
+				if ( rule.get( "filename" ) == newRuleFilename ) {
+					newRule = {};
+					newRule.filename = rule.get( "filename" );
+
+					var uiConfig = rule.get( 'ui' ).properties;
+					var startingConfig = {};
+					uiConfig.forEach( config => {
+						if ( config.default ) {
+							startingConfig[ config.name ] = config.default;
+						}
+					} );
+
+					newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
+					newRule.config.id = createGUID();
+
+					ruleset.get( "rules" ).push( newRule );
+					ruleset.notifyPropertyChange( "rules" );
+				}
+			} );
+
 			this.set( 'showAddRule', false );
+			if(newRule) {
+				this.set( 'collapseRule' + newRule.config.id, false);
+			}
+
 		},
 
-		deleteRule ( tableID, ruleset ) {
-			deleteRule( tableID, ruleset );
+		deleteRule ( rule ) {
+			//deleteRule( tableID, ruleset );
+
+			if(!rule) {
+				return;
+			}
+
+			let ruleToDelete = -1;
+			const rules = this.get( 'model.ruleset.rules' );
+
+			if(!rules) {
+				return;
+			}
+
+			for ( var i = 0; i < rules.length; i++ ) {
+				if(rules[i].filename === rule.filename) {
+					ruleToDelete = i;
+					break;
+				}
+			}
+
+			if ( ruleToDelete < 0 ) {
+				alert( "No rule selected. Nothing to delete." );
+				return;
+			}
+
+			if ( confirm( `Delete rule "${rule.name}"?` ) ) {
+				rules.splice( ruleToDelete, 1 ); // Remove the rule.
+				this.get('model.ruleset').notifyPropertyChange( "rules" );
+			}
 		},
 
-		updateRule ( ruleInstance ) {
-			updateRule( ruleInstance, this.model.rules, this.model.ruleset, this.model.parsers,
-				this.model.importers, this.model.exporters, this.model.rulesetconfiguis );
-		},
 
 		moveRuleUp ( ruleset, index ) {
 			if ( index < 1 )
@@ -123,21 +173,6 @@ export default Ember.Controller.extend( {
 			ruleset.notifyPropertyChange( "rules" );
 		},
 
-		toggleRowHighlight ( rowID, rule ) {
-
-			const row = document.getElementById( rowID );
-
-			const selected = row.classList.contains( 'selected' );
-
-			deselectItems( selected, this );
-
-			if ( !selected ) {
-				row.classList.add( 'selected' );
-
-				this.set( 'ruleToEdit', rule );
-			}
-
-		},
 
 		toggleCollapse ( itemName ) {
 
@@ -149,7 +184,14 @@ export default Ember.Controller.extend( {
 			this.set(itemName, !value)
 		},
 
+		isCollapsed ( value ) {
 
+			if(value == null) {
+				return true;
+			}
+
+			return value == true;
+		},
 
 		stopPropagation ( event ) {
 			event.stopPropagation();
@@ -203,6 +245,9 @@ export default Ember.Controller.extend( {
 				})
 			}
 
+			if(!item)
+				return null;
+
 			return item.get('ui.properties');
 		}
 
@@ -234,119 +279,6 @@ function save ( ruleset ) {
 	xmlHttp.setRequestHeader( "Content-Type", "application/json" );
 	xmlHttp.send( JSON.stringify( theJSON ) );
 
-	// ruleset.save().then(() => {
-	//   alert("Successfully saved.");
-	// }, () => {
-	//   alert("Failed to save.");
-	// });
-}
-
-function addRule ( ruleset, rules ) {
-	const newRuleFilename = document.getElementById( "selectRule" ).value;
-	if ( newRuleFilename == "None" )
-		return;
-
-	rules.forEach( rule => {
-		if ( rule.get( "filename" ) == newRuleFilename ) {
-			const newRule = {};
-			newRule.filename = rule.get( "filename" );
-
-			var uiConfig = rule.get( 'ui' ).properties;
-			var startingConfig = {};
-			uiConfig.forEach( config => {
-				if ( config.default ) {
-					startingConfig[ config.name ] = config.default;
-				}
-			} );
-
-			newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
-			newRule.name = newRule.filename;
-			newRule.config.id = createGUID();
-
-			ruleset.get( "rules" ).push( newRule );
-			ruleset.notifyPropertyChange( "rules" );
-		}
-	} );
-}
-
-function deleteRule ( tableID, ruleset ) {
-	const table = document.getElementById( tableID );
-	var siblings = table.childNodes;
-	var ruleToDelete = -1;
-	var row = 0;
-	for ( var i = 0; i < siblings.length; i++ ) {
-		const sibling = siblings[ i ];
-		if ( sibling.nodeName.toLowerCase() == "tr" && sibling.classList ) {
-			if ( sibling.classList.contains( "selected" ) ) {
-				ruleToDelete = row;
-				break;
-			}
-			row++;
-		}
-	}
-
-	if ( ruleToDelete < 0 ) {
-		alert( "No rule selected. Nothing to delete." );
-		return;
-	}
-
-	const rules = ruleset.get( 'rules' );
-	const rule = rules[ ruleToDelete ];
-	if ( confirm( `Delete rule "${rule.name}"?` ) ) {
-		rules.splice( ruleToDelete, 1 ); // Remove the rule.
-		ruleset.notifyPropertyChange( "rules" );
-	}
-}
-
-function updateRule ( ruleInstance, rules, ruleset, parsers, importers, exporters, rulesetconfiguis ) {
-	if ( !ruleInstance )
-		return;
-
-	// Update the name.
-	if ( ruleInstance.hasOwnProperty( "name" ) ) {
-		const value = document.getElementById( 'name' ).value;
-		Ember.set( ruleInstance, 'name', value );
-	}
-
-
-	const itemSets = [ rules, parsers, importers, exporters, rulesetconfiguis ];
-	let items, uiConfig;
-
-	for ( var i = 0; i < itemSets.length; i++ ) {
-		items = itemSets[ i ];
-
-		items.forEach( item => {
-			if ( item.get( "filename" ) == ruleInstance.filename )
-				uiConfig = item.get( "ui" );
-		} );
-
-		if ( uiConfig ) {
-			break;
-		}
-	}
-
-	// Get the properties.
-	if(uiConfig) {
-		uiConfig.properties.forEach( prop => {
-				let element = document.getElementById( prop.name );
-				if ( element ) {
-					var value = prop.type === 'boolean' ? element.checked : element.value;
-					if ( prop.type === "list" ) {
-						var re = /\s*,\s*/;
-						value = value.split( re );
-					}
-					if ( prop.type === "column" ) {
-						value = Ember.$( element ).prop( 'selectedIndex' );
-					}
-
-					Ember.set( ruleInstance.config, prop.name, value );
-				}
-			}
-		);
-	}
-
-
-	ruleset.notifyPropertyChange( "rules" );
 }
 
 function createGUID () {
@@ -356,74 +288,4 @@ function createGUID () {
 	} )
 }
 
-function deselectItems ( clearProperties, controller ) {
-	const rulesElem = document.getElementById( 'rulesTable' );
-
-	const items = rulesElem.childNodes;
-	for ( var i = 0; i < items.length; i++ ) {
-		const item = items[ i ];
-		if ( item.nodeName.toLowerCase() == "tr" && item.classList )
-			item.classList.remove( 'selected' );
-	}
-
-	const otherItems = [ 'parser', 'import', 'export', 'general' ];
-
-	otherItems.forEach( item => {
-		const parserElem = document.getElementById( item );
-
-		if ( parserElem ) {
-			parserElem.classList.remove( 'selected' );
-		}
-
-	} );
-
-	if ( clearProperties ) {
-		controller.set( 'ruleToEdit', null );
-		controller.set( 'showErrors', null );
-	}
-
-}
-
-function changeParser ( ruleset, parsers ) {
-
-	changeItem( ruleset, parsers, "selectParser", "parser" );
-}
-
-function changeImporter ( ruleset, importers ) {
-	changeItem( ruleset, importers, "selectImporter", "import" );
-}
-
-function changeExporter ( ruleset, exporters ) {
-	changeItem( ruleset, exporters, "selectExporter", "export" );
-}
-
-function changeItem ( ruleset, items, elementId, propName ) {
-	const newItemFilename = document.getElementById( elementId ).value;
-	if ( newItemFilename == "None" ) {
-		ruleset.set( propName, null );
-		ruleset.notifyPropertyChange( propName );
-	} else {
-		items.forEach( item => {
-			if ( item.get( "filename" ) == newItemFilename ) {
-				const newItem = {};
-				newItem.filename = item.get( "filename" );
-
-				var uiConfig = item.get( "ui" ).properties;
-				var startingConfig = {};
-				uiConfig.forEach( config => {
-					if ( config.default ) {
-						startingConfig[ config.name ] = config.default;
-					}
-				} );
-				newItem.config = Object.assign( {}, item.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
-				newItem.name = newItem.filename;
-				newItem.config.id = createGUID();
-
-				ruleset.set( propName, newItem );
-				ruleset.notifyPropertyChange( propName );
-			}
-		} );
-	}
-
-}
 
