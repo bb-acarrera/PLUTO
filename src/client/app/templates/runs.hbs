@@ -1,0 +1,49 @@
+{{outlet}}
+<div>
+	<h2>PLUTO Runs</h2>
+    <table id="runsTable" class="runs-table">
+		<tr style="border-bottom: 1px solid grey;">
+			<td class="icon-cell">
+				{{#bs-dropdown tagName="span" as |dd|}}
+					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
+					{{#dd.menu as |menu|}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showWarnings" checked=showWarnings}}<i class="fa fa-exclamation-triangle warning-icon"></i> Show Warnings
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showErrors" checked=showErrors}}<i class="fa fa-exclamation-triangle error-icon"></i>  Show Errors
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showNone" checked=showNone}}<i class="fa fa-thumbs-o-up good-icon"></i> Show Success
+						{{/menu.item}}
+					{{/dd.menu}}
+				{{/bs-dropdown}}
+			</td>
+			<td>{{input type="date" value=dateFilter}}</td>
+			<td>{{input placeholder="Filename" value=filenameFilter}}</td>
+			<td>{{input placeholder="Ruleset" value=rulesetFilter}}</td>
+            <td>{{input placeholder="Ruleset Owner" value=runGroupFilter}}</td>
+			<td></td>
+		</tr>
+
+      {{#each model.runs.result as |runInstance index|}}
+          <tr id="{{concat 'runsTableRow' index}}" {{action "toggleRowHighlight"
+							(concat 'runsTableRow' index) }} class="rule-selectable">
+			  <td class="icon-cell">
+				  <i class="fa fa-exclamation-triangle {{rule-log-icons runInstance}}"></i>
+			  </td>
+            <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
+            <td>{{runInstance.inputfilename}}</td>
+            <td>{{runInstance.ruleset}}</td>
+			<td>{{runInstance.group}}</td>
+            {{#if runInstance.isrunning}}
+              <td>running</td>
+            {{else}}
+              <td>{{#link-to "run" runInstance.id}}Details {{/link-to}}</td>
+            {{/if}}
+
+          </tr>
+      {{/each}}
+    </table>
+	{{show-paginator pages=model.runs.meta.totalPages current=page inc=(action 'incPage') dec=(action 'decPage')}}
+</div>

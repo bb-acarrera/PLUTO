@@ -1,113 +1,12 @@
 {{outlet}}
 <div>
-	<h2>PLUTO Runs</h2>
-    <table id="runsTable" class="runs-table">
-		<tr style="border-bottom: 1px solid grey;">
-			<td class="icon-cell">
-				{{#bs-dropdown tagName="span" as |dd|}}
-					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
-					{{#dd.menu as |menu|}}
-						{{#menu.item}}
-							{{input type="checkbox" name="showWarnings" checked=showWarnings}}<i class="fa fa-exclamation-triangle warning-icon"></i> Show Warnings
-						{{/menu.item}}
-						{{#menu.item}}
-							{{input type="checkbox" name="showErrors" checked=showErrors}}<i class="fa fa-exclamation-triangle error-icon"></i>  Show Errors
-						{{/menu.item}}
-						{{#menu.item}}
-							{{input type="checkbox" name="showNone" checked=showNone}}<i class="fa fa-thumbs-o-up good-icon"></i> Show Success
-						{{/menu.item}}
-					{{/dd.menu}}
-				{{/bs-dropdown}}
-			</td>
-			<td>{{input type="date" value=dateFilter}}</td>
-			<td>{{input placeholder="Filename" value=filenameFilter}}</td>
-			<td>{{input placeholder="Ruleset" value=rulesetFilter}}</td>
-            <td>{{input placeholder="Ruleset Owner" value=runGroupFilter}}</td>
-			<td></td>
-		</tr>
-
-      {{#each model.runs.result as |runInstance index|}}
-          <tr id="{{concat 'runsTableRow' index}}">
-			  <td class="icon-cell">
-				  <i class="fa fa-exclamation-triangle {{rule-log-icons runInstance}}"></i>
-			  </td>
-            <td>{{moment-format runInstance.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
-            <td>{{runInstance.inputfilename}}</td>
-            <td>{{runInstance.ruleset}}</td>
-			<td>{{runInstance.group}}</td>
-            {{#if runInstance.isrunning}}
-              <td>running</td>
-            {{else}}
-              <td>{{#link-to "run" runInstance.id}}Details {{/link-to}}</td>
-
-            {{/if}}
-
-          </tr>
-      {{/each}}
-    </table>
-	{{show-paginator pages=model.runs.meta.totalPages current=page inc=(action 'incPage') dec=(action 'decPage')}}
-</div>
-<div>
-  <h2>PLUTO Rulesets</h2>
-
-  <table id="rulesetTable" class="ruleset-table">
-	  <tr style="border-bottom: 1px solid grey;">
-		  <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
-          <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
-		  <td/>
-	  </tr>
-    {{#each model.rulesets.result as |rulesetInstance index|}}
-      <tr id="{{concat 'rulesetTableRow' index}}">
-        <td>{{rulesetInstance.filename}}</td>
-        <td>{{rulesetInstance.group}}</td>
-        <td align="right">
-			{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
-				<i class="fa fa-trash"></i>
-				{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
-			{{/bs-button}}
-
-			{{#bs-button onClick=(action "openCloneDialog" rulesetInstance.filename rulesetInstance)}}
-				<i class="fa fa-clone"></i>
-				{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
-			{{/bs-button}}
-
-          {{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
-			  {{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
-			  <i class="fa fa-pencil"></i>
-		  {{/link-to}}
-        </td>
-      </tr>
-    {{/each}}
-	  {{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
-  </table>
-
-
-	{{#bs-modal open=showdialog onHidden=(action (mut showdialog) false) as |modal|}}
-		{{#modal.header}}
-			<h4 class="modal-title">
-				{{ptarget}}{{dialogtarget}}
-			</h4>
-		{{/modal.header}}
-		{{#modal.body}}
-				{{input type="text"  class="form-control"  autofocus="autofocus" value=modaltext}}
-		{{/modal.body}}
-		{{#modal.footer}}
-			{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
-			{{#if isclone}}
-				{{#bs-button type="success" onClick=(action "cloneRuleset" dialogruleset)}}{{buttontext}}{{/bs-button}}
-			{{else}}
-				{{#bs-button type="success" onClick=(action  "addRuleset")}}{{buttontext}}{{/bs-button}}
-			{{/if}}
-
-		{{/modal.footer}}
-	{{/bs-modal}}
-
-
-	{{#bs-button onClick=(action "openNewDialog")}}
-		<i class="fa fa-plus"></i>
-		{{#bs-tooltip placement="top"}}Add ruleset{{/bs-tooltip}}
-	{{/bs-button}}
-
-
-
+	<h2>PLUTO Main Page</h2>
+	<table id="mainPageTable" class="main-page-table">
+		<tr><td>{{#link-to "runs"}}Review processed files{{/link-to}}</td></tr>
+		<tr><td>{{#link-to "rulesets" (query-params run=true)}}Process a file{{/link-to}}</td></tr>
+		<tr><td>Add new file to process</td></tr>
+		<tr><td>{{#link-to "rulesets" (query-params run=false)}}Edit file to process{{/link-to}}</td></tr>
+		<tr><td>Edit Rule Groups</td></tr>
+		<tr><td>Edit Sources and Targets</td></tr>
+	</table>
 </div>
