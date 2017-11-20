@@ -485,7 +485,7 @@ class Validator {
 	    config.__state = {};
 	    
 	    config.__state.rootDirectory = config.rootDirectory || this.rootDir;
-	    config.__state.tempDirectory = config.tempDirectory || this.tempDir;
+	    config.__state.tempDirectory = this.tempDir;
 	    config.__state.encoding = config.encoding || this.encoding;
 	    config.__state.validator = this;
 	    config.__state.sharedData = this.sharedData;

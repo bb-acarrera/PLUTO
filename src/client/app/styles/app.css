@@ -62,6 +62,14 @@ table.ruleset-table {
   table-layout: fixed;
 }
 
+table.main-page-table {
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
+  border-spacing: 0;
+  background: #E8E8E8;
+  width:  98%;
+}
+
 td.error-cell {
   border: 1px solid white;
   /* width:  auto; */

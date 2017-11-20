@@ -10,6 +10,8 @@ Router.map(function() {
   this.route('editRuleset', {path: '/editRuleset/:ruleset_id'}, function() {
     this.route('run', {path: '/run/:run_id'});
   });
+  this.route('runs');
+  this.route('rulesets');
   this.route('admin', function() {
     this.route('configuredrule');
   });
