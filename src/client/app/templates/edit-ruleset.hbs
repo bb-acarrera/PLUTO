@@ -166,22 +166,18 @@
 
 				<span class="rule-controls">
 					{{#unless disableEdit}}
-						<!--
-						<button {{action "moveRuleUp" model.ruleset index bubbles=false}} class="rule-button"><i class="fa fa-arrow-up"></i></button>
-						<button {{action "moveRuleDown" model.ruleset index bubbles=false}} class="rule-button"><i class="fa fa-arrow-down"></i></button>
-						<button {{action "deleteRule" ruleInstance bubbles=false}} class="rule-button"><i class="fa fa-trash"></i></button>
-						-->
+
 
 						{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
-                        	<i class="fa fa-arrow-up"/>
+                        	<i class="fa fa-arrow-up"></i>
 						{{/bs-button}}
 
 						{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
-                        	<i class="fa fa-arrow-down"/>
+                        	<i class="fa fa-arrow-down"></i>
 						{{/bs-button}}
 
 						{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
-                        	<i class="fa fa-trash"/>
+                        	<i class="fa fa-trash"></i>
 						{{/bs-button}}
 
 					{{/unless}}
@@ -199,7 +195,7 @@
                 </div>
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
-				config=ruleInstance.config
+				config=ruleInstance.confg
 				disabled=disabled
 				columns=columns}}
 			{{/bs-collapse}}

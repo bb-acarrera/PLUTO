@@ -34,7 +34,13 @@ function runRuleset(controller, rulesetId) {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 			try {
 				var jsonResponse = JSON.parse(xmlHttp.responseText);
-				startPolling(controller, rulesetId, jsonResponse.runId);
+
+				if(jsonResponse.runId != null) {
+					startPolling(controller, rulesetId, jsonResponse.runId);
+				} else {
+					alert('Error processing file: ' + jsonResponse.processing)
+				}
+
 				controller.get('target.router').refresh();
 			}
 			catch (e) {

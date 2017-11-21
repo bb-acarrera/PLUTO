@@ -1052,6 +1052,7 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
 
     dbRuleset.id = row.id;
 
+    dbRuleset.ruleset_id = ruleset_id;
     dbRuleset.filename = ruleset_id;
     dbRuleset.name = dbRuleset.name || ruleset_id;
     dbRuleset.version = row.version;

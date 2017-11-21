@@ -32,13 +32,13 @@
         			{{#if (if-in rulesetInstance.filename processing) }}
     					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
 	 			{{else if (if-in rulesetInstance.filename mixedRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle warning-and-error-icon"></i>{{/link-to}}
+					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle warning-and-error-icon"></i> Details{{/link-to}}
 				{{else if (if-in rulesetInstance.filename errorRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle error-icon"></i>{{/link-to}}
+					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle error-icon"></i> Details{{/link-to}}
 				{{else if (if-in rulesetInstance.filename warningRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle warning-icon"></i>{{/link-to}}
+					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle warning-icon"></i> Details{{/link-to}}
 				{{else if (if-in rulesetInstance.filename goodRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-check good-icon"></i>{{/link-to}}
+					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-check good-icon"></i> Details{{/link-to}}
 				{{/if}}
 			{{/if}}
         </td>
