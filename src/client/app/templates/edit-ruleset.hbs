@@ -34,16 +34,6 @@
 
 		<div class="section-content ruleset-section-content" id="target">
 			<span class="section-header">Target:</span>
-			<!--
-			{{#power-select
-			search=(action "searchTarget")
-			onchange=(action "chooseTarget")
-			selected=model.target
-			allowClear=true
-			as |targetChoice|}}
-				{{targetChoice.rule_id}}: {{targetChoice.description}}
-			{{/power-select}}
--->
 			{{#if model.ruleset.target}}
 				{{model.ruleset.target.config.file}} in {{model.target.description}}
 			{{else}}
@@ -52,6 +42,62 @@
 
 		</div>
 	{{/unless}}
+
+	{{#if model.ruleset.import}}
+        <div class="section-content ruleset-section-content">
+            <div class="rule-selectable ruleset-rule-selectable" id="import" {{action "toggleCollapse" "importCollapse"}}>
+                <span class="section-header">Importer:</span>
+				{{#if model.ruleset.import}}
+					{{model.ruleset.import.filename}}
+				{{else}}
+                    None
+				{{/if}}
+                <span class="expand-controls">
+					{{#if (compute (action "isCollapsed") importCollapse )}}
+                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
+					{{else}}
+                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
+					{{/if}}
+
+                </span>
+            </div>
+			{{#bs-collapse collapsed=importCollapse}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
+				config=model.ruleset.import.config
+				disabled=disabled
+				columns=columns}}
+			{{/bs-collapse}}
+        </div>
+	{{/if}}
+
+	{{#if model.ruleset.export}}
+        <div class="section-content ruleset-section-content">
+            <div class="rule-selectable ruleset-rule-selectable" id="export" {{action "toggleCollapse" "exportCollapse"}}>
+                <span class="section-header">Exporter:</span>
+				{{#if model.ruleset.export}}
+					{{model.ruleset.export.filename}}
+				{{else}}
+                    None
+				{{/if}}
+                <span class="expand-controls">
+					{{#if (compute (action "isCollapsed") exportCollapse )}}
+                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
+					{{else}}
+                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
+					{{/if}}
+
+                </span>
+            </div>
+			{{#bs-collapse collapsed=exportCollapse}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
+				config=model.ruleset.export.config
+				disabled=disabled
+				columns=columns}}
+			{{/bs-collapse}}
+        </div>
+	{{/if}}
 
 	<div class="section-content ruleset-section-content">
 		<div class="rule-selectable ruleset-rule-selectable" id="parser" {{action "toggleCollapse" "parserCollapse"}}>
