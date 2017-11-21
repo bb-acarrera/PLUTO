@@ -1,4 +1,4 @@
-<div style="float:none">
+<div >
 	{{#link-to 'rulesets' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
         <i class="fa fa-angle-double-left"></i>
@@ -14,167 +14,224 @@
 
 </div>
 
-	<div style="float: left;display:flex;">
+<div class="ruleset-content" >
 
-		<div style="float:none;">
-			<div class="column">
-				<div class="section-content">Description: <input id="rulesetName" type="text"
-																 value="{{model.ruleset.name}}" class="text-input" disabled={{disableEdit}}/>
-				</div>
+	<div class="section-content ruleset-section-content">Description: {{input id="rulesetName" type="text"
+		value=model.ruleset.name class="text-input" disabled=disableEdit}}
+	</div>
 
-				<div class="section-content rule-selectable" id="general" {{action "toggleRowHighlight" "general"
-				model.ruleset.general}}>General Configuration</div>
+	<div class="section-content ruleset-section-content" id="source">
+		<span class="section-header">Source: </span>
+		{{#if model.ruleset.source}}
+			{{model.ruleset.source.config.file}} in {{model.source.description}}
+		{{else}}
+			None
+		{{/if}}
 
-				<div class="section-header">Parser</div>
-				<div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser"
-				model.ruleset.parser}}>
-					{{#if model.ruleset.parser}}
-						{{model.ruleset.parser.filename}}
+	</div>
+
+	{{#unless model.source.config.linkedtargetid}}
+
+		<div class="section-content ruleset-section-content" id="target">
+			<span class="section-header">Target:</span>
+			{{#if model.ruleset.target}}
+				{{model.ruleset.target.config.file}} in {{model.target.description}}
+			{{else}}
+				None
+			{{/if}}
+
+		</div>
+	{{/unless}}
+
+	{{#if model.ruleset.import}}
+        <div class="section-content ruleset-section-content">
+            <div class="rule-selectable ruleset-rule-selectable" id="import" {{action "toggleCollapse" "importCollapse"}}>
+                <span class="section-header">Importer:</span>
+				{{#if model.ruleset.import}}
+					{{model.ruleset.import.filename}}
+				{{else}}
+                    None
+				{{/if}}
+                <span class="expand-controls">
+					{{#if (compute (action "isCollapsed") importCollapse )}}
+                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
 					{{else}}
-						None
+                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
 					{{/if}}
-					<span class="parser-buttons" onclick={{action "stopPropagation"}}>
-						{{#if (not disableEdit)}}
-							{{#if showChangeParser}}
 
-								<select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers
-								bubbles=false}} class="change-btn">
-									<option>Choose the parser</option>
-									<option value="None">None</option>
-									{{#each model.parsers as |parser|}}
-										<option value={{parser.filename}}>{{parser.name}}</option>
-									{{/each}}
-								</select>
+                </span>
+            </div>
+			{{#bs-collapse collapsed=importCollapse}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
+				config=model.ruleset.import.config
+				disabled=disabled
+				columns=columns}}
+			{{/bs-collapse}}
+        </div>
+	{{/if}}
 
-								<button onclick={{action "hideChangeParser" bubbles=false}} class="change-btn">Cancel</button>
-							{{else}}
-								<button onclick={{action "showChangeParser" bubbles=false}} class="change-btn">Change</button>
-							{{/if}}
-						{{/if}}
-					</span>
-				</div>
-
-				<div class="section-header">Importer</div>
-				<div class="section-content rule-selectable" id="import" {{action "toggleRowHighlight" "import"
-				model.ruleset.import}}>
-					{{#if model.ruleset.import}}
-						{{model.ruleset.import.filename}}
+	{{#if model.ruleset.export}}
+        <div class="section-content ruleset-section-content">
+            <div class="rule-selectable ruleset-rule-selectable" id="export" {{action "toggleCollapse" "exportCollapse"}}>
+                <span class="section-header">Exporter:</span>
+				{{#if model.ruleset.export}}
+					{{model.ruleset.export.filename}}
+				{{else}}
+                    None
+				{{/if}}
+                <span class="expand-controls">
+					{{#if (compute (action "isCollapsed") exportCollapse )}}
+                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
 					{{else}}
-						None
+                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
 					{{/if}}
-					<span class="parser-buttons" onclick={{action "stopPropagation"}}>
-						{{#if (not disableEdit)}}
-							{{#if showChangeImporter}}
 
-								<select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers
-								bubbles=false}} class="change-btn">
-									<option>Choose the importer</option>
-									<option value="None">None</option>
-									{{#each model.importers as |importer|}}
-										<option value={{importer.filename}}>{{importer.name}}</option>
-									{{/each}}
-								</select>
+                </span>
+            </div>
+			{{#bs-collapse collapsed=exportCollapse}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
+				config=model.ruleset.export.config
+				disabled=disabled
+				columns=columns}}
+			{{/bs-collapse}}
+        </div>
+	{{/if}}
 
-								<button onclick={{action "hideChangeImporter" bubbles=false}} class="change-btn">Cancel</button>
-							{{else}}
-								<button onclick={{action "showChangeImporter" bubbles=false}} class="change-btn">Change</button>
-							{{/if}}
-						{{/if}}
-					</span>
-				</div>
-
-				<div class="section-header">Exporter</div>
-				<div class="section-content rule-selectable" id="export" {{action "toggleRowHighlight" "export"
-				model.ruleset.export}}>
-					{{#if model.ruleset.export}}
-						{{model.ruleset.export.filename}}
-					{{else}}
-						None
-					{{/if}}
-					<span class="parser-buttons" onclick={{action "stopPropagation"}}>
-						{{#if (not disableEdit)}}
-							{{#if showChangeExporter}}
-
-								<select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters
-								bubbles=false}} class="change-btn">
-									<option>Choose the exporter</option>
-									<option value="None">None</option>
-									{{#each model.exporters as |exporter|}}
-										<option value={{exporter.filename}}>{{exporter.name}}</option>
-									{{/each}}
-								</select>
-
-								<button onclick={{action "hideChangeExporter" bubbles=false}} class="change-btn">Cancel</button>
-							{{else}}
-								<button onclick={{action "showChangeExporter" bubbles=false}} class="change-btn">Change</button>
-							{{/if}}
-						{{/if}}
-					</span>
-				</div>
-
-				<div class="section-header">Rules</div>
-				<table id="rulesTable" class="ruleset-table">
-					{{#each model.ruleset.rules as |ruleInstance index|}}
-						<tr
-								id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight"
-						(concat 'rulesetTableRow' index)
-						ruleInstance}}
-								class="rule-selectable">
-							<td>{{ruleInstance.name}}</td>
-							{{#if (not disableEdit)}}
-								<td>
-									<button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up"></i>
-									</button>
-								</td>
-								<td>
-									<button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down"></i>
-									</button>
-								</td>
-							{{/if}}
-						</tr>
-					{{/each}}
-					{{#if showAddRule}}
-						<td>
-							<select id="selectRule">
-								<option value="None" selected>None</option>
-								{{#each model.rules as |rule|}}
-									<option value="{{rule.filename}}">{{rule.name}}</option>
-								{{/each}}
-							</select>
-						</td>
-						<td>
-							<button {{action "hideAddRule"}}>Cancel</button>
-							<button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
-						</td>
-					{{/if}}
-				</table>
-
-				{{#if (not disableEdit)}}
-
-						<button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
-						</button>
-						<button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i
-								class="fa fa-trash"></i></button>
-						<button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
-						</button>
-
+	<div class="section-content ruleset-section-content">
+		<div class="rule-selectable ruleset-rule-selectable" id="parser" {{action "toggleCollapse" "parserCollapse"}}>
+			<span class="section-header">Parser:</span>
+			{{#if model.ruleset.parser}}
+				{{model.ruleset.parser.filename}}
+			{{else}}
+				None
+			{{/if}}
+			<span class="expand-controls">
+				{{#if (compute (action "isCollapsed") parserCollapse )}}
+					<i class="fa fa-caret-square-o-right bigger-caret"></i>
+				{{else}}
+					<i class="fa fa-caret-square-o-down bigger-caret"></i>
 				{{/if}}
 
-
-			</div>
-			<div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
-				<!-- The column for editting rule properties. -->
-				{{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers
-				importers=model.importers exporters=model.exporters rulesetconfiguis=model.rulesetconfiguis readOnly=disableEdit}}
-				<!--<button class="save-ruleset" style="float: right" {{action "updateRule"
-				ruleToEdit}}>Apply</button>-->
-			</div>
+			</span>
 		</div>
+		{{#bs-collapse collapsed=parserCollapse}}
+			{{component 'custom-property.property-list'
+			uiList=(compute (action "getUiProperties") model.parsers model.ruleset.parser.filename)
+			config=model.ruleset.parser.config
+			disabled=disabled
+			columns=columns}}
+		{{/bs-collapse}}
 	</div>
-	<div class="fileUpload btn btn-default">
-		<span>Test Ruleset</span>
-		{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+
+
+
+	<div class="section-content ruleset-section-content">
+
+		<div class="rule-selectable ruleset-rule-selectable" id="general" {{action "toggleCollapse" "generalCollapse"}}>
+			<span class="section-header">General Configuration</span>
+			<span class="expand-controls">
+				{{#if (compute (action "isCollapsed") generalCollapse )}}
+					<i class="fa fa-caret-square-o-right bigger-caret"></i>
+				{{else}}
+					<i class="fa fa-caret-square-o-down bigger-caret"></i>
+				{{/if}}
+
+			</span>
+		</div>
+		{{#bs-collapse collapsed=generalCollapse}}
+			{{component 'custom-property.property-list'
+			uiList=(compute (action "getUiProperties") model.rulesetconfiguis model.ruleset.general.filename)
+			config=model.ruleset.general.config
+			disabled=disabled
+			columns=columns}}
+		{{/bs-collapse}}
 	</div>
+
+
+
+	<div class="section-header">Rules</div>
+
+	{{#each model.ruleset.rules as |ruleInstance index|}}
+		<div class="section-content ruleset-section-content">
+			<div class="rule-selectable ruleset-rule-selectable" id={{concat 'rule' ruleInstance.config.id}} {{action "toggleCollapse" (concat 'collapseRule' ruleInstance.config.id)}}>
+				<span class="rule-header">
+					{{ruleInstance.filename}}
+					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
+						- {{ruleInstance.name}}
+					{{/unless}}
+
+				</span>
+
+				<span class="rule-controls">
+					{{#unless disableEdit}}
+
+
+						{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
+                        	<i class="fa fa-arrow-up"></i>
+						{{/bs-button}}
+
+						{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
+                        	<i class="fa fa-arrow-down"></i>
+						{{/bs-button}}
+
+						{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
+                        	<i class="fa fa-trash"></i>
+						{{/bs-button}}
+
+					{{/unless}}
+					{{#if (compute (action "isCollapsed") (get this (concat 'collapseRule' ruleInstance.config.id)) )}}
+                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
+					{{else}}
+                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
+					{{/if}}
+
+				</span>
+			</div>
+			{{#bs-collapse collapsed=(get this (concat 'collapseRule' ruleInstance.config.id))}}
+                <div>
+					Name {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
+                </div>
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
+				config=ruleInstance.confg
+				disabled=disabled
+				columns=columns}}
+			{{/bs-collapse}}
+		</div>
+	{{/each}}
+	{{#if showAddRule}}
+		<div class="section-content ruleset-section-content">
+            <select id="selectRule">
+                <option value="None" selected>None</option>
+				{{#each model.rules as |rule|}}
+                    <option value="{{rule.filename}}">{{rule.name}}</option>
+				{{/each}}
+            </select>
+
+            <button {{action "hideAddRule"}}>Cancel</button>
+            <button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
+
+		</div>
+	{{/if}}
+
+
+	{{#if (not disableEdit)}}
+
+			<button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
+			</button>
+
+			<button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
+			</button>
+
+	{{/if}}
+</div>
+<div class="fileUpload btn btn-default">
+	<span>Test Ruleset</span>
+	{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+</div>
+
 
 
 {{#if processing}}

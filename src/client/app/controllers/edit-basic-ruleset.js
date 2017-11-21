@@ -27,8 +27,8 @@ export default Ember.Controller.extend( {
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
 		return !this.get('model.ruleset.canedit');
 	}),
-	ownedBy: Ember.computed('model.ruleset.group', function() {
-		let group = this.get('model.ruleset.group');
+	ownedBy: Ember.computed('model.ruleset.ownergroup', function() {
+		let group = this.get('model.ruleset.ownergroup');
 		if(group) return group;
 
 		return 'Nobody';

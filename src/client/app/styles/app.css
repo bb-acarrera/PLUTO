@@ -14,16 +14,36 @@ div.column {
   background: #F8F8F8;
 }
 
-div.section-header {
+.section-header {
   padding: 3px 3px 0px 3px;
   font-size: 125%;
 }
+
+
 
 div.section-content {
   /*border:1px solid black;*/
   margin:5px 5px 5px 5px;
   padding: 3px 3px 3px 3px;
   background: #E8E8E8;
+
+}
+
+div.ruleset-section-content {
+  display: inline-block;
+  width: 100%;
+}
+
+.ruleset-content {
+	display: inline-block;
+	width: 100%;
+	padding-right: 10px;
+}
+
+.rule-header {
+	padding: 3px 3px 0px 3px;
+	font-size: 110%;
+	vertical-align: middle;
 }
 
 input.text-input {
@@ -72,6 +92,12 @@ td.error-cell {
 tr.error-row {
   border: 1px solid white;
   /* width:  auto; */
+}
+
+.ruleset-rule-selectable {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
 }
 
 .rule-selectable.selected {
@@ -188,3 +214,26 @@ div.authDetails {
 select:disabled {
 	background: #dddddd;
 }
+
+span.expand-controls {
+	float: right;
+	padding-left: 5px;
+}
+
+.rule-controls {
+	float: right;
+}
+
+.bigger-caret:before {
+	font-size: 16pt;
+	vertical-align: middle;
+}
+
+.rule-button {
+
+}
+
+.add-ruleset-property-block {
+	padding-left: 15px;
+}
+

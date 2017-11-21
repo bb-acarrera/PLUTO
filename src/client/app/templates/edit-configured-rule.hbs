@@ -3,8 +3,12 @@
 <div>
     <div>
 		Description:
-		<input id="ruleName" type="text" value="{{model.rule.description}}" class="text-input" disabled={{disableEdit}}/>
+		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
     </div>
+	<div>
+		Group:
+        {{input id="groupName" type="text" value=model.rule.group class="text-input" disabled=disableEdit}}
+	</div>
 	<div>
 		Base:
         {{#power-select
@@ -30,9 +34,8 @@
 				selected=linkedtarget
 				allowClear=true
 				as |targetChoice|}}
-				{{targetChoice.attributes.rule-id}}: {{targetChoice.attributes.description}}
+				{{targetChoice.rule_id}}: {{targetChoice.description}}
 			{{/power-select}}
-			<!--{{target.id}} <button {{action "chooseTarget"}}>Choose linked target</button> -->
 		</div>
 	{{/if}}
 </div>

@@ -4,6 +4,8 @@
 		{{#each uiItem.choices as |choice|}}
 			{{#if (is-array choice)}}
             	<option value={{choice.[0]}} selected={{eq (get config uiItem.name) choice.[0]}}>{{choice.[1]}}</option>
+			{{else if choice.label}}
+                <option value={{choice.value}} selected={{eq (get config uiItem.name) choice.value}}>{{choice.label}}</option>
 			{{else}}
                 <option value={{choice}} selected={{eq (get config uiItem.name) choice}}>{{choice}}</option>
 			{{/if}}

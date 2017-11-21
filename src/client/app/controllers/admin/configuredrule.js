@@ -28,13 +28,15 @@ export default Ember.Controller.extend({
 	queryParams: ["page",
 		"perPage",
 		"ruleFilter",
-		"ruleGroupFilter",
-		"typeFilter"
+		"groupFilter",
+		"typeFilter",
+		"ownerFilter"
 	],
 	page: 1,
 	perPage: 20,
 	ruleFilter: '',
-	ruleGroupFilter: '',
+	groupFilter: '',
+	ownerFilter: '',
 	typeFilter: '',
 	totalPages: Ember.computed.oneWay('model.rules.meta.totalPages'),
 

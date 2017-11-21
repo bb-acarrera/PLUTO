@@ -1,6 +1,6 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
-		{{component (concat "custom-property/" item.type ) uiItem=item config=config disabled=disabled}}
+		{{component (concat "custom-property/" (custom-property-type item.type) ) uiItem=item config=config disabled=disabled columns=columns}}
 	{{/each}}
 </div>
 {{yield}}

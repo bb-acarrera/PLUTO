@@ -1,7 +1,10 @@
 import Ember from 'ember';
+import RSVP from 'rsvp';
 
 export default Ember.Route.extend({
-  model(params) {
-    return null;
+  model() {
+	  return RSVP.hash({
+		  parsers: this.store.findAll('parser')
+	  });
   }
 });

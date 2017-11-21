@@ -13,8 +13,11 @@ export default DS.Model.extend({
     general: DS.attr(),
     version: DS.attr('number'),
 	canedit: DS.attr('boolean'),
-	group: DS.attr('string'),
+	ownergroup: DS.attr('string'),
 	updateuser: DS.attr('string'),
 	updatetime: DS.attr('date'),
-	deleted: DS.attr('boolean')
+	deleted: DS.attr('boolean'),
+	source: DS.attr(),
+	target: DS.attr(),
+	group: DS.attr('string')
 });

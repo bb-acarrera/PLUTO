@@ -33,6 +33,8 @@ class RuleSet {
 		this.config = ruleset.config;
 
 		this.group = ruleset.group;
+
+		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
 

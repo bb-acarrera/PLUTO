@@ -406,27 +406,10 @@ class data {
 
         return getRuleset( this.db, ruleset_id, version, dbId, this.tables, ( result, resolve, reject ) => {
             if ( result.rows.length > 0 ) {
-                let dbRuleset = result.rows[ 0 ].rules;
 
-                dbRuleset.id = result.rows[ 0 ].id;
+                let row = result.rows[0];
 
-                dbRuleset.filename = ruleset_id;
-                dbRuleset.name = dbRuleset.name || ruleset_id;
-                dbRuleset.version = result.rows[0].version;
-
-                dbRuleset.group = result.rows[0].owner_group;
-                dbRuleset.update_user = result.rows[0].update_user;
-                dbRuleset.update_time = result.rows[0].update_time;
-
-                if(dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
-                    dbRuleset.canedit = false;
-                } else {
-                    dbRuleset.canedit = true;
-                }
-
-                dbRuleset.deleted = result.rows[0].deleted;
-
-                let ruleset = new RuleSet( dbRuleset, ruleLoader );
+                var ruleset = getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader);
 
                 if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
                     ruleset.applyOverride( rulesetOverrideFile );
@@ -482,9 +465,9 @@ class data {
 
                 ruleset.version = version;
 
-                this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group) " +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id", this.tables),
-                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup])
+                this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, "group") ' +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.group])
                 .then((result) => {
                     resolve(ruleset.filename);
                 }, (error) => {
@@ -524,9 +507,9 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
-                    this.db.query(updateTableNames("INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, deleted) " +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, true])
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, "group", deleted) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, row.group, true])
                         .then((result) => {
 
                             this.db.query(
@@ -566,7 +549,9 @@ class data {
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
-    getRulesets ( page, size, filters ) {
+    getRulesets ( page, size, filters, ruleLoader, group, admin ) {
+
+        let isAdmin = admin === true;
 
         return new Promise((resolve, reject) => {
 
@@ -637,9 +622,8 @@ class data {
 
                 var rulesets = [];
 
-                result.rows.forEach( ( ruleset ) => {
-                    ruleset.filename = ruleset.filename || ruleset.ruleset_id;
-                    rulesets.push( ruleset );
+                result.rows.forEach( ( row ) => {
+                    rulesets.push( getRulesetFromRow(row, row.ruleset_id, isAdmin, group, ruleLoader) );
                 } );
 
                 resolve( {
@@ -764,16 +748,28 @@ class data {
                 countWhere += "{{currentRule}}.rule_id ILIKE $" + countValues.length;
             }
 
+            if(filters.ownerFilter && filters.ownerFilter.length) {
+                let ownerWhere = safeStringLike( filters.ownerFilter );
+
+                extendWhere();
+
+                values.push( ownerWhere );
+                where += "{{currentRule}}.owner_group ILIKE $" + values.length;
+
+                countValues.push( ownerWhere );
+                countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
+            }
+
             if(filters.groupFilter && filters.groupFilter.length) {
                 let groupWhere = safeStringLike( filters.groupFilter );
 
                 extendWhere();
 
                 values.push( groupWhere );
-                where += "{{currentRule}}.owner_group ILIKE $" + values.length;
+                where += '{{currentRule}}."group" ILIKE $' + values.length;
 
                 countValues.push( groupWhere );
-                countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
+                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
             }
 
             let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
@@ -834,9 +830,9 @@ class data {
 
                 rule.version = version;
 
-                this.db.query(updateTableNames("INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group) " +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                    [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup])
+                this.db.query(updateTableNames('INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, "group") ' +
+                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
+                    [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup, rule.group])
                     .then((result) => {
                         resolve(rule.rule_id);
                     }, (error) => {
@@ -870,9 +866,9 @@ class data {
                     const row = result.rows[0];
                     rule.version = result.nextVersion;
 
-                    this.db.query(updateTableNames("INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, deleted) " +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
-                        [rule.rule_id, rule.description, rule.version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, row.owner_group, true])
+                    this.db.query(updateTableNames('INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, "group", deleted) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id", this.tables),
+                        [rule.rule_id, rule.description, rule.version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, row.owner_group, rule.group, true])
                         .then((result) => {
 
                             this.db.query(
@@ -979,7 +975,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
 
     return new Promise( ( resolve, reject ) => {
 
-        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted FROM ';
+        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted, "group" FROM ';
         let values = [];
 
         if(dbId != null || version != null || getDeleted) {
@@ -1051,7 +1047,32 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
 
 }
 
+function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
+    let dbRuleset = row.rules;
 
+    dbRuleset.id = row.id;
+
+    dbRuleset.ruleset_id = ruleset_id;
+    dbRuleset.filename = ruleset_id;
+    dbRuleset.name = dbRuleset.name || ruleset_id;
+    dbRuleset.version = row.version;
+
+    dbRuleset.group = row.group;
+
+    dbRuleset.owner_group = row.owner_group;
+    dbRuleset.update_user = row.update_user;
+    dbRuleset.update_time = row.update_time;
+
+    if (dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
+        dbRuleset.canedit = false;
+    } else {
+        dbRuleset.canedit = true;
+    }
+
+    dbRuleset.deleted = row.deleted;
+
+    return new RuleSet(dbRuleset, ruleLoader);
+}
 
 function getRule(db, rule_id, version, dbId, tables, getDeleted) {
 
@@ -1144,13 +1165,14 @@ function getRuleResult(row, isAdmin, group) {
         type: row.type,
         base: row.base,
         config: row.config,
-        group: row.owner_group,
+        owner_group: row.owner_group,
         update_user: row.update_user,
         update_time: row.update_time,
-        deleted: row.deleted
+        deleted: row.deleted,
+        group: row.group
     };
 
-    if (rule.group && !isAdmin && rule.group !== group) {
+    if (rule.owner_group && !isAdmin && rule.owner_group !== group) {
         rule.canedit = false;
     } else {
         rule.canedit = true;

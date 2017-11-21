@@ -15,6 +15,9 @@ export default Ember.Route.extend(RouteMixin, {
 		},
 		typeFilter: {
 			refreshModel: true
+		},
+		ownerFilter: {
+			refreshModel: true
 		}
 	},
 	loadQueryParams(params){
@@ -23,10 +26,11 @@ export default Ember.Route.extend(RouteMixin, {
 	model(params) {
 		return RSVP.hash({
 			rules: this.store.query('configuredrule', {
-				page: params.rulePage,
-				perPage: params.rulePerPage,
-				ruleFilter: params.rulesetNameFilter,
-				groupFilter: params.rulesetGroupFilter,
+				page: params.page,
+				perPage: params.perPage,
+				ruleFilter: params.ruleFilter,
+				groupFilter: params.groupFilter,
+				ownerFilter: params.ownerFilter,
 				typeFilter: params.typeFilter
 			}).then(function (result) {
 				let meta = result.get('meta');
