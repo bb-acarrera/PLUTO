@@ -406,29 +406,10 @@ class data {
 
         return getRuleset( this.db, ruleset_id, version, dbId, this.tables, ( result, resolve, reject ) => {
             if ( result.rows.length > 0 ) {
-                let dbRuleset = result.rows[ 0 ].rules;
 
-                dbRuleset.id = result.rows[ 0 ].id;
+                let row = result.rows[0];
 
-                dbRuleset.filename = ruleset_id;
-                dbRuleset.name = dbRuleset.name || ruleset_id;
-                dbRuleset.version = result.rows[0].version;
-
-                dbRuleset.group = result.rows[0].group;
-
-                dbRuleset.owner_group = result.rows[0].owner_group;
-                dbRuleset.update_user = result.rows[0].update_user;
-                dbRuleset.update_time = result.rows[0].update_time;
-
-                if(dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
-                    dbRuleset.canedit = false;
-                } else {
-                    dbRuleset.canedit = true;
-                }
-
-                dbRuleset.deleted = result.rows[0].deleted;
-
-                let ruleset = new RuleSet( dbRuleset, ruleLoader );
+                var ruleset = getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader);
 
                 if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
                     ruleset.applyOverride( rulesetOverrideFile );
@@ -568,7 +549,9 @@ class data {
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
-    getRulesets ( page, size, filters ) {
+    getRulesets ( page, size, filters, ruleLoader, group, admin ) {
+
+        let isAdmin = admin === true;
 
         return new Promise((resolve, reject) => {
 
@@ -639,9 +622,8 @@ class data {
 
                 var rulesets = [];
 
-                result.rows.forEach( ( ruleset ) => {
-                    ruleset.filename = ruleset.filename || ruleset.ruleset_id;
-                    rulesets.push( ruleset );
+                result.rows.forEach( ( row ) => {
+                    rulesets.push( getRulesetFromRow(row, row.ruleset_id, isAdmin, group, ruleLoader) );
                 } );
 
                 resolve( {
@@ -1065,7 +1047,31 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
 
 }
 
+function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
+    let dbRuleset = row.rules;
 
+    dbRuleset.id = row.id;
+
+    dbRuleset.filename = ruleset_id;
+    dbRuleset.name = dbRuleset.name || ruleset_id;
+    dbRuleset.version = row.version;
+
+    dbRuleset.group = row.group;
+
+    dbRuleset.owner_group = row.owner_group;
+    dbRuleset.update_user = row.update_user;
+    dbRuleset.update_time = row.update_time;
+
+    if (dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
+        dbRuleset.canedit = false;
+    } else {
+        dbRuleset.canedit = true;
+    }
+
+    dbRuleset.deleted = row.deleted;
+
+    return new RuleSet(dbRuleset, ruleLoader);
+}
 
 function getRule(db, rule_id, version, dbId, tables, getDeleted) {
 

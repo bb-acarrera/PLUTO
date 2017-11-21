@@ -67,12 +67,12 @@ function startPolling(controller, rulesetID, runID) {
                         controller.get("processing").removeObject(rulesetID);
                         var pId = controller.get("pollMap").get(rulesetID);
                         controller.get( 'poll' ).stopPoll(pId);
-                        
+
                         controller.get('errorRuns').removeObject(rulesetID);
                         controller.get('warningRuns').removeObject(rulesetID);
                         controller.get('goodRuns').removeObject(rulesetID);
                         controller.get('mixedRuns').removeObject(rulesetID);
-                        
+
                         if (run.get('errorcount') > 0 && run.get('warningcount') > 0)
                         		controller.get('mixedRuns').pushObject(rulesetID);
                         else if (run.get('errorcount') > 0)
@@ -92,41 +92,25 @@ function startPolling(controller, rulesetID, runID) {
 
 export default Ember.Controller.extend({
 	queryParams: [
-//		"page",
-//		"perPage",
 		"rulePage",
 		"rulePerPage",
 		"filenameFilter",
 		"rulesetFilter",
 		"showErrors",
-//		"showWarnings",
-//		"showNone",
-//		"dateFilter",
 		"rulesetNameFilter",
 		"rulesetGroupFilter",
 		"runGroupFilter",
 		"run"
 	],
-	ptarget: "default",
-	showdialog: false,
-	dialogtarget: "",
-	buttontext: "Save",
-	isclone: false,
-	dialogruleset: null,
 	applicationController: Ember.inject.controller('application'),
 
 	// set default values, can cause problems if left out
 	// if value matches default, it won't display in the URL
-//	page: 1,
-//	perPage: 10,
 	rulePage: 1,
 	rulePerPage: 10,
 	rulesetFilter: '',
 	filenameFilter: '',
 	showErrors: true,
-//	showWarnings: true,
-//	showNone: true,
-//	dateFilter: '',
 	rulesetNameFilter: '',
 	rulesetGroupFilter: '',
 	runGroupFilter: '',
@@ -143,7 +127,7 @@ export default Ember.Controller.extend({
     mixedRuns: [],
     pollMap: Ember.Map.create(),
     runMap: Ember.Map.create(),
-    
+
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter',
 		function() {
@@ -173,24 +157,9 @@ export default Ember.Controller.extend({
 		incRulePage() {
 			this.transitionToRoute({queryParams: {rulePage: Math.min(this.rulePage + 1, this.get('totalRulePages'))}});
 		},
-		openNewDialog(){
-			this.set("ptarget", "Name the new ruleset");
-			this.set("dialogtarget", "");
-			this.set("buttontext", "Save");
-			this.set("showdialog", true);
-			this.set("isclone", false);
-			this.set("dialogruleset", null);
-			this.set("modaltext", "");
-		},
-		openCloneDialog(cloneName, ruleset){
-			this.set("ptarget", "Please name the clone of ");
-			this.set("dialogtarget", cloneName);
-			this.set("buttontext", "Clone");
-			this.set("showdialog", true);
-			this.set("isclone", true);
-			this.set("dialogruleset", ruleset);
-			this.set("modaltext", "");
-
+		setShowAddRuleset(cloneRuleset) {
+			this.set('cloneRuleset', cloneRuleset);
+			this.set('showAddRuleset', true);
 		},
 		addRuleset() {
 			this.set("showdialog", false);
@@ -234,7 +203,7 @@ export default Ember.Controller.extend({
 		runRuleset(ruleset) {
 			runRuleset(this, ruleset.get("ruleset_id"));
 		},
-		
+
         toggleRowHighlight ( rowID ) {
 
             const row = document.getElementById( rowID );

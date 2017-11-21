@@ -1,11 +1,17 @@
 {{outlet}}
 <div>
+	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
+		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+        <i class="fa fa-angle-double-left"></i>
+	{{/link-to}}
+</div>
+<div>
   {{#if run}}
 	<h2>Process A File</h2>
   {{else}}
 	<h2>Edit Processing File</h2>
   {{/if}}
-  
+
   <table id="rulesetTable" class="ruleset-table">
 	  <tr style="border-bottom: 1px solid grey;">
 		  <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
@@ -42,13 +48,13 @@
 					<i class="fa fa-play"></i>
 					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
 				{{/bs-button}}
-			{{else}}			
+			{{else}}
 				{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
 					<i class="fa fa-trash"></i>
 					{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
 				{{/bs-button}}
-	
-				{{#bs-button onClick=(action "openCloneDialog" rulesetInstance.filename rulesetInstance)}}
+
+				{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance)}}
 					<i class="fa fa-clone"></i>
 					{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
 				{{/bs-button}}
@@ -63,33 +69,10 @@
 	  {{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
   </table>
 
-
-	{{#bs-modal open=showdialog onHidden=(action (mut showdialog) false) as |modal|}}
-		{{#modal.header}}
-			<h4 class="modal-title">
-				{{ptarget}}{{dialogtarget}}
-			</h4>
-		{{/modal.header}}
-		{{#modal.body}}
-				{{input type="text"  class="form-control"  autofocus="autofocus" value=modaltext}}
-		{{/modal.body}}
-		{{#modal.footer}}
-			{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
-			{{#if isclone}}
-				{{#bs-button type="success" onClick=(action "cloneRuleset" dialogruleset)}}{{buttontext}}{{/bs-button}}
-			{{else}}
-				{{#bs-button type="success" onClick=(action  "addRuleset")}}{{buttontext}}{{/bs-button}}
-			{{/if}}
-
-		{{/modal.footer}}
-	{{/bs-modal}}
-
-
-	{{#bs-button onClick=(action "openNewDialog")}}
-		<i class="fa fa-plus"></i>
-		{{#bs-tooltip placement="top"}}Add ruleset{{/bs-tooltip}}
+	{{#bs-button onClick=(action "setShowAddRuleset")}}
+		Add new file to process
 	{{/bs-button}}
 
-
-
 </div>
+
+{{#add-ruleset showdialog=showAddRuleset parsers=model.parsers ruleset=cloneRuleset}}{{/add-ruleset}}

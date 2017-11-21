@@ -4,11 +4,16 @@
 	<table id="mainPageTable" class="main-page-table">
 		<tr><td>{{#link-to "runs"}}Review processed files{{/link-to}}</td></tr>
 		<tr><td>{{#link-to "rulesets" (query-params run=true)}}Process a file{{/link-to}}</td></tr>
-		<tr><td>Add new file to process</td></tr>
 		<tr><td>{{#link-to "rulesets" (query-params run=false)}}Edit file to process{{/link-to}}</td></tr>
-		<!--
-		<tr><td>Edit Rule Groups</td></tr>
-		<tr><td>Edit Sources and Targets</td></tr>
-		-->
+        
+        <!--
+        <tr><td>Edit Rule Groups</td></tr>
+        <tr><td>Edit Sources and Targets</td></tr>
+        -->
 	</table>
+	{{#bs-button onClick=(action "setShowAddRuleset")}}
+        Add new file to process
+	{{/bs-button}}
 </div>
+
+{{#add-ruleset showdialog=showAddRuleset parsers=model.parsers}}{{/add-ruleset}}

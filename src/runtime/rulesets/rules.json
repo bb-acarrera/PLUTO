@@ -5,6 +5,7 @@
       "type": "source",
       "description": "test source",
       "base": "LocalCopyImport",
+      "group": "sample",
       "config": {
         "base": "./examples/data"
       }
@@ -14,6 +15,7 @@
       "type": "source",
       "description": "test source",
       "base": "LocalCopyImport",
+      "group": "sample",
       "config": {
         "base": "./examples/data",
         "linkedtargetid": "testTarget"
@@ -24,6 +26,7 @@
       "type": "target",
       "description": "test target",
       "base": "LocalCopyExport",
+      "group": "sample",
       "config": {
         "base": "./tmp"
       }

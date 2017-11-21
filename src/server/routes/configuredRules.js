@@ -111,7 +111,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 				result.rules.forEach(rule => {
 
-					rule = massageRule(rule);
+					rule = massageRule(rule, this.config.rulesLoader);
 
 					rules.push({
 						type: "configuredrule",

@@ -18,6 +18,8 @@ export function customPropertyType([type]) {
 			return type;
 		case 'time':
 			return type;
+		case 'list':
+			return type;
 		case 'string':
 			return type;
 	}

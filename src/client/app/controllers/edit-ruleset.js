@@ -197,42 +197,7 @@ export default Ember.Controller.extend( {
 			event.stopPropagation();
 		},
 
-		chooseTarget (target) {
 
-			if(target) {
-
-				const rulesetTargetConfig = this.get('model.ruleset.target.config').toJSON();
-
-				if(this.get('model.ruleset.target.filename') !== target.get('rule_id')) {
-
-					const newTarget = {
-						filename: target.get('rule_id'),
-						config: {}
-					};
-
-					if(rulesetTargetConfig) {
-
-						target.attributes.ui.properties.forEach((prop) => {
-							if(rulesetTargetConfig[prop.name]) {
-								newTarget.config[prop.name] = rulesetTargetConfig[prop.name];
-							}
-						});
-					}
-
-					this.set('model.ruleset.target', newTarget);
-				}
-			} else {
-				this.set('model.ruleset.target', null);
-			}
-
-		},
-		searchTarget(term) {
-			return this.store.query('configuredrule', {
-				perPage: 25,
-				ruleFilter: term,
-				typeFilter: 'target'
-			});
-		},
 
 		getUiProperties(list, itemName) {
 			let item = null;
