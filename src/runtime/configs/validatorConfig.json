@@ -12,5 +12,16 @@
 	"dbDatabase" : "pluto",
 	"dbHost" : "localhost",
 	"dbPort" : "6543",
-	"dbSchema": "pluto"
+	"dbSchema": "pluto",
+	"configHost": "localhost:3000",
+	"configHostProtocol": "http",
+	"smtpConfig": {
+		"host": "smtp.ethereal.email",
+		"port": 587,
+		"auth": {
+			"user": "gxvuceuznrh2hc5d@ethereal.email",
+			"pass": "xuxk8RttsqNjJwCufs"
+		}
+	},
+	"emailFrom": "\"PLUTO\" <no-reply@localhost>"
 }

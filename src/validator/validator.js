@@ -15,7 +15,9 @@ const Data = require("../common/dataDb");
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
 
-const RuleLoader = require('../common/ruleLoader')
+const RuleLoader = require('../common/ruleLoader');
+
+const Reporter = require('./reporter');
 
 const version = '0.1'; //require("../../package.json").version;
 
@@ -74,6 +76,8 @@ class Validator {
         this.data = Data(this.config);
 
 		this.ruleLoader = new RuleLoader(this.config.rulesDirectory, this.data);
+
+		this.reporter = new Reporter(this.config, this.logger);
     }
 
 	/*
@@ -449,6 +453,7 @@ class Validator {
 				.then(() => {}, (error) => console.log('error saving run: ' + error))
 				.catch((e) => console.log('Exception saving run: ' + e))
 				.then(() => {
+					this.reporter.sendReport();
 					this.cleanup();
 					resolve();
 				});
