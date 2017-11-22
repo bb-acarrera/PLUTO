@@ -20,6 +20,10 @@
 		value=model.ruleset.name class="text-input" disabled=disableEdit}}
 	</div>
 
+    <div class="section-content ruleset-section-content">Email: {{input id="email" type="text"
+		value=model.ruleset.email class="text-input" disabled=disableEdit}}
+    </div>
+
 	<div class="section-content ruleset-section-content" id="source">
 		<span class="section-header">Source: </span>
 		{{#if model.ruleset.source}}

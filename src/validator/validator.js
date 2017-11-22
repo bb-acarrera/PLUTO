@@ -431,10 +431,12 @@ class Validator {
 					.then(() => {},
 
 						(error) => {
-							this.error("Export failed: " + error)	;
+							this.error("Export failed: " + error);
+							this.abort = true;
 						})
 					.catch((e) => {
 						this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
+						this.abort = true;
 					})
 					.then(() => {
 						this.finalize().then(() => resolve());
@@ -453,7 +455,7 @@ class Validator {
 				.then(() => {}, (error) => console.log('error saving run: ' + error))
 				.catch((e) => console.log('Exception saving run: ' + e))
 				.then(() => {
-					this.reporter.sendReport();
+					this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
 					this.cleanup();
 					resolve();
 				});
