@@ -35,13 +35,20 @@ The web service container will listen on port 3000, and expects a configuration 
 The test_config folder at the source root contains a default valid configuration that is mounted to `/opt/PLUTO/config`.
 The script will also import the rulesets in `test_config/rulesets` into the database.
 
+It will also start a simple NGINX container to simulate users and authentication, configured from `test_nginx.conf`. 
+You can use this by hitting these ports:
+  * 8001: no user or group, same as localhost:3000
+  * 8002: user="GroupA_user", group="GroupA"
+  * 8003: user="GroupB_user", group="GroupB"
+  * 8004: user="GroupAdmin_user", group="GroupAdmin", admin=true
+
 ## Calling the Service
 
 To process a file, POST to `http://localhost:3000/processfile` with a json package. At a minimum, it must specify a ruleset to execute:
 
 ```json
 {
-	"ruleset": "sampleRuleset"
+	"ruleset": "worldCities"
 }
 ```
 And can be call via:
@@ -61,24 +68,6 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 	}
 }
 ```
-
-## Configuring
-All configuration properties are in validatorConfig.json. When the built container is started via `npm run start_docker`, 
-it loads the validatorConfig.json from the root of `test_config`. The properties are:
-
-#### configHost
-The hostname of the sever host the PLUTO web server.  This is used by the emailer when generating links to processed files.
-
-#### configHostProtocol
-The protocol to use in generated links to the PLUTO web server. Defaults to "http" if not set.
-
-#### smtpConfig
-This configures the connection to the smtp server so that emails can be sent from the validator once processing is complete.
-PLUTO uses Nodemailer's (https://nodemailer.com) smtp transport, and smtpConfig is passed directly to createTransport. 
-Details on configuration can be found at https://nodemailer.com/smtp/
-
-#### emailFrom
-This is what will appear in the From on sent emails
 
 ## Starting dev database and running locally
 To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
@@ -157,12 +146,17 @@ ember server
 
 ## Deploying
 
-After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
+After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, 
+a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` 
+as an example on how to extend the pluto container to support plugin dependencies.
 
+Details on configuring the deployed system can be found at [Deployed Configuration][deployedReadme]
 
 ## More..
 
 Additional information can be found in the following documents.
+
+[Deployed Configuration][deployedReadme]
 
 [Server][server] <span style="color: red">Needs updating</span>
 
@@ -172,6 +166,7 @@ Additional information can be found in the following documents.
 
 [Rules][rules]
 
+[deployedReadme]: deployedReadme.md
 [server]: docs/server.md
 [validator]: docs/validator.md
 [ruleset]: docs/ruleset.md
