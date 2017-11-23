@@ -62,8 +62,23 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 }
 ```
 
-## Ruleset Configuration
-[Ruleset][ruleset]
+## Configuring
+All configuration properties are in validatorConfig.json. When the built container is started via `npm run start_docker`, 
+it loads the validatorConfig.json from the root of `test_config`. The properties are:
+
+#### configHost
+The hostname of the sever host the PLUTO web server.  This is used by the emailer when generating links to processed files.
+
+#### configHostProtocol
+The protocol to use in generated links to the PLUTO web server. Defaults to "http" if not set.
+
+#### smtpConfig
+This configures the connection to the smtp server so that emails can be sent from the validator once processing is complete.
+PLUTO uses Nodemailer's (https://nodemailer.com) smtp transport, and smtpConfig is passed directly to createTransport. 
+Details on configuration can be found at https://nodemailer.com/smtp/
+
+#### emailFrom
+This is what will appear in the From on sent emails
 
 ## Starting dev database and running locally
 To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
