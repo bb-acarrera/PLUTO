@@ -82,6 +82,9 @@ do
     cp $CONFIG/$file $CONFIG_DST
 done
 
+#build the readme
+./node_modules/.bin/markdown ./deployedReadme.md > $DEPLOY_DST/readme.html
+
 #copy the dbloader
 mkdir $DBLOADER_DST
 mkdir $DBLOADER_DST/migrations

@@ -1,0 +1,59 @@
+{
+	"ruleset" : {
+		"name" : "World Cities using import and export",
+		"rules" : [
+			{
+				"filename" : "CheckColumnCount",
+				"config" : {
+					"id" : 1,
+					"columns" : 9
+				}
+			},
+			{
+				"filename" : "CheckLatLong",
+				"config" : {
+					"id" : 2,
+					"latitudeColumn"  : "lat",
+					"longitudeColumn" : "lng"
+				}
+			},
+			{
+				"filename" : "CheckColumnType",
+				"name" : "Validate Population Column",
+				"config" : {
+					"id" : 3,
+					"type" : "number",
+					"column" : "pop"
+				}
+			},
+			{
+				"filename" : "CheckColumnRegEx",
+				"name" : "Check No Numbers in city name (RegEx)",
+				"config" : {
+					"id" : 4,
+					"column" : "city",
+					"regex" : "^\\D*$"
+				}
+			}
+		],
+		"import" : {
+			"filename": "sampleImport",
+			"config": {
+				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
+			}
+		},
+		"export" : {
+			"filename": "sampleExport",
+			"config" : {
+				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
+			}
+		},
+		"parser" : {
+			"filename": "CSVParser",
+			"config": {
+				"numHeaderRows" : 1,
+				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
+			}
+		}
+	}
+}

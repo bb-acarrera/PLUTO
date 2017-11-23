@@ -1,12 +1,13 @@
 {
 	"ruleset" : {
-		"name" : "Test Data RuleSet",
+		"name" : "World Cities",
 		"rules" : [
 			{
 				"filename" : "CheckColumnCount",
 				"config" : {
 					"id" : 1,
-					"columns" : 9
+					"columns" : 9,
+					"onError": "abort"
 				}
 			},
 			{
@@ -32,20 +33,21 @@
 				"config" : {
 					"id" : 4,
 					"column" : "city",
-					"regex" : "^\\D*$"
+					"regex" : "^\\D*$",
+					"failType" : "Warning"
 				}
 			}
 		],
-		"import" : {
-			"filename": "sampleImport",
+		"source" : {
+			"filename": "sample source",
 			"config": {
-				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
+				"file": "simplemaps-worldcities-basic.csv"
 			}
 		},
-		"export" : {
-			"filename": "sampleExport",
+		"target" : {
+			"filename": "sample target",
 			"config" : {
-				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
+				"file": "simplemaps-worldcities-basic.csv.out"
 			}
 		},
 		"parser" : {

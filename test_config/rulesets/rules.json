@@ -1,0 +1,35 @@
+{
+  "rules": [
+    {
+      "rule_id": "sample source",
+      "type": "source",
+      "description": "sample source",
+      "base": "LocalCopyImport",
+      "group": "sample",
+      "config": {
+        "base": "/opt/PLUTO/config/test_data"
+      }
+    },
+    {
+      "rule_id": "sample source with linked target",
+      "type": "source",
+      "description": "sample source with linked target",
+      "base": "LocalCopyImport",
+      "group": "sample",
+      "config": {
+        "base": "/opt/PLUTO/config/test_data",
+        "linkedtargetid": "sample target"
+      }
+    },
+    {
+      "rule_id": "sample target",
+      "type": "target",
+      "description": "sample target",
+      "base": "LocalCopyExport",
+      "group": "sample",
+      "config": {
+        "base": "/opt/PLUTO/config/tmp"
+      }
+    }
+  ]
+}
