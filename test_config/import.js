@@ -20,7 +20,14 @@ class LocalCopyImport {
                 reject('No source file name');
             }
 
-            const sourceFileName = path.resolve(this.config.file);
+            let sourceFileName;
+
+            if(this.config.base) {
+                sourceFileName = path.resolve(this.config.base, this.config.file);
+            } else {
+                sourceFileName = path.resolve(this.config.file);
+            }
+
 
             if(!fs.existsSync(sourceFileName)) {
                 reject(this.config.file + ' does not exist');
@@ -53,7 +60,13 @@ class LocalCopyImport {
                 name: 'file',
                 label: 'Source file path',
                 type: 'string',
-                tooltip: 'The full path to where the file to process is located'
+                tooltip: 'The full path (or partial path with a base) to where the file to process is located'
+            },
+            {
+                name: 'base',
+                label: 'Source file base path',
+                type: 'string',
+                tooltip: 'The full path to a base folder where the file to process is located  (optional and pre-pended to the file)'
             }
         ];
     }

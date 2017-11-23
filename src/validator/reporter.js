@@ -9,7 +9,7 @@ class Reporter {
 		this.smtpConfig = config.smtpConfig;
 		this.errorLogger = errorLogger;
 
-		if(this.smtpConfig) {
+		if(this.smtpConfig && this.smtpConfig.host) {
 			this.transporter = nodemailer.createTransport(this.smtpConfig);
 
 			this.reporterOk = true;
