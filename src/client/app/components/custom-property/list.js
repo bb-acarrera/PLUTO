@@ -3,8 +3,7 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 	listValue: Ember.computed('config', 'uiItem.name', {
 		get(key) {
-			const prop = this.get('uiItem.name');
-			const list = this.get('config.' + prop);
+			const list = this.get('value');
 
 			if(!Array.isArray(list)) {
 				return '';
@@ -14,9 +13,8 @@ export default Ember.Component.extend({
 		},
 		set(key, value) {
 			const list = value.split(',');
-			const prop = this.get('uiItem.name');
 
-			this.set('config.' + prop, list);
+			this.set('value', list);
 
 			return value;
 		}
