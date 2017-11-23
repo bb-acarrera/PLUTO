@@ -39,13 +39,13 @@
 		"import" : {
 			"filename": "sampleImport",
 			"config": {
-				"file": "/opt/PLUTO/config/test_data/simplemaps-worldcities-basic.csv"
+				"file": "./examples/data/simplemaps-worldcities-basic.csv"
 			}
 		},
 		"export" : {
 			"filename": "sampleExport",
 			"config" : {
-				"file": "/opt/PLUTO/config/tmp/simplemaps-worldcities-basic.csv.out"
+				"file": "./tmp/simplemaps-worldcities-basic.csv.out"
 			}
 		},
 		"parser" : {
