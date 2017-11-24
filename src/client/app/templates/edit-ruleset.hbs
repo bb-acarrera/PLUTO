@@ -198,10 +198,12 @@
 					Name {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
                 </div>
 				{{component 'custom-property.property-list'
-				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
-				config=ruleInstance.confg
-				disabled=disabled
-				columns=columns}}
+					uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
+					config=(get ruleInstance "config")
+					disabled=disabled
+					columns=columns
+				}}
+
 			{{/bs-collapse}}
 		</div>
 	{{/each}}

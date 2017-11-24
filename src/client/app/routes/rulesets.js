@@ -1,8 +1,9 @@
 import Ember from 'ember';
 import RSVP from 'rsvp';
 import RouteMixin from 'ember-cli-pagination/remote/route-mixin';
+import RulesetEmberizer from '../mixins/ruleset-emberizer';
 
-export default Ember.Route.extend(RouteMixin, {
+export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 	queryParams: {
 		page: {
 			refreshModel: true
@@ -42,8 +43,14 @@ export default Ember.Route.extend(RouteMixin, {
 				perPage: params.rulePerPage,
 				rulesetFilter: params.rulesetNameFilter,
 				groupFilter: params.rulesetGroupFilter
-			}).then(function (result) {
+			}).then((result) => {
 				let meta = result.get('meta');
+
+
+				result.forEach((ruleset) => {
+					this.emberizeRuleset(ruleset);
+				});
+
 				return {result: result, meta: meta};
 			}),
 			parsers: this.store.findAll('parser')
