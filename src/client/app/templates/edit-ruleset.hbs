@@ -199,7 +199,7 @@
                 </div>
 				{{component 'custom-property.property-list'
 					uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
-					config=(map-getter ruleInstance "config")
+					config=(get ruleInstance "config")
 					disabled=disabled
 					columns=columns
 				}}
