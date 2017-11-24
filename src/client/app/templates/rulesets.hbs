@@ -23,38 +23,56 @@
           </td>
 		  <td/>
 	  </tr>
-    {{#each model.rulesets.result as |rulesetInstance index|}}
+    {{#each rulesets as |rulesetInstance index|}}
       <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
         <td>{{rulesetInstance.filename}}</td>
-        <td>{{rulesetInstance.group}}</td>
+        <td>{{rulesetInstance.ownergroup}}</td>
         <td align="center">
-       		{{#if run}}
-        			{{#if (if-in rulesetInstance.filename processing) }}
-    					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
-	 			{{else if (if-in rulesetInstance.filename mixedRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle warning-and-error-icon"></i> Details{{/link-to}}
-				{{else if (if-in rulesetInstance.filename errorRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle error-icon"></i> Details{{/link-to}}
-				{{else if (if-in rulesetInstance.filename warningRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-exclamation-triangle warning-icon"></i> Details{{/link-to}}
-				{{else if (if-in rulesetInstance.filename goodRuns) }}
-					{{#link-to "run" (map-getter runMap rulesetInstance.filename)}}<i class="fa fa-check good-icon"></i> Details{{/link-to}}
+
+       		{{#if rulesetInstance.run}}
+
+				{{#if rulesetInstance.run.processing}}
+					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
+				{{else}}
+
+					{{#link-to "run" rulesetInstance.run.runID}}
+						{{#if rulesetInstance.run.details.passed}}
+                            <i class="fa fa-thumbs-up good-icon"></i>
+						{{else}}
+                            <i class="fa fa-thumbs-down error-icon"></i>
+						{{/if}}
+
+						{{#if rulesetInstance.run.mixed }}
+							<i class="fa fa-exclamation-triangle warning-and-error-icon"></i>
+						{{else if rulesetInstance.run.error }}
+							<i class="fa fa-exclamation-triangle error-icon"></i>
+						{{else if rulesetInstance.run.dropped }}
+                            <i class="fa fa-ban warning-icon"></i>
+						{{else if rulesetInstance.run.warning }}
+							<i class="fa fa-exclamation-triangle warning-icon"></i>
+						{{else if rulesetInstance.run.good }}
+							<i class="fa fa-check good-icon"></i>
+						{{/if}}
+						Details
+					{{/link-to}}
+
+
 				{{/if}}
 			{{/if}}
         </td>
         <td align="right">
         		{{#if run}}
-				{{#bs-button onClick=(action "runRuleset" rulesetInstance) disabled=(if-in rulesetInstance.filename processing) }}
+				{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=(if-in rulesetInstance.filename processing) }}
 					<i class="fa fa-play"></i>
 					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
 				{{/bs-button}}
 			{{else}}
-				{{#bs-button onClick=(action "deleteRuleset" rulesetInstance model.rulesets.result)}}
+				{{#bs-button onClick=(action "deleteRuleset" rulesetInstance.ruleset model.rulesets.result)}}
 					<i class="fa fa-trash"></i>
 					{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
 				{{/bs-button}}
 
-				{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance)}}
+				{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
 					<i class="fa fa-clone"></i>
 					{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
 				{{/bs-button}}
