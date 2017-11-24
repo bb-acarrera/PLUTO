@@ -349,9 +349,9 @@ class data {
 
                 let date = new Date();
 
-                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime) " +
-                        "VALUES($1, $2, $3) RETURNING id", this.tables),
-                    [rulesetId, date, date])
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime, passed) " +
+                        "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
+                    [rulesetId, date, date, false])
                     .then((result) => {
                         resolve(result.rows[0].id);
                     }, (error) => {
@@ -374,16 +374,19 @@ class data {
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary) {
 
         return new Promise((resolve, reject) => {
             let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
         	let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
+            let numDropped = logCounts[ErrorHandlerAPI.DROPPED] || 0;
 
         	this.db.query(updateTableNames("UPDATE {{runs}} SET " +
-        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7  " +
+        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7, " +
+                "num_dropped = $8, passed = $9, summary = $10 " +
             	"WHERE id = $1", this.tables),
-            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
+            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings, numDropped,
+                    passed, JSON.stringify(summary)])
             	.then(() => {
             		resolve();
             	}, (error) => {
@@ -937,6 +940,7 @@ function updateTableNames ( query, tableNames ) {
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
         "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group " +
+        "num_dropped, {{runs}}.summary, {{runs}}.passed " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
 }
@@ -955,7 +959,10 @@ function getRunResult(row) {
         starttime: row.starttime,
         errorcount: row.num_errors,
         warningcount: row.num_warnings,
+        droppedcount: row.num_dropped,
         isrunning: isRunning,
+        passed: row.passed,
+        summary: row.summary,
         version: row.version,
         deleted: row.deleted,
         group: row.owner_group
