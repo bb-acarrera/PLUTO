@@ -1,7 +1,8 @@
 import Ember from 'ember';
+import Base from './base';
 
-export default Ember.Component.extend({
-	listValue: Ember.computed('config', 'uiItem.name', {
+export default Base.extend({
+	listValue: Ember.computed('value', {
 		get(key) {
 			const list = this.get('value');
 
@@ -15,6 +16,7 @@ export default Ember.Component.extend({
 			const list = value.split(',');
 
 			this.set('value', list);
+
 
 			return value;
 		}

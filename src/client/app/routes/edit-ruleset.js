@@ -1,7 +1,8 @@
 import Ember from 'ember';
 import RSVP from 'rsvp';
+import RulesetEmberizer from '../mixins/ruleset-emberizer';
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(RulesetEmberizer, {
 	poll: Ember.inject.service(),
 	model (params) {
 		// This is necessary for clean page load on return to the page
@@ -22,6 +23,8 @@ export default Ember.Route.extend({
 				if (targetFilename) {
 					target = this.store.queryRecord('configuredrule', {id: targetFilename})
 				}
+
+				this.emberizeRuleset(ruleset);
 
 				return RSVP.hash({
 					ruleset: ruleset,

@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import Base from './base';
 
-export default Ember.Component.extend({
+export default Base.extend({
 });
