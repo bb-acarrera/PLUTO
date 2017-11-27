@@ -75,22 +75,12 @@ function startPolling(controller, rulesetID, runID) {
                         var pId = tracker.get('pollId');
                         controller.get( 'poll' ).stopPoll(pId);
 
-
-                        if (run.get('errorcount') > 0)
-	                        tracker.set('error', true);
-	                    if (run.get('droppedcount') > 0)
-		                    tracker.set('dropped', true);
-                        else if (run.get('warningcount') > 0)
-	                        tracker.set('warning', true);
-
 		                tracker.set('details', run);
 
                     }
                 } );
         }
     } );
-
-
 
     let tracker = controller.get('rulesetTrackerMap').get(rulesetID);
 	let run = Ember.Object.create({
