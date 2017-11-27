@@ -53,7 +53,15 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 
 				return {result: result, meta: meta};
 			}),
-			parsers: this.store.findAll('parser')
+			parsers: this.store.findAll('parser'),
+			defaultSources: this.store.query('configuredrule', {
+				perPage: 25,
+				typeFilter: 'source'
+			}),
+			defaultTargets: this.store.query('configuredrule', {
+				perPage: 25,
+				typeFilter: 'target'
+			})
 		})
 	},
 	actions: {
