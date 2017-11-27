@@ -1,0 +1,24 @@
+<div class="rule-selectable ruleset-rule-selectable" {{action "toggleCollapse"}}>
+	<span class="section-header">
+		{{yield (hash title = (component 'edit-ruleset/title'))}}
+	</span>
+
+	{{yield (hash subTitle = (component 'edit-ruleset/sub-title'))}}
+
+
+
+	<span class="expand-controls">
+		{{yield (hash controls = (component 'edit-ruleset/controls'))}}
+
+		{{#if collapsed}}
+			<i class="fa fa-caret-square-o-right bigger-caret"></i>
+		{{else}}
+			<i class="fa fa-caret-square-o-down bigger-caret"></i>
+		{{/if}}
+
+	</span>
+
+</div>
+{{#bs-collapse collapsed=collapsed}}
+	{{yield (hash collapsable = (component 'edit-ruleset/collapsable'))}}
+{{/bs-collapse}}
