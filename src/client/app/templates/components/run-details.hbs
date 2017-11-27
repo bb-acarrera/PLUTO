@@ -5,15 +5,13 @@
         <div class="section-header">Ruleset</div>
         <div class="section-content">{{model.ruleset.filename}}</div>
         <div class="section-content">Description: {{model.ruleset.name}}</div>
-        <div class="section-header">Parser</div>
-        <div class="section-content">{{model.ruleset.parser.name}}</div>
         <div class="section-header">Rules</div>
         <table id="rulesTable" class="ruleset-table">
 			{{#each ruleData as |ruleInstance index|}}
                 <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
                     class="rule-selectable">
                     <td class="icon-cell">
-                        <i class="fa fa-exclamation-triangle fa {{rule-log-icons ruleInstance}}"></i>
+                        {{#error-icon runcounts=ruleInstance}}{{/error-icon}}
                     </td>
                     <td>{{ruleInstance.name}}</td>
                 </tr>

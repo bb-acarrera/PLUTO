@@ -36,23 +36,8 @@
 				{{else}}
 
 					{{#link-to "run" rulesetInstance.run.runID}}
-						{{#if rulesetInstance.run.details.passed}}
-                            <i class="fa fa-thumbs-up good-icon"></i>
-						{{else}}
-                            <i class="fa fa-thumbs-down error-icon"></i>
-						{{/if}}
-
-						{{#if rulesetInstance.run.mixed }}
-							<i class="fa fa-exclamation-triangle warning-and-error-icon"></i>
-						{{else if rulesetInstance.run.error }}
-							<i class="fa fa-exclamation-triangle error-icon"></i>
-						{{else if rulesetInstance.run.dropped }}
-                            <i class="fa fa-ban warning-icon"></i>
-						{{else if rulesetInstance.run.warning }}
-							<i class="fa fa-exclamation-triangle warning-icon"></i>
-						{{else if rulesetInstance.run.good }}
-							<i class="fa fa-check good-icon"></i>
-						{{/if}}
+						{{#pass-fail-icon runcounts=rulesetInstance.run.details}}{{/pass-fail-icon}}
+						{{#error-icon runcounts=rulesetInstance.run.details}}{{/error-icon}}
 						Details
 					{{/link-to}}
 
@@ -62,7 +47,7 @@
         </td>
         <td align="right">
         		{{#if run}}
-				{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=(if-in rulesetInstance.filename processing) }}
+				{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
 					<i class="fa fa-play"></i>
 					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
 				{{/bs-button}}

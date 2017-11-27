@@ -100,15 +100,18 @@ class data {
 
                             if ( !resultMap[ rowRuleId ] ) {
                                 resultMap[ rowRuleId ] = {
-                                    err: false,
-                                    warn: false
+                                    err: 0,
+                                    warn: 0,
+                                    dropped: 0
                                 };
                             }
                             if ( value.type == 'Error' ) {
-                                resultMap[ rowRuleId ].err = true;
+                                resultMap[ rowRuleId ].err += 1;
                             }
-                            if ( value.type == 'Warning' ) {
-                                resultMap[ rowRuleId ].warn = true;
+                            else if ( value.type == 'Warning' ) {
+                                resultMap[ rowRuleId ].warn += 1;
+                            } else if (value.type == 'Dropped') {
+                                resultMap[ rowRuleId ].dropped += 1;
                             }
 
                             if ( filter ) {
@@ -209,12 +212,20 @@ class data {
                 }
             }
 
-            if(!filters.showErrors || !filters.showWarnings || !filters.showNone) {
+            if(!filters.showErrors || !filters.showWarnings || !filters.showNone || !filters.showDropped) {
 
                 let errorsWhere = '';
 
                 if(filters.showErrors) {
                     errorsWhere += "{{runs}}.num_errors > 0";
+                }
+
+                if(filters.showDropped) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.num_dropped > 0";
                 }
 
                 if(filters.showWarnings) {
@@ -229,7 +240,7 @@ class data {
                     if(errorsWhere.length > 0) {
                         errorsWhere += " OR "
                     }
-                    errorsWhere += "({{runs}}.num_errors = 0 AND {{runs}}.num_warnings = 0)"
+                    errorsWhere += "({{runs}}.num_errors = 0 AND {{runs}}.num_warnings = 0 AND {{runs}}.num_dropped = 0)"
 
                 }
 
@@ -242,6 +253,38 @@ class data {
                 where += '(' + errorsWhere + ')';
                 countWhere = where;
 
+            }
+
+            if(!filters.showPassed || !filters.showFailed) {
+
+                let errorsWhere = '';
+
+                if(filters.showPassed) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.passed = TRUE";
+                }
+
+                if(filters.showFailed) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.passed = FALSE";
+                }
+
+                extendWhere();
+
+                if(errorsWhere.length == 0) {
+                    errorsWhere += 'FALSE';
+                }
+
+                errorsWhere = '(' + errorsWhere + ')';
+
+                where += errorsWhere;
+                countWhere += errorsWhere;
             }
 
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {

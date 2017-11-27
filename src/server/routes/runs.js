@@ -42,6 +42,9 @@ class RunsRouter extends BaseRouter {
             let showWarnings = JSON.parse(req.query.warningsFilter || true);
             let showNone = JSON.parse(req.query.noneFilter || true);
             let dateFilter = null;
+            let showDropped = JSON.parse(req.query.droppedFilter || true);
+            let showPassed = JSON.parse(req.query.passedFilter || true);
+            let showFailed = JSON.parse(req.query.failedFilter || true);
 
             if(req.query.dateFilter && req.query.dateFilter.length > 0) {
                 let time = Date.parse(req.query.dateFilter);
@@ -67,7 +70,10 @@ class RunsRouter extends BaseRouter {
                 showWarnings: showWarnings,
                 showNone: showNone,
                 dateFilter: dateFilter,
-                groupFilter: req.query.groupFilter
+                groupFilter: req.query.groupFilter,
+                showDropped: showDropped,
+                showPassed: showPassed,
+                showFailed: showFailed
             }).then((result) => {
                     var data = [];
 
