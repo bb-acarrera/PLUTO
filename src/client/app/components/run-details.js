@@ -69,14 +69,16 @@ export default Ember.Component.extend({
 				};
 
 
-				rule.warningcount = false;
-				rule.errorcount = false;
+				rule.warningcount = 0;
+				rule.errorcount = 0;
+				rule.droppedcount = 0;
 				rule.hasAny = false;
 
 				if (log[rule.config.id]) {
 					rule.warningcount = log[rule.config.id].warn;
 					rule.errorcount = log[rule.config.id].err;
-					rule.hasAny = rule.warningcount || rule.errorcount;
+					rule.droppedcount = log[rule.config.id].dropped;
+					rule.hasAny = rule.warningcount || rule.errorcount || rule.droppedcount;
 				}
 
 				items.push(rule);

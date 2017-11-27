@@ -124,7 +124,7 @@ tr.error-row {
 }
 
 .warning-icon {
-  color: gold;
+  color: #EEC100;
 }
 
 .error-icon {
@@ -132,7 +132,7 @@ tr.error-row {
 }
 
 .good-icon {
-  color: lightskyblue;
+  color: forestgreen;
 }
 
 .no-icon {

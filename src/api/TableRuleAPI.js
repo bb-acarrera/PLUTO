@@ -115,8 +115,7 @@ class TableRuleAPI extends ParserRuleAPI {
      */
     log(level, problemFileName, ruleID, problemDescription, dataItemId) {
         if(dataItemId && this.excludeRecordOnError && level === ErrorHandlerAPI.ERROR) {
-            level = ErrorHandlerAPI.WARNING;
-            problemDescription = '(Record dropped) ' + problemDescription;
+            level = ErrorHandlerAPI.DROPPED;
             this.excludeRow[dataItemId] = true;
         }
 

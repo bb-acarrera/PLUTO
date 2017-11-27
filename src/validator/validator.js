@@ -451,7 +451,7 @@ class Validator {
 	finalize() {
 		return new Promise((resolve) => {
 			this.data.saveRunRecord(this.runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(), !this.abort)
 				.then(() => {}, (error) => console.log('error saving run: ' + error))
 				.catch((e) => console.log('Exception saving run: ' + e))
 				.then(() => {

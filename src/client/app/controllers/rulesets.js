@@ -66,34 +66,30 @@ function startPolling(controller, rulesetID, runID) {
     let pollId = controller.get( 'poll' ).addPoll( {
         interval: 1000, // one second
         callback: () => {
-        		var _runId = controller.get("runMap").get(rulesetID);	// Somehow the passed in runID is getting overwritten eventually.
+	            let tracker = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
+        		var _runId = tracker.get('runID');	// Somehow the passed in runID is getting overwritten eventually.
         		controller.store.findRecord( 'run', _runId ).then(
                 run => {
                     if ( !run.get('isrunning') ) {
-                        controller.get("processing").removeObject(rulesetID);
-                        var pId = controller.get("pollMap").get(rulesetID);
+                        tracker.set('processing', false);
+                        var pId = tracker.get('pollId');
                         controller.get( 'poll' ).stopPoll(pId);
 
-                        controller.get('errorRuns').removeObject(rulesetID);
-                        controller.get('warningRuns').removeObject(rulesetID);
-                        controller.get('goodRuns').removeObject(rulesetID);
-                        controller.get('mixedRuns').removeObject(rulesetID);
+		                tracker.set('details', run);
 
-                        if (run.get('errorcount') > 0 && run.get('warningcount') > 0)
-                        		controller.get('mixedRuns').pushObject(rulesetID);
-                        else if (run.get('errorcount') > 0)
-                        		controller.get('errorRuns').pushObject(rulesetID);
-                        else if (run.get('warningcount') > 0)
-                    			controller.get('warningRuns').pushObject(rulesetID);
-                        else
-                    			controller.get('goodRuns').pushObject(rulesetID);
                     }
                 } );
         }
     } );
-    controller.get("pollMap").set(rulesetID, pollId);
-	controller.get("processing").pushObject(rulesetID);
-    controller.get("runMap").set(rulesetID, runID);
+
+    let tracker = controller.get('rulesetTrackerMap').get(rulesetID);
+	let run = Ember.Object.create({
+		processing: true,
+		runID: runID,
+		pollId: pollId
+	});
+	tracker.set('run', run);
+
 }
 
 export default Ember.Controller.extend({
@@ -126,13 +122,6 @@ export default Ember.Controller.extend({
 
 	run: false,
     poll: Ember.inject.service(),
-    processing: [],
-    goodRuns: [],
-    warningRuns: [],
-    errorRuns: [],
-    mixedRuns: [],
-    pollMap: Ember.Map.create(),
-    runMap: Ember.Map.create(),
 
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter',
@@ -148,6 +137,41 @@ export default Ember.Controller.extend({
 	userChanged: Ember.observer('applicationController.currentUser', function() {
 		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
+	}),
+
+	rulesets: Ember.computed('model.rulesets.result', function() {
+		const rulesets = this.get('model.rulesets.result');
+
+		const list = [];
+
+		const rulesetTrackerMap = Ember.Map.create();
+		const oldTrackerMap = this.get('rulesetTrackerMap');
+
+		rulesets.forEach((ruleset) => {
+			let run = null;
+
+			if(oldTrackerMap) {
+				const tracker = oldTrackerMap.get(ruleset.get('filename'));
+				if(tracker) {
+					run = tracker.get('run');
+				}
+			}
+
+			const obj = Ember.Object.create({
+				ruleset: ruleset,
+				filename: ruleset.get('filename'),
+				group: ruleset.get('group'),
+				ownergroup: ruleset.get('ownergroup'),
+				run: run
+			});
+
+			list.push(obj);
+			rulesetTrackerMap.set(ruleset.get('filename'), obj);
+		});
+
+		this.set('rulesetTrackerMap', rulesetTrackerMap);
+
+		return list;
 	}),
 
 	actions: {

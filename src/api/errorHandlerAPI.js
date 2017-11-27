@@ -44,6 +44,14 @@ class ErrorHandlerAPI {
 	static get INFO() { return "Info"; }
 
 	/**
+	 * Use this with {@link Validator#log} when reporting dropped items/rows.
+	 * @static
+	 * @returns {string}
+	 * @private
+	 */
+	static get DROPPED() { return "Dropped"; }
+
+	/**
 	 * This is called when the application has something to log.
 	 * @param {string} level the level of the log. One of {@link Validator.ERROR}, {@link Validator.WARNING}, or {@link Validator.INFO}.
 	 * If null or undefined
@@ -87,6 +95,15 @@ class ErrorHandlerAPI {
 	 */
 	info(problemDescription, dataItemId) {
 		this.log(ErrorHandlerAPI.INFO, this.constructor.name, this.config.id, problemDescription, dataItemId);
+	}
+
+	/**
+	 * Add a dropped item/row report to the log.
+	 * @param problemDescription {string} a description of the problem encountered.
+	 * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
+	 */
+	dropped(problemDescription, dataItemId) {
+		this.log(ErrorHandlerAPI.DROPPED, this.constructor.name, this.config.id, problemDescription, dataItemId);
 	}
 
 

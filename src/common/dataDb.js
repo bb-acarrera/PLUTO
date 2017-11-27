@@ -100,15 +100,18 @@ class data {
 
                             if ( !resultMap[ rowRuleId ] ) {
                                 resultMap[ rowRuleId ] = {
-                                    err: false,
-                                    warn: false
+                                    err: 0,
+                                    warn: 0,
+                                    dropped: 0
                                 };
                             }
                             if ( value.type == 'Error' ) {
-                                resultMap[ rowRuleId ].err = true;
+                                resultMap[ rowRuleId ].err += 1;
                             }
-                            if ( value.type == 'Warning' ) {
-                                resultMap[ rowRuleId ].warn = true;
+                            else if ( value.type == 'Warning' ) {
+                                resultMap[ rowRuleId ].warn += 1;
+                            } else if (value.type == 'Dropped') {
+                                resultMap[ rowRuleId ].dropped += 1;
                             }
 
                             if ( filter ) {
@@ -209,12 +212,20 @@ class data {
                 }
             }
 
-            if(!filters.showErrors || !filters.showWarnings || !filters.showNone) {
+            if(!filters.showErrors || !filters.showWarnings || !filters.showNone || !filters.showDropped) {
 
                 let errorsWhere = '';
 
                 if(filters.showErrors) {
                     errorsWhere += "{{runs}}.num_errors > 0";
+                }
+
+                if(filters.showDropped) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.num_dropped > 0";
                 }
 
                 if(filters.showWarnings) {
@@ -229,7 +240,7 @@ class data {
                     if(errorsWhere.length > 0) {
                         errorsWhere += " OR "
                     }
-                    errorsWhere += "({{runs}}.num_errors = 0 AND {{runs}}.num_warnings = 0)"
+                    errorsWhere += "({{runs}}.num_errors = 0 AND {{runs}}.num_warnings = 0 AND {{runs}}.num_dropped = 0)"
 
                 }
 
@@ -242,6 +253,38 @@ class data {
                 where += '(' + errorsWhere + ')';
                 countWhere = where;
 
+            }
+
+            if(!filters.showPassed || !filters.showFailed) {
+
+                let errorsWhere = '';
+
+                if(filters.showPassed) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.passed = TRUE";
+                }
+
+                if(filters.showFailed) {
+                    if(errorsWhere.length > 0) {
+                        errorsWhere += " OR "
+                    }
+
+                    errorsWhere += "{{runs}}.passed = FALSE";
+                }
+
+                extendWhere();
+
+                if(errorsWhere.length == 0) {
+                    errorsWhere += 'FALSE';
+                }
+
+                errorsWhere = '(' + errorsWhere + ')';
+
+                where += errorsWhere;
+                countWhere += errorsWhere;
             }
 
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
@@ -349,9 +392,9 @@ class data {
 
                 let date = new Date();
 
-                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime) " +
-                        "VALUES($1, $2, $3) RETURNING id", this.tables),
-                    [rulesetId, date, date])
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime, passed) " +
+                        "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
+                    [rulesetId, date, date, false])
                     .then((result) => {
                         resolve(result.rows[0].id);
                     }, (error) => {
@@ -374,16 +417,19 @@ class data {
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts) {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary) {
 
         return new Promise((resolve, reject) => {
             let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
         	let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
+            let numDropped = logCounts[ErrorHandlerAPI.DROPPED] || 0;
 
         	this.db.query(updateTableNames("UPDATE {{runs}} SET " +
-        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7  " +
+        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7, " +
+                "num_dropped = $8, passed = $9, summary = $10 " +
             	"WHERE id = $1", this.tables),
-            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings])
+            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings, numDropped,
+                    passed, JSON.stringify(summary)])
             	.then(() => {
             		resolve();
             	}, (error) => {
@@ -936,7 +982,8 @@ function updateTableNames ( query, tableNames ) {
 
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
-        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group " +
+        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
+        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
 }
@@ -955,7 +1002,10 @@ function getRunResult(row) {
         starttime: row.starttime,
         errorcount: row.num_errors,
         warningcount: row.num_warnings,
+        droppedcount: row.num_dropped,
         isrunning: isRunning,
+        passed: row.passed,
+        summary: row.summary,
         version: row.version,
         deleted: row.deleted,
         group: row.owner_group
