@@ -743,7 +743,8 @@ QUnit.test( "Exclude row following row warning correct id", function(assert) {
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.equal(vldtr.abort, false, "Expected run to pass");
 
-            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.WARNING) == 2, "Expected two warnings");
+            assert.equal(vldtr.logger.getCount(ErrorHandlerAPI.WARNING), 1, "Expected one warning");
+            assert.equal(vldtr.logger.getCount(ErrorHandlerAPI.DROPPED), 1, "Expected one dropped");
             assert.equal(log[1].description, 'Row 3 has warning');
         },
         done);
