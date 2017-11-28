@@ -5,9 +5,9 @@ function getIconClass() {
 
 
 	if(this.get('runcounts.passed') === true) {
-		classes = "fa fa-thumbs-up good-icon";
+		classes = "fa fa-thumbs-up good-color";
 	} else if(this.get('runcounts.passed') === false) {
-		classes = "fa fa-thumbs-down error-icon";
+		classes = "fa fa-thumbs-down error-color";
 	}
 
 	return classes;

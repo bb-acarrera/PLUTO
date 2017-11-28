@@ -15,10 +15,10 @@
 					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
 					{{#dd.menu as |menu|}}
 						{{#menu.item}}
-							{{input type="checkbox" name="showPassed" checked=showPassed}}<i class="fa fa-thumbs-up good-icon"></i> Show Passed
+							{{input type="checkbox" name="showPassed" checked=showPassed}}<i class="fa fa-thumbs-up good-color"></i> Show Passed
 						{{/menu.item}}
 						{{#menu.item}}
-							{{input type="checkbox" name="showFailed" checked=showFailed}}<i class="fa fa-thumbs-down error-icon"></i>  Show Failed
+							{{input type="checkbox" name="showFailed" checked=showFailed}}<i class="fa fa-thumbs-down error-color"></i>  Show Failed
 						{{/menu.item}}
 					{{/dd.menu}}
 				{{/bs-dropdown}}
@@ -29,13 +29,13 @@
 					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
 					{{#dd.menu as |menu|}}
 						{{#menu.item}}
-							{{input type="checkbox" name="showWarnings" checked=showWarnings}}<i class="fa fa-exclamation-triangle warning-icon"></i> Show Warnings
+							{{input type="checkbox" name="showWarnings" checked=showWarnings}}<i class="fa fa-exclamation-triangle warning-color"></i> Show Warnings
 						{{/menu.item}}
 						{{#menu.item}}
-							{{input type="checkbox" name="showErrors" checked=showErrors}}<i class="fa fa-exclamation-triangle error-icon"></i>  Show Errors
+							{{input type="checkbox" name="showErrors" checked=showErrors}}<i class="fa fa-exclamation-triangle error-color"></i>  Show Errors
 						{{/menu.item}}
 						{{#menu.item}}
-							{{input type="checkbox" name="showDropped" checked=showDropped}}<i class="fa fa-ban warning-icon"></i>  Show Dropped
+							{{input type="checkbox" name="showDropped" checked=showDropped}}<i class="fa fa-ban warning-color"></i>  Show Dropped
 						{{/menu.item}}
 					{{/dd.menu}}
 				{{/bs-dropdown}}

@@ -118,20 +118,20 @@ tr.error-row {
 
 .warning-and-error-icon {
   color: transparent;
-  background: linear-gradient(90deg, firebrick 50%, gold 50%);
+  background: linear-gradient(90deg, firebrick 50%, #EEC100 50%);
   -webkit-background-clip: text;
   background-clip: text;
 }
 
-.warning-icon {
+.warning-color {
   color: #EEC100;
 }
 
-.error-icon {
+.error-color {
   color: firebrick;
 }
 
-.good-icon {
+.good-color {
   color: forestgreen;
 }
 
@@ -237,3 +237,14 @@ span.expand-controls {
 	padding-left: 15px;
 }
 
+.run-bold-text {
+	font-weight: bold;
+}
+
+.run-rule-header-count {
+	padding-left: 6px;
+}
+
+.run-section-break {
+	padding-bottom: 12px;
+}

@@ -18,7 +18,6 @@ export default Ember.Route.extend(RulesetEmberizer, {
 	},
 	model(params) {
 
-
 		return this.store.findRecord('run', params.run_id).then(
 			run => {
 
@@ -72,10 +71,6 @@ export default Ember.Route.extend(RulesetEmberizer, {
 
 
 			});
-	},
-	setupController(controller, _model) {
-		this._super(...arguments);
-
 	},
 
 	actions: {

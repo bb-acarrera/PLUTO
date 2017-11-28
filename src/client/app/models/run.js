@@ -15,5 +15,7 @@ export default DS.Model.extend({
 	version: DS.attr('number'),
 	deleted: DS.attr('boolean'),
 	group: DS.attr('string'),
-	passed: DS.attr('boolean')
+	passed: DS.attr('boolean'),
+	processeditems: DS.attr('number'),
+	outputitems: DS.attr('number')
 });

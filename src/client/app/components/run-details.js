@@ -42,21 +42,77 @@ export default Ember.Component.extend({
 
 		return result;
 	}),
+
+	errorTypesString:  Ember.computed('model.run', function() {
+		const err = this.get('model.run.errorcount');
+		const warn = this.get('model.run.warningcount');
+		const dropped = this.get('model.run.droppedcount');
+
+		let out = '';
+
+		if(err || warn || dropped) {
+			out += 'with '
+		}
+
+		if(err) {
+			out += 'errors';
+
+			if(dropped && warn) {
+				out += ', dropped rows, and warnings';
+			} else {
+				if(dropped) {
+					out += ' and dropped rows';
+				}
+				if(warn) {
+					out += ' and warnings';
+				}
+			}
+
+		} else if(dropped) {
+			out += 'dropped rows';
+			if(warn) {
+				out += ' and warnings';
+			}
+		} else if(warn) {
+			out += 'warnings';
+		}
+
+
+		return out;
+	}),
+
 	ruleData: Ember.computed('model.ruleset.rules','model.log', function() {
 		let rules = this.get('model.ruleset.rules');
 		let log = this.get('model.log.meta.ruleState');
+
+		function addCounts(rule) {
+			rule.warningcount = 0;
+			rule.errorcount = 0;
+			rule.droppedcount = 0;
+			rule.hasAny = false;
+
+			if (log[rule.config.id]) {
+				rule.warningcount = log[rule.config.id].warn;
+				rule.errorcount = log[rule.config.id].err;
+				rule.droppedcount = log[rule.config.id].dropped;
+				rule.hasAny = rule.warningcount || rule.errorcount || rule.droppedcount;
+			}
+		}
 
 		if (Array.isArray(rules)) {
 
 			let items = [];
 
-			items.push({
+			let global = {
 				name: 'Global Errors',
 				filename: 'global',
 				config: {
 					id: 'global'
 				}
-			});
+			};
+			addCounts(global);
+
+			items.push(global);
 
 			rules.forEach(function (origRule) {
 
@@ -69,17 +125,7 @@ export default Ember.Component.extend({
 				};
 
 
-				rule.warningcount = 0;
-				rule.errorcount = 0;
-				rule.droppedcount = 0;
-				rule.hasAny = false;
-
-				if (log[rule.config.id]) {
-					rule.warningcount = log[rule.config.id].warn;
-					rule.errorcount = log[rule.config.id].err;
-					rule.droppedcount = log[rule.config.id].dropped;
-					rule.hasAny = rule.warningcount || rule.errorcount || rule.droppedcount;
-				}
+				addCounts(rule);
 
 				items.push(rule);
 			});
