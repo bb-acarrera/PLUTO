@@ -27,6 +27,7 @@
 		<div>
 			Source
 			{{#power-select
+			options=defaultSources
 			search=(action "searchSource")
 			onchange=(action "setSource")
 			selected=source
@@ -49,6 +50,7 @@
 			<div>
 				Target
 				{{#power-select
+				options=defaultTargets
 				search=(action "searchTarget")
 				onchange=(action "setTarget")
 				selected=target

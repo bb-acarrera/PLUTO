@@ -16,4 +16,6 @@
 	{{/bs-button}}
 </div>
 
-{{#add-ruleset showdialog=showAddRuleset parsers=model.parsers}}{{/add-ruleset}}
+{{add-ruleset showdialog=showAddRuleset parsers=model.parsers
+	defaultSources=model.defaultSources defaultTargets=model.defaultTargets}}
+
