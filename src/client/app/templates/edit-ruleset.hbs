@@ -48,118 +48,103 @@
 	{{/unless}}
 
 	{{#if model.ruleset.import}}
-        <div class="section-content ruleset-section-content">
-            <div class="rule-selectable ruleset-rule-selectable" id="import" {{action "toggleCollapse" "importCollapse"}}>
-                <span class="section-header">Importer:</span>
+        {{#edit-ruleset/collapse as |c|}}
+
+			{{#c.title}}
+            	Importer:
+			{{/c.title}}
+
+			{{#c.subTitle}}
 				{{#if model.ruleset.import}}
 					{{model.ruleset.import.filename}}
 				{{else}}
-                    None
+					None
 				{{/if}}
-                <span class="expand-controls">
-					{{#if (compute (action "isCollapsed") importCollapse )}}
-                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
-					{{else}}
-                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
-					{{/if}}
+			{{/c.subTitle}}
 
-                </span>
-            </div>
-			{{#bs-collapse collapsed=importCollapse}}
+			{{#c.collapsable}}
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
 				config=model.ruleset.import.config
 				disabled=disabled
 				columns=columns}}
-			{{/bs-collapse}}
-        </div>
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
 	{{/if}}
 
 	{{#if model.ruleset.export}}
-        <div class="section-content ruleset-section-content">
-            <div class="rule-selectable ruleset-rule-selectable" id="export" {{action "toggleCollapse" "exportCollapse"}}>
-                <span class="section-header">Exporter:</span>
+        {{#edit-ruleset/collapse as |c|}}
+
+			{{#c.title}}
+            	Exporter:
+			{{/c.title}}
+
+			{{#c.subTitle}}
 				{{#if model.ruleset.export}}
 					{{model.ruleset.export.filename}}
 				{{else}}
-                    None
+					None
 				{{/if}}
-                <span class="expand-controls">
-					{{#if (compute (action "isCollapsed") exportCollapse )}}
-                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
-					{{else}}
-                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
-					{{/if}}
+			{{/c.subTitle}}
 
-                </span>
-            </div>
-			{{#bs-collapse collapsed=exportCollapse}}
+			{{#c.collapsable}}
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
 				config=model.ruleset.export.config
 				disabled=disabled
 				columns=columns}}
-			{{/bs-collapse}}
-        </div>
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
 	{{/if}}
 
-	<div class="section-content ruleset-section-content">
-		<div class="rule-selectable ruleset-rule-selectable" id="parser" {{action "toggleCollapse" "parserCollapse"}}>
-			<span class="section-header">Parser:</span>
+	{{#edit-ruleset/collapse  as |c|}}
+
+		{{#c.title}}
+            Parser:
+		{{/c.title}}
+
+		{{#c.subTitle}}
 			{{#if model.ruleset.parser}}
 				{{model.ruleset.parser.filename}}
 			{{else}}
-				None
+                None
 			{{/if}}
-			<span class="expand-controls">
-				{{#if (compute (action "isCollapsed") parserCollapse )}}
-					<i class="fa fa-caret-square-o-right bigger-caret"></i>
-				{{else}}
-					<i class="fa fa-caret-square-o-down bigger-caret"></i>
-				{{/if}}
+		{{/c.subTitle}}
 
-			</span>
-		</div>
-		{{#bs-collapse collapsed=parserCollapse}}
+		{{#c.collapsable}}
 			{{component 'custom-property.property-list'
 			uiList=(compute (action "getUiProperties") model.parsers model.ruleset.parser.filename)
 			config=model.ruleset.parser.config
 			disabled=disabled
 			columns=columns}}
-		{{/bs-collapse}}
-	</div>
+		{{/c.collapsable}}
+	{{/edit-ruleset/collapse}}
 
+	{{#edit-ruleset/collapse as |c| }}
 
+		{{#c.title}}
+            General Configuration
+		{{/c.title}}
 
-	<div class="section-content ruleset-section-content">
-
-		<div class="rule-selectable ruleset-rule-selectable" id="general" {{action "toggleCollapse" "generalCollapse"}}>
-			<span class="section-header">General Configuration</span>
-			<span class="expand-controls">
-				{{#if (compute (action "isCollapsed") generalCollapse )}}
-					<i class="fa fa-caret-square-o-right bigger-caret"></i>
-				{{else}}
-					<i class="fa fa-caret-square-o-down bigger-caret"></i>
-				{{/if}}
-
-			</span>
-		</div>
-		{{#bs-collapse collapsed=generalCollapse}}
+		{{#c.collapsable}}
 			{{component 'custom-property.property-list'
 			uiList=(compute (action "getUiProperties") model.rulesetconfiguis model.ruleset.general.filename)
 			config=model.ruleset.general.config
 			disabled=disabled
 			columns=columns}}
-		{{/bs-collapse}}
-	</div>
+		{{/c.collapsable}}
 
+	{{/edit-ruleset/collapse}}
 
 
 	<div class="section-header">Rules</div>
 
 	{{#each model.ruleset.rules as |ruleInstance index|}}
-		<div class="section-content ruleset-section-content">
-			<div class="rule-selectable ruleset-rule-selectable" id={{concat 'rule' ruleInstance.config.id}} {{action "toggleCollapse" (concat 'collapseRule' ruleInstance.config.id)}}>
+
+		{{#edit-ruleset/collapse as |c| }}
+			{{#c.subTitle}}
 				<span class="rule-header">
 					{{ruleInstance.filename}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
@@ -167,45 +152,39 @@
 					{{/unless}}
 
 				</span>
+			{{/c.subTitle}}
 
-				<span class="rule-controls">
-					{{#unless disableEdit}}
+			{{#c.controls}}
+				{{#unless disableEdit}}
 
+					{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
+						<i class="fa fa-arrow-up"></i>
+					{{/bs-button}}
 
-						{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
-                        	<i class="fa fa-arrow-up"></i>
-						{{/bs-button}}
+					{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
+						<i class="fa fa-arrow-down"></i>
+					{{/bs-button}}
 
-						{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
-                        	<i class="fa fa-arrow-down"></i>
-						{{/bs-button}}
+					{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
+						<i class="fa fa-trash"></i>
+					{{/bs-button}}
 
-						{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
-                        	<i class="fa fa-trash"></i>
-						{{/bs-button}}
+				{{/unless}}
+			{{/c.controls}}
 
-					{{/unless}}
-					{{#if (compute (action "isCollapsed") (get this (concat 'collapseRule' ruleInstance.config.id)) )}}
-                        <i class="fa fa-caret-square-o-right bigger-caret"></i>
-					{{else}}
-                        <i class="fa fa-caret-square-o-down bigger-caret"></i>
-					{{/if}}
-
-				</span>
-			</div>
-			{{#bs-collapse collapsed=(get this (concat 'collapseRule' ruleInstance.config.id))}}
-                <div>
+			{{#c.collapsable}}
+				<div>
 					Name {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
-                </div>
+				</div>
 				{{component 'custom-property.property-list'
-					uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
-					config=(get ruleInstance "config")
-					disabled=disabled
-					columns=columns
+				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
+				config=(get ruleInstance "config")
+				disabled=disabled
+				columns=columns
 				}}
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
 
-			{{/bs-collapse}}
-		</div>
 	{{/each}}
 	{{#if showAddRule}}
 		<div class="section-content ruleset-section-content">
