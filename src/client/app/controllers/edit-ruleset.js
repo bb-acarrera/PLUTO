@@ -1,6 +1,24 @@
 import Ember from 'ember';
 import moment from 'moment';
 
+function startPolling(id) {
+	this.set("processing", true);
+	let pollId = this.get('poll').addPoll({
+		interval: 1000, // one minute
+		callback: () => {
+			this.store.findRecord('run', id).then(
+				run => {
+					if (!run.get('isrunning')) {
+						this.set("processing", false);
+						let rulesetid = this.model.ruleset.get("filename");
+						this.replaceRoute("editRuleset.run", rulesetid, id);
+					}
+				});
+		}
+	});
+
+	this.set('pollId', pollId);
+}
 export default Ember.Controller.extend( {
 	queryParams: [ "collapsedRun" ],
 	collapsedRun: false,
@@ -46,22 +64,7 @@ export default Ember.Controller.extend( {
 	}),
 	actions: {
 		toggleUpload (id) {
-			this.set("processing", true);
-			let pollId = this.get( 'poll' ).addPoll( {
-				interval: 1000, // one minute
-				callback: () => {
-					this.store.findRecord( 'run', id ).then(
-						run => {
-							if ( !run.get('isrunning') ) {
-								this.set("processing", false);
-								let rulesetid = this.model.ruleset.get("filename");
-								this.replaceRoute( "editRuleset.run", rulesetid,  id);
-							}
-						} );
-				}
-			} );
-
-			this.set( 'pollId', pollId );
+			startPolling.call(this, id);
 		},
 		showProcessing(){
 			this.set("processing", true);
@@ -214,6 +217,40 @@ export default Ember.Controller.extend( {
 				return null;
 
 			return item.get('ui.properties');
+		},
+
+		testRuleset() {
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.onreadystatechange = () => {
+				if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+					try {
+						var jsonResponse = JSON.parse(xmlHttp.responseText);
+
+						if(jsonResponse.runId != null) {
+							startPolling.call(this, jsonResponse.runId);
+						} else {
+							alert('Error processing file: ' + jsonResponse.processing)
+						}
+
+					}
+					catch (e) {
+						console.log("rulesetController.testRuleset() expected a JSON response.\n\t" + e);
+					}
+				}
+				else if (xmlHttp.readyState == 4) {
+					alert(`Failed to create: ${xmlHttp.statusText}`);
+				}
+			};
+
+			let theUrl = document.location.origin + "/processFile/";
+			let theJSON = {
+				ruleset: this.get('model.ruleset.filename'),
+				test: true
+			};
+
+			xmlHttp.open("POST", theUrl, true); // true for asynchronous
+			xmlHttp.setRequestHeader("Content-Type", "application/json");
+			xmlHttp.send(JSON.stringify(theJSON));
 		}
 
 	},
