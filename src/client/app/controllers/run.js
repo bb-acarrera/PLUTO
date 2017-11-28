@@ -12,12 +12,7 @@ export default Ember.Controller.extend({
 	type: null,
 	actions: {
 		updateFilters() {
-			this.transitionToRoute({queryParams:{
-				page: this.get('page'),
-				ruleid: this.get('ruleid'),
-				perPage: this.get('perPage'),
-				type: this.get('type')
-			}});
+
 		}
 	}
 });

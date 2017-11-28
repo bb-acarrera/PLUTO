@@ -831,4 +831,53 @@ QUnit.test( "internal rowId column actually removed", function(assert) {
 
 });
 
+
+    QUnit.test( "Exclude row correct summary count", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow'
+                    }
+                }
+            ],
+            general : { config : {
+                "errorsToAbort": 1
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        let vldtr = null;
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary) => {
+                assert.equal(vldtr.abort, false, "Expected run to pass");
+
+                assert.equal(summary.processeditems, 4, '4 rows processed');
+                assert.equal(summary.outputitems, 3, '3 rows output');
+            },
+            done);
+
+        vldtr = new validator(config, dbProxy.getDataObj());
+
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile2.csv", "output2.csv", 'UTF8');
+
+    });
+
 });

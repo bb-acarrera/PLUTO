@@ -1,22 +1,74 @@
 <div style="display: flex;">
     <div class="column">
-        <div class="section-header">Input Filename</div>
-        <div class="section-content">{{model.run.inputfilename}}</div>
-        <div class="section-header">Ruleset</div>
-        <div class="section-content">{{model.ruleset.filename}}</div>
-        <div class="section-content">Description: {{model.ruleset.name}}</div>
-        <div class="section-header">Rules</div>
-        <table id="rulesTable" class="ruleset-table">
+		<div>
+
+			{{#if model.run.passed}}
+                <i class="fa fa-thumbs-up good-color"></i>
+				<span class="good-color run-bold-text">
+					Passed
+				</span>
+			{{else}}
+                <i class="fa fa-thumbs-down error-color"></i>
+                <span class="error-color run-bold-text">
+					Failed
+				</span>
+			{{/if}}
+
+			{{errorTypesString}}
+
+			{{#if model.run.summary.exported}}
+				{{#if model.run.summary.target}}
+                    and sent to
+					{{model.run.summary.targetFile}} on target {{model.run.summary.target}}
+				{{else}}
+					and exported via {{model.ruleset.export.filename}}
+				{{/if}}
+			{{else}}
+				and not exported
+			{{/if}}
+
+		</div>
+		<div>
+			<span class="run-bold-text">Start:</span>
+			{{moment-format model.run.starttime 'MMMM Do YYYY, h:mm:ss a'}}
+		</div>
+        <div>
+            <span class="run-bold-text">Finish:</span>
+			{{moment-format model.run.time 'MMMM Do YYYY, h:mm:ss a'}}
+        </div>
+		<div class="run-section-break" />
+		<div>
+			Validated {{model.run.summary.processeditems}} items
+		</div>
+        <div>
+            Output {{model.run.summary.outputitems}} items
+        </div>
+        <div>
+            <i class="fa fa-exclamation-triangle error-color"></i>
+			{{model.run.errorcount}} Error(s)
+        </div>
+        <div>
+            <i class="fa fa-ban warning-color"></i>
+			Removed {{model.run.droppedcount}} item(s)
+        </div>
+        <div>
+            <i class="fa fa-exclamation-triangle warning-color"></i>
+			{{model.run.warningcount}} Warning(s)
+        </div>
+        <div class="run-section-break" />
+		<div id="rulesTable" class="section-content">
 			{{#each ruleData as |ruleInstance index|}}
-                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
-                    class="rule-selectable">
-                    <td class="icon-cell">
-                        {{#error-icon runcounts=ruleInstance}}{{/error-icon}}
-                    </td>
-                    <td>{{ruleInstance.name}}</td>
-                </tr>
+                <div id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
+                     class="rule-selectable {{if ruleInstance.selected 'selected'}}">
+                    <span  class="run-bold-text">{{ruleInstance.name}}</span>
+                    <span class="run-rule-header-count"><i class="fa fa-exclamation-triangle error-color"></i>{{ruleInstance.errorcount}}</span>
+                    <span class="run-rule-header-count"><i class="fa fa-ban warning-color"></i>{{ruleInstance.droppedcount}}</span>
+                    <span class="run-rule-header-count"><i class="fa fa-exclamation-triangle warning-color"></i>{{ruleInstance.warningcount}}</span>
+
+                </div>
 			{{/each}}
-        </table>
+		</div>
+
 
     </div>
     <div class="column">
@@ -24,7 +76,14 @@
         <div class="section-header">{{errorTitle}}:</div>
 
 		{{show-errors errors=errors}}
-		{{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage')}}
+		<div>
+			{{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage') tagName='span'}}
+			<span style="float: right">
+				{{#bs-button size="xs" onClick=(action "resetType")}}Reset{{/bs-button}}
+			</span>
+
+		</div>
+
     </div>
 </div>
 {{yeild}}

@@ -5,10 +5,10 @@ export function ruleLogIcons([value]) {
   let err = Ember.get(value,'errorcount');
   let warn = Ember.get(value,'warningcount');
   if (err) {
-    result = 'error-icon';
+    result = 'error-color';
   }
   if (warn) {
-    result = 'warning-icon';
+    result = 'warning-color';
   }
   if (warn && err) {
     result = 'warning-and-error-icon';

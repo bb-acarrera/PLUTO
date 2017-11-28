@@ -18,11 +18,11 @@ function getIconClass() {
 	let classes = "";
 
 	if (this.get('runcounts.errorcount') > 0)
-		classes = "fa fa-exclamation-triangle error-icon";
+		classes = "fa fa-exclamation-triangle error-color";
 	else if (this.get('runcounts.droppedcount') > 0)
-		classes = "fa fa-ban warning-icon";
+		classes = "fa fa-ban warning-color";
 	else if (this.get('runcounts.warningcount') > 0)
-		classes = "fa fa-exclamation-triangle warning-icon";
+		classes = "fa fa-exclamation-triangle warning-color";
 
 	return classes;
 }

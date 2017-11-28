@@ -31,10 +31,10 @@ class DataProxy {
                         resolve(0);
                     })
                 },
-                saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile) {
+                saveRunRecord: function(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary) {
                     return new Promise((resolve) => {
 
-                        that.afterSave(runId, log, ruleSetID, inputFile, outputFile);
+                        that.afterSave(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary);
 
                         that.done();
                         resolve();

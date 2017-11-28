@@ -35,6 +35,8 @@ class ProcessFileRouter extends BaseRouter {
         let inputFile = req.body.input;
         let outputFile = req.body.output;
         let importConfig = req.body.import;
+        let test = req.body.test;
+        let finishHandler = null;
 
         if(!ruleset) {
             res.json({
@@ -43,7 +45,18 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
-        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res));
+        if(test) {
+            outputFile = this.getTempName(this.config);
+
+            finishHandler = () => {
+
+                if (fs.existsSync(outputFile)) {
+                    fs.unlink(outputFile);
+                }
+            }
+        }
+
+        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, finishHandler));
     }
 
     processUpload(req, res, next) {
@@ -121,16 +134,16 @@ class ProcessFileRouter extends BaseRouter {
                 spawnArgs.push('-v');
                 spawnArgs.push(overrideFile);
             } else {
-            	    if (inputFile) {
+            	if (inputFile) {
                     execCmd += ' -i "' + inputFile;
                     spawnArgs.push('-i');
                     spawnArgs.push(inputFile);
-            	    }
-            	    if (outputFile) {
+            	}
+            	if (outputFile) {
                     execCmd += '" -o "' + outputFile + '"';
                     spawnArgs.push('-o');
                     spawnArgs.push(outputFile);
-            	    }
+            	}
                 if(inputDisplayName) {
                     execCmd += ' -n ' + inputDisplayName;
 

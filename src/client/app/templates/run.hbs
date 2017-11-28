@@ -3,7 +3,27 @@
 		{{#bs-tooltip placement="left"}}Return to runs{{/bs-tooltip}}
         <i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
-    <h2>Run Details</h2>
+
+	<h3>
+		{{#if model.ruleset.source}}
+			{{model.source.group}} {{model.source.description}} {{model.ruleset.source.config.file}}
+		{{else if model.ruleset.importer}}
+			{{model.run.inputfilename}} from {{model.ruleset.importer.filename}}
+		{{else}}
+			{{model.run.inputfilename}}
+		{{/if}}
+
+		{{#if model.run.passed}}
+            <i class="fa fa-thumbs-up good-color"></i>
+
+		{{else}}
+            <i class="fa fa-thumbs-down error-color"></i>
+		{{/if}}
+	</h3>
+
+</div>
+<div>
+	{{model.ruleset.name}}
 </div>
 <div>
 	{{run-details model=model type=type page=page ruleid=ruleid}}

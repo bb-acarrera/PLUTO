@@ -212,17 +212,24 @@
 
 	{{/if}}
 </div>
-<div class="fileUpload btn btn-default">
-	<span>Test Ruleset</span>
-	{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
-</div>
 
-
+{{#unless processing}}
+	{{#bs-button onClick=(action "testRuleset")}}
+        Test Ruleset
+	{{/bs-button}}
+    <div class="fileUpload btn btn-default">
+        <span>Test Ruleset from local file</span>
+		{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+    </div>
+{{/unless}}
 
 {{#if processing}}
     <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
     <span>Processing...</span>
 {{/if}}
-{{#bs-collapse collapsed=collapsedRun}}
-	{{outlet}}
-{{/bs-collapse}}
+
+{{#unless processing}}
+	{{#bs-collapse collapsed=collapsedRun}}
+		{{outlet}}
+	{{/bs-collapse}}
+{{/unless}}
