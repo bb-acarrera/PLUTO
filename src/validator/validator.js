@@ -245,6 +245,8 @@ class Validator {
 				rules.push(cleanupRule);
 			});
 
+			this.executedRules = rules;
+
 			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
 				this.abort = true;
 				throw "Errors in rule configuration. Aborting.";
@@ -305,8 +307,6 @@ class Validator {
 	}
 
 	getRule(ruleDescriptor) {
-		// TODO: Get all the rules before running them. This way if any rules are missing an error can be
-		// raised without affecting the later running of the rules.
 		var ruleClass = this.loadRule(ruleDescriptor.filename);
 
 
@@ -448,10 +448,51 @@ class Validator {
 		});
 	}
 
+	computeSummary() {
+
+		const summary = {
+			processeditems: 0,
+			outputitems: 0
+		};
+
+		if(this.executedRules) {
+			//find the initial # of processed items
+			let i, rule;
+			for(i = 0; i < this.executedRules.length; i++) {
+				if(this.executedRules[i].summary) {
+					rule = this.executedRules[i];
+					break;
+				}
+			}
+
+			if(rule) {
+				summary.processeditems = rule.summary.processed;
+			}
+
+			//find the final # of output items
+			for(i = this.executedRules.length - 1; i >= 0; i--) {
+				if(this.executedRules[i].summary) {
+					rule = this.executedRules[i];
+					break;
+				}
+			}
+
+			if(rule) {
+				summary.outputitems = rule.summary.output;
+			}
+		}
+
+		return summary;
+	}
+
 	finalize() {
 		return new Promise((resolve) => {
+
+			const summary = this.computeSummary();
+
 			this.data.saveRunRecord(this.runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(), !this.abort)
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
+				!this.abort, summary)
 				.then(() => {}, (error) => console.log('error saving run: ' + error))
 				.catch((e) => console.log('Exception saving run: ' + e))
 				.then(() => {

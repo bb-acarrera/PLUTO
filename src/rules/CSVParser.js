@@ -40,6 +40,11 @@ class CSVParser extends TableParserAPI {
             this.parserSharedData._internalColumns = [];
         }
 
+        this.summary = {
+            processed: 0,
+            output: 0
+        }
+
     }
 
     /**
@@ -102,6 +107,8 @@ class CSVParser extends TableParserAPI {
         // This CSV Transformer is used to call the processRecord() method above.
         const transformer = transform((record, callback) => {
 
+            this.summary.processed += 1;
+
             if(!this.parserSharedData.columnNames) {
                 this.parserSharedData.columnNames = [];
                 while(this.parserSharedData.columnNames.length < record.length) {
@@ -140,6 +147,10 @@ class CSVParser extends TableParserAPI {
             if(response instanceof Promise) {
                 response.then((result) => {
                     callback(null, result);
+                    if(result) {
+                        this.summary.output += 1;
+                    }
+
                 }, () => {
                     //rejected for some reason that should have logged
                     callback(null, response);
@@ -147,7 +158,9 @@ class CSVParser extends TableParserAPI {
                     callback(null, response);
                 })
             } else {
+
                 callback(null, response);
+                this.summary.output += 1;
             }
 
 
