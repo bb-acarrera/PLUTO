@@ -48,7 +48,7 @@
 		<div id="rulesTable" class="section-content">
 			{{#each ruleData as |ruleInstance index|}}
                 <div id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
-                     class="rule-selectable">
+                     class="rule-selectable {{if ruleInstance.selected 'selected'}}">
                     <span  class="run-bold-text">{{ruleInstance.name}}</span>
                     <span class="run-rule-header-count"><i class="fa fa-exclamation-triangle error-color"></i>{{ruleInstance.errorcount}}</span>
                     <span class="run-rule-header-count"><i class="fa fa-ban warning-color"></i>{{ruleInstance.droppedcount}}</span>
@@ -59,28 +59,20 @@
 		</div>
 
 
-		<!--
-        <div class="section-header">Rules</div>
-        <table id="rulesTable" class="ruleset-table">
-			{{#each ruleData as |ruleInstance index|}}
-                <tr id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight" (concat 'rulesetTableRow' index) ruleInstance}}
-                    class="rule-selectable">
-                    <td class="icon-cell">
-                        {{#error-icon runcounts=ruleInstance}}{{/error-icon}}
-                    </td>
-                    <td>{{ruleInstance.name}}</td>
-                </tr>
-			{{/each}}
-        </table>
-        -->
-
     </div>
     <div class="column">
         <!-- The column for showing rule errors. -->
         <div class="section-header">{{errorTitle}}:</div>
 
 		{{show-errors errors=errors}}
-		{{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage')}}
+		<div>
+			{{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage') tagName='span'}}
+			<span style="float: right">
+				{{#bs-button size="xs" onClick=(action "resetType")}}Reset{{/bs-button}}
+			</span>
+
+		</div>
+
     </div>
 </div>
 {{yeild}}

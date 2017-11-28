@@ -84,6 +84,7 @@ export default Ember.Component.extend({
 	ruleData: Ember.computed('model.ruleset.rules','model.log', function() {
 		let rules = this.get('model.ruleset.rules');
 		let log = this.get('model.log.meta.ruleState');
+		let selectedRuleId = this.get('ruleid');
 
 		function addCounts(rule) {
 			rule.warningcount = 0;
@@ -96,6 +97,10 @@ export default Ember.Component.extend({
 				rule.errorcount = log[rule.config.id].err;
 				rule.droppedcount = log[rule.config.id].dropped;
 				rule.hasAny = rule.warningcount || rule.errorcount || rule.droppedcount;
+			}
+
+			if(selectedRuleId == rule.config.id) {
+				rule.selected = true;
 			}
 		}
 
@@ -111,6 +116,7 @@ export default Ember.Component.extend({
 				}
 			};
 			addCounts(global);
+
 
 			items.push(global);
 
@@ -169,6 +175,9 @@ export default Ember.Component.extend({
 
 			this.sendAction('updateFilters');
 
+		},
+		resetType() {
+			deselectItems(true, this);
 		}
 	}
 });
