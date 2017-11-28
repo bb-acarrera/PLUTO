@@ -404,10 +404,15 @@ class Validator {
 				this.error("No results were produced.");
 			}
 
+			this.summary = {
+				exported: false
+			};
+
 			if(this.outputFileName) {
 
 				if(results) {
 					this.saveResults(results);
+
 				}
 				this.finalize().then(() => resolve());
 
@@ -428,8 +433,15 @@ class Validator {
 					this.error("Unrecognized results structure.");
 
 				this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
-					.then(() => {},
+					.then(() =>
+						{
+							this.summary.exported = true;
+							if(this.currentRuleset.target) {
+								this.summary.target = this.currentRuleset.target.filename;
+								this.summary.targetFile = this.currentRuleset.target.config.file;
+							}
 
+						},
 						(error) => {
 							this.error("Export failed: " + error);
 							this.abort = true;
@@ -450,10 +462,10 @@ class Validator {
 
 	computeSummary() {
 
-		const summary = {
+		const summary = Object.assign(this.summary, {
 			processeditems: 0,
 			outputitems: 0
-		};
+		});
 
 		if(this.executedRules) {
 			//find the initial # of processed items

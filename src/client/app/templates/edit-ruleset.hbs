@@ -227,6 +227,9 @@
     <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
     <span>Processing...</span>
 {{/if}}
-{{#bs-collapse collapsed=collapsedRun}}
-	{{outlet}}
-{{/bs-collapse}}
+
+{{#unless processing}}
+	{{#bs-collapse collapsed=collapsedRun}}
+		{{outlet}}
+	{{/bs-collapse}}
+{{/unless}}
