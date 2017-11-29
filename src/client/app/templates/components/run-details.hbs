@@ -43,18 +43,23 @@
         <div>
             Output {{model.run.summary.outputitems}} items
         </div>
-        <div>
-            <i class="fa fa-exclamation-triangle error-color"></i>
-			{{model.run.errorcount}} Error(s)
-        </div>
-        <div>
-            <i class="fa fa-ban warning-color"></i>
-			Removed {{model.run.droppedcount}} item(s)
-        </div>
-        <div>
-            <i class="fa fa-exclamation-triangle warning-color"></i>
-			{{model.run.warningcount}} Warning(s)
-        </div>
+        <div id="errorTypes">
+			<div id="errorTypeError" {{action "toggleErrorType" "errorTypeError" "Error"}}
+                 class="rule-selectable {{if (eq type 'Error') 'selected'}}">
+				<i class="fa fa-exclamation-triangle error-color"></i>
+				{{model.run.errorcount}} Error(s)
+			</div>
+			<div id="errorTypeDropped" {{action "toggleErrorType" "errorTypeDropped" "Dropped"}}
+                 class="rule-selectable {{if (eq type 'Dropped') 'selected'}}">
+				<i class="fa fa-ban warning-color"></i>
+				Removed {{model.run.droppedcount}} item(s)
+			</div>
+			<div id="errorTypeWarning" {{action "toggleErrorType" "errorTypeWarning" "Warning"}}
+                 class="rule-selectable {{if (eq type 'Warning') 'selected'}}">
+				<i class="fa fa-exclamation-triangle warning-color"></i>
+				{{model.run.warningcount}} Warning(s)
+			</div>
+		</div>
         <div class="run-section-break" />
 		<div id="rulesTable" class="section-content">
 			{{#each ruleData as |ruleInstance index|}}

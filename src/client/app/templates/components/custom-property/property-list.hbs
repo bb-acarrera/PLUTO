@@ -1,7 +1,7 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
 		{{component (concat "custom-property/" (custom-property-type item.type) )
-			label=item.name value=(get config item.name)
+			label=item.label value=(get config item.name)
 			config=config
 			uiItem=item disabled=disabled columns=columns}}
 	{{/each}}
