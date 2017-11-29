@@ -120,7 +120,6 @@ export default Ember.Controller.extend( {
 		},
 
 		deleteRule ( rule ) {
-			//deleteRule( tableID, ruleset );
 
 			if(!rule) {
 				return;
@@ -134,7 +133,7 @@ export default Ember.Controller.extend( {
 			}
 
 			for ( var i = 0; i < rules.length; i++ ) {
-				if(rules[i].filename === rule.filename) {
+				if(rules[i] === rule) {
 					ruleToDelete = i;
 					break;
 				}
@@ -145,7 +144,14 @@ export default Ember.Controller.extend( {
 				return;
 			}
 
-			if ( confirm( `Delete rule "${rule.name}"?` ) ) {
+			let label;
+			if(rule.name && rule.name !== rule.filename) {
+				label = `${rule.filename} - ${rule.name}`
+			} else {
+				label = rule.filename;
+			}
+
+			if ( confirm( `Delete rule "${label}"?` ) ) {
 				rules.splice( ruleToDelete, 1 ); // Remove the rule.
 				this.get('model.ruleset').notifyPropertyChange( "rules" );
 			}
