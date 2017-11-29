@@ -210,17 +210,29 @@ class RuleSet {
 	 */
 	static get ConfigProperties() {
 		return  [
-			{
+			/*{
 				name: 'errorsToAbort',
 				label: 'How many total errors before abort?',
 				type: 'integer',
 				tooltip: 'Stop execution when these many errors occur.'
+			},*/ //hide from UI
+			{
+				name: 'droppedPctToAbort',
+				label: 'How many dropped items as a percentage of the total before aborting?',
+				type: 'number',
+				tooltip: 'Stop execution when this percent of items are dropped.'
+			},
+			{
+				name: 'droppedToAbort',
+				label: 'How many total dropped items before aborting?',
+				type: 'integer',
+				tooltip: 'Stop execution when these many dropped items occur.'
 			},
 			{
 				name: 'warningsToAbort',
-				label: 'How many total warnings before abort?',
+				label: 'How many total warnings before aborting?',
 				type: 'integer',
-				tooltip: 'Stop execution when these many warnings occur.'
+				tooltip: 'Stop execution when this many warnings occur.'
 			}
 		];
 	}
@@ -262,6 +274,7 @@ function addRules(rules) {
 
 		dstRule.config.errorsToAbort = cleanNumber(dstRule.config.errorsToAbort, this.general.config.singleRuleErrorsToAbort);
 		dstRule.config.warningsToAbort = cleanNumber(dstRule.config.warningsToAbort, this.general.config.singleRuleWarningsToAbort);
+		dstRule.config.droppedToAbort = cleanNumber(dstRule.config.droppedToAbort, this.general.config.singleRuleDroppedToAbort);
 
 		this.rules.push(dstRule);
 		this.ruleMap[dstRule.config.id] = dstRule;
@@ -285,18 +298,25 @@ function addGeneralConfig() {
 
 	config.errorsToAbort = cleanNumber(config.errorsToAbort, 1);
 	config.warningsToAbort = cleanNumber(config.warningsToAbort);
+	config.droppedToAbort = cleanNumber(config.droppedToAbort);
+	config.droppedPctToAbort = cleanNumber(config.droppedPctToAbort, parseFloat);
 	config.singleRuleErrorsToAbort = cleanNumber(config.singleRuleErrorsToAbort);
+	config.singleRuleDroppedToAbort = cleanNumber(config.singleRuleDroppedToAbort);
 	config.singleRuleWarningsToAbort = cleanNumber(config.singleRuleWarningsToAbort);
 
 
 }
 
-function cleanNumber(value, defaultVal) {
+function cleanNumber(value, defaultVal, fn) {
 
 	let retVal = value;
 
+	if(!fn) {
+		fn = parseInt;
+	}
+
 	if(typeof retVal === "string") {
-		retVal = parseInt(retVal);
+		retVal = fn(retVal);
 	}
 
 	if(retVal == null || isNaN(retVal)) {

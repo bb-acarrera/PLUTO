@@ -399,14 +399,20 @@ class Validator {
 				this.inputFileName = "";
 			}
 
-			if(!results) {
-				console.error("No results");
-				this.error("No results were produced.");
-			}
-
 			this.summary = {
 				exported: false
 			};
+
+			this.updateSummaryCounts();
+
+			if(!this.finalChecks()) {
+				results = null;
+			}
+
+			if(!results && !this.abort) {
+				console.error("No results");
+				this.error("No results were produced.");
+			}
 
 			if(this.outputFileName) {
 
@@ -435,10 +441,12 @@ class Validator {
 				this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
 					.then(() =>
 						{
-							this.summary.exported = true;
-							if(this.currentRuleset.target) {
-								this.summary.target = this.currentRuleset.target.filename;
-								this.summary.targetFile = this.currentRuleset.target.config.file;
+							if(resultsFile) {
+								this.summary.exported = true;
+								if(this.currentRuleset.target) {
+									this.summary.target = this.currentRuleset.target.filename;
+									this.summary.targetFile = this.currentRuleset.target.config.file;
+								}
 							}
 
 						},
@@ -460,12 +468,17 @@ class Validator {
 		});
 	}
 
-	computeSummary() {
+	updateSummaryCounts() {
 
-		const summary = Object.assign(this.summary, {
-			processeditems: 0,
-			outputitems: 0
-		});
+		if(!this.summary) {
+			this.summary = {}
+		}
+
+		const summary = this.summary;
+
+		summary.processeditems = 0;
+		summary.outputitems = 0;
+
 
 		if(this.executedRules) {
 			//find the initial # of processed items
@@ -500,11 +513,9 @@ class Validator {
 	finalize() {
 		return new Promise((resolve) => {
 
-			const summary = this.computeSummary();
-
 			this.data.saveRunRecord(this.runId, this.logger.getLog(),
 				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-				!this.abort, summary)
+				!this.abort, this.summary)
 				.then(() => {}, (error) => console.log('error saving run: ' + error))
 				.catch((e) => console.log('Exception saving run: ' + e))
 				.then(() => {
@@ -849,6 +860,33 @@ class Validator {
 		this.error('Aborting: ' + reason);
 	}
 
+	finalChecks() {
+
+		if(this.abort) {
+			return true;
+		}
+
+		let errorConfig = null;
+		if(this.currentRuleset && this.currentRuleset.general) {
+			errorConfig = this.currentRuleset.general.config;
+		}
+
+		if(errorConfig) {
+
+			if (this.summary.processeditems && errorConfig.droppedPctToAbort && errorConfig.droppedPctToAbort > 0) {
+				let droppedPct = this.logger.getCount(ErrorHandlerAPI.DROPPED) * 100.0 / this.summary.processeditems;
+
+				if(droppedPct >= errorConfig.droppedPctToAbort) {
+					this.abortRun('Too many dropped items. ' +
+						droppedPct + '% were dropped and limit was ' + errorConfig.droppedPctToAbort + '%');
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	checkAbort(ruleID) {
 
 		if(this.abort) {
@@ -874,6 +912,13 @@ class Validator {
 
 		if(errorConfig) {
 
+			if (errorConfig.droppedToAbort && errorConfig.droppedToAbort > 0 &&
+				this.logger.getCount(ErrorHandlerAPI.DROPPED) >= errorConfig.droppedToAbort) {
+				this.abortRun('Too many total dropped items. Got ' +
+					this.logger.getCount(ErrorHandlerAPI.DROPPED) + ' limit was ' + errorConfig.droppedToAbort);
+				return;
+			}
+
 			if (errorConfig.warningsToAbort && errorConfig.warningsToAbort > 0 &&
 				this.logger.getCount(ErrorHandlerAPI.WARNING) >= errorConfig.warningsToAbort) {
 				this.abortRun('Too many total warnings. Got ' +
@@ -889,6 +934,13 @@ class Validator {
 					this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
 					this.abortRun('Too many errors for ' + rule.filename + '. Got ' +
 						this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) + ' limit was ' + rule.config.errorsToAbort);
+					return;
+				}
+
+				if (rule.config.droppedToAbort && rule.config.droppedToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.DROPPED, ruleID) >= rule.config.droppedToAbort) {
+					this.abortRun('Too many dropped items for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.DROPPED, ruleID) + ' limit was ' + rule.config.droppedToAbort);
 					return;
 				}
 

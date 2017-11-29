@@ -161,29 +161,58 @@ export default Ember.Component.extend({
 
 			const selected = row.classList.contains('selected');
 
-			deselectItems(selected, this);
+			deselectItems(this);
+
+			this.set('page',1);
 
 			if(!selected) {
 				row.classList.add('selected');
-
 				this.set('showErrors', rule);
-				this.set('page', 1);
 				this.set('ruleid', rule.config.id);
-
-
+			} else {
+				this.set('showErrors', null);
+				this.set('ruleid', null);
 			}
 
 			this.sendAction('updateFilters');
 
 		},
+		toggleErrorType(id, type) {
+			const row = document.getElementById(id);
+
+			const selected = row.classList.contains('selected');
+
+			deselectItems(this, 'errorTypes');
+
+			this.set('page', 1);
+
+			if(!selected) {
+				row.classList.add('selected');
+				this.set('type', type);
+			} else {
+				this.set('type', null);
+			}
+
+			this.sendAction('updateFilters');
+		},
 		resetType() {
-			deselectItems(true, this);
+			deselectItems(this);
+
+			this.set('page',1);
+			this.set('showErrors', null);
+			this.set('ruleid', null);
+			this.set('type', null);
 		}
 	}
 });
 
-function deselectItems(clearProperties, c) {
-	const rulesElem = document.getElementById('rulesTable');
+function deselectItems(c, id) {
+
+	if(!id) {
+		id = 'rulesTable';
+	}
+
+	const rulesElem = document.getElementById(id);
 
 	const items = rulesElem.childNodes;
 
@@ -193,11 +222,7 @@ function deselectItems(clearProperties, c) {
 			item.classList.remove('selected');
 	}
 
-	if(clearProperties) {
-		c.set('showErrors', null);
-		c.set('page',1);
-		c.set('ruleid', null);
-	}
+
 
 	c.sendAction('updateFilters');
 
