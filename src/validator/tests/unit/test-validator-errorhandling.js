@@ -305,7 +305,7 @@ QUnit.test( "Abort on two warnings", function(assert) {
             assert.equal(vldtr.abort, true, "Expected run to fail");
 
             assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.WARNING) == 2, "Expected at 2 warnings");
-            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 2, "Expected two errors (abort & no results)");
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 1, "Expected one errors (abort)");
 
         },
         done);
@@ -404,7 +404,7 @@ QUnit.test( "Pass rule errors, Abort on errors", function(assert) {
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.equal(vldtr.abort, true, "Expected run to fail");
 
-            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 4, "Expected four errors");
+            assert.ok(vldtr.logger.getCount(ErrorHandlerAPI.ERROR) == 3, "Expected three errors");
         },
         done);
 
@@ -622,6 +622,182 @@ QUnit.test( "Exclude row shouldn't abort", function(assert) {
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
 });
+
+    QUnit.test( "Exclude row abort on 1 global", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow'
+                    }
+                }
+            ],
+            general : { config : {
+                "errorsToAbort": 1,
+                droppedToAbort: 1
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, true, "Expected run to fail");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+    QUnit.test( "Exclude row abort on 2 global has 1", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow'
+                    }
+                }
+            ],
+            general : { config : {
+                "errorsToAbort": 1,
+                droppedToAbort: 2
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, false, "Expected run to pass");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+    QUnit.test( "Exclude row abort on 1 on rule", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow',
+                        droppedToAbort: 1
+                    }
+                }
+            ],
+            general : { config : {
+                "errorsToAbort": 1
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, true, "Expected run to fail");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+    QUnit.test( "Exclude row abort on 2 on rule has 1", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow',
+                        droppedToAbort: 2
+                    }
+                }
+            ],
+            general : { config : {
+                "errorsToAbort": 1
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, false, "Expected run to pass");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
 
 QUnit.test( "Exclude row actually removed", function(assert) {
     const config = getDefaultConfig();
@@ -877,6 +1053,93 @@ QUnit.test( "internal rowId column actually removed", function(assert) {
 
 
         vldtr.runRuleset("src/validator/tests/testDataCSVFile2.csv", "output2.csv", 'UTF8');
+
+    });
+
+
+    QUnit.test( "Exclude 25% rows abort on 20%", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow'
+                    }
+                }
+            ],
+            general : { config : {
+                droppedPctToAbort: 20
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, true, "Expected run to fail");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+    QUnit.test( "Exclude 25% rows abort on 50%", function(assert) {
+        const config = getDefaultConfig();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "RulePassFail",
+                    config : {
+                        id : 1,
+                        rows: {
+                            "2": ErrorHandlerAPI.ERROR
+                        },
+                        onError: 'excludeRow'
+                    }
+                }
+            ],
+            general : { config : {
+                droppedPctToAbort: 50
+            }},
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const done = assert.async();
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(vldtr.abort, false, "Expected run to pass");
+            },
+            done);
+
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
     });
 

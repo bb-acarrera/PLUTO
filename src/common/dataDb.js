@@ -90,6 +90,8 @@ class data {
                             filter = false;
                         }
 
+                        let index = 0;
+
                         log.forEach( function ( value ) {
 
                             if ( !value.ruleID ) {
@@ -113,12 +115,16 @@ class data {
                             } else if (value.type == 'Dropped') {
                                 resultMap[ rowRuleId ].dropped += 1;
                             }
+                            value.index = index;
 
                             if ( filter ) {
                                 if ( (!type || type == value.type) && (!ruleid || rowRuleId == ruleid ) ) {
                                     filteredLog.push( value );
                                 }
                             }
+
+                            index++;
+
                         } );
 
 
