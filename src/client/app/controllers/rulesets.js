@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 function addRuleset(controller, rulesetId, ruleset) {
-	if(rulesetId === "_run_") {
+	if (rulesetId === "_run_") {
 		alert(`_run_ is a reserved name. Please choose a different one.`);
 		return;
 	}
@@ -35,7 +35,7 @@ function runRuleset(controller, rulesetId) {
 			try {
 				var jsonResponse = JSON.parse(xmlHttp.responseText);
 
-				if(jsonResponse.runId != null) {
+				if (jsonResponse.runId != null) {
 					startPolling(controller, rulesetId, jsonResponse.runId);
 				} else {
 					alert('Error processing file: ' + jsonResponse.processing)
@@ -63,26 +63,26 @@ function runRuleset(controller, rulesetId) {
 }
 
 function startPolling(controller, rulesetID, runID) {
-    let pollId = controller.get( 'poll' ).addPoll( {
-        interval: 1000, // one second
-        callback: () => {
-	            let tracker = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
-        		var _runId = tracker.get('runID');	// Somehow the passed in runID is getting overwritten eventually.
-        		controller.store.findRecord( 'run', _runId ).then(
-                run => {
-                    if ( !run.get('isrunning') ) {
-                        tracker.set('processing', false);
-                        var pId = tracker.get('pollId');
-                        controller.get( 'poll' ).stopPoll(pId);
+	let pollId = controller.get('poll').addPoll({
+		interval: 1000, // one second
+		callback: () => {
+			let tracker = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
+			var _runId = tracker.get('runID');	// Somehow the passed in runID is getting overwritten eventually.
+			controller.store.findRecord('run', _runId).then(
+				run => {
+					if (!run.get('isrunning')) {
+						tracker.set('processing', false);
+						var pId = tracker.get('pollId');
+						controller.get('poll').stopPoll(pId);
 
-		                tracker.set('details', run);
+						tracker.set('details', run);
 
-                    }
-                } );
-        }
-    } );
+					}
+				});
+		}
+	});
 
-    let tracker = controller.get('rulesetTrackerMap').get(rulesetID);
+	let tracker = controller.get('rulesetTrackerMap').get(rulesetID);
 	let run = Ember.Object.create({
 		processing: true,
 		runID: runID,
@@ -121,25 +121,25 @@ export default Ember.Controller.extend({
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
 
 	run: false,
-    poll: Ember.inject.service(),
+	poll: Ember.inject.service(),
 
 	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter',
-		function() {
+		function () {
 			this.set('page', 1);
 		}),
 
 	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
-		function() {
+		function () {
 			this.set('rulePage', 1);
 		}),
 
-	userChanged: Ember.observer('applicationController.currentUser', function() {
+	userChanged: Ember.observer('applicationController.currentUser', function () {
 		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}),
 
-	rulesets: Ember.computed('model.rulesets.result', function() {
+	rulesets: Ember.computed('model.rulesets.result', function () {
 		const rulesets = this.get('model.rulesets.result');
 
 		const list = [];
@@ -150,9 +150,9 @@ export default Ember.Controller.extend({
 		rulesets.forEach((ruleset) => {
 			let run = null;
 
-			if(oldTrackerMap) {
+			if (oldTrackerMap) {
 				const tracker = oldTrackerMap.get(ruleset.get('filename'));
-				if(tracker) {
+				if (tracker) {
 					run = tracker.get('run');
 				}
 			}
@@ -189,6 +189,25 @@ export default Ember.Controller.extend({
 		},
 		setShowAddRuleset(cloneRuleset) {
 			this.set('cloneRuleset', cloneRuleset);
+
+			const parsers = this.get('model.parsers');
+			parsers.forEach((parser) => {
+				if (parser.get('filename') == cloneRuleset.get('parser.filename')) {
+					this.set('cloneParser', parser);
+				}
+			});
+
+			const sourceId = cloneRuleset.get('source.filename');
+			if(sourceId) {
+				this.set('cloneSource', this.store.queryRecord('configuredrule', {id: sourceId}));
+			}
+
+			const targetId = cloneRuleset.get('target.filename');
+			if(targetId) {
+				this.set('cloneTarget', this.store.queryRecord('configuredrule', {id: targetId}));
+			}
+
+
 			this.set('showAddRuleset', true);
 		},
 		addRuleset() {
@@ -198,6 +217,7 @@ export default Ember.Controller.extend({
 
 		cloneRuleset(ruleset) {
 			this.set("showdialog", false);
+
 			var rulesetId = this.modaltext;
 
 			var rulesetCopy = ruleset.toJSON().rules;
@@ -234,33 +254,33 @@ export default Ember.Controller.extend({
 			runRuleset(this, ruleset.get("ruleset_id"));
 		},
 
-        toggleRowHighlight ( rowID ) {
+		toggleRowHighlight (rowID) {
 
-            const row = document.getElementById( rowID );
+			const row = document.getElementById(rowID);
 
-            const selected = row.classList.contains( 'selected' );
+			const selected = row.classList.contains('selected');
 
-            deselectItems( );
+			deselectItems();
 
-            if ( !selected ) {
-                row.classList.add( 'selected' );
-            }
+			if (!selected) {
+				row.classList.add('selected');
+			}
 
-        }
+		}
 	},
-	init: function() {
+	init: function () {
 //		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 //		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}
 });
 
-function deselectItems ( ) {
-    const rulesElem = document.getElementById( 'rulesetTable' );
+function deselectItems() {
+	const rulesElem = document.getElementById('rulesetTable');
 
-    const items = rulesElem.childNodes;
-    for ( var i = 0; i < items.length; i++ ) {
-        const item = items[ i ];
-        if ( item.nodeName.toLowerCase() == "tr" && item.classList )
-            item.classList.remove( 'selected' );
-    }
+	const items = rulesElem.childNodes;
+	for (var i = 0; i < items.length; i++) {
+		const item = items[i];
+		if (item.nodeName.toLowerCase() == "tr" && item.classList)
+			item.classList.remove('selected');
+	}
 }
