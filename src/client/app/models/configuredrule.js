@@ -1,6 +1,18 @@
 import DS from 'ember-data';
+import { validator, buildValidations } from 'ember-cp-validations';
 
-export default DS.Model.extend({
+//see http://offirgolan.github.io/ember-cp-validations/
+
+const Validations = buildValidations({
+	group: [
+		validator('presence', true)
+	],
+	base: [
+		validator('presence', true)
+	]
+});
+
+export default DS.Model.extend(Validations, {
 	description : DS.attr('string'),
 	rule_id : DS.attr('string'),
 	database_id : DS.attr('string'),
