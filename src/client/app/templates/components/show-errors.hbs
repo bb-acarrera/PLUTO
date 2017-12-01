@@ -1,10 +1,10 @@
 {{#if (eq errors.length 0) }}
 	No warnings nor errors.
 {{else}}
-<table class="error-table">
-	{{#each errors as |error|}}
-		<tr class="error-row"><td class="error-cell">{{error.type}}</td><td>{{error.description}}</td></tr>
-	{{/each}}
-</table>
-<p>{{yield}}</p>
+	<table class="error-table">
+		{{#each errors as |error|}}
+			<tr class="error-row"><td class="error-cell">{{error.type}}</td><td>{{error.description}}</td></tr>
+		{{/each}}
+	</table>
+	<p>{{yield}}</p>
 {{/if}}
