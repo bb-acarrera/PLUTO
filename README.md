@@ -3,7 +3,7 @@ Primary Layer Updating Tool
 
 ## Setup and Building
 
-First, set up the environment:
+First, in the PLUTO directory set up the environment by running:
 
 ```shell
 
@@ -17,7 +17,10 @@ npm run build
 ```
 
 'npm run build' executes the build script, and puts the build into the "./Release" folder.
-'npm run docker_build' builds the docker container
+'npm run docker_build' builds the docker container from this release. Run this before the next
+step if you simply want to run the service without developing it. (If you want to develop
+jump down to "Starting dev database and running locally" to start a development environment
+rather than this release environment.)
 
 
 
