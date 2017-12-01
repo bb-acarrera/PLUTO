@@ -25,3 +25,4 @@ Factories.csv
 docs/.*.html
 .pydevproject
 *.pyc
+src/.vscode
