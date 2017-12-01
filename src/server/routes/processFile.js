@@ -179,8 +179,12 @@ class ProcessFileRouter extends BaseRouter {
                 let str = data.toString();
                 console.log('stdout: ' + str);
 
-                if(str.startsWith('runId:')) {
-                    resolve(str.substr(6).trim());
+                let strs = str.split('\n');
+                for (var i = 0; i < strs.length; i++) {
+                    let s = strs[i];
+                    if(s.startsWith('runId:')) {
+                        resolve(s.substr(6).trim());
+                    }
                 }
             });
 
