@@ -16,9 +16,8 @@ class TableParserAPI extends RuleAPI {
 
         if(this.config.__state && this.config.__state.sharedData) {
             if (!this.config.__state.sharedData.Parser) {
-                this.config.__state.sharedData.Parser = { columnNames: this.config.columnNames };
+                this.config.__state.sharedData.Parser = {};
             }
-
 
             this.parserSharedData = this.config.__state.sharedData.Parser
         } else {
@@ -34,7 +33,6 @@ class TableParserAPI extends RuleAPI {
         } else {
             this.tableRule = tableRule;
         }
-
 
 
     }
@@ -95,17 +93,34 @@ class TableParserAPI extends RuleAPI {
             newColumnIndex = this.parserSharedData.columnNames.length;
 
             this.parserSharedData.columnNames.push(columnName);
+
+            if(!this.parserSharedData.columnChanges) {
+                this.parserSharedData.columnChanges = [];
+            }
+
+            this.parserSharedData.columnChanges.push({add:columnName, index:newColumnIndex});
+
         }
+
+
 
         return newColumnIndex;
     }
 
     removeColumn(columnIndex) {
+        let columnName = null;
         if(this.parserSharedData.columnNames
-            && this.parserSharedData.columnNames.length != null
-            && this.parserSharedData.columnNames.length >= this.column) {
+            && this.parserSharedData.columnNames.length > columnIndex) {
+
+            columnName =  this.parserSharedData.columnNames[columnIndex];
 
             this.parserSharedData.columnNames.splice(columnIndex, 1);
+
+            if(!this.parserSharedData.columnChanges) {
+                this.parserSharedData.columnChanges = [];
+            }
+
+            this.parserSharedData.columnChanges.push({remove:columnName, index:columnIndex});
         }
 
     }
