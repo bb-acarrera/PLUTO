@@ -38,10 +38,10 @@
         </div>
 		<div class="run-section-break" />
 		<div>
-			Validated {{model.run.summary.processeditems}} items
+			Validated {{model.run.summary.processeditems}} {{if (eq model.run.summary.processeditems 1) "item" "items"}}
 		</div>
         <div>
-            Output {{model.run.summary.outputitems}} items
+            Output {{model.run.summary.outputitems}} {{if (eq model.run.summary.outputitems 1) "item" "items"}}
         </div>
         <div id="errorTypes">
 			<div id="errorTypeError" {{action "toggleErrorType" "errorTypeError" "Error"}}
