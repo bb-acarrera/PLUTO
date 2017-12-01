@@ -6,6 +6,9 @@
   ],
   "rules": [
     {
+      "filename":"CheckColumnNames"
+    },
+    {
       "filename":"CheckColumnCount"
     },
     {
