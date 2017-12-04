@@ -19,7 +19,10 @@ div.column {
   font-size: 125%;
 }
 
-
+div.paginator-page {
+  margin-left: 5px;
+  margin-right: 5px
+}
 
 div.section-content {
   /*border:1px solid black;*/
@@ -201,6 +204,7 @@ div.authDetails {
 
 .btn-return-title {
   float: left;
+  margin-right: 10px;
   height: 100%;
 }
 

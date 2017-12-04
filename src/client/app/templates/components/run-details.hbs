@@ -38,26 +38,26 @@
         </div>
 		<div class="run-section-break" />
 		<div>
-			Validated {{model.run.summary.processeditems}} items
+			Validated {{model.run.summary.processeditems}} {{if (eq model.run.summary.processeditems 1) "item" "items"}}
 		</div>
         <div>
-            Output {{model.run.summary.outputitems}} items
+            Output {{model.run.summary.outputitems}} {{if (eq model.run.summary.outputitems 1) "item" "items"}}
         </div>
         <div id="errorTypes">
 			<div id="errorTypeError" {{action "toggleErrorType" "errorTypeError" "Error"}}
                  class="rule-selectable {{if (eq type 'Error') 'selected'}}">
 				<i class="fa fa-exclamation-triangle error-color"></i>
-				{{model.run.errorcount}} Error(s)
+				{{model.run.errorcount}} {{if (eq model.run.errorcount 1) "Error" "Errors"}}
 			</div>
 			<div id="errorTypeDropped" {{action "toggleErrorType" "errorTypeDropped" "Dropped"}}
                  class="rule-selectable {{if (eq type 'Dropped') 'selected'}}">
 				<i class="fa fa-ban warning-color"></i>
-				Removed {{model.run.droppedcount}} item(s)
+				Removed {{model.run.droppedcount}} {{if (eq model.run.droppedcount 1) "item" "items"}}
 			</div>
 			<div id="errorTypeWarning" {{action "toggleErrorType" "errorTypeWarning" "Warning"}}
                  class="rule-selectable {{if (eq type 'Warning') 'selected'}}">
 				<i class="fa fa-exclamation-triangle warning-color"></i>
-				{{model.run.warningcount}} Warning(s)
+				{{model.run.warningcount}} {{if (eq model.run.warningcount 1) "Warning" "Warnings"}}
 			</div>
 		</div>
         <div class="run-section-break" />
@@ -84,7 +84,7 @@
 		<div>
 			{{show-paginator pages=totalPages current=page  inc=(action 'incPage') dec=(action 'decPage') tagName='span'}}
 			<span style="float: right">
-				{{#bs-button size="xs" onClick=(action "resetType")}}Reset{{/bs-button}}
+				{{#bs-button size="xs" onClick=(action "resetType")}}Show All{{/bs-button}}
 			</span>
 
 		</div>

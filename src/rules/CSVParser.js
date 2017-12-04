@@ -35,6 +35,7 @@ class CSVParser extends TableParserAPI {
         this.post_quote = this.config.OutputQuote || '"';
 
         this.numHeaderRows = this.getValidatedHeaderRows();
+	    this.columnRow = this.getValidatedColumnRow();
 
         if(!this.parserSharedData._internalColumns) {
             this.parserSharedData._internalColumns = [];
@@ -76,6 +77,27 @@ class CSVParser extends TableParserAPI {
         return result;
     }
 
+	getValidatedColumnRow(columnRowProperty, columnRowPropertyName) {
+		columnRowProperty = columnRowProperty == undefined ? this.config.columnRow : columnRowProperty;
+		columnRowPropertyName = columnRowPropertyName == undefined ? 'columnRow' : columnRowPropertyName;
+
+		var result = 0;
+		if(columnRowProperty != null) {
+			if (isNaN(columnRowProperty))
+				this.warning(`Configured with a non-number '${columnRowPropertyName}'. Got '${columnRowProperty}', using ${result}.`);
+			else if (columnRowProperty < 0)
+				this.warning(`Configured with an invalid '${columnRowPropertyName}'. Got '${columnRowProperty}', using ${result}.`);
+			else {
+				result = Math.floor(parseFloat(columnRowProperty));
+				if (!Number.isInteger(parseFloat(columnRowProperty)))
+					this.warning(`Configured with a non-integer '${columnRowPropertyName}'. Got '${columnRowProperty}', using ${result}.`);
+			}
+
+			return result;
+		}
+
+	}
+
 
     /**
      * Process a CSV stream.
@@ -105,25 +127,7 @@ class CSVParser extends TableParserAPI {
 
 
         // This CSV Transformer is used to call the processRecord() method above.
-        const transformer = transform((record, callback) => {
-
-            this.summary.processed += 1;
-
-            if(!this.parserSharedData.columnNames) {
-                this.parserSharedData.columnNames = [];
-                while(this.parserSharedData.columnNames.length < record.length) {
-                    this.parserSharedData.columnNames.push(this.parserSharedData.columnNames.length);
-                }
-            }
-
-            if(firstRow) {
-                firstRow = false;
-                if(this.tableRule) {
-                    this.tableRule.start(this);
-                }
-
-            }
-
+	    function processRow(record, isHeaderRow, callback, rowNumber) {
 
             if(this.config.__state && this.config.__state.sharedData && this.config.__state.sharedData.abort) {
                 callback(null, null);
@@ -131,7 +135,7 @@ class CSVParser extends TableParserAPI {
             }
 
             let response = record;
-            let isHeaderRow = rowNumber < rowHeaderOffset;
+
             let rowId = rowNumber;
 
             if(this.tableRule && (!isHeaderRow || processHeaderRows)) {
@@ -162,8 +166,58 @@ class CSVParser extends TableParserAPI {
                 callback(null, response);
                 this.summary.output += 1;
             }
+        }
 
+        function deferredProcessRow(record, isHeaderRow, callback, rowNumber) {
+            return () => {
+                processRow.call(this, record, isHeaderRow, callback, rowNumber)
+            }
+        }
 
+        let preStartRows = [];
+
+        const transformer = transform((record, callback) => {
+
+            this.summary.processed += 1;
+
+            let isHeaderRow = rowNumber < rowHeaderOffset;
+
+            if(isHeaderRow && !this.parserSharedData.columnNames && this.columnRow == rowNumber) {
+                this.parserSharedData.columnNames = [];
+
+                record.forEach((column) => {
+                    this.parserSharedData.columnNames.push(column);
+                })
+
+            } else if(!isHeaderRow && !this.parserSharedData.columnNames) {
+
+                if(this.config.columnNames && this.config.columnNames.length > 0) {
+                    this.parserSharedData.columnNames = this.config.columnNames
+                } else {
+                    this.parserSharedData.columnNames = [];
+                    while(this.parserSharedData.columnNames.length < record.length) {
+                        this.parserSharedData.columnNames.push(this.parserSharedData.columnNames.length);
+                    }
+                }
+            }
+
+            if(firstRow && this.parserSharedData.columnNames) {
+                firstRow = false;
+                if(this.tableRule) {
+                    this.tableRule.start(this);
+                }
+
+                preStartRows.forEach((row) => {
+                    row();
+                });
+
+                processRow.call(this, record, isHeaderRow, callback, rowNumber);
+
+            } else if(!this.parserSharedData.columnNames) {
+                preStartRows.push(deferredProcessRow.call(this, record, isHeaderRow, callback, rowNumber));
+            } else {
+                processRow.call(this, record, isHeaderRow, callback, rowNumber);
+            }
 
             rowNumber++;
         });
@@ -275,11 +329,17 @@ class CSVParser extends TableParserAPI {
                 tooltip: 'The names of the columns; used for column selection in rules'
             },
             {
+                name: 'columnRow',
+                label: 'Row number which contains the column names',
+                type: 'integer',
+                tooltip: 'The row index where the column names are. Usually the first row (1)'
+            },
+            {
                 name: 'numHeaderRows',
                 label: 'Number of Header Rows',
                 type: 'integer',
                 minimum: '0',
-                tooltip: 'The expected number of rows making up the input file header.'
+                tooltip: 'The number of rows that contain meta-data (e.g. column names) and not data.'
             },
             {
                 name: 'delimiter',
@@ -318,6 +378,7 @@ class CSVParser extends TableParserAPI {
     static get ConfigDefaults() {
         return {
             numHeaderRows: 1,
+            columnRow: 1,
             delimiter: ',',
             comment: '',
             escape: '"',

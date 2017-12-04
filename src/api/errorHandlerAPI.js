@@ -23,7 +23,6 @@ class ErrorHandlerAPI {
 	 * Use this with {@link Validator#log} to log significant errors.
 	 * @static
 	 * @returns {string}
-	 * @private
 	 */
 	static get ERROR() { return "Error"; }
 
@@ -31,7 +30,6 @@ class ErrorHandlerAPI {
 	 * Use this with {@link Validator#log} to log simple warnings.
 	 * @static
 	 * @returns {string}
-	 * @private
 	 */
 	static get WARNING() { return "Warning"; }
 
@@ -39,7 +37,6 @@ class ErrorHandlerAPI {
 	 * Use this with {@link Validator#log} when reporting information.
 	 * @static
 	 * @returns {string}
-	 * @private
 	 */
 	static get INFO() { return "Info"; }
 
@@ -47,7 +44,6 @@ class ErrorHandlerAPI {
 	 * Use this with {@link Validator#log} when reporting dropped items/rows.
 	 * @static
 	 * @returns {string}
-	 * @private
 	 */
 	static get DROPPED() { return "Dropped"; }
 
