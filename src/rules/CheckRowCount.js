@@ -7,7 +7,7 @@ class CheckRowCount extends TableRuleAPI {
 		this.goodConfig = true;
 		this.rowCount = 0;
 
-		if (!this.config) {
+		if (!config) {
 			this.error('No configuration specified.');
 			this.goodConfig = false;
 			return;
@@ -18,25 +18,29 @@ class CheckRowCount extends TableRuleAPI {
 		this.minErrorThreshold = this.retrieveProperty("minErrorThreshold");
 		this.maxErrorThreshold = this.retrieveProperty("maxErrorThreshold");
 
-		if (this.minWarningThreshold >= this.maxWarningThreshold) {
-			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than maxWarningThreshold (${this.maxWarningThreshold}).`);
-			this.goodConfig = false;
-		}
+		if (this.minWarningThreshold && this.maxWarningThreshold && this.minErrorThreshold && this.maxErrorThreshold) {
+			if (this.minWarningThreshold >= this.maxWarningThreshold) {
+				this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than maxWarningThreshold (${this.maxWarningThreshold}).`);
+				this.goodConfig = false;
+			}
 
-		if (this.minErrorThreshold >= this.maxErrorThreshold) {
-			this.error(`minErrorThreshold (${this.minErrorThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
-			this.goodConfig = false;
-		}
+			if (this.minErrorThreshold >= this.maxErrorThreshold) {
+				this.error(`minErrorThreshold (${this.minErrorThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
+				this.goodConfig = false;
+			}
 
-		if (this.minWarningThreshold >= this.minErrorThreshold) {
-			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than minErrorThreshold (${this.minErrorThreshold}).`);
-			this.goodConfig = false;
-		}
+			if (this.minWarningThreshold <= this.minErrorThreshold) {
+				this.error(`minWarningThreshold (${this.minWarningThreshold}) must be greater than minErrorThreshold (${this.minErrorThreshold}).`);
+				this.goodConfig = false;
+			}
 
-		if (this.maxWarningThreshold <= this.maxErrorThreshold) {
-			this.error(`maxWarningThreshold (${this.maxWarningThreshold}) must be greater than maxErrorThreshold (${this.maxErrorThreshold}).`);
-			this.goodConfig = false;
+			if (this.maxWarningThreshold >= this.maxErrorThreshold) {
+				this.error(`maxWarningThreshold (${this.maxWarningThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
+				this.goodConfig = false;
+			}
 		}
+		else
+			this.goodConfig = false;
 	}
 
 	retrieveProperty(propName) {
@@ -51,7 +55,9 @@ class CheckRowCount extends TableRuleAPI {
 		else if (!Number.isInteger(parseFloat(prop)))
 			this.error(`Configured with a non-integer '${propName}'. Got '${prop}'.`);
 		else
-			this.columns = parseFloat(prop);
+			return parseFloat(prop);
+
+		return undefined;
 	}
 
 	processRecord(record, rowId) {
@@ -82,28 +88,28 @@ class CheckRowCount extends TableRuleAPI {
 				name: 'minWarningThreshold',
 				type: 'integer',
 				label: 'Minimum Number of Data Rows Otherwise Warning',
-				minimum: '5',
+				minimum: '10',
 				tooltip: 'Need at least this many data rows or a warning is issued.'
 			},
 			{
 				name: 'maxWarningThreshold',
 				type: 'integer',
 				label: 'Maximum Number of Data Rows Otherwise Warning',
-				minimum: '25',
+				minimum: '20',
 				tooltip: 'Need no more than this many data rows or a warning is issued.'
 			},
 			{
 				name: 'minErrorThreshold',
 				type: 'integer',
 				label: 'Minimum Number of Data Rows Otherwise Error',
-				minimum: '10',
+				minimum: '5',
 				tooltip: 'Need at least this many data rows or an error is issued.'
 			},
 			{
 				name: 'maxErrorThreshold',
 				type: 'integer',
 				label: 'Maximum Number of Data Rows Otherwise Error',
-				minimum: '20',
+				minimum: '25',
 				tooltip: 'Need no more than this many data rows or an error is issued.'
 			}
 		]);
