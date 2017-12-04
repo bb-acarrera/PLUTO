@@ -77,7 +77,9 @@ export default Ember.Component.extend({
 
 			let ruleset = this.get('ruleset');
 			if(!ruleset) {
-				ruleset = {};
+				ruleset = {
+					name: source.group + " " + sourceConfig.file
+				};
 			} else {
 				ruleset = ruleset.toJSON();
 

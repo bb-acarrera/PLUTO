@@ -102,7 +102,10 @@ export default Ember.Controller.extend({
 		"rulesetNameFilter",
 		"rulesetGroupFilter",
 		"runGroupFilter",
-		"run"
+		"run",
+		"sourceGroupFilter",
+		"sourceDescriptionFilter",
+		"fileFilter"
 	],
 	applicationController: Ember.inject.controller('application'),
 
@@ -116,6 +119,10 @@ export default Ember.Controller.extend({
 	rulesetNameFilter: '',
 	rulesetGroupFilter: '',
 	runGroupFilter: '',
+	sourceGroupFilter: '',
+	sourceDescriptionFilter: '',
+	fileFilter: '',
+
 
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
@@ -123,20 +130,15 @@ export default Ember.Controller.extend({
 	run: false,
 	poll: Ember.inject.service(),
 
-	runFilterChanged: Ember.observer('showErrors', 'showWarnings', 'showNone', 'rulesetFilter',
-		'filenameFilter', 'dateFilter', 'runGroupFilter',
-		function () {
-			this.set('page', 1);
-		}),
 
-	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
+	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter', "sourceGroupFilter",
+		"sourceDescriptionFilter",	"fileFilter",
 		function () {
 			this.set('rulePage', 1);
 		}),
 
 	userChanged: Ember.observer('applicationController.currentUser', function () {
 		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
-		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}),
 
 	rulesets: Ember.computed('model.rulesets.result', function () {
@@ -157,12 +159,19 @@ export default Ember.Controller.extend({
 				}
 			}
 
+			let source = null;
+			const sourceId = ruleset.get('source.filename');
+			if(sourceId) {
+				source = this.store.findRecord('configuredrule', sourceId);
+			}
+
 			const obj = Ember.Object.create({
 				ruleset: ruleset,
 				filename: ruleset.get('filename'),
 				group: ruleset.get('group'),
 				ownergroup: ruleset.get('ownergroup'),
-				run: run
+				run: run,
+				source: source
 			});
 
 			list.push(obj);

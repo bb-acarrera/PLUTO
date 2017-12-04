@@ -6,77 +6,84 @@
 	{{/link-to}}
 </div>
 <div>
-  {{#if run}}
-	<h2>Process A File</h2>
-  {{else}}
-	<h2>Edit Processing File</h2>
-  {{/if}}
+	{{#if run}}
+        <h2>Process A File</h2>
+	{{else}}
+        <h2>Edit Rules to Process a File</h2>
+	{{/if}}
 
-  <table id="rulesetTable" class="ruleset-table">
-	  <tr style="border-bottom: 1px solid grey;">
-		  <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
-          <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
-          <td align="center">
-          	{{#if run}}
-          		Latest Run Results
-          	{{/if}}
-          </td>
-		  <td/>
-	  </tr>
-    {{#each rulesets as |rulesetInstance index|}}
-      <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
-        <td>{{rulesetInstance.filename}}</td>
-        <td>{{rulesetInstance.ownergroup}}</td>
-        <td align="center">
+    <table id="rulesetTable" class="ruleset-table">
+        <tr style="border-bottom: 1px solid grey;">
+            <td>{{input placeholder="File" value=fileFilter}}</td>
+            <td>{{input placeholder="Source Group" value=sourceGroupFilter}}</td>
+            <td>{{input placeholder="Source" value=sourceDescriptionFilter}}</td>
+            <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
+            <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
 
-       		{{#if rulesetInstance.run}}
-
-				{{#if rulesetInstance.run.processing}}
-					<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
-				{{else}}
-
-					{{#link-to "run" rulesetInstance.run.runID}}
-						{{#pass-fail-icon runcounts=rulesetInstance.run.details}}{{/pass-fail-icon}}
-						{{#error-icon runcounts=rulesetInstance.run.details}}{{/error-icon}}
-						Details
-					{{/link-to}}
-
-
+            <td align="center">
+				{{#if run}}
+                    Latest Run Results
 				{{/if}}
-			{{/if}}
-        </td>
-        <td align="right">
-        		{{#if run}}
-				{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
-					<i class="fa fa-play"></i>
-					{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
-				{{/bs-button}}
-			{{else}}
-				{{#bs-button onClick=(action "deleteRuleset" rulesetInstance.ruleset model.rulesets.result)}}
-					<i class="fa fa-trash"></i>
-					{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
-				{{/bs-button}}
+            </td>
+            <td/>
+        </tr>
+		{{#each rulesets as |rulesetInstance index|}}
+            <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
+                <td>{{rulesetInstance.ruleset.source.config.file}}</td>
+                <td>{{rulesetInstance.source.group}}</td>
+                <td>{{rulesetInstance.source.description}}</td>
+                <td>{{rulesetInstance.ownergroup}}</td>
+                <td>{{rulesetInstance.ruleset.name}}</td>
+                <td align="center">
 
-				{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
-					<i class="fa fa-clone"></i>
-					{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
-				{{/bs-button}}
-				{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
-					{{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
-					<i class="fa fa-pencil"></i>
-				{{/link-to}}
-			{{/if}}
-        </td>
-      </tr>
-    {{/each}}
-	  {{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
-  </table>
+					{{#if rulesetInstance.run}}
+
+						{{#if rulesetInstance.run.processing}}
+                            <i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
+						{{else}}
+
+							{{#link-to "run" rulesetInstance.run.runID}}
+								{{#pass-fail-icon runcounts=rulesetInstance.run.details}}{{/pass-fail-icon}}
+								{{#error-icon runcounts=rulesetInstance.run.details}}{{/error-icon}}
+                                Details
+							{{/link-to}}
+
+
+						{{/if}}
+					{{/if}}
+                </td>
+                <td align="right">
+					{{#if run}}
+						{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
+                            <i class="fa fa-play"></i>
+							{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
+						{{/bs-button}}
+					{{else}}
+						{{#bs-button onClick=(action "deleteRuleset" rulesetInstance.ruleset model.rulesets.result)}}
+                            <i class="fa fa-trash"></i>
+							{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
+						{{/bs-button}}
+
+						{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
+                            <i class="fa fa-clone"></i>
+							{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
+						{{/bs-button}}
+						{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
+							{{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
+                            <i class="fa fa-pencil"></i>
+						{{/link-to}}
+					{{/if}}
+                </td>
+            </tr>
+		{{/each}}
+		{{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
+    </table>
 
 	{{#bs-button onClick=(action "setShowAddRuleset")}}
-		Add new file to process
+        Add new file to process
 	{{/bs-button}}
 
 </div>
 
 {{add-ruleset showdialog=showAddRuleset parsers=model.parsers ruleset=cloneRuleset source=cloneSource target=cloneTarget parser=cloneParser
-	defaultSources=model.defaultSources defaultTargets=model.defaultTargets}}
+defaultSources=model.defaultSources defaultTargets=model.defaultTargets}}

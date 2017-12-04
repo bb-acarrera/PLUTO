@@ -5,7 +5,15 @@
 	{{/link-to}}
 
 
-	<h2>Edit Ruleset {{model.ruleset.filename}}</h2>
+	<h2>Edit Rules for
+
+		{{#if  model.ruleset.source}}
+			{{model.source.group}} {{model.ruleset.source.config.file}}
+		{{else}}
+			{{model.ruleset.filename}}
+		{{/if}}
+
+	</h2>
 	<div class="authDetails">
 		<div>Owned by {{ownedBy}}</div>
 		<div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
