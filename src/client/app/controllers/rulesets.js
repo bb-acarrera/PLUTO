@@ -201,24 +201,25 @@ export default Ember.Controller.extend({
 		setShowAddRuleset(cloneRuleset) {
 			this.set('cloneRuleset', cloneRuleset);
 
-			const parsers = this.get('model.parsers');
-			parsers.forEach((parser) => {
-				if (parser.get('filename') == cloneRuleset.get('parser.filename')) {
-					this.set('cloneParser', parser);
+			if(cloneRuleset) {
+				const parsers = this.get('model.parsers');
+				parsers.forEach((parser) => {
+					if (parser.get('filename') == cloneRuleset.get('parser.filename')) {
+						this.set('cloneParser', parser);
+					}
+				});
+
+				const sourceId = cloneRuleset.get('source.filename');
+				if(sourceId) {
+					this.set('cloneSource', this.store.queryRecord('configuredrule', {id: sourceId}));
 				}
-			});
 
-			const sourceId = cloneRuleset.get('source.filename');
-			if(sourceId) {
-				this.set('cloneSource', this.store.queryRecord('configuredrule', {id: sourceId}));
+				const targetId = cloneRuleset.get('target.filename');
+				if(targetId) {
+					this.set('cloneTarget', this.store.queryRecord('configuredrule', {id: targetId}));
+				}
 			}
-
-			const targetId = cloneRuleset.get('target.filename');
-			if(targetId) {
-				this.set('cloneTarget', this.store.queryRecord('configuredrule', {id: targetId}));
-			}
-
-
+			
 			this.set('showAddRuleset', true);
 		},
 		addRuleset() {
