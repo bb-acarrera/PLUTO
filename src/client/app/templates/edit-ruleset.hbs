@@ -5,7 +5,15 @@
 	{{/link-to}}
 
 
-	<h2>Edit Ruleset {{model.ruleset.filename}}</h2>
+	<h2>Edit Rules for
+
+		{{#if  model.ruleset.source}}
+			{{model.source.group}} {{model.ruleset.source.config.file}}
+		{{else}}
+			{{model.ruleset.filename}}
+		{{/if}}
+
+	</h2>
 	<div class="authDetails">
 		<div>Owned by {{ownedBy}}</div>
 		<div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
@@ -14,9 +22,11 @@
 
 </div>
 
+Process URL: {{processURL}}
+
 <div class="ruleset-content" >
 
-	<div class="section-content ruleset-section-content">Description: {{input id="rulesetName" type="text"
+	<div class="section-content ruleset-section-content">Name: {{input id="rulesetName" type="text"
 		value=model.ruleset.name class="text-input" disabled=disableEdit}}
 	</div>
 

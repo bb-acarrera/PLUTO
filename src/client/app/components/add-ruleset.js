@@ -51,6 +51,8 @@ export default Ember.Component.extend({
 			}
 			source = source.toJSON();
 
+			const sourceConfig = this.get('sourceConfig');
+
 			let target = null;
 			if(!source.config.linkedtargetid) {
 				target = this.get('target');
@@ -77,14 +79,16 @@ export default Ember.Component.extend({
 
 			let ruleset = this.get('ruleset');
 			if(!ruleset) {
-				ruleset = {};
+				ruleset = {
+					name: source.group + " " + sourceConfig.file
+				};
 			} else {
 				ruleset = ruleset.toJSON();
 
 				ruleset.name = 'Copy of ' + ruleset.name;
 			}
 
-			const sourceConfig = this.get('sourceConfig');
+
 
 			ruleset.source = {
 				filename: source.rule_id,

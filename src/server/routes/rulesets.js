@@ -56,14 +56,7 @@ class RulesetRouter extends BaseRouter {
 						});
 				}
 
-				let parser = null;
-				if(ruleset.parser) {
-					parser = {
-						filename: ruleset.parser.filename,
-						name: ruleset.parser.filename,
-						config: ruleset.parser.config
-					};
-				}
+
 
 				ruleset["ruleset-id"] = ruleset.ruleset_id;
 				delete ruleset.ruleset_id;
@@ -73,13 +66,16 @@ class RulesetRouter extends BaseRouter {
 				ruleset["database-id"] = id;
 				delete ruleset.id;
 
-				res.json({
+				let jsonResp = {
 					data: {
 						type: "ruleset",
 						id: id,
 						attributes: ruleset
 					}
-				});
+				};
+
+				res.json(jsonResp);
+
 			}, (error) => {
 				next(error);
 			}).catch(next);
@@ -100,7 +96,13 @@ class RulesetRouter extends BaseRouter {
 
 			this.config.data.getRulesets(page, size, {
 				rulesetFilter: req.query.rulesetFilter,
-				groupFilter: req.query.groupFilter
+				groupFilter: req.query.groupFilter,
+				sourceGroupFilter: req.query.sourceGroupFilter,
+				sourceDescriptionFilter: req.query.sourceDescriptionFilter,
+				fileFilter: req.query.fileFilter,
+				nameFilter: req.query.nameFilter,
+				sourceFilter: req.query.sourceFilter
+
 			}, null, auth.group, auth.admin).then((result) => {
 				const rulesets = [];
 
@@ -114,6 +116,15 @@ class RulesetRouter extends BaseRouter {
 
 					ruleset["database-id"] = id;
 					delete ruleset.id;
+
+					if(ruleset.source || ruleset.target) {
+						if(ruleset.source) {
+							ruleset.sourcedetails = ruleset.source.filename;
+						}
+						if(ruleset.target) {
+							ruleset.targetdetails = ruleset.target.filename;
+						}
+					}
 
 					rulesets.push({
 						type: "ruleset",

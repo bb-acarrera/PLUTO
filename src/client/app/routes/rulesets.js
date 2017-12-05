@@ -31,6 +31,18 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 		},
 		processing: {
 			refreshModel: true
+		},
+		sourceGroupFilter: {
+			refreshModel: true
+		},
+		sourceDescriptionFilter: {
+			refreshModel: true
+		},
+		fileFilter: {
+			refreshModel: true
+		},
+		sourceFilter: {
+			refreshModel: true
 		}
 	},
 	loadQueryParams(params){
@@ -41,8 +53,12 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 			rulesets: this.store.query('ruleset', {
 				page: params.rulePage,
 				perPage: params.rulePerPage,
-				rulesetFilter: params.rulesetNameFilter,
-				groupFilter: params.rulesetGroupFilter
+				groupFilter: params.rulesetGroupFilter,
+				sourceGroupFilter: params.sourceGroupFilter,
+				sourceDescriptionFilter: params.sourceDescriptionFilter,
+				fileFilter: params.fileFilter,
+				nameFilter: params.rulesetNameFilter,
+				sourceFilter: params.sourceFilter
 			}).then((result) => {
 				let meta = result.get('meta');
 

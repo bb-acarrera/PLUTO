@@ -14,9 +14,10 @@ export default Ember.Controller.extend({
 		"showPassed",
 		"showFailed",
 		"dateFilter",
-		"rulesetNameFilter",
-		"rulesetGroupFilter",
-		"runGroupFilter"
+		"runGroupFilter",
+		"sourceFilter",
+		"sourceFileFilter"
+
 	],
 	ptarget: "default",
 	showdialog: false,
@@ -42,6 +43,8 @@ export default Ember.Controller.extend({
 	rulesetNameFilter: '',
 	rulesetGroupFilter: '',
 	runGroupFilter: '',
+	sourceFileFilter: '',
+	sourceFilter: '',
 
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
@@ -52,14 +55,36 @@ export default Ember.Controller.extend({
 			this.set('page', 1);
 		}),
 
-	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
-		function() {
-			this.set('rulePage', 1);
-		}),
 
 	userChanged: Ember.observer('applicationController.currentUser', function() {
-		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
+	}),
+
+	runs: Ember.computed('model.runs.result', function () {
+		const runs = this.get('model.runs.result');
+
+		const list = [];
+
+
+		runs.forEach((run) => {
+
+			let source = null;
+			const sourceId = run.get('sourceid');
+			if(sourceId) {
+				source = this.store.findRecord('configuredrule', sourceId);
+			}
+
+			const obj = Ember.Object.create({
+				run: run,
+				source: source
+			});
+
+			list.push(obj);
+		});
+
+
+
+		return list;
 	}),
 
 	actions: {

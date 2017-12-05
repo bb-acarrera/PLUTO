@@ -31,7 +31,13 @@ class ProcessFileRouter extends BaseRouter {
 
         console.log('got processFile request');
 
-        let ruleset = req.body.ruleset;
+        let ruleset = null;
+        if(req.params.id) {
+            ruleset = req.params.id;
+        } else {
+            ruleset = req.body.ruleset;
+        }
+
         let inputFile = req.body.input;
         let outputFile = req.body.output;
         let importConfig = req.body.import;

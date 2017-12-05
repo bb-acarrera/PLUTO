@@ -21,6 +21,9 @@ function startPolling(id) {
 }
 export default Ember.Controller.extend( {
 	queryParams: [ "collapsedRun" ],
+
+	applicationController: Ember.inject.controller('application'),
+
 	collapsedRun: false,
 	processing: false,
 
@@ -62,6 +65,19 @@ export default Ember.Controller.extend( {
 		return columnNames;
 
 	}),
+	processURL: Ember.computed('applicationController.currentUser.apiurl', 'model.ruleset.filename', function() {
+
+		const apiBase = this.get('applicationController.currentUser.apiurl');
+		const rulesetid = this.get('model.ruleset.filename');
+
+		if(apiBase) {
+			return encodeURI(apiBase + 'processfile/' + rulesetid);
+		}
+
+		return null;
+
+	}),
+	// {{applicationController.currentUser.apiUrl}}/processfile/{{url}}
 	actions: {
 		toggleUpload (id) {
 			startPolling.call(this, id);

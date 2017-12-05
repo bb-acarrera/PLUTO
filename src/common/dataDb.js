@@ -204,6 +204,7 @@ class data {
         return new Promise( ( resolve, reject ) => {
 
             let where = "", countWhere = "", rulesetWhere = "", filenameWhere = "";
+            let join = "", joinedSource = false;
 
             let values = [ size, offset ];
             let countValues = [];
@@ -340,6 +341,42 @@ class data {
                 countValues.push( groupWhere );
                 countWhere += "{{rulesets}}.owner_group ILIKE $" + countValues.length;
             }
+
+            if(filters.sourceFileFilter && filters.sourceFileFilter.length) {
+                let subWhere = safeStringLike( filters.sourceFileFilter );
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{rulesets}}.rules->'source'->'config'->>'file' ILIKE $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{rulesets}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
+            }
+
+            if(filters.sourceFilter && filters.sourceFilter.length) {
+                let subWhere = safeStringLike( filters.sourceFilter );
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{rulesets}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '({{currentRule}}."group" ILIKE $' + values.length + ' OR {{currentRule}}.description ILIKE $' + values.length + ')';
+
+                countValues.push( subWhere );
+                countWhere += '({{currentRule}}."group" ILIKE $' + countValues.length + ' OR {{currentRule}}.description ILIKE $' + countValues.length + ')';
+            }
+
+
+            if(join && join.length > 0) {
+                where = join + ' ' + where;
+                countWhere = join + ' ' + countWhere;
+            }
+
 
             let runSQL = getRunQuery( this.tables ) + " " + updateTableNames( where, this.tables ) +
                 " ORDER BY finishtime DESC NULLS LAST LIMIT $1 OFFSET $2";
@@ -621,6 +658,9 @@ class data {
             let where = "";
             let countWhere = "";
 
+            let join = '';
+            let joinedSource = false;
+
             let values = [ size, offset ];
             let countValues = [];
 
@@ -659,8 +699,89 @@ class data {
                 countWhere += "{{currentRuleset}}.owner_group ILIKE $" + countValues.length;
             }
 
-            let rulesetsQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRuleset}} " + where + " " +
-                "ORDER BY id DESC LIMIT $1 OFFSET $2", this.tables ), values );
+            if(filters.nameFilter && filters.nameFilter.length) {
+                let groupWhere = safeStringLike( filters.nameFilter );
+
+                extendWhere();
+
+                values.push( groupWhere );
+                where += "{{currentRuleset}}.name ILIKE $" + values.length;
+
+                countValues.push( groupWhere );
+                countWhere += "{{currentRuleset}}.name ILIKE $" + countValues.length;
+            }
+
+            if(filters.fileFilter && filters.fileFilter.length) {
+                let subWhere = safeStringLike( filters.fileFilter );
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
+            }
+
+            if(filters.sourceGroupFilter && filters.sourceGroupFilter.length) {
+                let subWhere = safeStringLike( filters.sourceGroupFilter );
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '{{currentRule}}."group" ILIKE $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
+            }
+
+            if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
+                let subWhere = safeStringLike( filters.sourceDescriptionFilter );
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description ILIKE $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
+            }
+
+            if(filters.sourceFilter && filters.sourceFilter.length) {
+                let subWhere = safeStringLike( filters.sourceFilter );
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '({{currentRule}}."group" ILIKE $' + values.length + ' OR {{currentRule}}.description ILIKE $' + values.length + ')';
+
+                countValues.push( subWhere );
+                countWhere += '({{currentRule}}."group" ILIKE $' + countValues.length + ' OR {{currentRule}}.description ILIKE $' + countValues.length + ')';
+            }
+
+
+            if(join && join.length > 0) {
+                where = join + ' ' + where;
+                countWhere = join + ' ' + countWhere;
+            }
+
+            let rulesetsQuery = this.db.query( updateTableNames( "SELECT {{currentRuleset}}.* FROM {{currentRuleset}} " + where + " " +
+                "ORDER BY {{currentRuleset}}.id DESC LIMIT $1 OFFSET $2", this.tables ), values );
 
             let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{currentRuleset}} " + countWhere, this.tables ), countValues );
 
@@ -822,6 +943,16 @@ class data {
 
                 countValues.push( groupWhere );
                 countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
+            }
+
+            if(filters.idListFilter && filters.idListFilter.length) {
+                extendWhere();
+
+                values.push( filters.idListFilter );
+                where += '{{currentRule}}.rule_id IN ($' + values.length + ')';
+
+                countValues.push( filters.idListFilter );
+                countWhere += '{{currentRule}}.rule_id IN ($' + countValues.length + ')';
             }
 
             let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
@@ -989,7 +1120,8 @@ function updateTableNames ( query, tableNames ) {
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
         "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
-        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed " +
+        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed, " +
+        "{{rulesets}}.rules->'source'->>'filename' as sourceid, {{rulesets}}.rules->'source'->'config'->>'file' as sourcefile " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
 }
@@ -1014,7 +1146,9 @@ function getRunResult(row) {
         summary: row.summary,
         version: row.version,
         deleted: row.deleted,
-        group: row.owner_group
+        group: row.owner_group,
+        sourceid: row.sourceid,
+        sourcefile: row.sourcefile
     };
 }
 
