@@ -12,6 +12,9 @@
       "filename":"CheckColumnCount"
     },
     {
+      "filename":"CheckRowCount"
+    },
+    {
       "filename":"CheckColumnRegEx"
     },
     {

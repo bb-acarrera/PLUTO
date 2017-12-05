@@ -11,9 +11,20 @@
 				}
 			},
 			{
-				"filename" : "CheckLatLong",
+				"filename" : "CheckRowCount",
 				"config" : {
 					"id" : 2,
+					"minWarningThreshold" : 7322,
+					"maxWarningThreshold" : 7323,
+					"minErrorThreshold" : 7320,
+					"maxErrorThreshold" : 7330,
+					"onError": "abort"
+				}
+			},
+			{
+				"filename" : "CheckLatLong",
+				"config" : {
+					"id" : 3,
 					"latitudeColumn"  : "lat",
 					"longitudeColumn" : "lng"
 				}
@@ -22,7 +33,7 @@
 				"filename" : "CheckColumnType",
 				"name" : "Validate Population Column",
 				"config" : {
-					"id" : 3,
+					"id" : 4,
 					"type" : "number",
 					"column" : "pop"
 				}
@@ -31,7 +42,7 @@
 				"filename" : "CheckColumnRegEx",
 				"name" : "Check No Numbers in city name (RegEx)",
 				"config" : {
-					"id" : 4,
+					"id" : 5,
 					"column" : "city",
 					"regex" : "^\\D*$",
 					"failType" : "Warning"
