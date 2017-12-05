@@ -17,6 +17,19 @@ function getAuth(req) {
 class RulesetRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
+
+		this.apiURL = '';
+
+		if(this.config && this.config.validatorConfig && this.config.validatorConfig.configHost) {
+
+			let configHostProtocol = 'http';
+
+			if(this.config.validatorConfig.configHostProtocol) {
+				configHostProtocol = this.config.validatorConfig.configHostProtocol;
+			}
+
+			this.apiURL = configHostProtocol + '://' + this.config.validatorConfig.configHost + '/';
+		}
 	}
 
 	get(req, res, next) {
@@ -45,7 +58,8 @@ class RulesetRouter extends BaseRouter {
 						attributes: {
 							userid: auth.user,
 							group: auth.group,
-							admin: auth.admin
+							admin: auth.admin,
+							apiurl: this.apiURL
 						}
 					}
 				});

@@ -51,6 +51,8 @@ export default Ember.Component.extend({
 			}
 			source = source.toJSON();
 
+			const sourceConfig = this.get('sourceConfig');
+
 			let target = null;
 			if(!source.config.linkedtargetid) {
 				target = this.get('target');
@@ -86,7 +88,7 @@ export default Ember.Component.extend({
 				ruleset.name = 'Copy of ' + ruleset.name;
 			}
 
-			const sourceConfig = this.get('sourceConfig');
+
 
 			ruleset.source = {
 				filename: source.rule_id,

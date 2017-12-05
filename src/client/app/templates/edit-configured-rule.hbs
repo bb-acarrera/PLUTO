@@ -6,19 +6,19 @@
     <h2>{{title}} {{model.rule.rule_id}}</h2>
 </div>
 
-
 <div>
     <div>
-		Description:
+        Group:
+		{{#unless (v-get model.rule 'group' 'isValid')}}
+            <span class="error-color">{{v-get model.rule 'group' 'message'}}</span>
+		{{/unless}}
+		{{input id="groupName" type="text" value=model.rule.group class="text-input" disabled=disableEdit}}
+    </div>
+    <div>
+		Name:
 		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
     </div>
-	<div>
-		Group:
-		{{#unless (v-get model.rule 'group' 'isValid')}}
-			<span class="error-color">{{v-get model.rule 'group' 'message'}}</span>
-		{{/unless}}
-        {{input id="groupName" type="text" value=model.rule.group class="text-input" disabled=disableEdit}}
-	</div>
+
 	<div>
 		Base:
 		{{#unless (v-get model.rule 'base' 'isValid')}}

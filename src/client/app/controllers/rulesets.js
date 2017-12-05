@@ -105,7 +105,8 @@ export default Ember.Controller.extend({
 		"run",
 		"sourceGroupFilter",
 		"sourceDescriptionFilter",
-		"fileFilter"
+		"fileFilter",
+		"sourceFilter"
 	],
 	applicationController: Ember.inject.controller('application'),
 
@@ -122,6 +123,7 @@ export default Ember.Controller.extend({
 	sourceGroupFilter: '',
 	sourceDescriptionFilter: '',
 	fileFilter: '',
+	sourceFilter: '',
 
 
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
