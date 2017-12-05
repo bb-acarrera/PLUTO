@@ -77,8 +77,73 @@ export default Ember.Controller.extend( {
 		return null;
 
 	}),
+	sourceChanged: Ember.observer('model.source', 'model.ruleset.source.filename', function() {
+		let modelSource = this.get('model.source.rule_id');
+		let rulesetSource = this.get('model.ruleset.source.filename');
+
+		if(modelSource && modelSource == rulesetSource) {
+			this.set('source', this.get('model.source'));
+		}
+	}),
+
+	targetChanged: Ember.observer('model.target', 'model.ruleset.target.filename', function() {
+		let modelTarget = this.get('model.target.rule_id');
+		let rulesetTarget = this.get('model.ruleset.target.filename');
+
+		if(modelTarget && modelTarget == rulesetTarget) {
+			this.set('rulesettarget', this.get('model.target'));
+		}
+	}),
+
 	// {{applicationController.currentUser.apiUrl}}/processfile/{{url}}
 	actions: {
+		searchTarget(term) {
+			const store = this.get('store');
+			return store.query('configuredrule', {
+				perPage: 25,
+				ruleFilter: term,
+				typeFilter: 'target'
+			});
+		},
+		searchSource(term) {
+			const store = this.get('store');
+			return store.query('configuredrule', {
+				perPage: 25,
+				ruleFilter: term,
+				typeFilter: 'source'
+			});
+		},
+		setSource(source) {
+			this.set('source', source);
+
+			if(!this.get('model.ruleset.source')) {
+				let e = Ember.Object.create({filename: null});
+				e.set('config', Ember.Object.create({}));
+
+				this.set('model.ruleset.source', e);
+			}
+
+			this.set('model.ruleset.source.filename', source.get('rule_id'));
+			this.toggleProperty('showChangeSource');
+
+			if(source.get('config.linkedtargetid')) {
+				this.set('rulesettarget', null);
+				this.set('model.ruleset.target', null);
+			}
+		},
+		setTarget(target) {
+			this.set('rulesettarget', target);
+
+			if(!this.get('model.ruleset.target')) {
+				let e = Ember.Object.create({filename: null});
+				e.set('config', Ember.Object.create({}));
+
+				this.set('model.ruleset.target', e);
+			}
+
+			this.set('model.ruleset.target.filename', target.get('rule_id'));
+			this.toggleProperty('showChangeTarget');
+		},
 		toggleUpload (id) {
 			startPolling.call(this, id);
 		},
@@ -275,8 +340,6 @@ export default Ember.Controller.extend( {
 			xmlHttp.send(JSON.stringify(theJSON));
 		}
 
-	},
-	init: function () {
 	}
 } );
 

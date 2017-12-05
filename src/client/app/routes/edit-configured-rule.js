@@ -7,10 +7,12 @@ export default Ember.Route.extend( {
 
 		return RSVP.hash( {
 			rule: this.store.queryRecord( 'configuredrule', {id:params.rule_id} ),
-			parsers: this.store.findAll( 'parser' ),
-			rules: this.store.findAll( 'rule' ),
 			importers: this.store.findAll( 'importer' ),
-			exporters: this.store.findAll( 'exporter' )
+			exporters: this.store.findAll( 'exporter' ),
+			defaultTargets: this.store.query('configuredrule', {
+				perPage: 25,
+				typeFilter: 'target'
+			})
 		} );
 	},
 	actions: {
