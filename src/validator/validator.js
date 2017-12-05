@@ -422,7 +422,7 @@ class Validator {
 				}
 				this.finalize().then(() => resolve());
 
-			} else if(this.currentRuleset && this.currentRuleset.export && !this.config.testOnly) {
+			} else if(this.currentRuleset && this.currentRuleset.export) {
 				var resultsFile = null;
 
 				if (results && results.file)
@@ -478,7 +478,7 @@ class Validator {
 
 		summary.processeditems = 0;
 		summary.outputitems = 0;
-
+		summary.wasTest = this.config.testOnly;
 
 		if(this.executedRules) {
 			//find the initial # of processed items
@@ -512,22 +512,17 @@ class Validator {
 
 	finalize() {
 		return new Promise((resolve) => {
-			if (this.config.testOnly) {
-				this.cleanup();
-				resolve();
-			}
-			else {
-				this.data.saveRunRecord(this.runId, this.logger.getLog(),
-					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-					!this.abort, this.summary)
-					.then(() => {}, (error) => console.log('error saving run: ' + error))
-					.catch((e) => console.log('Exception saving run: ' + e))
-					.then(() => {
+			this.data.saveRunRecord(this.runId, this.logger.getLog(),
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
+				!this.abort, this.summary)
+				.then(() => {}, (error) => console.log('error saving run: ' + error))
+				.catch((e) => console.log('Exception saving run: ' + e))
+				.then(() => {
+					if (!this.config.testOnly)
 						this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
-						this.cleanup();
-						resolve();
-				});
-			}
+					this.cleanup();
+					resolve();
+			});
 		});
 
 
