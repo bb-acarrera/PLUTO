@@ -62,7 +62,7 @@ class ProcessFileRouter extends BaseRouter {
             }
         }
 
-        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, finishHandler));
+        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, test, finishHandler));
     }
 
     processUpload(req, res, next) {
@@ -89,7 +89,7 @@ class ProcessFileRouter extends BaseRouter {
                 return res.status(500).send(err);
 
             this.generateResponse(res, ruleset,
-                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, () => {
+                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, false, () => {
 
                     fs.unlink(fileToProcess);
 
@@ -125,7 +125,7 @@ class ProcessFileRouter extends BaseRouter {
         });
     }
 
-    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, finishedFn) {
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn) {
         return new Promise((resolve, reject) => {
 
             var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
@@ -141,21 +141,26 @@ class ProcessFileRouter extends BaseRouter {
                 spawnArgs.push(overrideFile);
             } else {
             	if (inputFile) {
-                    execCmd += ' -i "' + inputFile;
+                    execCmd += ' -i "' + inputFile + '"';
                     spawnArgs.push('-i');
                     spawnArgs.push(inputFile);
             	}
             	if (outputFile) {
-                    execCmd += '" -o "' + outputFile + '"';
+                    execCmd += ' -o "' + outputFile + '"';
                     spawnArgs.push('-o');
                     spawnArgs.push(outputFile);
             	}
                 if(inputDisplayName) {
-                    execCmd += ' -n ' + inputDisplayName;
+                    execCmd += ' -n "' + inputDisplayName + '"';
 
                     spawnArgs.push('-n');
                     spawnArgs.push(inputDisplayName);
                 }
+            }
+
+            if (test) {
+                execCmd += ' -t';
+                spawnArgs.push('-t');
             }
 
             const options = {
