@@ -4,12 +4,10 @@ class CheckRowCount extends TableRuleAPI {
 	constructor(config, parser) {
 		super(config, parser);
 
-		this.goodConfig = true;
 		this.rowCount = 0;
 
 		if (!config) {
 			this.error('No configuration specified.');
-			this.goodConfig = false;
 			return;
 		}
 
@@ -18,36 +16,32 @@ class CheckRowCount extends TableRuleAPI {
 		this.minErrorThreshold = this.retrieveProperty("minErrorThreshold");
 		this.maxErrorThreshold = this.retrieveProperty("maxErrorThreshold");
 
-		if (this.minWarningThreshold && this.maxWarningThreshold && this.minErrorThreshold && this.maxErrorThreshold) {
-			if (this.minWarningThreshold >= this.maxWarningThreshold) {
-				this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than maxWarningThreshold (${this.maxWarningThreshold}).`);
-				this.goodConfig = false;
-			}
-
-			if (this.minErrorThreshold >= this.maxErrorThreshold) {
-				this.error(`minErrorThreshold (${this.minErrorThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
-				this.goodConfig = false;
-			}
-
-			if (this.minWarningThreshold <= this.minErrorThreshold) {
-				this.error(`minWarningThreshold (${this.minWarningThreshold}) must be greater than minErrorThreshold (${this.minErrorThreshold}).`);
-				this.goodConfig = false;
-			}
-
-			if (this.maxWarningThreshold >= this.maxErrorThreshold) {
-				this.error(`maxWarningThreshold (${this.maxWarningThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
-				this.goodConfig = false;
-			}
+		if (this.minWarningThreshold && this.maxWarningThreshold && this.minWarningThreshold >= this.maxWarningThreshold) {
+			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than maxWarningThreshold (${this.maxWarningThreshold}).`);
 		}
-		else
-			this.goodConfig = false;
+
+		if (this.minErrorThreshold && this.maxErrorThreshold && this.minErrorThreshold >= this.maxErrorThreshold) {
+			this.error(`minErrorThreshold (${this.minErrorThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
+		}
+
+		if (this.minWarningThreshold && this.minErrorThreshold && this.minWarningThreshold <= this.minErrorThreshold) {
+			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be greater than minErrorThreshold (${this.minErrorThreshold}).`);
+		}
+
+		if (this.maxWarningThreshold && this.maxErrorThreshold && this.maxWarningThreshold >= this.maxErrorThreshold) {
+			this.error(`maxWarningThreshold (${this.maxWarningThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
+		}
+
+		if (!this.minErrorThreshold && !this.minWarningThreshold && !this.maxErrorThreshold && !this.maxWarningThreshold) {
+			this.warning('Configured without any valid threshold properties.');
+		}
 	}
 
 	retrieveProperty(propName) {
 		var prop = this.config[propName];
 
 		if (prop === undefined)
-			this.error(`Configured without a '${propName}' property.`);
+			return undefined;
 		else if (isNaN(prop))
 			this.error(`Configured with a non-number '${propName}'. Got '${prop}'.`);
 		else if (prop < 0)
@@ -66,16 +60,14 @@ class CheckRowCount extends TableRuleAPI {
 	}
 
 	finish() {
-		if (this.goodConfig) {
-			if (this.rowCount < this.minErrorThreshold)
-				this.error(`Number of rows (${this.rowCount}) less than error threshold (${this.minErrorThreshold}).`);
-			else if (this.rowCount < this.minWarningThreshold)
-				this.warning(`Number of rows (${this.rowCount}) less than warning threshold (${this.minWarningThreshold}).`);
-			else if (this.rowCount > this.maxErrorThreshold)
-				this.error(`Number of rows (${this.rowCount}) greater than error threshold (${this.maxErrorThreshold}).`);
-			else if (this.rowCount > this.maxWarningThreshold)
-				this.warning(`Number of rows (${this.rowCount}) greater than warning threshold (${this.maxWarningThreshold}).`);
-		}
+		if (this.minErrorThreshold && this.rowCount < this.minErrorThreshold)
+			this.error(`Number of rows (${this.rowCount}) less than error threshold (${this.minErrorThreshold}).`);
+		else if (this.minWarningThreshold && this.rowCount < this.minWarningThreshold)
+			this.warning(`Number of rows (${this.rowCount}) less than warning threshold (${this.minWarningThreshold}).`);
+		else if (this.maxErrorThreshold && this.rowCount > this.maxErrorThreshold)
+			this.error(`Number of rows (${this.rowCount}) greater than error threshold (${this.maxErrorThreshold}).`);
+		else if (this.maxWarningThreshold && this.rowCount > this.maxWarningThreshold)
+			this.warning(`Number of rows (${this.rowCount}) greater than warning threshold (${this.maxWarningThreshold}).`);
 	}
 
 	get processHeaderRows() {

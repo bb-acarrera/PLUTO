@@ -21,14 +21,32 @@ QUnit.test( "CheckRowCount: Absent Property Test", function( assert ) {
 	assert.ok(rule, "Rule was created.");
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 4, "Expect four results.");
-	for (var i = 0; i < 4; i++)
-		assert.equal(logResults[i].type, "Error", "Expected an 'Error'.");
+	assert.equal(logResults.length, 1, "Expected single result.");
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+	assert.equal(logResults[0].description, "Configured without any valid threshold properties.");
+});
 
-	assert.equal(logResults[0].description, "Configured without a 'minWarningThreshold' property.");
-	assert.equal(logResults[1].description, "Configured without a 'maxWarningThreshold' property.");
-	assert.equal(logResults[2].description, "Configured without a 'minErrorThreshold' property.");
-	assert.equal(logResults[3].description, "Configured without a 'maxErrorThreshold' property.");
+// Same as above but treat a zero as absent.
+QUnit.test( "CheckRowCount: Absent Property Test 2", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+        __state : {
+            "_debugLogger" : logger
+        },
+		"numHeaderRows" : 1,
+		"minWarningThreshold" : 0		
+	};
+
+	const rule = new CheckRowCount(config);
+
+	// Check general rule creation and as well as absent properties.
+	assert.ok(rule, "Rule was created.");
+
+	const logResults = logger.getLog();
+	assert.equal(logResults.length, 1, "Expected single result.");
+	assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+
+	assert.equal(logResults[0].description, "Configured without any valid threshold properties.");
 });
 
 QUnit.test( "CheckRowCount: Check Non-Number minWarningThreshold Property Test", function( assert ) {
@@ -46,9 +64,11 @@ QUnit.test( "CheckRowCount: Check Non-Number minWarningThreshold Property Test",
 	assert.ok(rule, "Rule was created.");
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 4, "Expect four results.");
+	assert.equal(logResults.length, 2, "Expected two results.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 	assert.equal(logResults[0].description, "Configured with a non-number 'minWarningThreshold'. Got 'foo'.");
+	assert.equal(logResults[1].type, "Warning", "Expected a 'Warning'.");
+	assert.equal(logResults[1].description, "Configured without any valid threshold properties.");
 });
 
 QUnit.test( "CheckRowCount: Check Negative minWarningThreshold Property Test", function( assert ) {
@@ -66,9 +86,10 @@ QUnit.test( "CheckRowCount: Check Negative minWarningThreshold Property Test", f
 	assert.ok(rule, "Rule was created.");
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 4, "Expect four results.");
+	assert.equal(logResults.length, 2, "Expected two results.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 	assert.equal(logResults[0].description, "Configured with a negative 'minWarningThreshold'. Got '-1'.");
+	// The other is the warning that other tests have confirmed.
 });
 
 QUnit.test( "CheckRowCount: Check Non-Integer minWarningThreshold Property Test", function( assert ) {
@@ -86,9 +107,10 @@ QUnit.test( "CheckRowCount: Check Non-Integer minWarningThreshold Property Test"
 	assert.ok(rule, "Rule was created.");
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 4, "Expect four results.");
+	assert.equal(logResults.length, 2, "Expected two results.");
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
 	assert.equal(logResults[0].description, "Configured with a non-integer 'minWarningThreshold'. Got '1.1'.");
+	// The other is the warning that other tests have confirmed.
 });
 
 QUnit.test( "CheckRowCount: Check Invalid Properties Test", function( assert ) {
@@ -145,7 +167,7 @@ QUnit.test( "CheckRowCount: Check Valid Count Test", function( assert ) {
 	parser._run( { data: data } ).then((result) => {
 	
 		const logResults = logger.getLog();
-		assert.equal(logResults.length, 0, "Expect no errors. Got " + logResults.length + ".");
+		assert.equal(logResults.length, 0, "Expected no errors. Got " + logResults.length + ".");
 		done();
 
 	});
@@ -177,7 +199,39 @@ QUnit.test( "CheckRowCount: Check Low Count Warning Test", function( assert ) {
 	parser._run( { data: data } ).then((result) => {
 	
 		const logResults = logger.getLog();
-		assert.equal(logResults.length, 1, "Expect single result.");
+		assert.equal(logResults.length, 1, "Expected single result.");
+		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
+		assert.equal(logResults[0].description, "Number of rows (1) less than warning threshold (2).");
+		done();
+
+	});
+});
+
+// Same as above but with a single property.
+QUnit.test( "CheckRowCount: Check Low Count Warning Test 2", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+        __state : {
+            "_debugLogger" : logger
+        },
+		"minWarningThreshold" : 2,
+		"numHeaderRows" : 1
+	};
+
+	const rule = new CheckRowCount(config);
+
+	assert.ok(rule, "Rule was created.");
+
+	const parser = new CSVParser(config, rule);
+	
+	assert.ok(rule, "Rule was created.");
+	
+	const done = assert.async();
+	const data = "Column1\nfoo";	// 1 data row. Should generate a low count warning.
+	parser._run( { data: data } ).then((result) => {
+	
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 1, "Expected single result.");
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
 		assert.equal(logResults[0].description, "Number of rows (1) less than warning threshold (2).");
 		done();
