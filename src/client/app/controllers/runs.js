@@ -99,20 +99,10 @@ export default Ember.Controller.extend({
 			this.set('page', Math.min(page + 1, this.get('totalPages')));
 		},
 
+		goToRun(runId) {
+			this.transitionToRoute('run', runId);
+		}
 
-        toggleRowHighlight ( rowID ) {
-
-            const row = document.getElementById( rowID );
-
-            const selected = row.classList.contains( 'selected' );
-
-            deselectItems( );
-
-            if ( !selected ) {
-                row.classList.add( 'selected' );
-            }
-
-        }
 	},
 	init: function() {
 		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
@@ -120,13 +110,4 @@ export default Ember.Controller.extend({
 	}
 });
 
-function deselectItems ( ) {
-    const rulesElem = document.getElementById( 'runsTable' );
 
-    const items = rulesElem.childNodes;
-    for ( var i = 0; i < items.length; i++ ) {
-        const item = items[ i ];
-        if ( item.nodeName.toLowerCase() == "tr" && item.classList )
-            item.classList.remove( 'selected' );
-    }
-}

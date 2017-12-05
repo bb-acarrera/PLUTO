@@ -19,11 +19,11 @@
             <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
             <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
 
-            <td align="center">
-				{{#if run}}
+			{{#if run}}
+            	<td align="center">
                     Latest Run Results
-				{{/if}}
-            </td>
+            	</td>
+			{{/if}}
             <td/>
         </tr>
 		{{#each rulesets as |rulesetInstance index|}}
@@ -32,24 +32,26 @@
                 <td>{{if rulesetInstance.source.group (concat rulesetInstance.source.group ': ')}} {{rulesetInstance.source.description}}</td>
                 <td>{{rulesetInstance.ownergroup}}</td>
                 <td>{{rulesetInstance.ruleset.name}}</td>
-                <td align="center">
+				{{#if run}}
+					<td align="center">
 
-					{{#if rulesetInstance.run}}
+						{{#if rulesetInstance.run}}
 
-						{{#if rulesetInstance.run.processing}}
-                            <i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
-						{{else}}
+							{{#if rulesetInstance.run.processing}}
+								<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
+							{{else}}
 
-							{{#link-to "run" rulesetInstance.run.runID}}
-								{{#pass-fail-icon runcounts=rulesetInstance.run.details}}{{/pass-fail-icon}}
-								{{#error-icon runcounts=rulesetInstance.run.details}}{{/error-icon}}
-                                Details
-							{{/link-to}}
+								{{#link-to "run" rulesetInstance.run.runID}}
+									{{#pass-fail-icon runcounts=rulesetInstance.run.details}}{{/pass-fail-icon}}
+									{{#error-icon runcounts=rulesetInstance.run.details}}{{/error-icon}}
+									Details
+								{{/link-to}}
 
 
+							{{/if}}
 						{{/if}}
-					{{/if}}
-                </td>
+					</td>
+				{{/if}}
                 <td align="right">
 					{{#if run}}
 						{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
