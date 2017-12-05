@@ -422,7 +422,7 @@ class Validator {
 				}
 				this.finalize().then(() => resolve());
 
-			} else if(this.currentRuleset && this.currentRuleset.export) {
+			} else if(this.currentRuleset && this.currentRuleset.export && !this.config.testOnly) {
 				var resultsFile = null;
 
 				if (results && results.file)
@@ -512,17 +512,22 @@ class Validator {
 
 	finalize() {
 		return new Promise((resolve) => {
-
-			this.data.saveRunRecord(this.runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-				!this.abort, this.summary)
-				.then(() => {}, (error) => console.log('error saving run: ' + error))
-				.catch((e) => console.log('Exception saving run: ' + e))
-				.then(() => {
-					this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
-					this.cleanup();
-					resolve();
+			if (this.config.testOnly) {
+				this.cleanup();
+				resolve();
+			}
+			else {
+				this.data.saveRunRecord(this.runId, this.logger.getLog(),
+					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
+					!this.abort, this.summary)
+					.then(() => {}, (error) => console.log('error saving run: ' + error))
+					.catch((e) => console.log('Exception saving run: ' + e))
+					.then(() => {
+						this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
+						this.cleanup();
+						resolve();
 				});
+			}
 		});
 
 
