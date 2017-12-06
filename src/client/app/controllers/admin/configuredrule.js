@@ -1,12 +1,25 @@
 import Ember from 'ember';
 
-function addRule(controller, ruleId, rule) {
+function addRule(controller, rule) {
 
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = () => {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
+
+			let ruleId = '';
+
+			try {
+				let rule = JSON.parse(xmlHttp.response);
+				ruleId = rule.rule_id;
+			} catch (e) {
+				console.log(e);
+			}
+
 			controller.get('target.router').refresh();
-			controller.transitionToRoute('editConfiguredRule', ruleId);
+			if(ruleId) {
+				controller.transitionToRoute('editConfiguredRule', ruleId);
+			}
+
 		}
 		else if (xmlHttp.readyState == 4) {
 			alert(`Failed to create: ${xmlHttp.statusText}`);
@@ -15,7 +28,6 @@ function addRule(controller, ruleId, rule) {
 
 	let theUrl = document.location.origin + "/configuredrules/";
 	let theJSON = {
-		ruleId: ruleId,
 		rule: rule
 	};
 
@@ -30,7 +42,8 @@ export default Ember.Controller.extend({
 		"ruleFilter",
 		"groupFilter",
 		"typeFilter",
-		"ownerFilter"
+		"ownerFilter",
+		"ruleDescriptionFilter"
 	],
 	page: 1,
 	perPage: 20,
@@ -38,6 +51,7 @@ export default Ember.Controller.extend({
 	groupFilter: '',
 	ownerFilter: '',
 	typeFilter: '',
+	ruleDescriptionFilter: '',
 	totalPages: Ember.computed.oneWay('model.rules.meta.totalPages'),
 
 	applicationController: Ember.inject.controller('application'),
@@ -86,9 +100,10 @@ export default Ember.Controller.extend({
 		},
 		addRule() {
 			this.set("showdialog", false);
-			addRule(this, this.modaltext,
+			addRule(this,
 				{
 					type: this.get('typeFilter'),
+					description: this.modaltext,
 					config: {}
 				}
 			);
@@ -98,7 +113,7 @@ export default Ember.Controller.extend({
 		},
 
 		deleteRule(rule, rules) {
-			if (confirm(`Delete "${rule.get("rule_id")}"?`)) {
+			if (confirm(`Delete "${rule.get("description")}"?`)) {
 				var xmlHttp = new XMLHttpRequest();
 				xmlHttp.onreadystatechange = () => {
 					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {

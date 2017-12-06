@@ -18,6 +18,9 @@ export default Ember.Route.extend(RouteMixin, {
 		},
 		ownerFilter: {
 			refreshModel: true
+		},
+		ruleDescriptionFilter: {
+			refreshModel: true
 		}
 	},
 	loadQueryParams(params){
@@ -31,7 +34,8 @@ export default Ember.Route.extend(RouteMixin, {
 				ruleFilter: params.ruleFilter,
 				groupFilter: params.groupFilter,
 				ownerFilter: params.ownerFilter,
-				typeFilter: params.typeFilter
+				typeFilter: params.typeFilter,
+				descriptionFilter: params.ruleDescriptionFilter
 			}).then(function (result) {
 				let meta = result.get('meta');
 				return { result: result, meta: meta};
