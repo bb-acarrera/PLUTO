@@ -7,8 +7,9 @@
 		{{#unless value}}
             <option value="" selected=true>Choose</option>
 		{{/unless}}
-
     </select>
+
+	{{#if tooltip}}{{bs-tooltip title=tooltip}}{{/if}}
 </div>
 
 {{yield}}

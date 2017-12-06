@@ -1,5 +1,6 @@
 <div>
 	{{label}} {{input type="checkbox" checked=(mut value) disabled=disabled}}
+	{{#if tooltip}}{{bs-tooltip title=tooltip}}{{/if}}
 </div>
 {{yield}}
 
