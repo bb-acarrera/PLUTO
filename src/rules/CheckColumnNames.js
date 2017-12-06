@@ -154,6 +154,13 @@ class CheckColumnNames extends TableRuleAPI {
 			orderMatch: 'ignore'
 		};
 	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify the names of columns in the CSV file.",
+			longDescription: "This rule verifies that the names of the columns in a CSV file match those specified in the parser. Configuration settings control whether warnings or errors are reported when there are problems. Problems reported are, insufficient columns, excessive columns, out-of-order columns."
+		}
+	}
 }
 
 module.exports = CheckColumnNames;

@@ -105,7 +105,7 @@ class CheckLatLong extends TableRuleAPI {
 	static get Descriptions() {
 		return {
 			shortDescription: "Verify the latitude and longitude data in a CSV file.",
-			longDescription: "Verify that the latitude and longitude data in a CSV file is correct. Errors are reported when either value is not a number or is out of range. A warning is reported when both values are close to zero (null island)."
+			longDescription: "This rule verifies that the latitude and longitude data in a CSV file is correct. Errors are reported when either value is not a number or is out of range. A warning is reported when both values are close to zero (null island)."
 		}
 	}
 }
