@@ -9,6 +9,9 @@
 <div>
     <div>
         Name:
+		{{#unless (v-get model.rule 'description' 'isValid')}}
+            <span class="error-color">{{v-get model.rule 'description' 'message'}}</span>
+		{{/unless}}
 		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
     </div>
     <div>

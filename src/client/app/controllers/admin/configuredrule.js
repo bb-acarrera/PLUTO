@@ -99,6 +99,12 @@ export default Ember.Controller.extend({
 			this.set("modaltext", "");
 		},
 		addRule() {
+
+			if(!this.modaltext || this.modaltext.length == 0) {
+				alert('A name must be specified');
+				return;
+			}
+
 			this.set("showdialog", false);
 			addRule(this,
 				{
