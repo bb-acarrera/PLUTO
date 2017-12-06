@@ -34,7 +34,15 @@ export default Ember.Route.extend(RulesetEmberizer, {
 					exporters: this.store.findAll('exporter'),
 					rulesetconfiguis: this.store.findAll('rulesetconfigui'),
 					source: source,
-					target: target
+					target: target,
+					defaultSources: this.store.query('configuredrule', {
+						perPage: 25,
+						typeFilter: 'source'
+					}),
+					defaultTargets: this.store.query('configuredrule', {
+						perPage: 25,
+						typeFilter: 'target'
+					})
 				});
 			}
 		);

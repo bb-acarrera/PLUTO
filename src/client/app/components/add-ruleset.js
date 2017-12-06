@@ -49,12 +49,11 @@ export default Ember.Component.extend({
 				alert('A source must be specified');
 				return;
 			}
-			source = source.toJSON();
 
 			const sourceConfig = this.get('sourceConfig');
 
 			let target = null;
-			if(!source.config.linkedtargetid) {
+			if(!source.get('config.linkedtargetid')) {
 				target = this.get('target');
 
 				if(!target) {
@@ -62,7 +61,6 @@ export default Ember.Component.extend({
 					return;
 				}
 
-				target = target.toJSON();
 			}
 
 			let parser = this.get('parser');
@@ -71,8 +69,6 @@ export default Ember.Component.extend({
 				if ( !confirm( 'Create without a parser? This cannot be changed once created.' ) ) {
 					return;
 				}
-			} else {
-				parser = parser.toJSON();
 			}
 
 			this.set("showdialog", false);
@@ -80,7 +76,7 @@ export default Ember.Component.extend({
 			let ruleset = this.get('ruleset');
 			if(!ruleset) {
 				ruleset = {
-					name: source.group + " " + sourceConfig.file
+					name: source.get('group') + " " + sourceConfig.file
 				};
 			} else {
 				ruleset = ruleset.toJSON();
@@ -91,14 +87,14 @@ export default Ember.Component.extend({
 
 
 			ruleset.source = {
-				filename: source.rule_id,
+				filename: source.get('rule_id'),
 				config: sourceConfig
 			};
 
 
 			if(target) {
 				ruleset.target = {
-					filename: target.rule_id,
+					filename: target.get('rule_id'),
 					config: this.get('targetConfig')
 				};
 			} else {
@@ -107,7 +103,7 @@ export default Ember.Component.extend({
 
 			if(parser) {
 				ruleset.parser = {
-					filename: parser.filename,
+					filename: parser.get('filename'),
 					config: {}
 				};
 			} else {
@@ -118,14 +114,14 @@ export default Ember.Component.extend({
 			ruleset.exporter = null;
 
 			let group = '';
-			if(source.group) {
-				group = source.group;
+			if(source.get('group')) {
+				group = source.get('group');
 			}
 
 			const rulesetId = group + "-" + sourceConfig.file;
 
 			if(!ruleset.name) {
-				ruleset.name = sourceConfig.file + ' from ' + (source.description || source.rule_id);
+				ruleset.name = sourceConfig.file + ' from ' + (source.get('description') || source.get('rule_id'));
 			}
 
 

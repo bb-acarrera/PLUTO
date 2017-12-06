@@ -8,7 +8,7 @@
 	<h2>Edit Rules for
 
 		{{#if  model.ruleset.source}}
-			{{model.source.group}} {{model.ruleset.source.config.file}}
+			{{source.group}} {{model.ruleset.source.config.file}}
 		{{else}}
 			{{model.ruleset.filename}}
 		{{/if}}
@@ -34,29 +34,140 @@ Process URL: {{processURL}}
 		value=model.ruleset.email class="text-input" disabled=disableEdit}}
     </div>
 
-	<div class="section-content ruleset-section-content" id="source">
-		<span class="section-header">Source: </span>
-		{{#if model.ruleset.source}}
-			{{model.ruleset.source.config.file}} in {{model.source.description}}
-		{{else}}
-			None
-		{{/if}}
+	<!-- source -->
+	{{#edit-ruleset/collapse  as |c|}}
 
-	</div>
+		{{#c.title}}
+            Source:
+		{{/c.title}}
 
-	{{#unless model.source.config.linkedtargetid}}
-
-		<div class="section-content ruleset-section-content" id="target">
-			<span class="section-header">Target:</span>
-			{{#if model.ruleset.target}}
-				{{model.ruleset.target.config.file}} in {{model.target.description}}
+		{{#c.subTitle}}
+			{{#if model.ruleset.source}}
+				{{model.ruleset.source.config.file}} in {{source.description}}
 			{{else}}
-				None
+                None
+			{{/if}}
+		{{/c.subTitle}}
+
+		{{#c.controls}}
+			{{#unless disableEdit}}
+                <div style="float: right; width:100%; display: inline-flex; justify-content: flex-end">
+
+					{{#if showChangeSource}}
+
+                        <div style="width:80%;display: inline-block;margin-right: 5px; flex: 1" onclick={{action "stopPropagation"}}>
+							{{#power-select
+							options=model.defaultSources
+							search=(action "searchSource")
+							onchange=(action "setSource" bubbles=false)
+							selected=source
+							renderInPlace=true
+							as |sourceChoice|}}
+								{{sourceChoice.rule_id}}: {{sourceChoice.description}}
+							{{/power-select}}
+                        </div>
+
+                        <div style="display: inline-block">
+							{{#bs-button onClick=(action (toggle "showChangeSource" this) bubbles=false) size='sm'}}
+                                Cancel
+							{{/bs-button}}
+                        </div>
+
+
+
+					{{else}}
+                        <div style="display: inline-block;float:right">
+							{{#bs-button onClick=(action (toggle "showChangeSource" this) bubbles=false) size='sm'}}
+                                Change
+							{{/bs-button}}
+                        </div>
+					{{/if}}
+                </div>
+			{{/unless}}
+		{{/c.controls}}
+
+		{{#c.collapsable}}
+			{{#if source}}
+
+				{{component 'custom-property.property-list' uiList=source.ui.properties
+				config=model.ruleset.source.config
+				disabled=disabled
+				columns=columns}}
+
 			{{/if}}
 
-		</div>
+		{{/c.collapsable}}
+	{{/edit-ruleset/collapse}}
+
+    <!-- target -->
+	{{#unless source.config.linkedtargetid}}
+
+		{{#edit-ruleset/collapse  as |c|}}
+
+			{{#c.title}}
+                Target:
+			{{/c.title}}
+
+			{{#c.subTitle}}
+				{{#if model.ruleset.target}}
+					{{model.ruleset.target.config.file}} in {{rulesettarget.description}}
+				{{else}}
+                    None
+				{{/if}}
+			{{/c.subTitle}}
+
+			{{#c.controls}}
+				{{#unless disableEdit}}
+                    <div style="float: right; width:100%; display: flex; justify-content: flex-end">
+
+						{{#if showChangeTarget}}
+
+                            <div style="display: inline-block;margin-right: 5px;flex: 1" onclick={{action "stopPropagation"}}>
+								{{#power-select
+								options=model.defaultTargets
+								search=(action "searchTarget")
+								onchange=(action "setTarget" bubbles=false)
+								selected=rulesettarget
+								renderInPlace=true
+								as |targetChoice|}}
+									{{targetChoice.rule_id}}: {{targetChoice.description}}
+								{{/power-select}}
+                            </div>
+
+                            <div style="display: inline-block">
+								{{#bs-button onClick=(action (toggle "showChangeTarget" this) bubbles=false) size='sm'}}
+                                    Cancel
+								{{/bs-button}}
+                            </div>
+
+						{{else}}
+                            <div style="display: inline-block;">
+								{{#bs-button onClick=(action (toggle "showChangeTarget" this) bubbles=false) size='sm'}}
+                                    Change
+								{{/bs-button}}
+                            </div>
+						{{/if}}
+                    </div>
+				{{/unless}}
+			{{/c.controls}}
+
+			{{#c.collapsable}}
+				{{#if rulesettarget}}
+
+					{{component 'custom-property.property-list' uiList=rulesettarget.ui.properties
+					config=model.ruleset.target.config
+					disabled=disabled
+					columns=columns}}
+
+				{{/if}}
+
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
+
 	{{/unless}}
 
+    <!-- import -->
 	{{#if model.ruleset.import}}
         {{#edit-ruleset/collapse as |c|}}
 
@@ -83,6 +194,7 @@ Process URL: {{processURL}}
 
 	{{/if}}
 
+    <!-- export -->
 	{{#if model.ruleset.export}}
         {{#edit-ruleset/collapse as |c|}}
 
@@ -109,6 +221,7 @@ Process URL: {{processURL}}
 
 	{{/if}}
 
+    <!-- parser -->
 	{{#edit-ruleset/collapse  as |c|}}
 
 		{{#c.title}}
@@ -132,6 +245,7 @@ Process URL: {{processURL}}
 		{{/c.collapsable}}
 	{{/edit-ruleset/collapse}}
 
+    <!-- general config -->
 	{{#edit-ruleset/collapse as |c| }}
 
 		{{#c.title}}
@@ -167,17 +281,20 @@ Process URL: {{processURL}}
 			{{#c.controls}}
 				{{#unless disableEdit}}
 
-					{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
-						<i class="fa fa-arrow-up"></i>
-					{{/bs-button}}
+					<span style="float: right">
+						{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
+                            <i class="fa fa-arrow-up"></i>
+						{{/bs-button}}
 
-					{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
-						<i class="fa fa-arrow-down"></i>
-					{{/bs-button}}
+						{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
+                            <i class="fa fa-arrow-down"></i>
+						{{/bs-button}}
 
-					{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
-						<i class="fa fa-trash"></i>
-					{{/bs-button}}
+						{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
+                            <i class="fa fa-trash"></i>
+						{{/bs-button}}
+					</span>
+
 
 				{{/unless}}
 			{{/c.controls}}
@@ -214,11 +331,18 @@ Process URL: {{processURL}}
 
 	{{#if (not disableEdit)}}
 
-			<button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
-			</button>
+		<span style="float: left">
+			{{#bs-button onClick=(action "showAddRule")}}
+                <i class="fa fa-plus"></i>
+			{{/bs-button}}
+        </span>
 
-			<button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
-			</button>
+		<span style="float: right">
+			{{#bs-button onClick=(action "saveRuleSet" model.ruleset)}}
+                Save RuleSet
+			{{/bs-button}}
+		</span>
+
 
 	{{/if}}
 </div>

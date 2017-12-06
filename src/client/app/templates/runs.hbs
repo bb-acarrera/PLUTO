@@ -48,8 +48,7 @@
 		</tr>
 
       {{#each runs as |runInstance index|}}
-          <tr id="{{concat 'runsTableRow' index}}" {{action "toggleRowHighlight"
-							(concat 'runsTableRow' index) }} class="rule-selectable">
+          <tr id="{{concat 'runsTableRow' index}}" {{action "goToRun" runInstance.run.id }} class="rule-selectable">
               <td class="icon-cell">
 				  {{#pass-fail-icon runcounts=runInstance.run}}{{/pass-fail-icon}}
               </td>
