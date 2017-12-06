@@ -1,0 +1,72 @@
+<div>
+	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
+		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+        <i class="fa fa-angle-double-left"></i>
+	{{/link-to}}
+</div>
+{{outlet}}
+<div>
+	<h2>PLUTO Runs</h2>
+    <table id="runsTable" class="runs-table">
+		<tr style="border-bottom: 1px solid grey;">
+			<td>
+            <td class="icon-cell">
+				{{#bs-dropdown tagName="span" as |dd|}}
+					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
+					{{#dd.menu as |menu|}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showPassed" checked=showPassed}}<i class="fa fa-thumbs-up good-color"></i> Show Passed
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showFailed" checked=showFailed}}<i class="fa fa-thumbs-down error-color"></i>  Show Failed
+						{{/menu.item}}
+					{{/dd.menu}}
+				{{/bs-dropdown}}
+            </td>
+			</td>
+			<td class="icon-cell">
+				{{#bs-dropdown tagName="span" as |dd|}}
+					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
+					{{#dd.menu as |menu|}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showWarnings" checked=showWarnings}}<i class="fa fa-exclamation-triangle warning-color"></i> Show Warnings
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showErrors" checked=showErrors}}<i class="fa fa-exclamation-triangle error-color"></i>  Show Errors
+						{{/menu.item}}
+						{{#menu.item}}
+							{{input type="checkbox" name="showDropped" checked=showDropped}}<i class="fa fa-ban warning-color"></i>  Show Dropped
+						{{/menu.item}}
+					{{/dd.menu}}
+				{{/bs-dropdown}}
+			</td>
+			<td>{{input type="date" value=dateFilter}}</td>
+			<td>{{input placeholder="File" value=sourceFileFilter}}</td>
+			<td>{{input placeholder="Source" value=sourceFilter}}</td>
+            <td>{{input placeholder="Owner" value=runGroupFilter}}</td>
+			<td></td>
+		</tr>
+
+      {{#each runs as |runInstance index|}}
+          <tr id="{{concat 'runsTableRow' index}}" {{action "goToRun" runInstance.run.id }} class="rule-selectable">
+              <td class="icon-cell">
+				  {{#pass-fail-icon runcounts=runInstance.run}}{{/pass-fail-icon}}
+              </td>
+			  <td class="icon-cell">
+				  {{#error-icon runcounts=runInstance.run}}{{/error-icon}}
+			  </td>
+            <td>{{moment-format runInstance.run.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
+            <td>{{runInstance.run.sourcefile}}</td>
+            <td>{{if runInstance.source.group (concat runInstance.source.group ': ')}} {{runInstance.source.description}}</td>
+			<td>{{runInstance.run.group}}</td>
+            {{#if runInstance.run.isrunning}}
+              <td>running</td>
+            {{else}}
+              <td>{{#link-to "run" runInstance.run.id}}Details {{/link-to}}</td>
+            {{/if}}
+
+          </tr>
+      {{/each}}
+    </table>
+	{{show-paginator pages=model.runs.meta.totalPages current=page inc=(action 'incPage') dec=(action 'decPage')}}
+</div>

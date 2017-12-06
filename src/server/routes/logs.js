@@ -34,7 +34,7 @@ class LogsRouter extends BaseRouter {
 			var includedReports = [];
 			for (var i = 0; i < log.logs.length; i++) {
 				const report = log.logs[i];
-				const reportID = id + i;	// Reports don't have their own ID. Should they have one? (log name + timestamp + level + ???).
+				const reportID = id + '-' + report.index;	// Reports don't have their own ID. Should they have one? (log name + timestamp + level + ???).
 				const reportType = report.type;
 				const reportWhen = report.when;
 				const reportProblemFile = report.problemFile;

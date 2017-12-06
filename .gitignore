@@ -20,3 +20,9 @@ Factories.csv
 /root/
 /test_build/
 /dbconfig.json
+.project
+.settings
+docs/.*.html
+.pydevproject
+*.pyc
+src/.vscode

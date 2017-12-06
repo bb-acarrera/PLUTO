@@ -1,0 +1,65 @@
+<div>
+	{{#link-to 'admin.configuredrule' (query-params typeFilter=model.rule.type) tagName='button' class='btn btn-success btn-sm btn-return-title'}}
+		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+        <i class="fa fa-angle-double-left"></i>
+	{{/link-to}}
+    <h2>{{title}} {{model.rule.rule_id}}</h2>
+</div>
+
+<div>
+    <div>
+        Group:
+		{{#unless (v-get model.rule 'group' 'isValid')}}
+            <span class="error-color">{{v-get model.rule 'group' 'message'}}</span>
+		{{/unless}}
+		{{input id="groupName" type="text" value=model.rule.group class="text-input" disabled=disableEdit}}
+    </div>
+    <div>
+		Name:
+		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
+    </div>
+
+	<div>
+		Base:
+		{{#unless (v-get model.rule 'base' 'isValid')}}
+            <span class="error-color">{{v-get model.rule 'base' 'message'}}</span>
+		{{/unless}}
+        {{#power-select
+			options=bases
+			onchange=(action "chooseBase")
+			selected=base
+			allowClear=true
+			as |baseChoice|}}
+				{{baseChoice.id}}
+		{{/power-select}}
+	</div>
+	<div>
+		Properties
+		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disabled}}
+	</div>
+
+	{{#if (eq model.rule.type "source") }}
+		<div>
+			Linked Target:
+			{{#power-select
+				search=(action "searchTarget")
+				onchange=(action "chooseTarget")
+				selected=linkedtarget
+				options=model.defaultTargets
+				allowClear=true
+				as |targetChoice|}}
+				{{targetChoice.rule_id}}: {{targetChoice.description}}
+			{{/power-select}}
+		</div>
+	{{/if}}
+</div>
+
+{{#bs-button onClick=(action "saveRule") disabled=(v-get model.rule 'isInvalid') }}
+    Save
+{{/bs-button}}
+
+{{#unless (v-get model.rule 'isValid')}}
+	<span class="error-color">Correct the errors before saving</span>
+{{/unless}}
+
+{{outlet}}

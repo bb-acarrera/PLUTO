@@ -14,9 +14,14 @@ div.column {
   background: #F8F8F8;
 }
 
-div.section-header {
+.section-header {
   padding: 3px 3px 0px 3px;
   font-size: 125%;
+}
+
+div.paginator-page {
+  margin-left: 5px;
+  margin-right: 5px
 }
 
 div.section-content {
@@ -24,6 +29,24 @@ div.section-content {
   margin:5px 5px 5px 5px;
   padding: 3px 3px 3px 3px;
   background: #E8E8E8;
+
+}
+
+div.ruleset-section-content {
+  display: inline-block;
+  width: 100%;
+}
+
+.ruleset-content {
+	display: inline-block;
+	width: 100%;
+	padding-right: 10px;
+}
+
+.rule-header {
+	padding: 3px 3px 0px 3px;
+	font-size: 110%;
+	vertical-align: middle;
 }
 
 input.text-input {
@@ -48,12 +71,20 @@ table.runs-table {
 }
 
 table.ruleset-table {
-  margin:5px 5px 5px 5px;
+  margin:5px 5px 15px 5px;
   padding: 3px 3px 3px 3px;
   border-spacing: 0;
   background: #E8E8E8;
   width:  98%;
   table-layout: fixed;
+}
+
+table.main-page-table {
+  margin:5px 5px 5px 5px;
+  padding: 3px 3px 3px 3px;
+  border-spacing: 0;
+  background: #E8E8E8;
+  width:  98%;
 }
 
 td.error-cell {
@@ -66,12 +97,22 @@ tr.error-row {
   /* width:  auto; */
 }
 
+.ruleset-rule-selectable {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+}
+
 .rule-selectable.selected {
   background: lightcyan;
 }
 
 .rule-selectable:hover {
   background-color: #f0f0f0;
+}
+
+.rule-selectable {
+	cursor: pointer;
 }
 
 .parser-buttons {
@@ -84,21 +125,21 @@ tr.error-row {
 
 .warning-and-error-icon {
   color: transparent;
-  background: linear-gradient(90deg, firebrick 50%, gold 50%);
+  background: linear-gradient(90deg, firebrick 50%, #EEC100 50%);
   -webkit-background-clip: text;
   background-clip: text;
 }
 
-.warning-icon {
-  color: gold;
+.warning-color {
+  color: #EEC100;
 }
 
-.error-icon {
+.error-color {
   color: firebrick;
 }
 
-.good-icon {
-  color: lightskyblue;
+.good-color {
+  color: forestgreen;
 }
 
 .no-icon {
@@ -133,6 +174,17 @@ div.footer {
   color: gray;
 }
 
+div.footer .version {
+	float: right;
+	margin-right: 5px;
+}
+
+div.authDetails {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+}
+
 .fileUpload {
   position: relative;
   overflow: hidden;
@@ -152,7 +204,8 @@ div.footer {
 
 .btn-return-title {
   float: left;
-  height: 63px;
+  margin-right: 10px;
+  height: 100%;
 }
 
 .change-btn {
@@ -164,4 +217,49 @@ div.footer {
   float: right;
   position: relative;
   top: -27px;
+}
+
+select:disabled {
+	background: #dddddd;
+}
+
+span.expand-controls {
+	float: right;
+	padding-left: 5px;
+}
+
+div.expand-controls {
+	float: right;
+	padding-left: 5px;
+	display: inline-block;
+	width: 100%;
+}
+
+.rule-controls {
+	float: right;
+}
+
+.bigger-caret:before {
+	font-size: 16pt;
+	vertical-align: middle;
+}
+
+.rule-button {
+
+}
+
+.add-ruleset-property-block {
+	padding-left: 15px;
+}
+
+.run-bold-text {
+	font-weight: bold;
+}
+
+.run-rule-header-count {
+	padding-left: 6px;
+}
+
+.run-section-break {
+	padding-bottom: 12px;
 }

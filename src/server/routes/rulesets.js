@@ -2,7 +2,6 @@ const BaseRouter = require('./baseRouter');
 const RuleSet = require('../../validator/RuleSet');
 const Util = require('../../common/Util');
 
-
 class RulesetRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
@@ -13,6 +12,8 @@ class RulesetRouter extends BaseRouter {
 		// The server's root directory points to the client code while the validator's root
 		// directory points to rulesets, rule plugins and such. It can be configured such
 		// that these two root directories are the same.
+
+		const auth = this.getAuth(req);
 
 		if(req.params.id || req.query.id || req.query.dbid) {
 
@@ -30,13 +31,10 @@ class RulesetRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			if(req.query.rulesetid) {
-				rulesetid = req.query.rulesetid
-			}
-
-			this.config.data.retrieveRuleset(id, null, version, dbId).then((ruleset) => {
+			this.config.data.retrieveRuleset(id, null, null, version, dbId, auth.group, auth.admin).then((ruleset) => {
 				if (!ruleset) {
-					res.status(404).send(`Unable to retrieve ruleset '${id}'.`);
+					res.statusMessage = `Unable to retrieve ruleset '${id}'.`;
+					res.status(404).end();
 					return;
 				}
 
@@ -58,14 +56,7 @@ class RulesetRouter extends BaseRouter {
 						});
 				}
 
-				let parser = null;
-				if(ruleset.parser) {
-					parser = {
-						filename: ruleset.parser.filename,
-						name: ruleset.parser.filename,
-						config: ruleset.parser.config
-					};
-				}
+
 
 				ruleset["ruleset-id"] = ruleset.ruleset_id;
 				delete ruleset.ruleset_id;
@@ -75,13 +66,16 @@ class RulesetRouter extends BaseRouter {
 				ruleset["database-id"] = id;
 				delete ruleset.id;
 
-				res.json({
+				let jsonResp = {
 					data: {
 						type: "ruleset",
 						id: id,
 						attributes: ruleset
 					}
-				});
+				};
+
+				res.json(jsonResp);
+
 			}, (error) => {
 				next(error);
 			}).catch(next);
@@ -92,8 +86,6 @@ class RulesetRouter extends BaseRouter {
 			let page = parseInt(req.query.page, 10);
 			let size = parseInt(req.query.perPage, 10);
 
-			let rulesetFilter = req.query.rulesetFilter;
-
 			if(isNaN(page)) {
 				page = 1;
 			}
@@ -103,8 +95,15 @@ class RulesetRouter extends BaseRouter {
 			}
 
 			this.config.data.getRulesets(page, size, {
-				rulesetFilter: rulesetFilter
-			}).then((result) => {
+				rulesetFilter: req.query.rulesetFilter,
+				groupFilter: req.query.groupFilter,
+				sourceGroupFilter: req.query.sourceGroupFilter,
+				sourceDescriptionFilter: req.query.sourceDescriptionFilter,
+				fileFilter: req.query.fileFilter,
+				nameFilter: req.query.nameFilter,
+				sourceFilter: req.query.sourceFilter
+
+			}, null, auth.group, auth.admin).then((result) => {
 				const rulesets = [];
 
 				let rawRulesets = result.rulesets;
@@ -117,6 +116,15 @@ class RulesetRouter extends BaseRouter {
 
 					ruleset["database-id"] = id;
 					delete ruleset.id;
+
+					if(ruleset.source || ruleset.target) {
+						if(ruleset.source) {
+							ruleset.sourcedetails = ruleset.source.filename;
+						}
+						if(ruleset.target) {
+							ruleset.targetdetails = ruleset.target.filename;
+						}
+					}
 
 					rulesets.push({
 						type: "ruleset",
@@ -139,8 +147,9 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	patch(req, res, next) {
+		const auth = this.getAuth(req);
 		const ruleset = new RuleSet(req.body);
-		this.config.data.saveRuleSet(ruleset, req.params.id).then(() => {
+		this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
             req.body.version = ruleset.version;
 			res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 		}, (error) => {
@@ -149,8 +158,9 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	delete(req, res, next) {
+		const auth = this.getAuth(req);
         const ruleset = new RuleSet(req.body);
-        this.config.data.deleteRuleSet(ruleset).then(() => {
+        this.config.data.deleteRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
         }, (error) => {
 			next(error);
@@ -158,11 +168,13 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	insert(req, res, next) {
+		const auth = this.getAuth(req);
 		let new_rulesetId = req.body.rulesetId;
 
 		this.config.data.rulesetExists(new_rulesetId).then((exists) => {
 			if(exists) {
-				res.status(422).send(`Ruleset '${new_rulesetId}' already exsists.`);
+				res.statusMessage = `Ruleset '${new_rulesetId}' already exsists.`
+				res.status(422).end();
 				return;
 			}
 
@@ -179,7 +191,7 @@ class RulesetRouter extends BaseRouter {
 				})
 			}
 
-			this.config.data.saveRuleSet(ruleset).then((name) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((name) => {
 				res.status(201).location('/ruleset/' + name).json(req.body);
 
 			}, (error) => {

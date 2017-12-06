@@ -15,7 +15,9 @@ const Data = require("../common/dataDb");
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
 
-const RuleLoader = require('../common/ruleLoader')
+const RuleLoader = require('../common/ruleLoader');
+
+const Reporter = require('./reporter');
 
 const version = '0.1'; //require("../../package.json").version;
 
@@ -73,7 +75,9 @@ class Validator {
 		// This needs to be done after the above tests and setting of the global config object.
         this.data = Data(this.config);
 
-		this.ruleLoader = new RuleLoader(this.config.rulesDirectory);
+		this.ruleLoader = new RuleLoader(this.config.rulesDirectory, this.data);
+
+		this.reporter = new Reporter(this.config, this.logger);
     }
 
 	/*
@@ -95,23 +99,30 @@ class Validator {
 			this.runId = runId;
 			console.log("runId:" + runId);
 
-			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride)
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride, this.ruleLoader)
 				.then((ruleset) => {
 
-						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
-					},
-					(error)=>{
-						this.error(error);
-						this.finishRun();
-					}).catch((e) => {
-						if(!e.message){
-							this.error(e);
-						}
-						else {
-							this.error(e.message);
-						}
-						this.finishRun();
+					if(!ruleset){
+						throw new Error("No Ruleset found for: " + this.config.ruleset);
 					}
+
+					ruleset.resolve(this.ruleLoader).then(() => {
+						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
+					});
+
+				},
+				(error)=>{
+					this.error(error);
+					this.finishRun();
+				}).catch((e) => {
+					if(!e.message){
+						this.error(e);
+					}
+					else {
+						this.error(e.message);
+					}
+					this.finishRun();
+				}
 			);
 		}, (error) => {
 			console.log("Error creating run record: " + error);
@@ -234,6 +245,8 @@ class Validator {
 				rules.push(cleanupRule);
 			});
 
+			this.executedRules = rules;
+
 			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
 				this.abort = true;
 				throw "Errors in rule configuration. Aborting.";
@@ -294,8 +307,6 @@ class Validator {
 	}
 
 	getRule(ruleDescriptor) {
-		// TODO: Get all the rules before running them. This way if any rules are missing an error can be
-		// raised without affecting the later running of the rules.
 		var ruleClass = this.loadRule(ruleDescriptor.filename);
 
 
@@ -309,6 +320,10 @@ class Validator {
 		this.ruleName = config.name;
 		config.errors = ruleDescriptor.errors;
 
+		let properties = this.ruleLoader.rulePropertiesMap[ruleDescriptor.filename];
+		if (properties && properties.attributes)
+		    config.attributes = properties.attributes;
+		
 		let rule;
 
 		if(ruleClass.NeedsParser) {
@@ -384,7 +399,17 @@ class Validator {
 				this.inputFileName = "";
 			}
 
-			if(!results) {
+			this.summary = {
+				exported: false
+			};
+
+			this.updateSummaryCounts();
+
+			if(!this.finalChecks()) {
+				results = null;
+			}
+
+			if(!results && !this.abort) {
 				console.error("No results");
 				this.error("No results were produced.");
 			}
@@ -393,6 +418,7 @@ class Validator {
 
 				if(results) {
 					this.saveResults(results);
+
 				}
 				this.finalize().then(() => resolve());
 
@@ -413,13 +439,24 @@ class Validator {
 					this.error("Unrecognized results structure.");
 
 				this.exportFile(this.currentRuleset.export, resultsFile, this.runId)
-					.then(() => {},
+					.then(() =>
+						{
+							if(resultsFile) {
+								this.summary.exported = true;
+								if(this.currentRuleset.target) {
+									this.summary.target = this.currentRuleset.target.filename;
+									this.summary.targetFile = this.currentRuleset.target.config.file;
+								}
+							}
 
+						},
 						(error) => {
-							this.error("Export failed: " + error)	;
+							this.error("Export failed: " + error);
+							this.abort = true;
 						})
 					.catch((e) => {
 						this.error("Export" + importConfig.filename + " fail unexpectedly: " + e);
+						this.abort = true;
 					})
 					.then(() => {
 						this.finalize().then(() => resolve());
@@ -431,16 +468,61 @@ class Validator {
 		});
 	}
 
+	updateSummaryCounts() {
+
+		if(!this.summary) {
+			this.summary = {}
+		}
+
+		const summary = this.summary;
+
+		summary.processeditems = 0;
+		summary.outputitems = 0;
+		summary.wasTest = this.config.testOnly;
+
+		if(this.executedRules) {
+			//find the initial # of processed items
+			let i, rule;
+			for(i = 0; i < this.executedRules.length; i++) {
+				if(this.executedRules[i].summary) {
+					rule = this.executedRules[i];
+					break;
+				}
+			}
+
+			if(rule) {
+				summary.processeditems = rule.summary.processed;
+			}
+
+			//find the final # of output items
+			for(i = this.executedRules.length - 1; i >= 0; i--) {
+				if(this.executedRules[i].summary) {
+					rule = this.executedRules[i];
+					break;
+				}
+			}
+
+			if(rule) {
+				summary.outputitems = rule.summary.output;
+			}
+		}
+
+		return summary;
+	}
+
 	finalize() {
 		return new Promise((resolve) => {
 			this.data.saveRunRecord(this.runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts())
+				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
+				!this.abort, this.summary)
 				.then(() => {}, (error) => console.log('error saving run: ' + error))
 				.catch((e) => console.log('Exception saving run: ' + e))
 				.then(() => {
+					if (!this.config.testOnly)
+						this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
 					this.cleanup();
 					resolve();
-				});
+			});
 		});
 
 
@@ -470,11 +552,15 @@ class Validator {
 
 	// Add some useful things to a config object.
 	updateConfig(config) {
-		config.rootDirectory = config.rootDirectory || this.rootDir;
-		config.tempDirectory = config.tempDirectory || this.tempDir;
-		config.encoding = config.encoding || this.encoding;
-		config.validator = this;
-		config.sharedData = this.sharedData;
+	    // Put non-rule stuff in the internal "__state" object.
+	    config.__state = {};
+	    
+	    config.__state.rootDirectory = config.rootDirectory || this.rootDir;
+	    config.__state.tempDirectory = this.tempDir;
+	    config.__state.encoding = config.encoding || this.encoding;
+	    config.__state.validator = this;
+	    config.__state.sharedData = this.sharedData;
+//		config.currentRuleset = this.currentRuleset;
 	}
 
 	// Create a unique temporary filename in the temp directory.
@@ -774,6 +860,33 @@ class Validator {
 		this.error('Aborting: ' + reason);
 	}
 
+	finalChecks() {
+
+		if(this.abort) {
+			return true;
+		}
+
+		let errorConfig = null;
+		if(this.currentRuleset && this.currentRuleset.general) {
+			errorConfig = this.currentRuleset.general.config;
+		}
+
+		if(errorConfig) {
+
+			if (this.summary.processeditems && errorConfig.droppedPctToAbort && errorConfig.droppedPctToAbort > 0) {
+				let droppedPct = this.logger.getCount(ErrorHandlerAPI.DROPPED) * 100.0 / this.summary.processeditems;
+
+				if(droppedPct >= errorConfig.droppedPctToAbort) {
+					this.abortRun('Too many dropped items. ' +
+						droppedPct + '% were dropped and limit was ' + errorConfig.droppedPctToAbort + '%');
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	checkAbort(ruleID) {
 
 		if(this.abort) {
@@ -799,6 +912,13 @@ class Validator {
 
 		if(errorConfig) {
 
+			if (errorConfig.droppedToAbort && errorConfig.droppedToAbort > 0 &&
+				this.logger.getCount(ErrorHandlerAPI.DROPPED) >= errorConfig.droppedToAbort) {
+				this.abortRun('Too many total dropped items. Got ' +
+					this.logger.getCount(ErrorHandlerAPI.DROPPED) + ' limit was ' + errorConfig.droppedToAbort);
+				return;
+			}
+
 			if (errorConfig.warningsToAbort && errorConfig.warningsToAbort > 0 &&
 				this.logger.getCount(ErrorHandlerAPI.WARNING) >= errorConfig.warningsToAbort) {
 				this.abortRun('Too many total warnings. Got ' +
@@ -814,6 +934,13 @@ class Validator {
 					this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) >= rule.config.errorsToAbort) {
 					this.abortRun('Too many errors for ' + rule.filename + '. Got ' +
 						this.logger.getCount(ErrorHandlerAPI.ERROR, ruleID) + ' limit was ' + rule.config.errorsToAbort);
+					return;
+				}
+
+				if (rule.config.droppedToAbort && rule.config.droppedToAbort > 0 &&
+					this.logger.getCount(ErrorHandlerAPI.DROPPED, ruleID) >= rule.config.droppedToAbort) {
+					this.abortRun('Too many dropped items for ' + rule.filename + '. Got ' +
+						this.logger.getCount(ErrorHandlerAPI.DROPPED, ruleID) + ' limit was ' + rule.config.droppedToAbort);
 					return;
 				}
 

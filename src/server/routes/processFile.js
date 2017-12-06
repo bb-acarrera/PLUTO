@@ -31,10 +31,18 @@ class ProcessFileRouter extends BaseRouter {
 
         console.log('got processFile request');
 
-        let ruleset = req.body.ruleset;
+        let ruleset = null;
+        if(req.params.id) {
+            ruleset = req.params.id;
+        } else {
+            ruleset = req.body.ruleset;
+        }
+
         let inputFile = req.body.input;
         let outputFile = req.body.output;
         let importConfig = req.body.import;
+        let test = req.body.test;
+        let finishHandler = null;
 
         if(!ruleset) {
             res.json({
@@ -43,7 +51,18 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
-        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res));
+        if(test) {
+            outputFile = this.getTempName(this.config);
+
+            finishHandler = () => {
+
+                if (fs.existsSync(outputFile)) {
+                    fs.unlink(outputFile);
+                }
+            }
+        }
+
+        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, test, finishHandler));
     }
 
     processUpload(req, res, next) {
@@ -70,7 +89,7 @@ class ProcessFileRouter extends BaseRouter {
                 return res.status(500).send(err);
 
             this.generateResponse(res, ruleset,
-                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, () => {
+                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, false, () => {
 
                     fs.unlink(fileToProcess);
 
@@ -106,7 +125,7 @@ class ProcessFileRouter extends BaseRouter {
         });
     }
 
-    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, finishedFn) {
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn) {
         return new Promise((resolve, reject) => {
 
             var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
@@ -121,18 +140,27 @@ class ProcessFileRouter extends BaseRouter {
                 spawnArgs.push('-v');
                 spawnArgs.push(overrideFile);
             } else {
-                execCmd += ' -i "' + inputFile + '" -o "' + outputFile + '"';
-                spawnArgs.push('-i');
-                spawnArgs.push(inputFile);
-                spawnArgs.push('-o');
-                spawnArgs.push(outputFile);
-
+            	if (inputFile) {
+                    execCmd += ' -i "' + inputFile + '"';
+                    spawnArgs.push('-i');
+                    spawnArgs.push(inputFile);
+            	}
+            	if (outputFile) {
+                    execCmd += ' -o "' + outputFile + '"';
+                    spawnArgs.push('-o');
+                    spawnArgs.push(outputFile);
+            	}
                 if(inputDisplayName) {
-                    execCmd += ' -n ' + inputDisplayName;
+                    execCmd += ' -n "' + inputDisplayName + '"';
 
                     spawnArgs.push('-n');
                     spawnArgs.push(inputDisplayName);
                 }
+            }
+
+            if (test) {
+                execCmd += ' -t';
+                spawnArgs.push('-t');
             }
 
             const options = {
@@ -162,8 +190,12 @@ class ProcessFileRouter extends BaseRouter {
                 let str = data.toString();
                 console.log('stdout: ' + str);
 
-                if(str.startsWith('runId:')) {
-                    resolve(str.substr(6).trim());
+                let strs = str.split('\n');
+                for (var i = 0; i < strs.length; i++) {
+                    let s = strs[i];
+                    if(s.startsWith('runId:')) {
+                        resolve(s.substr(6).trim());
+                    }
                 }
             });
 

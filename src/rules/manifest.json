@@ -6,7 +6,13 @@
   ],
   "rules": [
     {
+      "filename":"CheckColumnNames"
+    },
+    {
       "filename":"CheckColumnCount"
+    },
+    {
+      "filename":"CheckRowCount"
     },
     {
       "filename":"CheckColumnRegEx"
@@ -21,10 +27,12 @@
       "filename":"DeleteColumn"
     },
     {
-      "filename":"RunPythonScript"
+      "filename":"AddRegExColumn"
     },
     {
-      "filename":"AddRegExColumn"
+      "filename":"validateFilename",
+      "script" : "validateFilename.py",
+      "executable" : "python"
     }
   ],
   "importers" : [

@@ -68,7 +68,7 @@ class AddRegExColumn extends TableRuleAPI {
 		} else	if (this.column !== undefined) {
 			if (this.column >= record.length) {	// Does the record have the correct number of columns?
 				if (!this.badColumnCountReported) {
-					this.error(`Row ${rowId} has insufficient columns.`);
+					this.error(`Row ${rowId} has insufficient columns.`, rowId);
 					this.badColumnCountReported = true;
 				}
 			} else if(this.exec) {
@@ -79,7 +79,7 @@ class AddRegExColumn extends TableRuleAPI {
 				} else {
 
 					if(this.onFailure) {
-						this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`);
+						this.onFailure(`Row ${rowId}, Column ${this.column}: Expected a match of ${this.config.regex} but got ${record[this.column]}.`, rowId);
 					}
 
 					record[this.newColumnIndex] = '';

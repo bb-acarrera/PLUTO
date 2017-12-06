@@ -11,5 +11,14 @@ export default DS.Model.extend({
     config : DS.attr(),
     parser: DS.attr(),
     general: DS.attr(),
-    version: DS.attr('number')
+    version: DS.attr('number'),
+	canedit: DS.attr('boolean'),
+	ownergroup: DS.attr('string'),
+	updateuser: DS.attr('string'),
+	updatetime: DS.attr('date'),
+	deleted: DS.attr('boolean'),
+	source: DS.attr(),
+	target: DS.attr(),
+	group: DS.attr('string'),
+	email: DS.attr('string')
 });

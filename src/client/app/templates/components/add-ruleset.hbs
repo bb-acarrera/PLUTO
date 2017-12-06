@@ -1,0 +1,85 @@
+
+{{#bs-modal open=showdialog onHidden=(action "onHidden") as |modal|}}
+	{{#modal.header}}
+        <h4 class="modal-title">
+			Add new file to process
+			{{#if ruleset}}
+				from {{ruleset.filename}}
+			{{/if}}
+
+        </h4>
+	{{/modal.header}}
+	{{#modal.body}}
+
+		<div>
+			Parser:
+			{{#power-select
+			options=parsers
+			onchange=(action (mut parser))
+			selected=parser
+			allowClear=true
+			renderInPlace=true
+			as |parserChoice|}}
+				{{parserChoice.filename}}
+			{{/power-select}}
+		</div>
+
+		<div>
+			Source
+			{{#power-select
+			options=defaultSources
+			search=(action "searchSource")
+			onchange=(action "setSource")
+			selected=source
+			allowClear=true
+			renderInPlace=true
+			as |sourceChoice|}}
+				{{sourceChoice.rule_id}}: {{sourceChoice.description}}
+			{{/power-select}}
+		</div>
+
+		{{#if source}}
+			<div class="add-ruleset-property-block">
+				Source Options
+                {{component 'custom-property.property-list' uiList=source.ui.properties config=sourceConfig}}
+			</div>
+		{{/if}}
+
+
+		{{#unless source.config.linkedtargetid}}
+			<div>
+				Target
+				{{#power-select
+				options=defaultTargets
+				search=(action "searchTarget")
+				onchange=(action "setTarget")
+				selected=target
+				allowClear=true
+				renderInPlace=true
+				as |targetChoice|}}
+					{{targetChoice.rule_id}}: {{targetChoice.description}}
+				{{/power-select}}
+            </div>
+
+			{{#if target}}
+                <div class="add-ruleset-property-block">
+                    Target Options
+					{{component 'custom-property.property-list' uiList=target.ui.properties config=targetConfig}}
+                </div>
+			{{/if}}
+
+		{{/unless}}
+
+		{{yield}}
+
+	{{/modal.body}}
+	{{#modal.footer}}
+		{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
+
+		{{#bs-button type="success" onClick=(action  "addRuleset")}}Create{{/bs-button}}
+
+
+	{{/modal.footer}}
+{{/bs-modal}}
+
+

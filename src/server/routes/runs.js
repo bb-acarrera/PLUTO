@@ -42,6 +42,9 @@ class RunsRouter extends BaseRouter {
             let showWarnings = JSON.parse(req.query.warningsFilter || true);
             let showNone = JSON.parse(req.query.noneFilter || true);
             let dateFilter = null;
+            let showDropped = JSON.parse(req.query.droppedFilter || true);
+            let showPassed = JSON.parse(req.query.passedFilter || true);
+            let showFailed = JSON.parse(req.query.failedFilter || true);
 
             if(req.query.dateFilter && req.query.dateFilter.length > 0) {
                 let time = Date.parse(req.query.dateFilter);
@@ -60,32 +63,38 @@ class RunsRouter extends BaseRouter {
                 size = 0;
             }
 
-          this.config.data.getRuns(page, size, {
-            rulesetFilter: rulesetFilter,
-            filenameFilter: filenameFilter,
-            showErrors: showErrors,
-            showWarnings: showWarnings,
-            showNone: showNone,
-            dateFilter: dateFilter
-          }).then((result) => {
-              var data = [];
+            this.config.data.getRuns(page, size, {
+                rulesetFilter: rulesetFilter,
+                filenameFilter: filenameFilter,
+                showErrors: showErrors,
+                showWarnings: showWarnings,
+                showNone: showNone,
+                dateFilter: dateFilter,
+                groupFilter: req.query.groupFilter,
+                showDropped: showDropped,
+                showPassed: showPassed,
+                showFailed: showFailed,
+                sourceFileFilter: req.query.sourceFileFilter,
+                sourceFilter: req.query.sourceFilter
+            }).then((result) => {
+                    var data = [];
 
-              result.runs.forEach(runInfo => {
-                    var run = {
-                        id: runInfo.id,
-                        type: 'run',
-                        attributes: runInfo
-                    };
-                    data.push(run);
-                });
+                    result.runs.forEach(runInfo => {
+                        var run = {
+                            id: runInfo.id,
+                            type: 'run',
+                            attributes: runInfo
+                        };
+                        data.push(run);
+                    });
 
 
 
-                res.json({
-                    data: data,
-                    meta: { rowCount: result.rowCount, totalPages: result.pageCount}
-                });
-            }, next)
+                    res.json({
+                        data: data,
+                        meta: { rowCount: result.rowCount, totalPages: result.pageCount}
+                    });
+                }, next)
                 .catch(next);
 
         }

@@ -1,0 +1,35 @@
+{
+  "rules": [
+    {
+      "rule_id": "testSource",
+      "type": "source",
+      "description": "test source",
+      "base": "LocalCopyImport",
+      "group": "sample",
+      "config": {
+        "base": "./examples/data"
+      }
+    },
+    {
+      "rule_id": "testSourceTarget",
+      "type": "source",
+      "description": "test source",
+      "base": "LocalCopyImport",
+      "group": "sample",
+      "config": {
+        "base": "./examples/data",
+        "linkedtargetid": "testTarget"
+      }
+    },
+    {
+      "rule_id": "testTarget",
+      "type": "target",
+      "description": "test target",
+      "base": "LocalCopyExport",
+      "group": "sample",
+      "config": {
+        "base": "./tmp"
+      }
+    }
+  ]
+}

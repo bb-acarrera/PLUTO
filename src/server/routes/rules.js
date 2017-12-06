@@ -6,7 +6,7 @@ class RulesRouter extends BaseRouter {
 	constructor(config) {
 		super(config);
 
-        this.rulesLoader = new RuleLoader(this.config.validator.config.rulesDirectory);
+        this.rulesLoader = this.config.rulesLoader;
 
 
 

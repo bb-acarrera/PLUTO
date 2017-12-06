@@ -64,15 +64,21 @@ class BaseRuleAPI extends ErrorHandlerAPI {
     static appendConfigProperties(inProperties) {
 
         const properties = [
-            {
+            /*{
                 name: 'errorsToAbort',
                 label: 'How many errors before abort on this rule?',
+                type: 'integer',
+                tooltip: 'Stop execution when these many errors occur.'
+            },*/ //hide from the UI
+            {
+                name: 'droppedToAbort',
+                label: 'How many dropped items before aborting on this rule?',
                 type: 'integer',
                 tooltip: 'Stop execution when these many errors occur.'
             },
             {
                 name: 'warningsToAbort',
-                label: 'How many warnings before abort on this rule?',
+                label: 'How many warnings before aborting on this rule?',
                 type: 'integer',
                 tooltip: 'Stop execution when these many warnings occur.'
             }

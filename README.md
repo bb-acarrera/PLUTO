@@ -3,7 +3,7 @@ Primary Layer Updating Tool
 
 ## Setup and Building
 
-First, set up the environment:
+First, in the PLUTO directory set up the environment by running:
 
 ```shell
 
@@ -17,7 +17,10 @@ npm run build
 ```
 
 'npm run build' executes the build script, and puts the build into the "./Release" folder.
-'npm run docker_build' builds the docker container
+'npm run docker_build' builds the docker container from this release. Run this before the next
+step if you simply want to run the service without developing it. (If you want to develop
+jump down to "Starting dev database and running locally" to start a development environment
+rather than this release environment.)
 
 
 
@@ -35,13 +38,20 @@ The web service container will listen on port 3000, and expects a configuration 
 The test_config folder at the source root contains a default valid configuration that is mounted to `/opt/PLUTO/config`.
 The script will also import the rulesets in `test_config/rulesets` into the database.
 
+It will also start a simple NGINX container to simulate users and authentication, configured from `test_nginx.conf`. 
+You can use this by hitting these ports:
+  * 8001: no user or group, same as localhost:3000
+  * 8002: user="GroupA_user", group="GroupA"
+  * 8003: user="GroupB_user", group="GroupB"
+  * 8004: user="GroupAdmin_user", group="GroupAdmin", admin=true
+
 ## Calling the Service
 
 To process a file, POST to `http://localhost:3000/processfile` with a json package. At a minimum, it must specify a ruleset to execute:
 
 ```json
 {
-	"ruleset": "sampleRuleset"
+	"ruleset": "worldCities"
 }
 ```
 And can be call via:
@@ -61,9 +71,6 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 	}
 }
 ```
-
-## Ruleset Configuration
-[Ruleset][ruleset]
 
 ## Starting dev database and running locally
 To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
@@ -121,11 +128,7 @@ To create a new migration script:
 
 which will place the script in the database/dbloader/migrations folder.  Follow the docs on how to create new migrations.
 
-## Deploying
-
-After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` as an example on how to extend the pluto container to support plugin dependencies.
-
-## building the client for development
+## Building the client for development
 
 first time:
 ```shell
@@ -144,9 +147,19 @@ cd src/client
 ember server
 ```
 
+## Deploying
+
+After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, 
+a sample config folder, a script to start pluto (create and start the db and start the server), and a sample `Dockerfile` 
+as an example on how to extend the pluto container to support plugin dependencies.
+
+Details on configuring the deployed system can be found at [Deployed Configuration][deployedReadme]
+
 ## More..
 
 Additional information can be found in the following documents.
+
+[Deployed Configuration][deployedReadme]
 
 [Server][server] <span style="color: red">Needs updating</span>
 
@@ -156,6 +169,7 @@ Additional information can be found in the following documents.
 
 [Rules][rules]
 
+[deployedReadme]: deployedReadme.md
 [server]: docs/server.md
 [validator]: docs/validator.md
 [ruleset]: docs/ruleset.md

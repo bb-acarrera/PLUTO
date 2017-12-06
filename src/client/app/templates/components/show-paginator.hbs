@@ -1,7 +1,7 @@
 {{#if (gt pages 1)}}
-	<div class="paginator-item">
+	<span class="paginator-item">
 		{{#bs-button icon="glyphicon glyphicon-backward" size="xs" onClick=(action "previous") disabled=(is-equal current 1)}}{{/bs-button}}
-		<div>Page {{current}} of {{pages}}</div>
+		<div class="paginator-page">Page {{current}} of {{pages}}</div>
 		{{#bs-button icon="glyphicon glyphicon-forward" size="xs" onClick=(action "next") disabled=(is-equal current pages)}}{{/bs-button}}
-	</div>
+	</span>
 {{/if}}

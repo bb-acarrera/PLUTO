@@ -1,174 +1,369 @@
-<div style="float:none;display:flex;">
-	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
+<div >
+	{{#link-to 'rulesets' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
-		<i class="fa fa-angle-double-left"></i>
+        <i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
-  {{#if run}}
-	  <h2>Run Details</h2>
-  {{else}}
-    {{#if (not collapsed)}}
-      <h2>Edit Ruleset</h2>
-    {{/if}}
-  {{/if}}
+
+
+	<h2>Edit Rules for
+
+		{{#if  model.ruleset.source}}
+			{{source.group}} {{model.ruleset.source.config.file}}
+		{{else}}
+			{{model.ruleset.filename}}
+		{{/if}}
+
+	</h2>
+	<div class="authDetails">
+		<div>Owned by {{ownedBy}}</div>
+		<div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
+	</div>
+
+
 </div>
-{{#if run}}
-{{else}}
 
-  {{#bs-collapse collapsed=collapsed}}
-    <div style="float: left">
+Process URL: {{processURL}}
 
-      <div style="float:none;">
-        <div class="column">
-          <div class="section-header">Ruleset</div>
-          <div class="section-content">{{model.ruleset.filename}}</div>
-          <div class="section-content">Description: <input id="rulesetName" type="text"
-                                   value="{{model.ruleset.name}}" class="text-input"/>
-          </div>
+<div class="ruleset-content" >
 
-          <div class="section-content rule-selectable" id="general" {{action "toggleRowHighlight" "general"
-            model.ruleset.general}}>General Configuration</div>
+	<div class="section-content ruleset-section-content">Name: {{input id="rulesetName" type="text"
+		value=model.ruleset.name class="text-input" disabled=disableEdit}}
+	</div>
 
-          <div class="section-header">Parser</div>
-          <div class="section-content rule-selectable" id="parser" {{action "toggleRowHighlight" "parser"
-                                            model.ruleset.parser}}>
-            {{#if model.ruleset.parser}}
-              {{model.ruleset.parser.filename}}
-            {{else}}
-              None
-            {{/if}}
-            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
-              {{#if showChangeParser}}
+    <div class="section-content ruleset-section-content">Email: {{input id="email" type="text"
+		value=model.ruleset.email class="text-input" disabled=disableEdit}}
+    </div>
 
-                <select id="selectParser" onchange={{action "changeParser" model.ruleset model.parsers
-                                      bubbles=false}} class="change-btn">
-                  <option>Choose the parser</option>
-                  <option value="None">None</option>
-                  {{#each model.parsers as |parser|}}
-                    <option value={{parser.filename}}>{{parser.name}}</option>
-                  {{/each}}
-              </select>
+	<!-- source -->
+	{{#edit-ruleset/collapse  as |c|}}
 
-              <button onclick={{action "hideChangeParser" bubbles=false}} class="change-btn">Cancel</button>
-              {{else}}
-                <button onclick={{action "showChangeParser" bubbles=false}} class="change-btn">Change</button>
-              {{/if}}
-            </span>
-          </div>
+		{{#c.title}}
+            Source:
+		{{/c.title}}
 
-          <div class="section-header">Importer</div>
-          <div class="section-content rule-selectable" id="import" {{action "toggleRowHighlight" "import"
-                                            model.ruleset.import}}>
-            {{#if model.ruleset.import}}
-              {{model.ruleset.import.filename}}
-            {{else}}
-              None
-            {{/if}}
-            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
-              {{#if showChangeImporter}}
+		{{#c.subTitle}}
+			{{#if model.ruleset.source}}
+				{{model.ruleset.source.config.file}} in {{source.description}}
+			{{else}}
+                None
+			{{/if}}
+		{{/c.subTitle}}
 
-                <select id="selectImporter" onchange={{action "changeImporter" model.ruleset model.importers
-                                        bubbles=false}} class="change-btn">
-                        <option>Choose the importer</option>
-                        <option value="None">None</option>
-                  {{#each model.importers as |importer|}}
-                    <option value={{importer.filename}}>{{importer.name}}</option>
-                  {{/each}}
-                    </select>
+		{{#c.controls}}
+			{{#unless disableEdit}}
+                <div style="float: right; width:100%; display: inline-flex; justify-content: flex-end">
 
-                  <button onclick={{action "hideChangeImporter" bubbles=false}} class="change-btn">Cancel</button>
-              {{else}}
-                <button onclick={{action "showChangeImporter" bubbles=false}} class="change-btn">Change</button>
-              {{/if}}
-            </span>
-          </div>
+					{{#if showChangeSource}}
 
-          <div class="section-header">Exporter</div>
-          <div class="section-content rule-selectable" id="export" {{action "toggleRowHighlight" "export"
-                                            model.ruleset.export}}>
-            {{#if model.ruleset.export}}
-              {{model.ruleset.export.filename}}
-            {{else}}
-              None
-            {{/if}}
-            <span class="parser-buttons" onclick={{action "stopPropagation"}}>
-              {{#if showChangeExporter}}
+                        <div style="width:80%;display: inline-block;margin-right: 5px; flex: 1" onclick={{action "stopPropagation"}}>
+							{{#power-select
+							options=model.defaultSources
+							search=(action "searchSource")
+							onchange=(action "setSource" bubbles=false)
+							selected=source
+							renderInPlace=true
+							as |sourceChoice|}}
+								{{sourceChoice.rule_id}}: {{sourceChoice.description}}
+							{{/power-select}}
+                        </div>
 
-                <select id="selectExporter" onchange={{action "changeExporter" model.ruleset model.exporters
-                                        bubbles=false}} class="change-btn">
-                        <option>Choose the exporter</option>
-                        <option value="None">None</option>
-                  {{#each model.exporters as |exporter|}}
-                    <option value={{exporter.filename}}>{{exporter.name}}</option>
-                  {{/each}}
-                    </select>
+                        <div style="display: inline-block">
+							{{#bs-button onClick=(action (toggle "showChangeSource" this) bubbles=false) size='sm'}}
+                                Cancel
+							{{/bs-button}}
+                        </div>
 
-                  <button onclick={{action "hideChangeExporter" bubbles=false}} class="change-btn">Cancel</button>
-              {{else}}
-                <button onclick={{action "showChangeExporter" bubbles=false}} class="change-btn">Change</button>
-              {{/if}}
-            </span>
-          </div>
 
-          <div class="section-header">Rules</div>
-          <table id="rulesTable" class="ruleset-table">
-            {{#each model.ruleset.rules as |ruleInstance index|}}
-              <tr
-                id="{{concat 'rulesetTableRow' index}}" {{action "toggleRowHighlight"
-                                         (concat 'rulesetTableRow' index)
-                                         ruleInstance}}
-                class="rule-selectable">
-                <td>{{ruleInstance.name}}</td>
-                <td>
-                  <button {{action "moveRuleUp" model.ruleset index}}><i class="fa fa-arrow-up"></i>
-                  </button>
-                </td>
-                <td>
-                  <button {{action "moveRuleDown" model.ruleset index}}><i class="fa fa-arrow-down"></i>
-                  </button>
-                </td>
-              </tr>
-            {{/each}}
-            {{#if showAddRule}}
-              <td>
-                <select id="selectRule">
-                  <option value="None" selected>None</option>
-                  {{#each model.rules as |rule|}}
+
+					{{else}}
+                        <div style="display: inline-block;float:right">
+							{{#bs-button onClick=(action (toggle "showChangeSource" this) bubbles=false) size='sm'}}
+                                Change
+							{{/bs-button}}
+                        </div>
+					{{/if}}
+                </div>
+			{{/unless}}
+		{{/c.controls}}
+
+		{{#c.collapsable}}
+			{{#if source}}
+
+				{{component 'custom-property.property-list' uiList=source.ui.properties
+				config=model.ruleset.source.config
+				disabled=disabled
+				columns=columns}}
+
+			{{/if}}
+
+		{{/c.collapsable}}
+	{{/edit-ruleset/collapse}}
+
+    <!-- target -->
+	{{#unless source.config.linkedtargetid}}
+
+		{{#edit-ruleset/collapse  as |c|}}
+
+			{{#c.title}}
+                Target:
+			{{/c.title}}
+
+			{{#c.subTitle}}
+				{{#if model.ruleset.target}}
+					{{model.ruleset.target.config.file}} in {{rulesettarget.description}}
+				{{else}}
+                    None
+				{{/if}}
+			{{/c.subTitle}}
+
+			{{#c.controls}}
+				{{#unless disableEdit}}
+                    <div style="float: right; width:100%; display: flex; justify-content: flex-end">
+
+						{{#if showChangeTarget}}
+
+                            <div style="display: inline-block;margin-right: 5px;flex: 1" onclick={{action "stopPropagation"}}>
+								{{#power-select
+								options=model.defaultTargets
+								search=(action "searchTarget")
+								onchange=(action "setTarget" bubbles=false)
+								selected=rulesettarget
+								renderInPlace=true
+								as |targetChoice|}}
+									{{targetChoice.rule_id}}: {{targetChoice.description}}
+								{{/power-select}}
+                            </div>
+
+                            <div style="display: inline-block">
+								{{#bs-button onClick=(action (toggle "showChangeTarget" this) bubbles=false) size='sm'}}
+                                    Cancel
+								{{/bs-button}}
+                            </div>
+
+						{{else}}
+                            <div style="display: inline-block;">
+								{{#bs-button onClick=(action (toggle "showChangeTarget" this) bubbles=false) size='sm'}}
+                                    Change
+								{{/bs-button}}
+                            </div>
+						{{/if}}
+                    </div>
+				{{/unless}}
+			{{/c.controls}}
+
+			{{#c.collapsable}}
+				{{#if rulesettarget}}
+
+					{{component 'custom-property.property-list' uiList=rulesettarget.ui.properties
+					config=model.ruleset.target.config
+					disabled=disabled
+					columns=columns}}
+
+				{{/if}}
+
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
+
+	{{/unless}}
+
+    <!-- import -->
+	{{#if model.ruleset.import}}
+        {{#edit-ruleset/collapse as |c|}}
+
+			{{#c.title}}
+            	Importer:
+			{{/c.title}}
+
+			{{#c.subTitle}}
+				{{#if model.ruleset.import}}
+					{{model.ruleset.import.filename}}
+				{{else}}
+					None
+				{{/if}}
+			{{/c.subTitle}}
+
+			{{#c.collapsable}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
+				config=model.ruleset.import.config
+				disabled=disabled
+				columns=columns}}
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
+	{{/if}}
+
+    <!-- export -->
+	{{#if model.ruleset.export}}
+        {{#edit-ruleset/collapse as |c|}}
+
+			{{#c.title}}
+            	Exporter:
+			{{/c.title}}
+
+			{{#c.subTitle}}
+				{{#if model.ruleset.export}}
+					{{model.ruleset.export.filename}}
+				{{else}}
+					None
+				{{/if}}
+			{{/c.subTitle}}
+
+			{{#c.collapsable}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
+				config=model.ruleset.export.config
+				disabled=disabled
+				columns=columns}}
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
+	{{/if}}
+
+    <!-- parser -->
+	{{#edit-ruleset/collapse  as |c|}}
+
+		{{#c.title}}
+            Parser:
+		{{/c.title}}
+
+		{{#c.subTitle}}
+			{{#if model.ruleset.parser}}
+				{{model.ruleset.parser.filename}}
+			{{else}}
+                None
+			{{/if}}
+		{{/c.subTitle}}
+
+		{{#c.collapsable}}
+			{{component 'custom-property.property-list'
+			uiList=(compute (action "getUiProperties") model.parsers model.ruleset.parser.filename)
+			config=model.ruleset.parser.config
+			disabled=disabled
+			columns=columns}}
+		{{/c.collapsable}}
+	{{/edit-ruleset/collapse}}
+
+    <!-- general config -->
+	{{#edit-ruleset/collapse as |c| }}
+
+		{{#c.title}}
+            General Configuration
+		{{/c.title}}
+
+		{{#c.collapsable}}
+			{{component 'custom-property.property-list'
+			uiList=(compute (action "getUiProperties") model.rulesetconfiguis model.ruleset.general.filename)
+			config=model.ruleset.general.config
+			disabled=disabled
+			columns=columns}}
+		{{/c.collapsable}}
+
+	{{/edit-ruleset/collapse}}
+
+
+	<div class="section-header">Rules</div>
+
+	{{#each model.ruleset.rules as |ruleInstance index|}}
+
+		{{#edit-ruleset/collapse as |c| }}
+			{{#c.subTitle}}
+				<span class="rule-header">
+					{{ruleInstance.filename}}
+					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
+						- {{ruleInstance.name}}
+					{{/unless}}
+
+				</span>
+			{{/c.subTitle}}
+
+			{{#c.controls}}
+				{{#unless disableEdit}}
+
+					<span style="float: right">
+						{{#bs-button onClick=(action "moveRuleUp" model.ruleset index bubbles=false) size='sm'}}
+                            <i class="fa fa-arrow-up"></i>
+						{{/bs-button}}
+
+						{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
+                            <i class="fa fa-arrow-down"></i>
+						{{/bs-button}}
+
+						{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
+                            <i class="fa fa-trash"></i>
+						{{/bs-button}}
+					</span>
+
+
+				{{/unless}}
+			{{/c.controls}}
+
+			{{#c.collapsable}}
+				<div>
+					Name {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
+				</div>
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
+				config=(get ruleInstance "config")
+				disabled=disabled
+				columns=columns
+				}}
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+
+	{{/each}}
+	{{#if showAddRule}}
+		<div class="section-content ruleset-section-content">
+            <select id="selectRule">
+                <option value="None" selected>None</option>
+				{{#each model.rules as |rule|}}
                     <option value="{{rule.filename}}">{{rule.name}}</option>
-                  {{/each}}
-                </select>
-              </td>
-              <td>
-                <button {{action "hideAddRule"}}>Cancel</button>
-                <button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
-              </td>
-            {{/if}}
-          </table>
-          <button class="show-add-rule" style="float: left" {{action "showAddRule"}}><i class="fa fa-plus"></i>
-          </button>
-          <button class="show-add-rule" style="float: left" {{action "deleteRule" "rulesTable" model.ruleset}}><i
-            class="fa fa-trash"></i></button>
-          <button class="save-ruleset" style="float: right" {{action "saveRuleSet" model.ruleset}}>Save RuleSet
-          </button>
-        </div>
-        <div class="column" style="{{unless this.ruleToEdit 'visibility:hidden' }}">
-          <!-- The column for editting rule properties. -->
-          {{show-rule-editor ruleInstance=ruleToEdit rules=model.rules ruleset=model.ruleset parsers=model.parsers
-                     importers=model.importers exporters=model.exporters rulesetconfiguis=model.rulesetconfiguis}}
-          <!--<button class="save-ruleset" style="float: right" {{action "updateRule"
-                                           ruleToEdit}}>Apply</button>-->
-        </div>
-      </div>
-    </div>
+				{{/each}}
+            </select>
+
+            <button {{action "hideAddRule"}}>Cancel</button>
+            <button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
+
+		</div>
+	{{/if}}
+
+
+	{{#if (not disableEdit)}}
+
+		<span style="float: left">
+			{{#bs-button onClick=(action "showAddRule")}}
+                <i class="fa fa-plus"></i>
+			{{/bs-button}}
+        </span>
+
+		<span style="float: right">
+			{{#bs-button onClick=(action "saveRuleSet" model.ruleset)}}
+                Save RuleSet
+			{{/bs-button}}
+		</span>
+
+
+	{{/if}}
+</div>
+
+{{#unless processing}}
+	{{#bs-button onClick=(action "testRuleset")}}
+        Test Ruleset
+	{{/bs-button}}
     <div class="fileUpload btn btn-default">
-      <span>Upload</span>
-      {{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+        <span>Test Ruleset from local file</span>
+		{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
     </div>
-  {{/bs-collapse}}
-{{/if}}
+{{/unless}}
+
 {{#if processing}}
-	<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
-	<span>Processing...</span>
+    <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+    <span>Processing...</span>
 {{/if}}
-{{#bs-collapse collapsed=collapsedRun}}
-{{outlet}}
-{{/bs-collapse}}
+
+{{#unless processing}}
+	{{#bs-collapse collapsed=collapsedRun}}
+		{{outlet}}
+	{{/bs-collapse}}
+{{/unless}}
