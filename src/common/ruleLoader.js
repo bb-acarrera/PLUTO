@@ -154,20 +154,34 @@ class RuleLoader {
 					// Scripts, not being JavaScript, need an external UI description file.
 					var moreProperties = RuleLoader.getJSONProperties(script);
 					if (moreProperties) {
-						if (moreProperties.shortDescription) {
-							shortDescription = moreProperties.shortDescription;
-							delete moreProperties.shortDescription;
-						}
-						if (moreProperties.longDescription) {
-							longDescription = moreProperties.longDescription;
-							delete moreProperties.longDescription;
-						}
 
 						properties = properties || [];
-						if (moreProperties instanceof Array)
+						if (moreProperties instanceof Array) {
+							// Not sure why moreProperties is specifed as an Array...
+							for (var i = 0; i < moreProperties.length; i++) {
+								if (moreProperties[i].shortdescription) {
+									shortDescription = moreProperties[i].shortdescription;
+									delete moreProperties[i].shortdescription;
+								}
+								if (moreProperties[i].longdescription) {
+									longDescription = moreProperties[i].longdescription;
+									delete moreProperties[i].longdescription;
+								}
+							}
 							properties = properties.concat(moreProperties);
-						else
+						}
+						else {
+							if (moreProperties.shortdescription) {
+								shortDescription = moreProperties.shortdescription;
+								delete moreProperties.shortdescription;
+							}
+							if (moreProperties.longdescription) {
+								longDescription = moreProperties.longdescription;
+								delete moreProperties.longdescription;
+							}
+
 							properties.append(moreProperties);
+						}
 					}
 				}
 
