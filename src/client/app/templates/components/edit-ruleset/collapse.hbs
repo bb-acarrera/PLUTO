@@ -1,4 +1,4 @@
-<div class="rule-selectable ruleset-rule-selectable" {{action "toggleCollapse"}}>
+<div class="rule-selectable ruleset-rule-selectable" {{action "toggleCollapse"}} style="display: flex; align-items: center">
 	<span class="section-header">
 		{{yield (hash title = (component 'edit-ruleset/title'))}}
 	</span>
@@ -7,16 +7,22 @@
 
 
 
-	<span class="expand-controls">
-		{{yield (hash controls = (component 'edit-ruleset/controls'))}}
+	<div class="expand-controls" style="flex: 1; display: flex">
 
-		{{#if collapsed}}
-			<i class="fa fa-caret-square-o-right bigger-caret"></i>
-		{{else}}
-			<i class="fa fa-caret-square-o-down bigger-caret"></i>
-		{{/if}}
+		<div style="flex: 1; display: inline-block; margin-right: 5px;">
+			<div style="float:right;width: 100%">
+				{{yield (hash controls = (component 'edit-ruleset/controls'))}}
+			</div>
+		</div>
+        <div style="float: right; width: 20px; display: inline-block;">
+			{{#if collapsed}}
+                <i class="fa fa-caret-square-o-right bigger-caret"></i>
+			{{else}}
+                <i class="fa fa-caret-square-o-down bigger-caret"></i>
+			{{/if}}
+        </div>
 
-	</span>
+	</div>
 
 </div>
 {{#bs-collapse collapsed=collapsed}}
