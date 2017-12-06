@@ -274,8 +274,10 @@ Process URL: {{processURL}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
 						- {{ruleInstance.name}}
 					{{/unless}}
-
 				</span>
+				{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
+					{{#bs-tooltip autoPlacement="true"}}{{compute (action "getShortDescription") model.rules ruleInstance.filename}}{{/bs-tooltip}}
+				{{/if}}
 			{{/c.subTitle}}
 
 			{{#c.controls}}

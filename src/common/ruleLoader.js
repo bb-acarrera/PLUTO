@@ -185,8 +185,8 @@ class RuleLoader {
 							ui: {
 								properties: properties
 							},
-							shortDescription: shortDescription,
-							longDescription: longDescription
+							shortdescription: shortDescription,
+							longdescription: longDescription
 						}
 					};
 

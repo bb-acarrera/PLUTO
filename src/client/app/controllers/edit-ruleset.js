@@ -306,6 +306,40 @@ export default Ember.Controller.extend( {
 			return item.get('ui.properties');
 		},
 
+		getShortDescription(list, itemName) {
+			let item = null;
+			
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('shortdescription');
+		},
+
+		getLongDescription(list, itemName) {
+			let item = null;
+			
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('longdescription');
+		},
+
 		testRuleset() {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
