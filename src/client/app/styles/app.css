@@ -142,6 +142,10 @@ tr.error-row {
   color: forestgreen;
 }
 
+.info-color {
+	color: #37a7ed;
+}
+
 .no-icon {
   display: none;
 }
