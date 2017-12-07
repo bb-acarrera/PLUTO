@@ -30,6 +30,36 @@
       "config": {
         "base": "/opt/PLUTO/config/tmp"
       }
+    },
+    {
+      "rule_id": "pluto_s3_source",
+      "type": "source",
+      "description": "Simulated S3",
+      "base": "S3Import",
+      "group": "sample",
+      "config": {
+        "accessKey": "verySecretKey1",
+        "endpoint": "localhost:8000",
+        "sslEnabled": false,
+        "bucket":"test",
+        "forcePathStyle":true,
+        "accessId":"accessKey1"
+      }
+    },
+    {
+      "rule_id": "pluto_s3_target",
+      "type": "target",
+      "description": "Simulated S3",
+      "base": "S3Export",
+      "group": "sample",
+      "config": {
+        "accessKey": "verySecretKey1",
+        "endpoint": "localhost:8000",
+        "sslEnabled": false,
+        "bucket":"testoutput",
+        "forcePathStyle":true,
+        "accessId":"accessKey1"
+      }
     }
   ]
 }

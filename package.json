@@ -15,7 +15,8 @@
     "build_docs": "sh build/bin/buildDocs.sh",
     "load_devdata": "node database/dbloader/importRulesets.js -v src/runtime/configs/validatorConfig.json -r src/runtime/rulesets",
     "tag_images": "sh build/bin/tagImages.sh",
-    "start_test_nginx": "docker run -v $PWD/dev_nginx.conf:/etc/nginx/nginx.conf:ro -p 9001:9001 -p 9002:9002 -p 9003:9003 -p 9004:9004 --name dev_pluto_nginx -d nginx:stable-alpine"
+    "start_dev_nginx": "docker run -v $PWD/dev_nginx.conf:/etc/nginx/nginx.conf:ro -p 9001:9001 -p 9002:9002 -p 9003:9003 -p 9004:9004 --name dev_pluto_nginx -d nginx:stable-alpine",
+    "start_dev_s3": "docker run -p 8000:8000 --name pluto_s3server -d scality/s3server"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
   },
   "homepage": "https://github.com/unchartedsoftware/PLUTO#readme",
   "dependencies": {
+    "aws-sdk": "^2.165.0",
     "body-parser": "^1.17.2",
     "bottleneck": "^1.16.0",
     "commander": "^2.9.0",

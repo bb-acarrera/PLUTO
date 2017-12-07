@@ -72,6 +72,26 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 }
 ```
 
+## Using the simulated S3
+
+Part of the test suite is a simulated S3 using Scality Zenko Cloudserver (scality/s3server on Docker hub), and the 
+S3Importer and S3Exporter can be configured to use it. The default access keys are:
+
+user: accessKey1
+
+password: verySecretKey1
+
+#### Uploading files via Cyberduck 
+
+Unfortunately, the latest versions of Cyberduck removed the ability to connect to non-https S3 like storage systems, so you'll
+need to grab an old version:
+
+Windows: https://update.cyberduck.io/windows/Cyberduck-Installer-4.8.4.19355.exe 
+Mac: https://update.cyberduck.io/Cyberduck-4.8.4.19355.zip
+
+Once installed double click on `S3 (HTTP).cyberduckprofile` in the root PLUTO folder to setup a connection, and use the keys
+above to access it.
+
 ## Starting dev database and running locally
 To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
 
