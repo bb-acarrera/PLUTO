@@ -115,6 +115,13 @@ class CheckRowCount extends TableRuleAPI {
 			maxErrorThreshold: 20
 		});
 	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify that a CSV file has the required number of rows.",
+			longDescription: "This rule verifies that a CSV file has the required number of data rows. (Header rows are not included in the count.) Four configuration properties allow you to set thresholds for warnings and errors. If a property is set to zero or not set it is ignored so it is possible to configure for reporting only errors, only warnings, or both. Thresholds are exclusive, so a minimum threshold of 2, for example, will report an error or warning if the number of rows is less than 2."
+		}
+	}
 }
 
 module.exports = CheckRowCount;

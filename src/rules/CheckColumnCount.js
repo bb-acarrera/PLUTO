@@ -64,6 +64,13 @@ class CheckColumnCount extends TableRuleAPI {
 			columns: 9
 		});
 	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify the number of columns in the records in a CSV file.",
+			longDescription: "This rule verifies that the number of columns in the records in a CSV file is correct. An error is reported if there are too few columns and a warning is reported if there are too many columns."
+		}
+	}
 }
 
 module.exports = CheckColumnCount;

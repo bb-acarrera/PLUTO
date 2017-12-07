@@ -306,6 +306,40 @@ export default Ember.Controller.extend( {
 			return item.get('ui.properties');
 		},
 
+		getShortDescription(list, itemName) {
+			let item = null;
+			
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('shortdescription');
+		},
+
+		getLongDescription(list, itemName) {
+			let item = null;
+			
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('longdescription');
+		},
+
 		testRuleset() {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
@@ -338,8 +372,13 @@ export default Ember.Controller.extend( {
 			xmlHttp.open("POST", theUrl, true); // true for asynchronous
 			xmlHttp.setRequestHeader("Content-Type", "application/json");
 			xmlHttp.send(JSON.stringify(theJSON));
-		}
+		},
 
+		hideTooltip() {
+			var tooltip = document.querySelector( ".tooltip" );	// ember-bootstrap uses this in their class name. (Can't see how to assign an ID.)
+			if (tooltip)
+				tooltip.style.display = 'none';
+		}
 	}
 } );
 

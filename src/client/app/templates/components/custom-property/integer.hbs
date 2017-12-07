@@ -1,4 +1,5 @@
-<div>
+<span>
 	{{label}} {{input type="number" value=(mut value) disabled=disabled}}
-</div>
+	{{#if tooltip}}{{bs-tooltip title=tooltip}}{{/if}}
+</span>
 {{yield}}

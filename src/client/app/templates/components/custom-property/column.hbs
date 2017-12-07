@@ -1,4 +1,4 @@
-<div>
+<span>
 	{{label}}
     <select onchange={{action (mut value) value="target.value"}} disabled={{disabled}}>
 		{{#each columns as |choice|}}
@@ -7,8 +7,9 @@
 		{{#unless value}}
             <option value="" selected=true>Choose</option>
 		{{/unless}}
-
     </select>
-</div>
+
+	{{#if tooltip}}{{bs-tooltip title=tooltip}}{{/if}}
+</span>
 
 {{yield}}
