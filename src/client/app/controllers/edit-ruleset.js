@@ -372,8 +372,13 @@ export default Ember.Controller.extend( {
 			xmlHttp.open("POST", theUrl, true); // true for asynchronous
 			xmlHttp.setRequestHeader("Content-Type", "application/json");
 			xmlHttp.send(JSON.stringify(theJSON));
-		}
+		},
 
+		hideTooltip() {
+			var tooltip = document.querySelector( ".tooltip" );	// ember-bootstrap uses this in their class name. (Can't see how to assign an ID.)
+			if (tooltip)
+				tooltip.style.display = 'none';
+		}
 	}
 } );
 

@@ -276,7 +276,7 @@ Process URL: {{processURL}}
 					{{/unless}}
 					{{#if (compute (action "getLongDescription") model.rules ruleInstance.filename)}}
 						<i class="fa fa-info-circle fa-fw info-color">
-							{{#bs-popover triggerEvents="hover"}}{{compute (action "getLongDescription") model.rules ruleInstance.filename}}{{/bs-popover}}
+							{{#bs-popover triggerEvents="hover" onShow=(action "hideTooltip")}}{{compute (action "getLongDescription") model.rules ruleInstance.filename}}{{/bs-popover}}
 						</i>
 					{{/if}}
 					{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
