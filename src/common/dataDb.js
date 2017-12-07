@@ -945,6 +945,19 @@ class data {
                 countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
             }
 
+            //descriptionFilter
+            if(filters.descriptionFilter && filters.descriptionFilter.length) {
+                let subWhere = safeStringLike( filters.descriptionFilter );
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description ILIKE $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
+            }
+
             if(filters.idListFilter && filters.idListFilter.length) {
                 extendWhere();
 
@@ -1003,32 +1016,53 @@ class data {
                 group = null;
             }
 
-            checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
-                let version = result.nextVersion;
-                let rowGroup = group;
+            function update() {
+                checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+                    let version = result.nextVersion;
+                    let rowGroup = group;
 
-                if(result && result.rows.length > 0) {
-                    rowGroup = result.rows[0].owner_group;
-                }
+                    if(result && result.rows.length > 0) {
+                        rowGroup = result.rows[0].owner_group;
+                    }
 
-                rule.version = version;
+                    rule.version = version;
 
-                this.db.query(updateTableNames('INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, "group") ' +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
-                    [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup, rule.group])
-                    .then((result) => {
-                        resolve(rule.rule_id);
-                    }, (error) => {
-                        reject(error)
-                    });
+                    this.db.query(updateTableNames('INSERT INTO {{rules}} (rule_id, description, version, config, type, base, update_time, update_user, owner_group, "group") ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
+                        [rule.rule_id, rule.description, version, JSON.stringify(rule.config), rule.type, rule.base, new Date(), user, rowGroup, rule.group])
+                        .then((result) => {
+                            resolve(rule.rule_id);
+                        }, (error) => {
+                            reject(error)
+                        });
 
-            }, (error) => {
-                console.log(error);
-                reject(error);
-            }).catch((error) => {
-                console.log(error);
-                reject(error);
-            });
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+            }
+
+            if(!rule.rule_id) {
+                generateId.call(this, "rules").then((ruleId) => {
+                    rule.rule_id = ruleId;
+                    update.call(this);
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+            } else {
+                update.call(this);
+            }
+
+
+
+
 
 
         });
@@ -1115,6 +1149,27 @@ function updateTableNames ( query, tableNames ) {
     }
 
     return resp;
+}
+
+function generateId(tableName) {
+    return new Promise((resolve, reject) => {
+        this.db.query(updateTableNames(`INSERT INTO {{${tableName}}} (rule_id, version) VALUES($1, $2) RETURNING id`, this.tables),
+            [null, null])
+            .then((result) => {
+                const id = result.rows[0].id;
+
+                this.db.query(updateTableNames(`DELETE FROM {{${tableName}}} WHERE id = $1`, this.tables), [id]).then(
+                    () => {
+                        resolve(id);
+                    }, (error) => {
+                        console.log(error);
+                        resolve(id);
+                    });
+
+            }, (error) => {
+                reject(error)
+            });
+    });
 }
 
 function getRunQuery(tableNames) {
