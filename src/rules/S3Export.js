@@ -2,11 +2,6 @@ const fs = require('fs-extra');
 const path = require("path");
 
 const AWS = require('aws-sdk');
-var http = require('http');
-http.globalAgent.maxSockets = 250;
-
-var https = require('https');
-https.globalAgent.maxSockets = 250;
 
 class Exporter {
 	constructor(config) {
