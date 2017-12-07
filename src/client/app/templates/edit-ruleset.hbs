@@ -279,10 +279,10 @@ Process URL: {{processURL}}
 							{{#bs-popover triggerEvents="hover"}}{{compute (action "getLongDescription") model.rules ruleInstance.filename}}{{/bs-popover}}
 						</i>
 					{{/if}}
+					{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
+						{{#bs-tooltip autoPlacement="true"}}{{compute (action "getShortDescription") model.rules ruleInstance.filename}}{{/bs-tooltip}}
+					{{/if}}
 				</span>
-				{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
-					{{#bs-tooltip autoPlacement="true"}}{{compute (action "getShortDescription") model.rules ruleInstance.filename}}{{/bs-tooltip}}
-				{{/if}}
 			{{/c.subTitle}}
 
 			{{#c.controls}}
