@@ -9,6 +9,9 @@ const Validations = buildValidations({
 	],
 	base: [
 		validator('presence', true)
+	],
+	description: [
+		validator('presence', true)
 	]
 });
 

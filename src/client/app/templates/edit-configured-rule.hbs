@@ -3,20 +3,23 @@
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
         <i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
-    <h2>{{title}} {{model.rule.rule_id}}</h2>
+    <h2>{{title}} {{model.rule.description}}</h2>
 </div>
 
 <div>
+    <div>
+        Name:
+		{{#unless (v-get model.rule 'description' 'isValid')}}
+            <span class="error-color">{{v-get model.rule 'description' 'message'}}</span>
+		{{/unless}}
+		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
+    </div>
     <div>
         Group:
 		{{#unless (v-get model.rule 'group' 'isValid')}}
             <span class="error-color">{{v-get model.rule 'group' 'message'}}</span>
 		{{/unless}}
 		{{input id="groupName" type="text" value=model.rule.group class="text-input" disabled=disableEdit}}
-    </div>
-    <div>
-		Name:
-		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
     </div>
 
 	<div>

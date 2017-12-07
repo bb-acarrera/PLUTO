@@ -274,7 +274,14 @@ Process URL: {{processURL}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
 						- {{ruleInstance.name}}
 					{{/unless}}
-
+					{{#if (compute (action "getLongDescription") model.rules ruleInstance.filename)}}
+						<i class="fa fa-info-circle fa-fw info-color">
+							{{#bs-popover triggerEvents="hover" onShow=(action "hideTooltip")}}{{compute (action "getLongDescription") model.rules ruleInstance.filename}}{{/bs-popover}}
+						</i>
+					{{/if}}
+					{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
+						{{#bs-tooltip autoPlacement="true"}}{{compute (action "getShortDescription") model.rules ruleInstance.filename}}{{/bs-tooltip}}
+					{{/if}}
 				</span>
 			{{/c.subTitle}}
 
@@ -301,7 +308,7 @@ Process URL: {{processURL}}
 
 			{{#c.collapsable}}
 				<div>
-					Name {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
+					Description {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
 				</div>
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)

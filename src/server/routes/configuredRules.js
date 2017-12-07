@@ -105,7 +105,8 @@ class ConfiguredRuleRouter extends BaseRouter {
 				ruleFilter: req.query.ruleFilter,
 				groupFilter: req.query.groupFilter,
 				typeFilter: req.query.typeFilter,
-				ownerFilter: req.query.ownerFilter
+				ownerFilter: req.query.ownerFilter,
+				descriptionFilter: req.query.descriptionFilter
 			}).then((result) => {
 				const rules = [];
 
@@ -158,17 +159,12 @@ class ConfiguredRuleRouter extends BaseRouter {
 		const auth = this.getAuth(req);
 		let new_ruleId = req.body.ruleId;
 
-		this.config.data.ruleExists(new_ruleId).then((exists) => {
-			if(exists) {
-				res.statusMessage = `Rule '${new_ruleId}' already exists.`;
-				res.status(422).end();
-				return;
-			}
 
+		function createRule(ruleId) {
 			let rule = null;
 
-			if(req.body.rule) {
-				req.body.rule.rule_id = new_ruleId;
+			if (req.body.rule) {
+				req.body.rule.rule_id = ruleId;
 				rule = req.body.rule;
 			} else {
 				rule = {
@@ -177,15 +173,31 @@ class ConfiguredRuleRouter extends BaseRouter {
 			}
 
 			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((name) => {
-				res.status(201).location('/configuredRule/' + name).json(req.body);
+				res.status(201).location('/configuredRule/' + ruleId).json(rule);
 
 			}, (error) => {
 				next(error);
 			}).catch(next);
+		}
 
-		}, (error) => {
-			next(error);
-		}).catch(next);
+		if(new_ruleId) {
+			this.config.data.ruleExists(new_ruleId).then((exists) => {
+				if(exists) {
+					res.statusMessage = `Rule '${new_ruleId}' already exists.`;
+					res.status(422).end();
+					return;
+				}
+
+				createRule.call(this, new_ruleId);
+
+			}, (error) => {
+				next(error);
+			}).catch(next);
+		} else {
+			createRule.call(this);
+		}
+
+
 	}
 }
 
