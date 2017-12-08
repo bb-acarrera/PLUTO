@@ -33,8 +33,13 @@
       "filename":"validateFilename",
       "script" : "validateFilename.py",
       "executable" : "python"
-    }
-  ],
+    },
+    {
+		"filename":"BBValidateFilename",
+		"script" : "BBValidateFilename.py",
+		"executable" : "python"
+	  }
+	],
   "importers" : [
     {
       "filename":"LocalCopyImport",
