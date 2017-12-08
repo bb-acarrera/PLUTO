@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import moment from 'moment';
 
 export default Ember.Controller.extend({
 	ajax: Ember.inject.service(),
@@ -45,6 +46,27 @@ export default Ember.Controller.extend({
 		const canedit = this.get('model.rule.canedit');
 		return !canedit;
 
+	}),
+	ownedBy: Ember.computed('model.rule.ownerGroup', function() {
+		let group = this.get('model.rule.ownerGroup');
+		if(group) return group;
+
+		return 'Nobody';
+	}),
+	lastEditedBy: Ember.computed('model.rule.updateUser', function() {
+		let user = this.get('model.rule.updateUser');
+		if(user) return user;
+
+		return 'Unknown';
+	}),
+	lastEdited: Ember.computed('model.rule.updateTime', function() {
+		let changeTime = this.get('model.rule.updateTime');
+
+		if(changeTime) {
+			return moment(changeTime).format('MMMM Do YYYY, h:mm a');
+		}
+
+		return 'Unknown';
 	}),
 	linkedtarget: Ember.computed('model.rule.config.linkedtargetid', function() {
 		const type = this.get('model.rule.type');
