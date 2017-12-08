@@ -12,7 +12,7 @@
 				"filename" : "validateFilename",
 				"config" : {
 					"id" : 2,
-					"regex" : ".*\\.csv"
+					"regex" : ".*\\.zip"
 				}
 			}
 		],
