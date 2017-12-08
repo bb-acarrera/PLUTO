@@ -111,13 +111,13 @@ class RunExternalProcess extends OperatorAPI {
 
         // Run the executable. This complains if the executable doesn't exist.
         var encoding = (this.config && this.config.__state && this.config.__state.encoding) ? this.config.__state.encoding : 'utf8';
-		var process;
+		var child;
 		if (attributes.script)
-			process = spawn(attributes.executable, [attributes.script, "-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName]);
+			child = spawn(attributes.executable, [attributes.script, "-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName], { env: process.env });
 		else
-			process = spawn(attributes.executable, ["-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName]);
+			child = spawn(attributes.executable, ["-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName], { env: process.env });
 
-		process.stdout.on('data', (data) => {
+		child.stdout.on('data', (data) => {
 			if (typeof data === 'string')
 				this.warning(data);
 			else if (data && typeof data.toString === 'function') {
@@ -130,7 +130,7 @@ class RunExternalProcess extends OperatorAPI {
 			}
 		});
 
-		process.stderr.on('data', (data) => {
+		child.stderr.on('data', (data) => {
 			if (typeof data === 'string')
 				this.error(data);
 			else if (data && typeof data.toString === 'function') {
@@ -151,7 +151,7 @@ class RunExternalProcess extends OperatorAPI {
 			}
 		});
 
-		process.on('error', (err) => {
+		child.on('error', (err) => {
             this.error(`${attributes.executable}: Launching script failed with error: ${err}`);
             if (server)
                 server.unref();
@@ -159,7 +159,7 @@ class RunExternalProcess extends OperatorAPI {
 			resolve(outputName);
 		});
 
-		process.on('exit', (code) => {
+		child.on('exit', (code) => {
 			if (code != 0)
 				this.error(`${attributes.executable} exited with status ${code}.`);
 
