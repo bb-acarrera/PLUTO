@@ -1303,7 +1303,7 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
     dbRuleset.update_user = row.update_user;
     dbRuleset.update_time = row.update_time;
 
-    if (dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
+    if (dbRuleset.owner_group && !isAdmin && dbRuleset.owner_group !== group) {
         dbRuleset.canedit = false;
     } else {
         dbRuleset.canedit = true;
@@ -1429,7 +1429,7 @@ function getRuleResult(row, isAdmin, group, rulesLoader) {
                 if(prop.private)
                 {
                     if(prop.type === 'string') {
-                        rule.config[prop.name] = '********'
+                        rule.config[prop.name] = '********';
                     } else {
                         delete rule.config[prop.name];
                     }
