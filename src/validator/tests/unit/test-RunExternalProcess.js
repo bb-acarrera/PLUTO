@@ -24,7 +24,7 @@ QUnit.module("RunExternalProcess tests", {
 
 });
 
-QUnit.skip( "RunExternalProcess: Successful run test", function(assert) {
+QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
