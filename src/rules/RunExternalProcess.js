@@ -113,9 +113,9 @@ class RunExternalProcess extends OperatorAPI {
         var encoding = (this.config && this.config.__state && this.config.__state.encoding) ? this.config.__state.encoding : 'utf8';
 		var process;
 		if (attributes.script)
-			process = spawn(attributes.executable, [attributes.script, inputName, outputName, encoding, this.socketName]);
+			process = spawn(attributes.executable, [attributes.script, "-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName]);
 		else
-			process = spawn(attributes.executable, [inputName, outputName, encoding, this.socketName]);
+			process = spawn(attributes.executable, ["-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName]);
 
 		process.stdout.on('data', (data) => {
 			if (typeof data === 'string')
