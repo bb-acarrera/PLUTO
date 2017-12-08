@@ -63,37 +63,45 @@ class Importer {
                 name: 'bucket',
                 label: 'Bucket name',
                 type: 'string',
-                tooltip: 'The bucket name'
+                tooltip: 'The bucket name',
+                hidden: true
             },
             {
                 name: 'endpoint',
                 label: 'base URL endpoint (e.g. s3.amazonaws.com)',
                 type: 'string',
-                tooltip: 'The URL (without protocol), including port if not standard'
+                tooltip: 'The URL (without protocol), including port if not standard',
+                hidden: true
             },
             {
                 name: 'sslEnabled',
                 label: 'Use secure transfer (SSL/TLS)',
                 type: 'boolean',
-                tooltip: 'If checked, all communications with the storage will go through encrypted SSL/TLS channel'
+                tooltip: 'If checked, all communications with the storage will go through encrypted SSL/TLS channel',
+                hidden: true
             },
             {
                 name: 'forcePathStyle',
                 label: 'Force Path Style (S3 compatible systems)',
                 type: 'boolean',
-                tooltip: 'If checked, forcePathStyle is set to true, used by some S3 compatible systems'
+                tooltip: 'If checked, forcePathStyle is set to true, used by some S3 compatible systems',
+                hidden: true
             },
             {
                 name: 'accessId',
                 label: 'Access Key ID',
                 type: 'string',
-                tooltip: ''
+                tooltip: '',
+                private: true,
+                hidden: true
             },
             {
                 name: 'accessKey',
                 label: 'Secret Access Key',
                 type: 'string',
-                tooltip: ''
+                tooltip: '',
+                private: true,
+                hidden: true
             }
         ];
     }

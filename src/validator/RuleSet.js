@@ -107,7 +107,7 @@ class RuleSet {
 		}
 	}
 
-	resolve(ruleLoader) {
+	resolve(ruleLoader, group, admin) {
 
 
 
@@ -116,11 +116,11 @@ class RuleSet {
 			let promises = [];
 
 			if(this.source) {
-				promises.push(this.updateSource(ruleLoader));
+				promises.push(this.updateSource(ruleLoader, group, admin));
 			}
 
 			if(this.target) {
-				promises.push(this.updateTarget(ruleLoader));
+				promises.push(this.updateTarget(ruleLoader, group, admin));
 			}
 
 
@@ -134,9 +134,9 @@ class RuleSet {
 
 	}
 
-	updateSource(ruleLoader) {
+	updateSource(ruleLoader, group, admin) {
 		return new Promise((resolve) => {
-			ruleLoader.getDbRule(this.source.filename).then((sourceConfig) => {
+			ruleLoader.getDbRule(this.source.filename, group, admin).then((sourceConfig) => {
 				if (sourceConfig && sourceConfig.type === 'source') {
 					this.import = {
 						filename: sourceConfig.base,
@@ -169,9 +169,9 @@ class RuleSet {
 		});
 	}
 
-	updateTarget(ruleLoader) {
+	updateTarget(ruleLoader, group, admin) {
 		return new Promise((resolve) => {
-			ruleLoader.getDbRule(this.target.filename).then((targetConfig) => {
+			ruleLoader.getDbRule(this.target.filename, group, admin).then((targetConfig) => {
 				if (targetConfig && targetConfig.type === 'target') {
 					this.export = {
 						filename: targetConfig.base,

@@ -90,7 +90,7 @@ Windows: https://update.cyberduck.io/windows/Cyberduck-Installer-4.8.4.19355.exe
 Mac: https://update.cyberduck.io/Cyberduck-4.8.4.19355.zip
 
 Once installed double click on `S3 (HTTP).cyberduckprofile` in the root PLUTO folder to setup a connection, and use the keys
-above to access it.
+above to access it. The Simulated S3 source uses the bucket `test`, and the Simulated S3 target uses `testoutput`.
 
 ## Starting dev database and running locally
 To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
