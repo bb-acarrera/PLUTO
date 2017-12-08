@@ -6,20 +6,35 @@ import sys
 import zipfile
 
 api = None
-try:
-	api = imp.load_source('PythonAPI', 'api/PythonAPI.py')
-except IOError:
+paths = os.environ.get('PLUTOAPI')
+if not paths:
+	print("PLUTOAPI enviroment variable must be set and point to the directory containing PythonAPI.py.", file=sys.stderr)
+	sys.exit(1)
+
+paths = paths.split(':')
+if not paths:
+	print("PLUTOAPI enviroment variable must be set and point to the directory containing PythonAPI.py.", file=sys.stderr)
+	sys.exit(1)
+
+for p in paths:
+	try:
+		apiPath = os.path.join(p, "PythonAPI.py")
+		api = imp.load_source('PythonAPI', apiPath)
+	except IOError:
+		pass
+
+if not api:
 	print("Failed to load the PythonAPI.", file=sys.stderr)
 	sys.exit(1)
 
 
-class BBValidateFilename(api.PythonAPIRule):
+class ValidateZipFilenames(api.PythonAPIRule):
 	MAX_FILENAME_WITHOUT_EXTENSION_LENGTH = 35
 	allowed_extensions = ['.csv', '.geojson', '.shp', '.shx', '.dbf', '.sbn', '.sbx', '.fbn',
 						  '.fbx', '.ain', '.aih', '.atx', '.ixs', '.mxs', '.prj', '.xml', '.cpg', '.qix', '.shp.xml']
 
 	def __init__(self, config):
-		super(BBValidateFilename, self).__init__(config)
+		super(ValidateZipFilenames, self).__init__(config)
 
 	def getFileExtension(self, filename):
 		_, file_extension = os.path.splitext(filename)
@@ -35,16 +50,16 @@ class BBValidateFilename(api.PythonAPIRule):
 			return (False, msg)
 
 		# Verify the extension is one of the pre-approved extensions
-		if(extension not in BBValidateFilename.allowed_extensions):
+		if(extension not in ValidateZipFilenames.allowed_extensions):
 			msg = ('Filename [{}] extension is not supported. Only {} extensions are currently supported'
-				   .format(filename, str(BBValidateFilename.allowed_extensions)))
+				   .format(filename, str(ValidateZipFilenames.allowed_extensions)))
 			return (False, msg)
 
 		# Verify the length of the filename (minus extension)
 		filename_without_extension = filename[:len(extension) * -1]
-		if(BBValidateFilename.MAX_FILENAME_WITHOUT_EXTENSION_LENGTH < len(filename_without_extension)):
+		if(ValidateZipFilenames.MAX_FILENAME_WITHOUT_EXTENSION_LENGTH < len(filename_without_extension)):
 			msg = ('Filename [{}] is longer than max allowed filename length (without extension) of {} characters'
-				   .format(filename, str(BBValidateFilename.MAX_FILENAME_WITHOUT_EXTENSION_LENGTH)))
+				   .format(filename, str(ValidateZipFilenames.MAX_FILENAME_WITHOUT_EXTENSION_LENGTH)))
 			return (False, msg)
 
 		# Verify the filename only has alpha numeric characters
@@ -85,4 +100,4 @@ class BBValidateFilename(api.PythonAPIRule):
 		api.PythonAPIRule.run(self, inputFile, outputFile, encoding)
 
 
-api.process(BBValidateFilename)
+api.process(ValidateZipFilenames)

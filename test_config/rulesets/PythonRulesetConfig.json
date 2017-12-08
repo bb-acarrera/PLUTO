@@ -3,10 +3,9 @@
 		"name" : "Python Example RuleSet",
 		"rules" : [
 			{
-				"filename" : "validateFilename",
+				"filename" : "ValidateZipFilenames",
 				"config" : {
-					"id" : 1,
-					"regex" : ".*\\.zip"
+					"id" : 1
 				}
 			}
 		],
