@@ -24,7 +24,7 @@ QUnit.module("RunExternalProcess tests", {
 
 });
 
-QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
+QUnit.skip( "RunExternalProcess: Successful run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -75,7 +75,7 @@ QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Error test", function(assert) {
+QUnit.skip( "RunExternalProcess: Error test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -190,7 +190,7 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
 // });
 //});
 
-QUnit.test( "RunExternalProcess: Missing attributes test", function(assert) {
+QUnit.skip( "RunExternalProcess: Missing attributes test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
           __state : {
@@ -227,7 +227,7 @@ QUnit.test( "RunExternalProcess: Missing attributes test", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Missing regex test", function(assert) {
+QUnit.skip( "RunExternalProcess: Missing regex test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -270,7 +270,7 @@ QUnit.test( "RunExternalProcess: Missing regex test", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Missing importConfig test.", function(assert) {
+QUnit.skip( "RunExternalProcess: Missing importConfig test.", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -309,7 +309,7 @@ QUnit.test( "RunExternalProcess: Missing importConfig test.", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Missing importConfig.file test.", function(assert) {
+QUnit.skip( "RunExternalProcess: Missing importConfig.file test.", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -398,7 +398,7 @@ QUnit.skip( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
+QUnit.skip( "RunExternalProcess: Can't find script test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -444,7 +444,7 @@ QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Can't find executable test", function(assert) {
+QUnit.skip( "RunExternalProcess: Can't find executable test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -490,7 +490,7 @@ QUnit.test( "RunExternalProcess: Can't find executable test", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Failing executable test", function(assert) {
+QUnit.skip( "RunExternalProcess: Failing executable test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -536,7 +536,7 @@ QUnit.test( "RunExternalProcess: Failing executable test", function(assert) {
     });
 });
 
-QUnit.test( "RunExternalProcess: Executable writing to stdout test", function(assert) {
+QUnit.skip( "RunExternalProcess: Executable writing to stdout test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
