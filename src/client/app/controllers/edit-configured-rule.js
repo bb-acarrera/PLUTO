@@ -41,7 +41,7 @@ export default Ember.Controller.extend({
 		return title;
 
 	}),
-	disabled: Ember.computed('model.rule.canedit', function() {
+	disableEdit: Ember.computed('model.rule.canedit', function() {
 		const canedit = this.get('model.rule.canedit');
 		return !canedit;
 

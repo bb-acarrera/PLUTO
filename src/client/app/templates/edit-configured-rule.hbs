@@ -32,13 +32,14 @@
 			onchange=(action "chooseBase")
 			selected=base
 			allowClear=true
+			disabled=disableEdit
 			as |baseChoice|}}
 				{{baseChoice.id}}
 		{{/power-select}}
 	</div>
 	<div>
 		Properties
-		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disabled}}
+		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disableEdit}}
 	</div>
 
 	{{#if (eq model.rule.type "source") }}
@@ -50,6 +51,7 @@
 				selected=linkedtarget
 				options=model.defaultTargets
 				allowClear=true
+				disabled=disableEdit
 				as |targetChoice|}}
 				{{targetChoice.rule_id}}: {{targetChoice.description}}
 			{{/power-select}}
@@ -57,12 +59,16 @@
 	{{/if}}
 </div>
 
-{{#bs-button onClick=(action "saveRule") disabled=(v-get model.rule 'isInvalid') }}
-    Save
-{{/bs-button}}
+{{#unless disableEdit}}
 
-{{#unless (v-get model.rule 'isValid')}}
-	<span class="error-color">Correct the errors before saving</span>
+	{{#bs-button onClick=(action "saveRule") disabled=(v-get model.rule 'isInvalid') }}
+		Save
+	{{/bs-button}}
+
+	{{#unless (v-get model.rule 'isValid')}}
+		<span class="error-color">Correct the errors before saving</span>
+	{{/unless}}
+
 {{/unless}}
 
 {{outlet}}
