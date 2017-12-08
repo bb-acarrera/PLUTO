@@ -323,11 +323,11 @@ function privatize(rulesLoader) {
 	const configuredRules = ['source', 'target'];
 
 	items.forEach((item) => {
-		privatizeItem.call(this, item, rulesLoader, 'filename');
+		privatizeItem.call(this, this[item], rulesLoader, 'filename');
 	});
 
 	configuredRules.forEach((item) => {
-		privatizeItem.call(this, item, rulesLoader, 'base');
+		privatizeItem.call(this, this[item], rulesLoader, 'base');
 	});
 
 	this.rules.forEach((item) => {
@@ -336,7 +336,7 @@ function privatize(rulesLoader) {
 }
 
 function privatizeItem(item, rulesLoader, basePropName) {
-	if(rulesLoader && item.config) {
+	if(item && rulesLoader && item.config) {
 		let baseRule = rulesLoader.rulePropertiesMap[item[basePropName]];
 
 		if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
