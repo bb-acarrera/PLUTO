@@ -180,7 +180,8 @@ class RuleLoader {
 								delete moreProperties.longdescription;
 							}
 
-							properties.append(moreProperties);
+							if (Object.keys(moreProperties).length > 0)
+								properties.push(moreProperties);
 						}
 					}
 				}
