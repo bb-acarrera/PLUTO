@@ -34,14 +34,22 @@ class ProcessFileRouter extends BaseRouter {
         let ruleset = null;
         if(req.params.id) {
             ruleset = req.params.id;
-        } else {
+        } else if(req.body) {
             ruleset = req.body.ruleset;
         }
 
-        let inputFile = req.body.input;
-        let outputFile = req.body.output;
-        let importConfig = req.body.import;
-        let test = req.body.test;
+        let inputFile;
+        let outputFile;
+        let importConfig;
+        let test;
+
+        if(req.body) {
+            inputFile = req.body.input;
+            outputFile = req.body.output;
+            importConfig = req.body.import;
+            test = req.body.test;
+        }
+
         let finishHandler = null;
 
         if(!ruleset) {
