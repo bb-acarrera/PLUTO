@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+	tagName: "",
 	valueChanged: Ember.observer('value', function() {
 		const config = this.get('config');
 		const itemName = this.get('uiItem.name');
