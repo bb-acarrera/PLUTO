@@ -5,7 +5,7 @@
   "rules": [
     {
 		"filename":"ValidateZipFilenames",
-		"script" : "/opt/PLUTO/rules/ValidateZipFilenames.py",
+		"script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",
 		"executable" : "python"
 	  }
   ],

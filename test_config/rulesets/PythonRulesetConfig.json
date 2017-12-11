@@ -12,13 +12,13 @@
 		"import" : {
 			"filename": "LocalCopyImport",
 			"config": {
-				"file": "./examples/data/toronto_canada.land.coastline.zip"
+				"file": "/opt/PLUTO/config/test_data/toronto_canada.land.coastline.zip"
 			}
 		},
 		"export" : {
 			"filename": "LocalCopyExport",
 			"config" : {
-				"file": "./tmp/toronto_canada.land.coastline.zip"
+				"file": "/opt/PLUTO/config/tmp/toronto_canada.land.coastline.zip"
 			}
 		}
 	}
