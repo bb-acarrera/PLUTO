@@ -210,7 +210,7 @@ class RuleLoader {
 		return null;
 	}
 
-	getDbRule(id) {
+	getDbRule(id, group, admin) {
 
 		return new Promise((resolve) => {
 			if (!this.db) {
@@ -218,7 +218,7 @@ class RuleLoader {
 				return;
 			}
 
-			this.db.retrieveRule(id).then((rule) => {
+			this.db.retrieveRule(id, undefined, undefined, group, admin, this).then((rule) => {
 				resolve(rule);
 			}, () => {
 				resolve(null);

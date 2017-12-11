@@ -25,9 +25,9 @@ export default DS.Model.extend(Validations, {
 	group: DS.attr('string'),
 	version: DS.attr('number'),
 	canedit: DS.attr('boolean'),
-	ownergroup: DS.attr('string'),
-	updateuser: DS.attr('string'),
-	updatetime: DS.attr('date'),
+	ownerGroup: DS.attr('string'),
+	updateUser: DS.attr('string'),
+	updateTime: DS.attr('date'),
 	deleted: DS.attr('boolean'),
 	ui: DS.attr()
 });

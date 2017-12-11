@@ -99,14 +99,15 @@ class Validator {
 			this.runId = runId;
 			console.log("runId:" + runId);
 
-			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride, this.ruleLoader)
+			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride,
+				this.ruleLoader, undefined, undefined, undefined, true)
 				.then((ruleset) => {
 
 					if(!ruleset){
 						throw new Error("No Ruleset found for: " + this.config.ruleset);
 					}
 
-					ruleset.resolve(this.ruleLoader).then(() => {
+					ruleset.resolve(this.ruleLoader, undefined, true).then(() => {
 						this.processRuleset(ruleset, outputFile, inputEncoding, inputFile, inputDisplayName);
 					});
 
