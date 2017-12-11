@@ -34,7 +34,7 @@
       "script" : "validateFilename.py",
       "executable" : "python"
     }
-  ],
+	],
   "importers" : [
     {
       "filename":"LocalCopyImport",

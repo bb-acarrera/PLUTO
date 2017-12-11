@@ -1,0 +1,57 @@
+{
+	"id": 1,
+	"onError": "abort",
+	"name": "BBValidateFilename",
+	"attributes": {
+		"name": "BBValidateFilename",
+		"filename": "BBValidateFilename",
+		"script": "/Users/ptokarchuk/git/PLUTO/src/rules/BBValidateFilename.py",
+		"executable": "python",
+		"ui": {
+			"properties": [
+				{
+					"name": "changeFileFormat",
+					"type": "boolean",
+					"label": "Process will change file format",
+					"tooltip": "Set totrue if this process will alter the format of the file (e.g. csv to geojson)",
+					"default": false
+				},
+				{
+					"name": "droppedToAbort",
+					"label": "How many dropped items before aborting on this rule?",
+					"type": "integer",
+					"tooltip": "Stop execution when these many errors occur."
+				},
+				{
+					"name": "warningsToAbort",
+					"label": "How many warnings before aborting on this rule?",
+					"type": "integer",
+					"tooltip": "Stop execution when these many warnings occur."
+				}
+			]
+		},
+		"shortdescription": "Validate the names of the files within a zip file.",
+		"longdescription": "This rule validates the names of files contained within a zip file. Errors are reported if the input file is not a zip file (or badly formed), or if the contained files do not end with one of '.csv', '.geojson', '.shp', '.shx', '.dbf', '.sbn', '.sbx', '.fbn', '.fbx', '.ain', '.aih', '.atx', '.ixs', '.mxs', '.prj', '.xml', '.cpg', '.qix', or '.shp.xml', have no extension, are longer than35 characters before the extension, or do not begin with a letter, or contains characters other than letter, numbers or an underscore."
+	},
+	"parserConfig": {
+		"columnNames": [
+			"city",
+			"city_ascii",
+			"lat",
+			"lng",
+			"pop",
+			"country",
+			"iso2",
+			"iso3",
+			"province"
+		],
+		"numHeaderRows": 1,
+		"name": "CSVParser"
+	},
+	"importConfig": {
+		"file": "./examples/data/simplemaps-worldcities-basic.csv"
+	},
+	"exportConfig": {
+		"file": "./tmp/simplemaps-worldcities-basic.csv"
+	}
+}

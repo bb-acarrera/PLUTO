@@ -104,7 +104,7 @@ class RuleLoader {
 			let ruleFile, script;
 
 			if (executable) {
-				ruleFile = path.resolve(dir, "RunExternalProcess.js");
+				ruleFile = "../rules/RunExternalProcess.js";
 				if (item.script) {
 					script = path.resolve(dir, item.script);
 				}
@@ -115,102 +115,94 @@ class RuleLoader {
 				ruleFile = path.resolve(dir, suffixedFile);
 			}
 
-			var ruleClass = null;
+			var ruleClass = require(ruleFile);
+			this.classMap[file] = ruleClass;
 
-			if (fs.existsSync(ruleFile)) {
+			var descriptions = RuleLoader.getClassDescriptions(ruleClass);
+			if (descriptions && descriptions.shortDescription)
+				shortDescription = descriptions.shortDescription;
+			if (descriptions && descriptions.longDescription)
+				longDescription = descriptions.longDescription;
 
-				ruleClass = require(ruleFile);
+			// A description in the manifest takes precedence over one in the file (allows for localization/internationalization).
+			// ??? Might want this after the script descriptions are loaded to allow replacing them with local descriptions too.
+			if (item.shortDescription) {
+				shortDescription = item.shortDescription;
+			}
 
-				this.classMap[file] = ruleClass;
+			if (item.longDescription) {
+				longDescription = item.longDescription;
+			}
+			
+			var properties = RuleLoader.getClassProperties(ruleClass);
 
-				var descriptions = RuleLoader.getClassDescriptions(ruleClass);
-				if (descriptions && descriptions.shortDescription)
-					shortDescription = descriptions.shortDescription;
-				if (descriptions && descriptions.longDescription)
-					longDescription = descriptions.longDescription;
+			if (item.ui) {
+				// For executables without scripts their UI must be defined in the manifest.
+				properties = properties || [];
+				if (item.ui instanceof Array)
+					properties = properties.concat(item.ui);
+				else
+					properties.append(item.ui);
+			}
 
-				// A description in the manifest takes precedence over one in the file (allows for localization/internationalization).
-				// ??? Might want this after the script descriptions are loaded to allow replacing them with local descriptions too.
-				if (item.shortDescription) {
-					shortDescription = item.shortDescription;
-				}
+			if (script) {
+				// Scripts, not being JavaScript, need an external UI description file.
+				var moreProperties = RuleLoader.getJSONProperties(script);
+				if (moreProperties) {
 
-				if (item.longDescription) {
-					longDescription = item.longDescription;
-				}
-				
-				var properties = RuleLoader.getClassProperties(ruleClass);
-
-				if (item.ui) {
-					// For executables without scripts their UI must be defined in the manifest.
 					properties = properties || [];
-					if (item.ui instanceof Array)
-						properties = properties.concat(item.ui);
-					else
-						properties.append(item.ui);
-				}
-
-				if (script) {
-					// Scripts, not being JavaScript, need an external UI description file.
-					var moreProperties = RuleLoader.getJSONProperties(script);
-					if (moreProperties) {
-
-						properties = properties || [];
-						if (moreProperties instanceof Array) {
-							// Not sure why moreProperties is specifed as an Array...
-							for (var i = 0; i < moreProperties.length; i++) {
-								if (moreProperties[i].shortdescription) {
-									shortDescription = moreProperties[i].shortdescription;
-									delete moreProperties[i].shortdescription;
-								}
-								if (moreProperties[i].longdescription) {
-									longDescription = moreProperties[i].longdescription;
-									delete moreProperties[i].longdescription;
-								}
+					if (moreProperties instanceof Array) {
+						// Not sure why moreProperties is specifed as an Array...
+						for (var i = 0; i < moreProperties.length; i++) {
+							if (moreProperties[i].shortdescription) {
+								shortDescription = moreProperties[i].shortdescription;
+								delete moreProperties[i].shortdescription;
 							}
-							properties = properties.concat(moreProperties);
+							if (moreProperties[i].longdescription) {
+								longDescription = moreProperties[i].longdescription;
+								delete moreProperties[i].longdescription;
+							}
 						}
-						else {
-							if (moreProperties.shortdescription) {
-								shortDescription = moreProperties.shortdescription;
-								delete moreProperties.shortdescription;
-							}
-							if (moreProperties.longdescription) {
-								longDescription = moreProperties.longdescription;
-								delete moreProperties.longdescription;
-							}
-
-							properties.append(moreProperties);
+						properties = properties.concat(moreProperties);
+					}
+					else {
+						if (moreProperties.shortdescription) {
+							shortDescription = moreProperties.shortdescription;
+							delete moreProperties.shortdescription;
 						}
+						if (moreProperties.longdescription) {
+							longDescription = moreProperties.longdescription;
+							delete moreProperties.longdescription;
+						}
+
+						if (Object.keys(moreProperties).length > 0)
+							properties.push(moreProperties);
 					}
 				}
-
-				if (properties) {
-
-					return {
-						id: file,
-						type: type,
-						attributes: {
-							name: file,
-							filename: file,
-							path: item.path,
-							script: script,
-							executable: executable,
-							ui: {
-								properties: properties
-							},
-							shortdescription: shortDescription,
-							longdescription: longDescription
-						}
-					};
-
-				} else {
-					console.log(`${type} ${ruleFile} does not have ConfigProperties.`);
-				}
 			}
-			else
-				console.log(`No ${ruleFile} for ${type} ${file}.`);
 
+			if (properties) {
+
+				return {
+					id: file,
+					type: type,
+					attributes: {
+						name: file,
+						filename: file,
+						path: item.path,
+						script: script,
+						executable: executable,
+						ui: {
+							properties: properties
+						},
+						shortdescription: shortDescription,
+						longdescription: longDescription
+					}
+				};
+
+			} else {
+				console.log(`${type} ${ruleFile} does not have ConfigProperties.`);
+			}
 
 		} catch (e) {
 			console.log(`Error loading ${type} ${file} from manifest in ${dir}: ${e}`);

@@ -66,8 +66,7 @@ class ErrorHandlerAPI {
 	}
 
 	/**
-	 * Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
-	 * <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
+	 * Add an error to the log.
 	 * @param problemDescription {string} a description of the problem encountered.
 	 * @param dataItemId {string} or {number} the unique id of the item in a dataset being processed, null if NA
 	 */
