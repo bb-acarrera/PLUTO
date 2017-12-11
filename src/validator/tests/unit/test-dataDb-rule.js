@@ -26,12 +26,12 @@ const RuleLoader = require('../../../common/ruleLoader');
 
 const ruleLoader = new RuleLoader();
 
-QUnit.module("DataDb - Ruleset");
+QUnit.module("DataDb - Rule");
 
-QUnit.test( "saveRuleSet: Successful", function(assert){
+QUnit.test( "saveRule: Successful", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -45,12 +45,15 @@ QUnit.test( "saveRuleSet: Successful", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: null,
 								update_time: null,
-								name: null,
 								deleted: false
 							}
 						]
@@ -77,8 +80,8 @@ QUnit.test( "saveRuleSet: Successful", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset).then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.saveRule(rule).then((filename) => {
+		assert.equal(filename, rule.rule_id, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -90,10 +93,10 @@ QUnit.test( "saveRuleSet: Successful", function(assert){
 
 });
 
-QUnit.test( "saveRuleSet: Successful same group", function(assert){
+QUnit.test( "saveRule: Successful same group", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -107,8 +110,12 @@ QUnit.test( "saveRuleSet: Successful same group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -139,8 +146,8 @@ QUnit.test( "saveRuleSet: Successful same group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'some group').then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.saveRule(rule, 'user', 'some group').then((filename) => {
+		assert.equal(filename, rule.rule_id, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -152,10 +159,10 @@ QUnit.test( "saveRuleSet: Successful same group", function(assert){
 
 });
 
-QUnit.test( "saveRuleSet: Wrong group", function(assert){
+QUnit.test( "saveRule: Wrong group", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -169,8 +176,12 @@ QUnit.test( "saveRuleSet: Wrong group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -199,7 +210,7 @@ QUnit.test( "saveRuleSet: Wrong group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'other group', false).then((filename) => {
+	data.saveRule(rule, 'user', 'other group', false).then((filename) => {
 		assert.ok(false, "Expected save to fail");
 		done();
 	}, (e) => {
@@ -212,10 +223,10 @@ QUnit.test( "saveRuleSet: Wrong group", function(assert){
 
 });
 
-QUnit.test( "saveRuleSet: admin and other group", function(assert){
+QUnit.test( "saveRule: admin and other group", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -229,8 +240,12 @@ QUnit.test( "saveRuleSet: admin and other group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -259,7 +274,7 @@ QUnit.test( "saveRuleSet: admin and other group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'other group', true).then((filename) => {
+	data.saveRule(rule, 'user', 'other group', true).then((filename) => {
 		assert.ok(true, "Expected save to succeed");
 		done();
 	}, (e) => {
@@ -272,10 +287,10 @@ QUnit.test( "saveRuleSet: admin and other group", function(assert){
 
 });
 
-QUnit.test( "saveRuleSet: Wrong version", function(assert){
+QUnit.test( "saveRule: Wrong version", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -289,8 +304,12 @@ QUnit.test( "saveRuleSet: Wrong version", function(assert){
 							{
 								id: 0,
 								version: 1,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -319,7 +338,7 @@ QUnit.test( "saveRuleSet: Wrong version", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'some group', false).then((filename) => {
+	data.saveRule(rule, 'user', 'some group', false).then((filename) => {
 		assert.ok(false, "Expected save to fail");
 		done();
 	}, (e) => {
@@ -332,10 +351,10 @@ QUnit.test( "saveRuleSet: Wrong version", function(assert){
 
 });
 
-QUnit.test( "saveRuleSet: Successful same name as deleted", function(assert){
+QUnit.test( "saveRule: Successful same name as deleted", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -349,8 +368,12 @@ QUnit.test( "saveRuleSet: Successful same name as deleted", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -381,8 +404,8 @@ QUnit.test( "saveRuleSet: Successful same name as deleted", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'other group').then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.saveRule(rule, 'user', 'other group').then((filename) => {
+		assert.equal(filename, rule.rule_id, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -394,10 +417,10 @@ QUnit.test( "saveRuleSet: Successful same name as deleted", function(assert){
 
 });
 
-QUnit.test( "deleteRuleSet: Successful", function(assert){
+QUnit.test( "deleteRule: Successful", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -411,8 +434,12 @@ QUnit.test( "deleteRuleSet: Successful", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: null,
 								update_time: null,
@@ -435,8 +462,8 @@ QUnit.test( "deleteRuleSet: Successful", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.deleteRuleSet(ruleset).then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.deleteRule(rule).then((filename) => {
+		assert.equal(filename, rule.rule_id, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -448,10 +475,10 @@ QUnit.test( "deleteRuleSet: Successful", function(assert){
 
 });
 
-QUnit.test( "deleteRuleSet: Successful same group", function(assert){
+QUnit.test( "deleteRule: Successful same group", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -465,8 +492,12 @@ QUnit.test( "deleteRuleSet: Successful same group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -489,8 +520,8 @@ QUnit.test( "deleteRuleSet: Successful same group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.deleteRuleSet(ruleset, 'user', 'some group').then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.deleteRule(rule, 'user', 'some group').then((filename) => {
+		assert.equal(filename, rule.rule_id, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -502,10 +533,10 @@ QUnit.test( "deleteRuleSet: Successful same group", function(assert){
 
 });
 
-QUnit.test( "deleteRuleSet: Wrong version", function(assert){
+QUnit.test( "deleteRule: Wrong version", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -519,8 +550,12 @@ QUnit.test( "deleteRuleSet: Wrong version", function(assert){
 							{
 								id: 0,
 								version: 1,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -543,7 +578,7 @@ QUnit.test( "deleteRuleSet: Wrong version", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.deleteRuleSet(ruleset).then((filename) => {
+	data.deleteRule(rule).then((filename) => {
 		assert.ok(false, "Expected delete to fail");
 		done();
 	}, (e) => {
@@ -556,10 +591,10 @@ QUnit.test( "deleteRuleSet: Wrong version", function(assert){
 
 });
 
-QUnit.test( "deleteRuleSet: Wrong group", function(assert){
+QUnit.test( "deleteRule: Wrong group", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -573,8 +608,12 @@ QUnit.test( "deleteRuleSet: Wrong group", function(assert){
 							{
 								id: 0,
 								version: 1,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -597,7 +636,7 @@ QUnit.test( "deleteRuleSet: Wrong group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.deleteRuleSet(ruleset, 'user', 'other group').then((filename) => {
+	data.deleteRule(rule, 'user', 'other group').then((filename) => {
 		assert.ok(false, "Expected delete to fail");
 		done();
 	}, (e) => {
@@ -610,10 +649,10 @@ QUnit.test( "deleteRuleSet: Wrong group", function(assert){
 
 });
 
-QUnit.test( "deleteRuleSet: admin override wrong group", function(assert){
+QUnit.test( "deleteRule: admin override wrong group", function(assert){
 
-	const ruleset = {
-		filename: 'test',
+	const rule = {
+		rule_id: 'test',
 		version: 0
 	};
 
@@ -627,8 +666,12 @@ QUnit.test( "deleteRuleSet: admin override wrong group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset.filename,
-								rules: null,
+								rule_id: rule.rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'some group',
 								update_time: null,
@@ -651,8 +694,8 @@ QUnit.test( "deleteRuleSet: admin override wrong group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.deleteRuleSet(ruleset, 'user', 'other group', true).then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.deleteRule(rule, 'user', 'other group', true).then((filename) => {
+		assert.equal(filename, rule.rule_id, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -665,9 +708,9 @@ QUnit.test( "deleteRuleSet: admin override wrong group", function(assert){
 });
 
 
-QUnit.test( "retrieveRuleSet: can edit with no owner", function(assert){
+QUnit.test( "retrieveRule: can edit with no owner", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -679,8 +722,12 @@ QUnit.test( "retrieveRuleSet: can edit with no owner", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {},
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: null,
 								update_time: null,
@@ -703,10 +750,10 @@ QUnit.test( "retrieveRuleSet: can edit with no owner", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, undefined, undefined).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, undefined, undefined, undefined).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, true, "Expect to be able to edit");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
@@ -718,9 +765,9 @@ QUnit.test( "retrieveRuleSet: can edit with no owner", function(assert){
 
 });
 
-QUnit.test( "retrieveRuleSet: can edit with same group", function(assert){
+QUnit.test( "retrieveRule: can edit with same group", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -732,8 +779,12 @@ QUnit.test( "retrieveRuleSet: can edit with same group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {},
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'test',
 								update_time: null,
@@ -756,10 +807,10 @@ QUnit.test( "retrieveRuleSet: can edit with same group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'test', undefined).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, 'test', undefined, undefined).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, true, "Expect to be able to edit");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
@@ -771,9 +822,9 @@ QUnit.test( "retrieveRuleSet: can edit with same group", function(assert){
 
 });
 
-QUnit.test( "retrieveRuleSet: can edit as admin", function(assert){
+QUnit.test( "retrieveRule: can edit as admin", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -785,8 +836,12 @@ QUnit.test( "retrieveRuleSet: can edit as admin", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {},
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'test',
 								update_time: null,
@@ -809,10 +864,10 @@ QUnit.test( "retrieveRuleSet: can edit as admin", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'another group', true).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, 'another group', true, undefined).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, true, "Expect to be able to edit");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
@@ -824,9 +879,9 @@ QUnit.test( "retrieveRuleSet: can edit as admin", function(assert){
 
 });
 
-QUnit.test( "retrieveRuleSet: can't edit as different group", function(assert){
+QUnit.test( "retrieveRule: can't edit as different group", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -838,8 +893,12 @@ QUnit.test( "retrieveRuleSet: can't edit as different group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {},
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'test',
 								update_time: null,
@@ -862,10 +921,10 @@ QUnit.test( "retrieveRuleSet: can't edit as different group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'another group', undefined).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, false, "Expect not to be able to edit");
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, 'another group', undefined, undefined).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, false, "Expect not to be able to edit");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
@@ -877,9 +936,9 @@ QUnit.test( "retrieveRuleSet: can't edit as different group", function(assert){
 
 });
 
-QUnit.test( "retrieveRuleSet: can't edit with no group", function(assert){
+QUnit.test( "retrieveRule: can't edit with no group", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -891,8 +950,12 @@ QUnit.test( "retrieveRuleSet: can't edit with no group", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {},
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: null,
+								type: null,
+								config: null,
 								owner_user: null,
 								owner_group: 'test',
 								update_time: null,
@@ -915,10 +978,10 @@ QUnit.test( "retrieveRuleSet: can't edit with no group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, undefined, undefined).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, false, "Expect not to be able to edit");
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, undefined, undefined, undefined).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, false, "Expect not to be able to edit");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
@@ -930,9 +993,9 @@ QUnit.test( "retrieveRuleSet: can't edit with no group", function(assert){
 
 });
 
-QUnit.test( "retrieveRuleSet: can't see protected properties", function(assert){
+QUnit.test( "retrieveRule: can't see protected properties", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -944,14 +1007,13 @@ QUnit.test( "retrieveRuleSet: can't see protected properties", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {
-									import: {
-										filename: 'S3Import',
-										config: {
-											accessKey: '12345'
-										}
-									}
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: 'S3Import',
+								type: 'source',
+								config: {
+									accessKey: '12345'
 								},
 								owner_user: null,
 								owner_group: 'test',
@@ -975,11 +1037,11 @@ QUnit.test( "retrieveRuleSet: can't see protected properties", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, ruleLoader, undefined, undefined, undefined, undefined).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, false, "Expect not to be able to edit");
-		assert.equal(ruleset.import.config.accessKey, '********', 'Private config should be blanked out');
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, undefined, undefined, ruleLoader).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, false, "Expect not to be able to edit");
+		assert.equal(rule.config.accessKey, '********', 'Private config should be blanked out');
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
@@ -991,9 +1053,9 @@ QUnit.test( "retrieveRuleSet: can't see protected properties", function(assert){
 
 });
 
-QUnit.test( "retrieveRuleSet: can see protected properties", function(assert){
+QUnit.test( "retrieveRule: can see protected properties", function(assert){
 
-	const ruleset_filename = 'test';
+	const rule_id = 'test';
 
 	const config = {
 		query: (text, values) => {
@@ -1005,14 +1067,13 @@ QUnit.test( "retrieveRuleSet: can see protected properties", function(assert){
 							{
 								id: 0,
 								version: 0,
-								ruleset_id: ruleset_filename,
-								rules: {
-									import: {
-										filename: 'S3Import',
-										config: {
-											accessKey: '12345'
-										}
-									}
+								rule_id: rule_id,
+								description: null,
+								group: null,
+								base: 'S3Import',
+								type: 'source',
+								config: {
+									accessKey: '12345'
 								},
 								owner_user: null,
 								owner_group: 'test',
@@ -1036,11 +1097,11 @@ QUnit.test( "retrieveRuleSet: can see protected properties", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
-	data.retrieveRuleset(ruleset_filename, undefined, ruleLoader, undefined, undefined, 'test', undefined).then((ruleset) => {
-		assert.ok(ruleset, "Expect to have a ruleset");
-		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
-		assert.equal(ruleset.import.config.accessKey, '12345', 'Private config should be visible');
+	//rule_id, version, dbId, group, admin, rulesLoader
+	data.retrieveRule(rule_id, undefined, undefined, 'test', undefined, ruleLoader).then((rule) => {
+		assert.ok(rule, "Expect to have a rule");
+		assert.equal(rule.canedit, true, "Expect to be able to edit");
+		assert.equal(rule.config.accessKey, '12345', 'Private config should be visible');
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject: ' + e);
