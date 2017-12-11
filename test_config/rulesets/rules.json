@@ -39,7 +39,7 @@
       "group": "sample",
       "config": {
         "accessKey": "verySecretKey1",
-        "endpoint": "localhost:8000",
+        "endpoint": "192.168.0.1:8000",
         "sslEnabled": false,
         "bucket":"test",
         "forcePathStyle":true,
@@ -54,7 +54,7 @@
       "group": "sample",
       "config": {
         "accessKey": "verySecretKey1",
-        "endpoint": "localhost:8000",
+        "endpoint": "192.168.0.1:8000",
         "sslEnabled": false,
         "bucket":"testoutput",
         "forcePathStyle":true,
