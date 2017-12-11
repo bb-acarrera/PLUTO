@@ -152,7 +152,7 @@ class RuleLoader {
 
 					properties = properties || [];
 					if (moreProperties instanceof Array) {
-						// Not sure why moreProperties is specifed as an Array...
+						var propsToDelete = [];
 						for (var i = 0; i < moreProperties.length; i++) {
 							if (moreProperties[i].shortdescription) {
 								shortDescription = moreProperties[i].shortdescription;
@@ -162,6 +162,14 @@ class RuleLoader {
 								longDescription = moreProperties[i].longdescription;
 								delete moreProperties[i].longdescription;
 							}
+							if (Object.keys(moreProperties[i]).length == 0)
+								propsToDelete.push(i);	// Remember this element. It's empty so we'll need to delete it.
+						}
+
+						if (propsToDelete.length > 0) {
+							// Delete empty elements.
+							for (var i = propsToDelete.length - 1; i >= 0; i--)
+								moreProperties.splice(propsToDelete[i], 1);
 						}
 						properties = properties.concat(moreProperties);
 					}
