@@ -50,6 +50,7 @@ class Router {
 
 		this._router.get('/users/:id', (req, res, next) => this.userRouter.get(req, res, next));
 
+		this._router.get('/processfile/:id', (req, res, next) => this.processFileRouter.post(req, res, next));
         this._router.post('/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
 		this._router.post('/processfile/:id', (req, res, next) => this.processFileRouter.post(req, res, next));
 		this._router.post('/processupload', (req, res, next) => this.processFileRouter.processUpload(req, res, next));
