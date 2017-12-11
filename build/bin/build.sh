@@ -29,6 +29,12 @@ if [ ! -d $DST ]; then
 
 fi
 
+# Make sure current packages are up to date
+npm install
+cd $CLIENT
+npm install
+cd $ROOT
+
 # Copy the files required to run the validator and server.
 echo "Copying server directories."
 for dir in server common api rules validator
