@@ -841,7 +841,7 @@ class data {
      * @param rule_id the name of the rule.
      * @return a promise to an object describing a rule.
      */
-    retrieveRule ( rule_id, version, dbId, group, admin ) {
+    retrieveRule ( rule_id, version, dbId, group, admin, rulesLoader ) {
 
         let isAdmin = admin === true;
 
@@ -849,7 +849,7 @@ class data {
             getRule( this.db, rule_id, version, dbId, this.tables).then((result) => {
                 if ( result.rows.length > 0 ) {
 
-                    var rule = getRuleResult(result.rows[0], isAdmin, group);
+                    var rule = getRuleResult(result.rows[0], isAdmin, group, rulesLoader);
 
                     resolve( rule );
 
@@ -863,7 +863,7 @@ class data {
 
     }
 
-    getRules ( page, size, filters, group, admin ) {
+    getRules ( page, size, filters, group, admin, rulesLoader ) {
 
         let isAdmin = admin === true;
 
@@ -984,7 +984,7 @@ class data {
                 var rules = [];
 
                 result.rows.forEach( ( row ) => {
-                    rules.push( getRuleResult(row, isAdmin, group) );
+                    rules.push( getRuleResult(row, isAdmin, group, rulesLoader) );
                 } );
 
                 resolve( {
@@ -1059,11 +1059,6 @@ class data {
             } else {
                 update.call(this);
             }
-
-
-
-
-
 
         });
 
@@ -1308,7 +1303,7 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
     dbRuleset.update_user = row.update_user;
     dbRuleset.update_time = row.update_time;
 
-    if (dbRuleset.group && !isAdmin && dbRuleset.group !== group) {
+    if (dbRuleset.owner_group && !isAdmin && dbRuleset.owner_group !== group) {
         dbRuleset.canedit = false;
     } else {
         dbRuleset.canedit = true;
@@ -1401,7 +1396,7 @@ function checkCanChangeRule(db, tables, rule, group, admin) {
 
 }
 
-function getRuleResult(row, isAdmin, group) {
+function getRuleResult(row, isAdmin, group, rulesLoader) {
     let rule = {
         id: row.id,
         version: row.version,
@@ -1422,6 +1417,28 @@ function getRuleResult(row, isAdmin, group) {
     } else {
         rule.canedit = true;
     }
+
+    //hide/remove protected items if the user is not authorized
+    if(!rule.canedit && rulesLoader && rule.base && rule.config) {
+
+        let baseRule = rulesLoader.rulePropertiesMap[rule.base];
+
+        if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
+            baseRule.attributes.ui.properties.forEach((prop) => {
+
+                if(prop.private)
+                {
+                    if(prop.type === 'string') {
+                        rule.config[prop.name] = '********';
+                    } else {
+                        delete rule.config[prop.name];
+                    }
+                }
+
+            });
+        }
+    }
+
     return rule;
 }
 

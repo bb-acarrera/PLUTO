@@ -4,7 +4,7 @@ const Util = require("../common/Util");
 
 class RuleSet {
 
-	constructor(ruleset, ruleLoader) {
+	constructor(ruleset, rulesLoader) {
 		this.name = ruleset.name;
 		this.filename = ruleset.filename;
 
@@ -54,12 +54,18 @@ class RuleSet {
 
 		addRules.call(this, ruleset.rules);
 		
-		this.addParserDefaults(ruleLoader);
+		this.addParserDefaults(rulesLoader);
+
+		if(!this.canedit && rulesLoader) {
+			privatize.call(this, rulesLoader);
+		}
+
+
 	}
 
-	addParserDefaults(ruleLoader) {
-        if (ruleLoader && this.parser && this.parser.filename) {
-            var parserClass = ruleLoader.parsersMap[this.parser.filename];
+	addParserDefaults(rulesLoader) {
+        if (rulesLoader && this.parser && this.parser.filename) {
+            var parserClass = rulesLoader.parsersMap[this.parser.filename];
             if (parserClass && parserClass.ConfigDefaults) {
                 var defaults = parserClass.ConfigDefaults;
                 for (var key in defaults) {
@@ -107,7 +113,7 @@ class RuleSet {
 		}
 	}
 
-	resolve(ruleLoader) {
+	resolve(rulesLoader, group, admin) {
 
 
 
@@ -116,11 +122,11 @@ class RuleSet {
 			let promises = [];
 
 			if(this.source) {
-				promises.push(this.updateSource(ruleLoader));
+				promises.push(this.updateSource(rulesLoader, group, admin));
 			}
 
 			if(this.target) {
-				promises.push(this.updateTarget(ruleLoader));
+				promises.push(this.updateTarget(rulesLoader, group, admin));
 			}
 
 
@@ -134,9 +140,9 @@ class RuleSet {
 
 	}
 
-	updateSource(ruleLoader) {
+	updateSource(rulesLoader, group, admin) {
 		return new Promise((resolve) => {
-			ruleLoader.getDbRule(this.source.filename).then((sourceConfig) => {
+			rulesLoader.getDbRule(this.source.filename, group, admin).then((sourceConfig) => {
 				if (sourceConfig && sourceConfig.type === 'source') {
 					this.import = {
 						filename: sourceConfig.base,
@@ -156,7 +162,7 @@ class RuleSet {
 
 					updateConfig(this.source.config, {}, this.target.config);
 
-					this.updateTarget(ruleLoader).then(() => {
+					this.updateTarget(rulesLoader).then(() => {
 						resolve();
 					});
 
@@ -169,9 +175,9 @@ class RuleSet {
 		});
 	}
 
-	updateTarget(ruleLoader) {
+	updateTarget(rulesLoader, group, admin) {
 		return new Promise((resolve) => {
-			ruleLoader.getDbRule(this.target.filename).then((targetConfig) => {
+			rulesLoader.getDbRule(this.target.filename, group, admin).then((targetConfig) => {
 				if (targetConfig && targetConfig.type === 'target') {
 					this.export = {
 						filename: targetConfig.base,
@@ -305,6 +311,49 @@ function addGeneralConfig() {
 	config.singleRuleWarningsToAbort = cleanNumber(config.singleRuleWarningsToAbort);
 
 
+}
+
+function privatize(rulesLoader) {
+	const items = [
+		'import',
+		'export',
+		'parser'
+	];
+
+	const configuredRules = ['source', 'target'];
+
+	items.forEach((item) => {
+		privatizeItem.call(this, this[item], rulesLoader, 'filename');
+	});
+
+	configuredRules.forEach((item) => {
+		privatizeItem.call(this, this[item], rulesLoader, 'base');
+	});
+
+	this.rules.forEach((item) => {
+		privatizeItem.call(this, item, rulesLoader, 'filename');
+	});
+}
+
+function privatizeItem(item, rulesLoader, basePropName) {
+	if(item && rulesLoader && item.config) {
+		let baseRule = rulesLoader.rulePropertiesMap[item[basePropName]];
+
+		if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
+			baseRule.attributes.ui.properties.forEach((prop) => {
+
+				if(prop.private)
+				{
+					if(prop.type === 'string') {
+						item.config[prop.name] = '********';
+					} else {
+						delete item.config[prop.name];
+					}
+				}
+
+			});
+		}
+	}
 }
 
 function cleanNumber(value, defaultVal, fn) {
