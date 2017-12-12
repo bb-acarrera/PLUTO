@@ -23,5 +23,6 @@
 			"pass": "xuxk8RttsqNjJwCufs"
 		}
 	},
-	"emailFrom": "\"PLUTO\" <no-reply@localhost>"
+	"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+	"forceUniqueTargetFile": true
 }

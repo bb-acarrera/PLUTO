@@ -1,9 +1,16 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
-		{{component (concat "custom-property/" (custom-property-type item.type) )
-			label=item.label value=(get config item.name) tooltip=item.tooltip
-			config=config
-			uiItem=item disabled=disabled columns=columns}}
+		<div>
+			<span>
+				{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
+					value=(get config item.name)
+					config=config
+					uiItem=item disabled=disabled columns=columns}}
+				{{#if item.tooltip}}
+					{{bs-tooltip title=item.tooltip}}
+				{{/if}}
+			</span>
+		</div>
 	{{/each}}
 </div>
 {{yield}}

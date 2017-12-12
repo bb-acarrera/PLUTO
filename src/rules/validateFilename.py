@@ -4,11 +4,16 @@ import re
 import imp
 import sys
 
-api = None
+plutoAPI = os.environ.get('PLUTOAPI')
+if not plutoAPI:
+	print("PLUTOAPI enviroment variable must be set and point to the directory containing PythonAPI.py.", file=sys.stderr)
+	sys.exit(1)
+
 try:
-	api = imp.load_source('PythonAPI', 'api/PythonAPI.py')
+	apiPath = os.path.join(plutoAPI, "PythonAPI.py")
+	api = imp.load_source('PythonAPI', apiPath)
 except IOError:
-	print("Failed to load the PythonAPI.", file=sys.stderr)
+	print("Failed to load the PythonAPI from \"" + plutoAPI + "\".", file=sys.stderr)
 	sys.exit(1)
 
 class ValidateFilename(api.PythonAPIRule):
