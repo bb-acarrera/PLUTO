@@ -111,6 +111,7 @@ QUnit.test( "RuleSet: Export Creation Test", function(assert){
 QUnit.test( "RuleSet: Creation Test with all four properties", function(assert){
     const config = {
             "name" : "Test RuleSet All Properties",
+            "filename": "filename",
             "rules" : [
                 {
                     "filename" : "CheckColumnCount",

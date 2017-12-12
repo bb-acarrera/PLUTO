@@ -8,12 +8,6 @@ class RuleSet {
 		this.name = ruleset.name;
 		this.filename = ruleset.filename;
 
-		if(!this.filename && this.name) {
-			this.filename = this.name.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-				return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-			}).replace(/\s+/g, '');
-		}
-
 		// The ruleset_id is an unversioned ID that groups similar rulesets together.
 		this.ruleset_id = ruleset.ruleset_id;
 

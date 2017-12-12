@@ -77,8 +77,8 @@ QUnit.test( "saveRuleSet: Successful", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset).then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.saveRuleSet(ruleset).then((outRuleset) => {
+		assert.equal(outRuleset.filename, ruleset.filename, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -139,8 +139,8 @@ QUnit.test( "saveRuleSet: Successful same group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'some group').then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.saveRuleSet(ruleset, 'user', 'some group').then((outRuleset) => {
+		assert.equal(outRuleset.filename, ruleset.filename, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
@@ -199,7 +199,7 @@ QUnit.test( "saveRuleSet: Wrong group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'other group', false).then((filename) => {
+	data.saveRuleSet(ruleset, 'user', 'other group', false).then((outRuleset) => {
 		assert.ok(false, "Expected save to fail");
 		done();
 	}, (e) => {
@@ -259,7 +259,7 @@ QUnit.test( "saveRuleSet: admin and other group", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'other group', true).then((filename) => {
+	data.saveRuleSet(ruleset, 'user', 'other group', true).then((outRuleset) => {
 		assert.ok(true, "Expected save to succeed");
 		done();
 	}, (e) => {
@@ -319,7 +319,7 @@ QUnit.test( "saveRuleSet: Wrong version", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'some group', false).then((filename) => {
+	data.saveRuleSet(ruleset, 'user', 'some group', false).then((outRuleset) => {
 		assert.ok(false, "Expected save to fail");
 		done();
 	}, (e) => {
@@ -381,8 +381,8 @@ QUnit.test( "saveRuleSet: Successful same name as deleted", function(assert){
 	const done = assert.async();
 	const data = DataDb(config, true);
 
-	data.saveRuleSet(ruleset, 'user', 'other group').then((filename) => {
-		assert.equal(filename, ruleset.filename, "Expect filename to be the same");
+	data.saveRuleSet(ruleset, 'user', 'other group').then((outRuleset) => {
+		assert.equal(outRuleset.filename, ruleset.filename, "Expect filename to be the same");
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');

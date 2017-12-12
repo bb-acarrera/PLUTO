@@ -582,32 +582,52 @@ class data {
                 group = null;
             }
 
-            checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
-                let version = result.nextVersion;
-                let rowGroup = group;
+            function save(){
+                checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
+                    let version = result.nextVersion;
+                    let rowGroup = group;
 
-                if(result && result.rows.length > 0) {
-                    rowGroup = result.rows[0].owner_group;
-                }
+                    if(result && result.rows.length > 0) {
+                        rowGroup = result.rows[0].owner_group;
+                    }
 
-                ruleset.version = version;
+                    ruleset.version = version;
 
-                this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.target_file])
-                .then((result) => {
-                    resolve(ruleset.filename);
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.target_file])
+                        .then(() => {
+                            resolve(ruleset);
+                        }, (error) => {
+                            reject(error)
+                        });
+
                 }, (error) => {
-                    reject(error)
+                    console.log(error);
+                    reject(error);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
                 });
+            }
 
-            }, (error) => {
-                console.log(error);
-                reject(error);
-            }).catch((error) => {
-                console.log(error);
-                reject(error);
-            });
+            if(!ruleset.filename) {
+                generateId.call(this, "rulesets", "ruleset_id").then((ruleset_id) => {
+                    ruleset.ruleset_id = ruleset_id;
+                    ruleset.filename = ruleset_id;
+                    save.call(this);
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+            } else {
+                save.call(this);
+            }
+
+
 
 
         });
@@ -1109,7 +1129,7 @@ class data {
             }
 
             if(!rule.rule_id) {
-                generateId.call(this, "rules").then((ruleId) => {
+                generateId.call(this, "rules", "rule_id").then((ruleId) => {
                     rule.rule_id = ruleId;
                     update.call(this);
                 }, (error) => {
@@ -1209,19 +1229,19 @@ function updateTableNames ( query, tableNames ) {
     return resp;
 }
 
-function generateId(tableName) {
+function generateId(tableName, idName) {
     return new Promise((resolve, reject) => {
-        this.db.query(updateTableNames(`INSERT INTO {{${tableName}}} (rule_id, version) VALUES($1, $2) RETURNING id`, this.tables),
+        this.db.query(updateTableNames(`INSERT INTO {{${tableName}}} (${idName}, version) VALUES($1, $2) RETURNING id`, this.tables),
             [null, null])
             .then((result) => {
                 const id = result.rows[0].id;
 
                 this.db.query(updateTableNames(`DELETE FROM {{${tableName}}} WHERE id = $1`, this.tables), [id]).then(
                     () => {
-                        resolve(id);
+                        resolve(id.toString());
                     }, (error) => {
                         console.log(error);
-                        resolve(id);
+                        resolve(id.toString());
                     });
 
             }, (error) => {

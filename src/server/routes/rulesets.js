@@ -151,9 +151,8 @@ class RulesetRouter extends BaseRouter {
 		const ruleset = new RuleSet(req.body);
 
 		function save() {
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
-				req.body.version = ruleset.version;
-				res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
 			}, (error) => {
 				next(error);
 			}).catch(next);
@@ -208,8 +207,8 @@ class RulesetRouter extends BaseRouter {
 
 		this.config.data.rulesetValid(ruleset, true, this.config.validatorConfig.forceUniqueTargetFile).then(() => {
 
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((name) => {
-				res.status(201).location('/ruleset/' + name).json(req.body);
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+				res.status(201).location('/ruleset/' + ruleset.ruleset_id).json(ruleset);
 
 			}, (error) => {
 				next(error);
