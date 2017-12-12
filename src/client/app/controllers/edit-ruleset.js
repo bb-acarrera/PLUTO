@@ -308,7 +308,7 @@ export default Ember.Controller.extend( {
 
 		getShortDescription(list, itemName) {
 			let item = null;
-			
+
 			if(list) {
 				list.forEach((i) => {
 					if(i.get('filename') == itemName) {
@@ -325,7 +325,7 @@ export default Ember.Controller.extend( {
 
 		getLongDescription(list, itemName) {
 			let item = null;
-			
+
 			if(list) {
 				list.forEach((i) => {
 					if(i.get('filename') == itemName) {
@@ -393,7 +393,7 @@ function save ( ruleset ) {
 			alert( "Successfully saved." );
 		}
 		else if ( xmlHttp.readyState == 4 ) {
-			alert( `Failed to save. Status = ${xmlHttp.status}` );
+			alert( `Could not save:  ${xmlHttp.statusText}` );
 		}
 	};
 

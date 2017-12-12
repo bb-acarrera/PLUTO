@@ -1,5 +1,5 @@
 const Util = require("../common/Util");
-
+const path = require("path");
 
 
 class RuleSet {
@@ -60,6 +60,23 @@ class RuleSet {
 			privatize.call(this, rulesLoader);
 		}
 
+		let targetPath;
+		if(this.target) {
+			if(this.target.config && this.target.config.file) {
+				targetPath = this.target.config.file
+			}
+		} else if(this.source) { //let's make an assumption here that if there is no target, but there is a source, it's linked
+			if(this.source.config && this.source.config.file) {
+				targetPath = this.source.config.file
+			}
+		}
+
+		if(targetPath) {
+			try {
+				this.target_file = path.basename(targetPath, path.extname(targetPath));
+			} catch(e) {}
+
+		}
 
 	}
 
