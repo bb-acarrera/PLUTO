@@ -111,7 +111,6 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 			this.config.data.getRules(page, size, {
 				ruleFilter: req.query.ruleFilter,
-				groupFilter: req.query.groupFilter,
 				typeFilter: req.query.typeFilter,
 				ownerFilter: req.query.ownerFilter,
 				descriptionFilter: req.query.descriptionFilter

@@ -5,7 +5,6 @@
     <table id="sourcesTable" class="configured-rule-table">
         <tr style="border-bottom: 1px solid grey;">
             <td>{{input placeholder="Name" value=ruleDescriptionFilter}}</td>
-            <td>{{input placeholder="Group" value=groupFilter}}</td>
             <td>{{input placeholder="Owner" value=ownerFilter}}</td>
             <td></td>
         </tr>
@@ -13,7 +12,6 @@
 		{{#each model.rules.result as |ruleInstance index|}}
             <tr id="{{concat 'sourceTableRow' index}}">
                 <td>{{ruleInstance.description}}</td>
-                <td>{{ruleInstance.group}}</td>
                 <td>{{ruleInstance.ownergroup}}</td>
                 <td align="right">
 					{{#bs-button onClick=(action "deleteRule" ruleInstance model.rules.result)}}

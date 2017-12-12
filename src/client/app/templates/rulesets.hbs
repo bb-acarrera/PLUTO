@@ -15,7 +15,7 @@
     <table id="rulesetTable" class="ruleset-table">
         <tr style="border-bottom: 1px solid grey;">
             <td>{{input placeholder="File" value=fileFilter}}</td>
-            <td>{{input placeholder="Source" value=sourceFilter}}</td>
+            <td>{{input placeholder="Source" value=sourceDescriptionFilter}}</td>
             <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
             <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
 
@@ -29,7 +29,7 @@
 		{{#each rulesets as |rulesetInstance index|}}
             <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
                 <td>{{rulesetInstance.ruleset.source.config.file}}</td>
-                <td>{{if rulesetInstance.source.group (concat rulesetInstance.source.group ': ')}} {{rulesetInstance.source.description}}</td>
+                <td>{{rulesetInstance.source.description}}</td>
                 <td>{{rulesetInstance.ownergroup}}</td>
                 <td>{{rulesetInstance.ruleset.name}}</td>
 				{{#if run}}

@@ -97,11 +97,9 @@ class RulesetRouter extends BaseRouter {
 			this.config.data.getRulesets(page, size, {
 				rulesetFilter: req.query.rulesetFilter,
 				groupFilter: req.query.groupFilter,
-				sourceGroupFilter: req.query.sourceGroupFilter,
 				sourceDescriptionFilter: req.query.sourceDescriptionFilter,
 				fileFilter: req.query.fileFilter,
-				nameFilter: req.query.nameFilter,
-				sourceFilter: req.query.sourceFilter
+				nameFilter: req.query.nameFilter
 
 			}, null, auth.group, auth.admin).then((result) => {
 				const rulesets = [];

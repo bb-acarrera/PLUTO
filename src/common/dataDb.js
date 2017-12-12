@@ -807,23 +807,6 @@ class data {
                 countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
             }
 
-            if(filters.sourceGroupFilter && filters.sourceGroupFilter.length) {
-                let subWhere = safeStringLike( filters.sourceGroupFilter );
-
-                extendWhere();
-
-                if(!joinedSource) {
-                    joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
-                }
-
-                values.push( subWhere );
-                where += '{{currentRule}}."group" ILIKE $' + values.length;
-
-                countValues.push( subWhere );
-                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
-            }
-
             if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
                 let subWhere = safeStringLike( filters.sourceDescriptionFilter );
 
@@ -841,22 +824,6 @@ class data {
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
             }
 
-            if(filters.sourceFilter && filters.sourceFilter.length) {
-                let subWhere = safeStringLike( filters.sourceFilter );
-
-                extendWhere();
-
-                if(!joinedSource) {
-                    joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
-                }
-
-                values.push( subWhere );
-                where += '({{currentRule}}."group" ILIKE $' + values.length + ' OR {{currentRule}}.description ILIKE $' + values.length + ')';
-
-                countValues.push( subWhere );
-                countWhere += '({{currentRule}}."group" ILIKE $' + countValues.length + ' OR {{currentRule}}.description ILIKE $' + countValues.length + ')';
-            }
 
             if(join && join.length > 0) {
                 where = join + ' ' + where;
@@ -1014,18 +981,6 @@ class data {
 
                 countValues.push( ownerWhere );
                 countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
-            }
-
-            if(filters.groupFilter && filters.groupFilter.length) {
-                let groupWhere = safeStringLike( filters.groupFilter );
-
-                extendWhere();
-
-                values.push( groupWhere );
-                where += '{{currentRule}}."group" ILIKE $' + values.length;
-
-                countValues.push( groupWhere );
-                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
             }
 
             //descriptionFilter

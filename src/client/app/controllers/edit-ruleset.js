@@ -101,7 +101,7 @@ export default Ember.Controller.extend( {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'target'
 			});
 		},
@@ -109,7 +109,7 @@ export default Ember.Controller.extend( {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'source'
 			});
 		},

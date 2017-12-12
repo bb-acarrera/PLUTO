@@ -32,16 +32,10 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 		processing: {
 			refreshModel: true
 		},
-		sourceGroupFilter: {
-			refreshModel: true
-		},
 		sourceDescriptionFilter: {
 			refreshModel: true
 		},
 		fileFilter: {
-			refreshModel: true
-		},
-		sourceFilter: {
 			refreshModel: true
 		}
 	},
@@ -54,11 +48,9 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 				page: params.rulePage,
 				perPage: params.rulePerPage,
 				groupFilter: params.rulesetGroupFilter,
-				sourceGroupFilter: params.sourceGroupFilter,
 				sourceDescriptionFilter: params.sourceDescriptionFilter,
 				fileFilter: params.fileFilter,
-				nameFilter: params.rulesetNameFilter,
-				sourceFilter: params.sourceFilter
+				nameFilter: params.rulesetNameFilter
 			}).then((result) => {
 				let meta = result.get('meta');
 
