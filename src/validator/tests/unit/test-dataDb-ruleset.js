@@ -1052,4 +1052,327 @@ QUnit.test( "retrieveRuleSet: can see protected properties", function(assert){
 
 });
 
+QUnit.test( "rulesetValid: unqiue id OK and unique target_file OK", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		target_file: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT count(*)')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{count: 0}
+						]
+					})
+				});
+			} else if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: []
+					})
+				});
+			} else {
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.rulesetValid(ruleset, true, true).then(() => {
+		assert.ok(true, '');
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "rulesetValid: unqiue id not OK and unique target_file OK", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		target_file: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT count(*)')) {
+				//get count of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{count: 0}
+						]
+					})
+				});
+			} else if(text.startsWith('SELECT') && text.includes('.target_file')) {
+				//get list of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: []
+					})
+				});
+			} else if(text.startsWith('SELECT')) {
+				//the get the row that matches the ruleset_id/filename
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ {
+							id: 0,
+							version: 0,
+							ruleset_id: ruleset.filename,
+							rules: {},
+							owner_user: null,
+							owner_group: 'test',
+							update_time: null,
+							name: null,
+							deleted: false
+						}]
+					})
+				});
+			} else {
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.rulesetValid(ruleset, true, true).then(() => {
+		assert.ok(false, 'should have rejected');
+		done();
+	}, (e) => {
+		assert.ok(true, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "rulesetValid: unqiue id OK and unique target_file not OK", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		target_file: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT count(*)')) {
+				//get count of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{count: 1}
+						]
+					})
+				});
+			} else if(text.startsWith('SELECT') && text.includes('.target_file')) {
+				//get list of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: [{
+							id: 0,
+							version: 0,
+							ruleset_id: ruleset.filename,
+							rules: {},
+							owner_user: null,
+							owner_group: 'test',
+							update_time: null,
+							name: null,
+							deleted: false
+						}]
+					})
+				});
+			} else if(text.startsWith('SELECT')) {
+				//the get the row that matches the ruleset_id/filename
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ ]
+					})
+				});
+			} else {
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.rulesetValid(ruleset, true, true).then(() => {
+		assert.ok(false, 'should have rejected');
+		done();
+	}, (e) => {
+		assert.ok(true, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "rulesetValid: skip unqiue id and unique target_file OK", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		target_file: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT count(*)')) {
+				//get count of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{count: 0}
+						]
+					})
+				});
+			} else if(text.startsWith('SELECT') && text.includes('.target_file')) {
+				//get list of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: []
+					})
+				});
+			} else if(text.startsWith('SELECT')) {
+				//the get the row that matches the ruleset_id/filename
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ {
+							id: 0,
+							version: 0,
+							ruleset_id: ruleset.filename,
+							rules: {},
+							owner_user: null,
+							owner_group: 'test',
+							update_time: null,
+							name: null,
+							deleted: false
+						}]
+					})
+				});
+			} else {
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.rulesetValid(ruleset, false, true).then(() => {
+		assert.ok(true, '');
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "rulesetValid: unqiue id OK and skip unique target_file", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		target_file: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT count(*)')) {
+				//get count of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{count: 1}
+						]
+					})
+				});
+			} else if(text.startsWith('SELECT') && text.includes('.target_file')) {
+				//get list of rows that match the target file
+				return new Promise((resolve) => {
+					resolve({
+						rows: [{
+							id: 0,
+							version: 0,
+							ruleset_id: ruleset.filename,
+							rules: {},
+							owner_user: null,
+							owner_group: 'test',
+							update_time: null,
+							name: null,
+							deleted: false
+						}]
+					})
+				});
+			} else if(text.startsWith('SELECT')) {
+				//the get the row that matches the ruleset_id/filename
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ ]
+					})
+				});
+			} else {
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.rulesetValid(ruleset, true, false).then(() => {
+		assert.ok(true, '');
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
 QUnit.module("");

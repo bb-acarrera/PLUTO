@@ -533,6 +533,8 @@ class data {
                     } else {
                         resolve();
                     }
+                }, (e) => {
+                    reject(e);
                 })
             } ));
         }
