@@ -39,16 +39,12 @@ function addRule(controller, rule) {
 export default Ember.Controller.extend({
 	queryParams: ["page",
 		"perPage",
-		"ruleFilter",
-		"groupFilter",
 		"typeFilter",
 		"ownerFilter",
 		"ruleDescriptionFilter"
 	],
 	page: 1,
 	perPage: 20,
-	ruleFilter: '',
-	groupFilter: '',
 	ownerFilter: '',
 	typeFilter: '',
 	ruleDescriptionFilter: '',
@@ -77,7 +73,7 @@ export default Ember.Controller.extend({
 
 	}),
 
-	filterChanged: Ember.observer('ruleFilter', 'ruleGroupFilter', 'typeFilter',
+	filterChanged: Ember.observer('ruleDescriptionFilter', 'typeFilter',
 		function() {
 			this.set('page', 1);
 		}),

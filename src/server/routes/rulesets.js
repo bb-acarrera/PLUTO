@@ -97,11 +97,9 @@ class RulesetRouter extends BaseRouter {
 			this.config.data.getRulesets(page, size, {
 				rulesetFilter: req.query.rulesetFilter,
 				groupFilter: req.query.groupFilter,
-				sourceGroupFilter: req.query.sourceGroupFilter,
 				sourceDescriptionFilter: req.query.sourceDescriptionFilter,
 				fileFilter: req.query.fileFilter,
-				nameFilter: req.query.nameFilter,
-				sourceFilter: req.query.sourceFilter
+				nameFilter: req.query.nameFilter
 
 			}, null, auth.group, auth.admin).then((result) => {
 				const rulesets = [];
@@ -149,12 +147,33 @@ class RulesetRouter extends BaseRouter {
 	patch(req, res, next) {
 		const auth = this.getAuth(req);
 		const ruleset = new RuleSet(req.body);
-		this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
-            req.body.version = ruleset.version;
-			res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
-		}, (error) => {
-			next(error);
-		}).catch(next);
+
+		function save() {
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
+			}, (error) => {
+				next(error);
+			}).catch(next);
+		}
+
+		if(this.config.validatorConfig.forceUniqueTargetFile) {
+			this.config.data.rulesetValid(ruleset, false, this.config.validatorConfig.forceUniqueTargetFile).then(() => {
+
+				save.call(this);
+
+			}, (error) => {
+
+				res.statusMessage = error;
+				res.status(422).end();
+
+			}).catch(next);
+		} else {
+			save.call(this);
+		}
+
+
+
+
 	}
 
 	delete(req, res, next) {
@@ -171,35 +190,33 @@ class RulesetRouter extends BaseRouter {
 		const auth = this.getAuth(req);
 		let new_rulesetId = req.body.rulesetId;
 
-		this.config.data.rulesetExists(new_rulesetId).then((exists) => {
-			if(exists) {
-				res.statusMessage = `Ruleset '${new_rulesetId}' already exsists.`
-				res.status(422).end();
-				return;
-			}
+		let ruleset = null;
 
-			let ruleset = null;
+		if(req.body.ruleset) {
+			req.body.ruleset.filename = new_rulesetId;
+			req.body.ruleset.ruleset_id = new_rulesetId;
+			ruleset = new RuleSet(req.body.ruleset);
+		} else {
+			ruleset = new RuleSet({
+				filename: new_rulesetId,
+				ruleset_id: new_rulesetId
+			})
+		}
 
-			if(req.body.ruleset) {
-				req.body.ruleset.filename = new_rulesetId;
-				req.body.ruleset.ruleset_id = new_rulesetId;
-				ruleset = new RuleSet(req.body.ruleset);
-			} else {
-				ruleset = new RuleSet({
-					filename: new_rulesetId,
-					ruleset_id: new_rulesetId
-				})
-			}
+		this.config.data.rulesetValid(ruleset, true, this.config.validatorConfig.forceUniqueTargetFile).then(() => {
 
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((name) => {
-				res.status(201).location('/ruleset/' + name).json(req.body);
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+				res.status(201).location('/ruleset/' + ruleset.ruleset_id).json(ruleset);
 
 			}, (error) => {
 				next(error);
 			}).catch(next);
 
 		}, (error) => {
-			next(error);
+
+			res.statusMessage = error;
+			res.status(422).end();
+
 		}).catch(next);
 	}
 }

@@ -111,7 +111,6 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 			this.config.data.getRules(page, size, {
 				ruleFilter: req.query.ruleFilter,
-				groupFilter: req.query.groupFilter,
 				typeFilter: req.query.typeFilter,
 				ownerFilter: req.query.ownerFilter,
 				descriptionFilter: req.query.descriptionFilter
@@ -176,12 +175,12 @@ class ConfiguredRuleRouter extends BaseRouter {
 				rule = req.body.rule;
 			} else {
 				rule = {
-					rule_id: new_ruleId
+					rule_id: ruleId
 				};
 			}
 
-			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((name) => {
-				res.status(201).location('/configuredRule/' + ruleId).json(rule);
+			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((id) => {
+				res.status(201).location('/configuredRule/' + id).json(rule);
 
 			}, (error) => {
 				next(error);

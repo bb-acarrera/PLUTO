@@ -103,10 +103,8 @@ export default Ember.Controller.extend({
 		"rulesetGroupFilter",
 		"runGroupFilter",
 		"run",
-		"sourceGroupFilter",
 		"sourceDescriptionFilter",
-		"fileFilter",
-		"sourceFilter"
+		"fileFilter"
 	],
 	applicationController: Ember.inject.controller('application'),
 
@@ -120,11 +118,8 @@ export default Ember.Controller.extend({
 	rulesetNameFilter: '',
 	rulesetGroupFilter: '',
 	runGroupFilter: '',
-	sourceGroupFilter: '',
 	sourceDescriptionFilter: '',
 	fileFilter: '',
-	sourceFilter: '',
-
 
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
@@ -133,7 +128,7 @@ export default Ember.Controller.extend({
 	poll: Ember.inject.service(),
 
 
-	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter', "sourceGroupFilter",
+	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
 		"sourceDescriptionFilter",	"fileFilter",
 		function () {
 			this.set('rulePage', 1);
@@ -170,7 +165,6 @@ export default Ember.Controller.extend({
 			const obj = Ember.Object.create({
 				ruleset: ruleset,
 				filename: ruleset.get('filename'),
-				group: ruleset.get('group'),
 				ownergroup: ruleset.get('ownergroup'),
 				run: run,
 				source: source
@@ -219,7 +213,7 @@ export default Ember.Controller.extend({
 					this.set('cloneTarget', this.store.queryRecord('configuredrule', {id: targetId}));
 				}
 			}
-			
+
 			this.set('showAddRuleset', true);
 		},
 		addRuleset() {

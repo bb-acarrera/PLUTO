@@ -493,34 +493,72 @@ class data {
 
         let isAdmin = admin === true;
 
-        return getRuleset( this.db, ruleset_id, version, dbId, this.tables, ( result, resolve, reject ) => {
-            if ( result.rows.length > 0 ) {
+        return new Promise((resolve, reject) => {
+           getRuleset( this.db, ruleset_id, version, dbId, this.tables).then( (result) => {
+                if ( result.rows.length > 0 ) {
 
-                let row = result.rows[0];
+                    let row = result.rows[0];
 
-                var ruleset = getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader);
+                    var ruleset = getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader);
 
-                if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
-                    ruleset.applyOverride( rulesetOverrideFile );
+                    if ( rulesetOverrideFile && typeof rulesetOverrideFile === 'string' ) {
+                        ruleset.applyOverride( rulesetOverrideFile );
+                    }
+
+                    resolve( ruleset );
+
+                } else {
+                    resolve( null );
                 }
-                
-                resolve( ruleset );
+            }, (e) => {
+               reject(e)
+           } );
+        });
 
-            } else {
-                resolve( null );
-            }
-        } );
+
 
     }
 
-    rulesetExists(ruleset_id) {
-        return getRuleset(this.db, ruleset_id, null, null, this.tables, (result, resolve, reject) => {
-            if(result.rows.length > 0) {
-               resolve(true);
-            } else {
-                resolve( false );
-            }
-        } );
+    rulesetValid(ruleset, checkIdUnique, checkTargetFile) {
+
+        const promises = [];
+
+
+
+        if(checkIdUnique && ruleset.ruleset_id) {
+            promises.push(new Promise((resolve, reject) => {
+                getRuleset(this.db, ruleset.ruleset_id, null, null, this.tables).then( (result) => {
+                    if(result.rows.length > 0) {
+                        reject( `Ruleset '${ruleset.ruleset_id}' already exsists.` );
+                    } else {
+                        resolve();
+                    }
+                }, (e) => {
+                    reject(e);
+                })
+            } ));
+        }
+
+        if(checkTargetFile && ruleset.target_file) {
+            promises.push(new Promise((resolve, reject) => {
+                this.getRulesets(1, 5, {
+                    targetFileExactFilter: ruleset.target_file,
+                    notIdFilter: ruleset.ruleset_id
+                }).then((result) => {
+                    if(result.rulesets.length > 0) {
+                        reject( `Another ruleset is already using the file '${ruleset.target_file}' as the target.` );
+                    } else {
+                        resolve();
+                    }
+                }, (error) => {
+                    reject(error);
+                });
+
+            }));
+        }
+
+        return Promise.all(promises);
+
     }
 
 
@@ -544,32 +582,52 @@ class data {
                 group = null;
             }
 
-            checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
-                let version = result.nextVersion;
-                let rowGroup = group;
+            function save(){
+                checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
+                    let version = result.nextVersion;
+                    let rowGroup = group;
 
-                if(result && result.rows.length > 0) {
-                    rowGroup = result.rows[0].owner_group;
-                }
+                    if(result && result.rows.length > 0) {
+                        rowGroup = result.rows[0].owner_group;
+                    }
 
-                ruleset.version = version;
+                    ruleset.version = version;
 
-                this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, "group") ' +
-                        "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                    [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.group])
-                .then((result) => {
-                    resolve(ruleset.filename);
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.target_file])
+                        .then(() => {
+                            resolve(ruleset);
+                        }, (error) => {
+                            reject(error)
+                        });
+
                 }, (error) => {
-                    reject(error)
+                    console.log(error);
+                    reject(error);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
                 });
+            }
 
-            }, (error) => {
-                console.log(error);
-                reject(error);
-            }).catch((error) => {
-                console.log(error);
-                reject(error);
-            });
+            if(!ruleset.filename) {
+                generateId.call(this, "rulesets", "ruleset_id").then((ruleset_id) => {
+                    ruleset.ruleset_id = ruleset_id;
+                    ruleset.filename = ruleset_id;
+                    save.call(this);
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+            } else {
+                save.call(this);
+            }
+
+
 
 
         });
@@ -596,9 +654,9 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
-                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, "group", deleted) ' +
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, deleted) ' +
                             "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, row.group, true])
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, ruleset.target_file, true])
                         .then((result) => {
 
                             this.db.query(
@@ -711,6 +769,32 @@ class data {
                 countWhere += "{{currentRuleset}}.name ILIKE $" + countValues.length;
             }
 
+            if(filters.targetFileExactFilter && filters.targetFileExactFilter.length) {
+                let subWhere = filters.targetFileExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.target_file = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.target_file = $" + countValues.length;
+
+            }
+
+            if(filters.notIdFilter && filters.notIdFilter.length) {
+                let subWhere = filters.notIdFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.ruleset_id != $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.ruleset_id != $" + countValues.length;
+
+            }
+
             if(filters.fileFilter && filters.fileFilter.length) {
                 let subWhere = safeStringLike( filters.fileFilter );
 
@@ -721,23 +805,6 @@ class data {
 
                 countValues.push( subWhere );
                 countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
-            }
-
-            if(filters.sourceGroupFilter && filters.sourceGroupFilter.length) {
-                let subWhere = safeStringLike( filters.sourceGroupFilter );
-
-                extendWhere();
-
-                if(!joinedSource) {
-                    joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
-                }
-
-                values.push( subWhere );
-                where += '{{currentRule}}."group" ILIKE $' + values.length;
-
-                countValues.push( subWhere );
-                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
             }
 
             if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
@@ -755,23 +822,6 @@ class data {
 
                 countValues.push( subWhere );
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
-            }
-
-            if(filters.sourceFilter && filters.sourceFilter.length) {
-                let subWhere = safeStringLike( filters.sourceFilter );
-
-                extendWhere();
-
-                if(!joinedSource) {
-                    joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
-                }
-
-                values.push( subWhere );
-                where += '({{currentRule}}."group" ILIKE $' + values.length + ' OR {{currentRule}}.description ILIKE $' + values.length + ')';
-
-                countValues.push( subWhere );
-                countWhere += '({{currentRule}}."group" ILIKE $' + countValues.length + ' OR {{currentRule}}.description ILIKE $' + countValues.length + ')';
             }
 
 
@@ -933,18 +983,6 @@ class data {
                 countWhere += "{{currentRule}}.owner_group ILIKE $" + countValues.length;
             }
 
-            if(filters.groupFilter && filters.groupFilter.length) {
-                let groupWhere = safeStringLike( filters.groupFilter );
-
-                extendWhere();
-
-                values.push( groupWhere );
-                where += '{{currentRule}}."group" ILIKE $' + values.length;
-
-                countValues.push( groupWhere );
-                countWhere += '{{currentRule}}."group" ILIKE $' + countValues.length;
-            }
-
             //descriptionFilter
             if(filters.descriptionFilter && filters.descriptionFilter.length) {
                 let subWhere = safeStringLike( filters.descriptionFilter );
@@ -1046,7 +1084,7 @@ class data {
             }
 
             if(!rule.rule_id) {
-                generateId.call(this, "rules").then((ruleId) => {
+                generateId.call(this, "rules", "rule_id").then((ruleId) => {
                     rule.rule_id = ruleId;
                     update.call(this);
                 }, (error) => {
@@ -1146,19 +1184,19 @@ function updateTableNames ( query, tableNames ) {
     return resp;
 }
 
-function generateId(tableName) {
+function generateId(tableName, idName) {
     return new Promise((resolve, reject) => {
-        this.db.query(updateTableNames(`INSERT INTO {{${tableName}}} (rule_id, version) VALUES($1, $2) RETURNING id`, this.tables),
+        this.db.query(updateTableNames(`INSERT INTO {{${tableName}}} (${idName}, version) VALUES($1, $2) RETURNING id`, this.tables),
             [null, null])
             .then((result) => {
                 const id = result.rows[0].id;
 
                 this.db.query(updateTableNames(`DELETE FROM {{${tableName}}} WHERE id = $1`, this.tables), [id]).then(
                     () => {
-                        resolve(id);
+                        resolve(id.toString());
                     }, (error) => {
                         console.log(error);
-                        resolve(id);
+                        resolve(id.toString());
                     });
 
             }, (error) => {
@@ -1202,7 +1240,7 @@ function getRunResult(row) {
     };
 }
 
-function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted) {
+function getRuleset(db, ruleset_id, version, dbId, tables, getDeleted) {
 
     if ( !ruleset_id && !dbId ) {
         return new Promise( ( resolve, reject ) => {
@@ -1215,7 +1253,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
 
     return new Promise( ( resolve, reject ) => {
 
-        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted, "group" FROM ';
+        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted FROM ';
         let values = [];
 
         if(dbId != null || version != null || getDeleted) {
@@ -1244,7 +1282,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
         db.query(updateTableNames(query, tables), values)
             .then((result) => {
 
-                callback( result, resolve, reject );
+                resolve( result );
 
             }, ( error ) => {
                 reject( error );
@@ -1256,9 +1294,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, callback, getDeleted)
 function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
 
     return new Promise((resolve, reject) => {
-        getRuleset(db, ruleset.filename, null, null, tables, (result, resolve, reject) => {
-            resolve(result);
-        }, true).then((result) => {
+        getRuleset(db, ruleset.filename, null, null, tables, true).then((result) => {
 
             if (result.rows.length > 0) {
 
