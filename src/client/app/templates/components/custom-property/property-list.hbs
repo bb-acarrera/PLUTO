@@ -2,10 +2,14 @@
 	{{#each uiList as |item|}}
 		<div>
 			<span>
-				{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
+				{{item.label}} {{#component (concat "custom-property/" (custom-property-type item.type) )
 					value=(get config item.name)
 					config=config
 					uiItem=item disabled=disabled columns=columns}}
+					{{#if changeset}}
+						FOO!!!
+					{{/if}}
+				{{/component}}
 				{{#if item.tooltip}}
 					{{bs-tooltip title=item.tooltip}}
 				{{/if}}
