@@ -56,12 +56,12 @@ class CheckColumnCount extends TableRuleAPI {
 				tooltip: 'The expected number of columns in the input file.',
 				validations: [
 					{
+						presence: true
+					},
+					{
 						number : {
 							min: 1
 						}
-					},
-					{
-						presence: true
 					}
 				]
 			}

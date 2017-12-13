@@ -1,20 +1,21 @@
-<div class="custom-property-list">
-	{{#each uiList as |item|}}
-		<div>
-			<span>
-				{{item.label}} {{#component (concat "custom-property/" (custom-property-type item.type) )
-					value=(get config item.name)
-					config=config
-					uiItem=item disabled=disabled columns=columns}}
-					{{#if changeset}}
-						FOO!!!
+{{#with (changeset config (action 'validate')) as |changeset|}}
+	<div class="custom-property-list">
+		{{#each uiList as |item|}}
+			<div>
+				<span>
+					{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
+						value=(get changeset item.name)
+						config=changeset
+						uiItem=item disabled=disabled columns=columns}}
+					{{#if (get changeset.error item.name)}}
+						{{get (get changeset.error item.name) 'validation'}}
 					{{/if}}
-				{{/component}}
-				{{#if item.tooltip}}
-					{{bs-tooltip title=item.tooltip}}
-				{{/if}}
-			</span>
-		</div>
-	{{/each}}
-</div>
+					{{#if item.tooltip}}
+						{{bs-tooltip title=item.tooltip}}
+					{{/if}}
+				</span>
+			</div>
+		{{/each}}
+	</div>
+{{/with}}
 {{yield}}
