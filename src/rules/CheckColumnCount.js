@@ -60,7 +60,7 @@ class CheckColumnCount extends TableRuleAPI {
 					},
 					{
 						number : {
-							min: 1
+							gte: 1
 						}
 					}
 				]
