@@ -326,20 +326,42 @@ class CSVParser extends TableParserAPI {
                 name: 'columnNames',
                 label: 'Column names',
                 type: 'list',
-                tooltip: 'The names of the columns; used for column selection in rules'
+                tooltip: 'The names of the columns; used for column selection in rules',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
             },
             {
                 name: 'columnRow',
                 label: 'Row number which contains the column names',
                 type: 'integer',
-                tooltip: 'The row index where the column names are. Usually the first row (1)'
+                tooltip: 'The row index where the column names are. Usually the first row (1)',
+				validations: [
+					{
+						number: {
+							gte: 0,
+							allowBlank: true
+						}
+					}
+				]
             },
             {
                 name: 'numHeaderRows',
                 label: 'Number of Header Rows',
                 type: 'integer',
                 minimum: '0',
-                tooltip: 'The number of rows that contain meta-data (e.g. column names) and not data.'
+                tooltip: 'The number of rows that contain meta-data (e.g. column names) and not data.',
+				validations: [
+					{
+						number: {
+							gte: 0
+						}
+					}
+				]
             },
             {
                 name: 'delimiter',

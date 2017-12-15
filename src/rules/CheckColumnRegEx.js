@@ -66,7 +66,14 @@ class CheckColumnRegEx extends TableRuleAPI {
 				name: 'regex',
 				label: 'Regular Expression',
 				type: 'string',
-				tooltip: 'The regular expression to use to validate the given column.'
+				tooltip: 'The regular expression to use to validate the given column.',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
 			},
 			{
 				name: 'failType',
