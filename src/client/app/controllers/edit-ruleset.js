@@ -105,7 +105,7 @@ export default Ember.Controller.extend( {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'target'
 			});
 		},
@@ -113,7 +113,7 @@ export default Ember.Controller.extend( {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'source'
 			});
 		},
@@ -329,7 +329,7 @@ export default Ember.Controller.extend( {
 
 		getShortDescription(list, itemName) {
 			let item = null;
-			
+
 			if(list) {
 				list.forEach((i) => {
 					if(i.get('filename') == itemName) {
@@ -346,7 +346,7 @@ export default Ember.Controller.extend( {
 
 		getLongDescription(list, itemName) {
 			let item = null;
-			
+
 			if(list) {
 				list.forEach((i) => {
 					if(i.get('filename') == itemName) {
@@ -414,7 +414,7 @@ function save ( ruleset ) {
 			alert( "Successfully saved." );
 		}
 		else if ( xmlHttp.readyState == 4 ) {
-			alert( `Failed to save. Status = ${xmlHttp.status}` );
+			alert( `Could not save:  ${xmlHttp.statusText}` );
 		}
 	};
 

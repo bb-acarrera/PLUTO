@@ -57,7 +57,7 @@
 			  </td>
             <td>{{moment-format runInstance.run.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
             <td>{{runInstance.run.sourcefile}}</td>
-            <td>{{if runInstance.source.group (concat runInstance.source.group ': ')}} {{runInstance.source.description}}</td>
+            <td>{{runInstance.source.description}}</td>
 			<td>{{runInstance.run.group}}</td>
             {{#if runInstance.run.isrunning}}
               <td>running</td>

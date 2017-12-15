@@ -8,7 +8,7 @@
 	<h2>Edit Rules for
 
 		{{#if  model.ruleset.source}}
-			{{source.group}} {{model.ruleset.source.config.file}}
+			{{source.description}} {{model.ruleset.source.config.file}}
 		{{else}}
 			{{model.ruleset.filename}}
 		{{/if}}
@@ -63,7 +63,7 @@ Process URL: {{processURL}}
 							selected=source
 							renderInPlace=true
 							as |sourceChoice|}}
-								{{sourceChoice.rule_id}}: {{sourceChoice.description}}
+								{{sourceChoice.description}}
 							{{/power-select}}
                         </div>
 
@@ -130,7 +130,7 @@ Process URL: {{processURL}}
 								selected=rulesettarget
 								renderInPlace=true
 								as |targetChoice|}}
-									{{targetChoice.rule_id}}: {{targetChoice.description}}
+									{{targetChoice.description}}
 								{{/power-select}}
                             </div>
 

@@ -6,7 +6,7 @@
 
 	<h3>
 		{{#if model.ruleset.source}}
-			{{model.source.group}} {{model.source.description}} {{model.ruleset.source.config.file}}
+			{{model.source.description}} {{model.ruleset.source.config.file}}
 		{{else if model.ruleset.importer}}
 			{{model.run.inputfilename}} from {{model.ruleset.importer.filename}}
 		{{else}}

@@ -99,7 +99,7 @@ export default Ember.Controller.extend({
 		searchTarget(term) {
 			return this.store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'target'
 			});
 		},
