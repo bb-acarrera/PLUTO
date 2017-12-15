@@ -59,7 +59,6 @@ export default Ember.Component.extend({
 						delete state[instanceName];
 					}
 
-					console.log("state has " + Object.keys(state))
 					if (Object.keys(state).length == 1)	{	// If "invalid" is the only key.
 						// There are no invalid rules so the state is not invalid.
 						state.set("invalid", false);

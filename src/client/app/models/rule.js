@@ -43,7 +43,20 @@ export default DS.Model.extend({
 								else
 									validationArgs = validation[key];
 			
-									validators.push(validator(validationArgs));
+								// Special case. Need to compile regex strings.
+								if (key == "format") {
+									let args = Object.keys(validationArgs);
+									for (var i = 0; i < args.length; i++) {
+										let arg = args[i];
+										if (arg == "regex") {
+											let regexStr = validationArgs[arg];
+											if (typeof regexStr == 'string')
+												validationArgs[arg] = new RegExp(regexStr);
+										}
+									}
+								}
+
+								validators.push(validator(validationArgs));
 							}
 							else {
 								console.error(`${fnName} is not a valid validator function.`);
