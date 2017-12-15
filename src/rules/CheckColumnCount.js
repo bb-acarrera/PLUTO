@@ -53,8 +53,17 @@ class CheckColumnCount extends TableRuleAPI {
 				name: 'columns',
 				type: 'integer',
 				label: 'Number of Columns',
-				minimum: '1',
-				tooltip: 'The expected number of columns in the input file.'
+				tooltip: 'The expected number of columns in the input file.',
+				validations: [
+					{
+						presence: true
+					},
+					{
+						number : {
+							gte: 1
+						}
+					}
+				]
 			}
 		]);
 	}
