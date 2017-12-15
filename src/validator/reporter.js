@@ -122,6 +122,7 @@ function generateMessage(ruleset, runId, aborted) {
 
 	const errors = this.errorLogger.getCount(ErrorHandlerAPI.ERROR);
 	const warnings = this.errorLogger.getCount(ErrorHandlerAPI.WARNING);
+	const dropped = this.errorLogger.getCount(ErrorHandlerAPI.DROPPED);
 
 	subject = "PLTUO ";
 	if(aborted) {
@@ -130,12 +131,20 @@ function generateMessage(ruleset, runId, aborted) {
 		subject += "Completed ";
 	}
 
-	subject += ruleset.ruleset_id;
+	if(ruleset.sourceDetails && ruleset.source && ruleset.source.config) {
+		subject += ruleset.sourceDetails.description + ' ' + ruleset.source.config.file;
+	} else {
+		subject += ruleset.ruleset_id;
+	}
+
+
 
 	if(errors > 0) {
-		subject += " with errors"
+		subject += " with errors";
+	} else if(dropped > 0) {
+		subject += " with dropped rows";
 	} else if(warnings > 0) {
-		subject += " with warnings"
+		subject += " with warnings";
 	}
 
 	let protocol = this.validatorConfig.configHostProtocol || 'http';
@@ -145,6 +154,7 @@ function generateMessage(ruleset, runId, aborted) {
 	html = "";
 
 	html += `<p>${errors} errors</p>`;
+	html += `<p>${dropped} dropped rows</p>`;
 	html += `<p>${warnings} warnings</p>`;
 	html += `<p>Review at <a href="${link}">${link}</a></p>`;
 

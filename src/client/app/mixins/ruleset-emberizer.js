@@ -18,7 +18,7 @@ export default Ember.Mixin.create({
 	emberizeRuleset(ruleset) {
 		//Emberize the ruleset
 		const propertiesToConvert = ["import","export","config","parser","general", "source", "target"];
-		const arraysToConvert = ["rules"];
+		const arraysToConvert = ["rules", "reporters"];
 
 		propertiesToConvert.forEach((item) => {
 			const base = ruleset.get(item);

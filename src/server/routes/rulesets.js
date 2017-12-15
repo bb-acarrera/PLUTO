@@ -146,7 +146,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 		const auth = this.getAuth(req);
-		const ruleset = new RuleSet(req.body);
+		const ruleset = new RuleSet(req.body, this.config.rulesLoader);
 
 		function save() {
 			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
@@ -195,7 +195,7 @@ class RulesetRouter extends BaseRouter {
 		if(req.body.ruleset) {
 			req.body.ruleset.filename = new_rulesetId;
 			req.body.ruleset.ruleset_id = new_rulesetId;
-			ruleset = new RuleSet(req.body.ruleset);
+			ruleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
 		} else {
 			ruleset = new RuleSet({
 				filename: new_rulesetId,

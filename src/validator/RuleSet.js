@@ -26,9 +26,6 @@ class RuleSet {
 
 		this.config = ruleset.config;
 
-		this.group = ruleset.group;
-		this.email = ruleset.email;
-
 		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
@@ -163,6 +160,8 @@ class RuleSet {
 					};
 
 					updateConfig(sourceConfig.config, this.source.config, this.import.config);
+					this.sourceDetails = Object.assign({}, sourceConfig);
+					delete this.sourceDetails.config;
 				}
 
 				if(sourceConfig.config.linkedtargetid && !this.target) {
@@ -198,6 +197,9 @@ class RuleSet {
 					};
 
 					updateConfig(targetConfig.config, this.target.config, this.export.config);
+
+					this.targetDetails = Object.assign({}, targetConfig);
+					delete this.targetDetails.config;
 				}
 
 				resolve();
@@ -306,7 +308,7 @@ function addReporters(reporters, rulesLoader) {
 
 	if(reporters) {
 		for (var i = 0; i < reporters.length; i++) {
-			const srcReporter = rules[i];
+			const srcReporter = reporters[i];
 			const dstReporter = {};
 			dstReporter.config = srcReporter.config;
 			dstReporter.filename = srcReporter.filename;
@@ -319,12 +321,12 @@ function addReporters(reporters, rulesLoader) {
 
 	//for reporters, all specified reporters should appear in the ruleset ui
 
-	if(rulesLoader.reporters) {
+	if(rulesLoader && rulesLoader.reporters) {
 
 		rulesLoader.reporters.forEach((reporter) => {
 
 			let hasReporter = this.reporters.filter((rulesetReporter) => {
-				return rulesetReporter.filename === reporter.filename;
+				return rulesetReporter.filename === reporter.id;
 			}).length > 0;
 
 			if(!hasReporter) {
