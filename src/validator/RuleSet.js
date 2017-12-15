@@ -47,6 +47,8 @@ class RuleSet {
 		addGeneralConfig.call(this);
 
 		addRules.call(this, ruleset.rules);
+
+		addReporters.call(this, ruleset.reporters, rulesLoader);
 		
 		this.addParserDefaults(rulesLoader);
 
@@ -296,6 +298,46 @@ function addRules(rules) {
 		this.rules.push(dstRule);
 		this.ruleMap[dstRule.config.id] = dstRule;
 	}
+}
+
+function addReporters(reporters, rulesLoader) {
+	this.reporters = [];
+
+
+	if(reporters) {
+		for (var i = 0; i < reporters.length; i++) {
+			const srcReporter = rules[i];
+			const dstReporter = {};
+			dstReporter.config = srcReporter.config;
+			dstReporter.filename = srcReporter.filename;
+
+
+			this.reporters.push(dstReporter);
+		}
+	}
+
+
+	//for reporters, all specified reporters should appear in the ruleset ui
+
+	if(rulesLoader.reporters) {
+
+		rulesLoader.reporters.forEach((reporter) => {
+
+			let hasReporter = this.reporters.filter((rulesetReporter) => {
+				return rulesetReporter.filename === reporter.filename;
+			}).length > 0;
+
+			if(!hasReporter) {
+				this.reporters.push({
+					filename: reporter.id,
+					config: {}
+				})
+			}
+		});
+	}
+
+
+
 }
 
 function addGeneralConfig() {

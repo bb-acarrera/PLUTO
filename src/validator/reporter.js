@@ -4,53 +4,108 @@ const nodemailer = require('nodemailer');
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 class Reporter {
-	constructor(config, errorLogger) {
-		this.config = config;
-		this.smtpConfig = config.smtpConfig;
+	constructor(validatorConfig, rulesetConfig, errorLogger, rulesLoader) {
+		this.validatorConfig = validatorConfig;
+		this.rulesetConfig = rulesetConfig;
 		this.errorLogger = errorLogger;
 
-		if(this.smtpConfig && this.smtpConfig.host) {
-			this.transporter = nodemailer.createTransport(this.smtpConfig);
+		this.reporters = [];
+		this.reporterInitPromises = [];
 
-			this.reporterOk = true;
-			this.reporter = this.transporter.verify().then((success) => {
-				this.reporterOk = true;
-			}, (error) => {
-				throw error;
-			}).catch((error) => {
-				console.log('Unable to connect to smtp server: ' + error);
-				errorLogger.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, 'Unable to connect to smtp server: ' + error);
-				this.reporterOk = false;
+		validatorConfig.reporters.forEach((reporterConfig) => {
+
+			let rulesetReporterConfigs = rulesetConfig.reporters.filter((rulesetReporterConfig) => {
+					return reporterConfig.filename === rulesetReporterConfig.filename;
+				});
+
+			let rulesetReporterConfig = null;
+
+			if(rulesetReporterConfigs.length > 0) {
+				rulesetReporterConfig = rulesetReporterConfigs[0];
+			}
+
+			let reporterClass = rulesLoader.reportersMap[reporterConfig.filename];
+
+			if(reporterClass) {
+				let reporter = new reporterClass(reporterConfig.config, rulesetReporterConfig.config);
+				this.reporters.push(reporter);
+				this.reporterInitPromises.push(reporter.initialize());
+			}
+
+
+		});
+
+		this.initialized = new Promise((resolve) => {
+
+			let doneCount = 0;
+
+			this.reporterInitPromises.forEach((promise) => {
+				promise.then((reporter) => {
+
+				}, (e) => {
+					errorLogger.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, e);
+				}).catch((e) => {
+					errorLogger.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, e);
+				}).then(() => {
+					doneCount += 1;
+
+					if(doneCount == this.reporterInitPromises.length) {
+						resolve();
+					}
+
+				})
 			});
-		}
+
+
+		}).catch((e) => {
+			errorLogger.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, e);
+
+		})
 
 	}
 
 	sendReport(ruleset, runId, aborted) {
 
+		const message = generateMessage.call(this, ruleset, runId, aborted);
+
 		return new Promise((resolve) => {
-			if(this.reporter && this.reporterOk && ruleset.email) {
-				this.reporter.then(() => {
-					if(this.reporterOk) {
-						sendEmail.call(this, ruleset, runId, aborted).then(() => {
-							resolve();
-						}, () => {
-							resolve();
-						}).catch(() => {
-							resolve();
+
+			let doneCount = 0;
+
+			function done() {
+				doneCount += 1;
+
+				if(doneCount == this.reporterInitPromises.length) {
+					resolve();
+				}
+			}
+
+			this.reporterInitPromises.forEach((promise) => {
+				promise.then((reporter) => {
+
+					if(reporter) {
+						reporter.sendReport(message.subject, message.body).then(() => {
+
+						}, (e) => {
+							console.log('Error sending report: ' + e);
+						}).catch((e) => {
+							console.log('Exception sending report: ' + e);
+						}).then(() => {
+							done.call(this);
 						});
 					} else {
-						resolve();
+						done.call(this);
 					}
 
 				}, () => {
-					resolve();
+					done.call(this);
 				}).catch(() => {
-					resolve();
+					done.call(this);
 				})
-			} else {
-				resolve();
-			}
+			});
+
+
+
 		});
 
 
@@ -59,59 +114,46 @@ class Reporter {
 
 }
 
-function sendEmail(ruleset, runId, aborted) {
 
-	return new Promise((resolve) => {
-		let subject, html;
+function generateMessage(ruleset, runId, aborted) {
 
-		const errors = this.errorLogger.getCount(ErrorHandlerAPI.ERROR);
-		const warnings = this.errorLogger.getCount(ErrorHandlerAPI.WARNING);
 
-		subject = "PLTUO ";
-		if(aborted) {
-			subject += "Failed ";
-		} else {
-			subject += "Completed ";
-		}
+	let subject, html;
 
-		subject += ruleset.ruleset_id;
+	const errors = this.errorLogger.getCount(ErrorHandlerAPI.ERROR);
+	const warnings = this.errorLogger.getCount(ErrorHandlerAPI.WARNING);
 
-		if(errors > 0) {
-			subject += " with errors"
-		} else if(warnings > 0) {
-			subject += " with warnings"
-		}
+	subject = "PLTUO ";
+	if(aborted) {
+		subject += "Failed ";
+	} else {
+		subject += "Completed ";
+	}
 
-		let protocol = this.config.configHostProtocol || 'http';
+	subject += ruleset.ruleset_id;
 
-		let link = `${protocol}://${this.config.configHost}/#/run/${runId}`;
+	if(errors > 0) {
+		subject += " with errors"
+	} else if(warnings > 0) {
+		subject += " with warnings"
+	}
 
-		html = "";
+	let protocol = this.validatorConfig.configHostProtocol || 'http';
 
-		html += `<p>${errors} errors</p>`;
-		html += `<p>${warnings} warnings</p>`;
-		html += `<p>Review at <a href="${link}">${link}</a></p>`;
+	let link = `${protocol}://${this.validatorConfig.configHost}/#/run/${runId}`;
 
-		var message = {
-			from: this.config.emailFrom,
-			to: ruleset.email,
-			subject: subject,
-			html: html
-		};
+	html = "";
 
-		this.transporter.sendMail(message).then((info) => {
-			if(this.smtpConfig.host == 'smtp.ethereal.email') {
-				console.log('Preview URL: ' + nodemailer.getTestMessageUrl(info));
-			}
+	html += `<p>${errors} errors</p>`;
+	html += `<p>${warnings} warnings</p>`;
+	html += `<p>Review at <a href="${link}">${link}</a></p>`;
 
-		}, (error) => {
-			throw error;
-		}).catch((error) => {
-			console.log('Error sending report email: ' + error);
-		}).then(() => {
-			resolve();
-		})
-	});
+	return  {
+		subject: subject,
+		body: html
+	};
+
+
 
 
 }

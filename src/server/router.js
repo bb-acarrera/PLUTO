@@ -32,6 +32,7 @@ class Router {
 		this._router.get('/importers', (req, res, next) => this.rulesRouter.getImporters(req, res, next));
 		this._router.get('/exporters', (req, res, next) => this.rulesRouter.getExporters(req, res, next));
 		this._router.get('/rulesetconfiguis', (req, res, next) => this.rulesRouter.getRulesetConfigUI(req, res, next));
+		this._router.get('/reporters', (req, res, next) => this.rulesRouter.getReporters(req, res, next));
 
 		this._router.get('/runs/:id', (req, res, next) => this.runsRouter.get(req, res, next));
 		this._router.get('/runs', (req, res, next) => this.runsRouter.get(req, res, next));

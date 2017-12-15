@@ -11,12 +11,14 @@ class RuleLoader {
 		this.parsers = [];
 		this.importers = [];
 		this.exporters = [];
+		this.reporters = [];
 
 		this.rulesMap = {};
 		this.parsersMap = {};
 		this.importersMap = {};
 		this.exportersMap = {};
 		this.rulePropertiesMap = {};
+		this.reportersMap = {};
 
 		this.classMap = {};
 
@@ -84,6 +86,12 @@ class RuleLoader {
 		if (manifest.exporters) {
 			manifest.exporters.forEach((item) => {
 				loadItem(item, 'exporter', this.exporters, this.exportersMap);
+			});
+		}
+
+		if (manifest.reporters) {
+			manifest.reporters.forEach((item) => {
+				loadItem(item, 'reporter', this.reporters, this.reportersMap);
 			});
 		}
 
