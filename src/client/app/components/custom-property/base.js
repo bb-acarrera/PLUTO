@@ -60,8 +60,10 @@ export default Ember.Component.extend({
 					}
 
 					console.log("state has " + Object.keys(state))
-					if (Object.keys(state).length == 1)	// If "invalid" is the only key.
+					if (Object.keys(state).length == 1)	{	// If "invalid" is the only key.
+						// There are no invalid rules so the state is not invalid.
 						state.set("invalid", false);
+					}
 
 					// TODO: Refactor to be a function.
 				}

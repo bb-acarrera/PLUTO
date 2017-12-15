@@ -8,7 +8,8 @@
 					uiItem=item disabled=disabled columns=columns
 					validators=validators state=state}}
 				{{#if (get (get state instanceName) item.name)}}
-					{{get (get state instanceName) item.name}}
+					<!-- Show an error message if there is one. -->
+					<span class="error-message error-color">{{get (get state instanceName) item.name}}</span>
 				{{/if}}
 				{{#if item.tooltip}}
 					{{bs-tooltip title=item.tooltip}}

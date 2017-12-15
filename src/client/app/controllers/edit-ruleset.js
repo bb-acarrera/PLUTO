@@ -31,6 +31,7 @@ export default Ember.Controller.extend( {
 	poll: Ember.inject.service(),
 
 	ruleValidationStates: Ember.computed('model.ruleset', function() {
+		// Use "invalid" rather than "valid" to make testing for "disable" easier. (i.e. don't need to negate the value to determine the disable state.)
 		return Ember.Object.create({ invalid : false });
 	}),
 

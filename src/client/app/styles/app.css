@@ -165,6 +165,10 @@ tr.error-row {
   margin-top: 2px;
 }
 
+.error-message {
+	padding-left: 10px;
+}
+
 /* Conflicts with the selection background coloring.
 /* tr:nth-child(even) {
   background-color: #f2f2f2;
