@@ -4,8 +4,13 @@
 			<span>
 				{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
 					value=(get config item.name)
-					config=config
-					uiItem=item disabled=disabled columns=columns}}
+					config=config instanceName=instanceName
+					uiItem=item disabled=disabled columns=columns
+					validators=validators state=state}}
+				{{#if (get (get state instanceName) item.name)}}
+					<!-- Show an error message if there is one. -->
+					<span class="error-message error-color">{{get (get state instanceName) item.name}}</span>
+				{{/if}}
 				{{#if item.tooltip}}
 					{{bs-tooltip title=item.tooltip}}
 				{{/if}}

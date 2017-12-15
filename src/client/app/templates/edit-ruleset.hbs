@@ -315,6 +315,9 @@ Process URL: {{processURL}}
 				config=(get ruleInstance "config")
 				disabled=disableEdit
 				columns=columns
+				validators=(compute (action "getUiValidators") model.rules ruleInstance.filename)
+				state=ruleValidationStates
+				instanceName=ruleInstance.filename
 				}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
@@ -345,7 +348,7 @@ Process URL: {{processURL}}
         </span>
 
 		<span style="float: right">
-			{{#bs-button onClick=(action "saveRuleSet" model.ruleset)}}
+			{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=ruleValidationStates.invalid}}
                 Save RuleSet
 			{{/bs-button}}
 		</span>
