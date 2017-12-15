@@ -9,6 +9,7 @@ export default Ember.Component.extend({
 		const ruleValidators = this.get('validators');
 		const state = this.get('state');
 		const instanceName = this.get('instanceName');
+		const errorObject = this.get('errorObject');
 
 		var validators;
 		if (ruleValidators) {
@@ -43,9 +44,15 @@ export default Ember.Component.extend({
 						ruleState.set(itemName, result);
 						state.set("invalid", true);
 						
+						if (errorObject)
+							errorObject.set('error', result);
+
 						return;		// Remember the first error for this ui property only.
 					}
 				}
+
+				if (errorObject)
+					errorObject.set('error', undefined);
 
 				// No failures so remove this item from the state, if it's there, and do any cleanup
 				if (ruleState) {

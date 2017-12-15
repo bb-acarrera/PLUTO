@@ -1,22 +1,24 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
-		<div>
-			<span>
-				{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
-					value=(get config item.name)
-					config=config instanceName=instanceName
-					uiItem=item disabled=disabled columns=columns
-					validators=validators state=state}}
-				{{#if (get (get state instanceName) item.name)}}
-					<!-- Show an error message if there is one. -->
-					<span class="error-message error-color">{{get (get state instanceName) item.name}}</span>
-					{{log (get (get state instanceName) item.name)}}
-				{{/if}}
-				{{#if item.tooltip}}
-					{{bs-tooltip title=item.tooltip}}
-				{{/if}}
-			</span>
-		</div>
+		{{#with (create-object) as |errorObject|}}
+			<div>
+				<span>
+					{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
+						value=(get config item.name)
+						config=config instanceName=instanceName
+						uiItem=item disabled=disabled columns=columns
+						errorObject=errorObject
+						validators=validators state=state}}
+					{{#if errorObject.error}}
+						<!-- Show an error message if there is one. -->
+						<span class="error-message error-color">{{errorObject.error}}</span>
+					{{/if}}
+					{{#if item.tooltip}}
+						{{bs-tooltip title=item.tooltip}}
+					{{/if}}
+				</span>
+			</div>
+		{{/with}}
 	{{/each}}
 </div>
 {{yield}}
