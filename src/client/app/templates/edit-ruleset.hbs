@@ -208,6 +208,9 @@ Process URL: {{processURL}}
 				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
 				config=model.ruleset.import.config
 				disabled=disableEdit
+				validators=(compute (action "getUiValidators") model.importers model.ruleset.import.filename)
+				state=ruleValidationStates
+				instanceName="import"
 				columns=columns}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
@@ -235,6 +238,9 @@ Process URL: {{processURL}}
 				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
 				config=model.ruleset.export.config
 				disabled=disableEdit
+				validators=(compute (action "getUiValidators") model.exporters model.ruleset.export.filename)
+				state=ruleValidationStates
+				instanceName="export"
 				columns=columns}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
