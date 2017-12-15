@@ -12,32 +12,39 @@ class Reporter {
 		this.reporters = [];
 		this.reporterInitPromises = [];
 
-		validatorConfig.reporters.forEach((reporterConfig) => {
+		if(validatorConfig && validatorConfig.reporters) {
+			validatorConfig.reporters.forEach((reporterConfig) => {
 
-			let rulesetReporterConfigs = rulesetConfig.reporters.filter((rulesetReporterConfig) => {
+				let rulesetReporterConfigs = rulesetConfig.reporters.filter((rulesetReporterConfig) => {
 					return reporterConfig.filename === rulesetReporterConfig.filename;
 				});
 
-			let rulesetReporterConfig = null;
+				let rulesetReporterConfig = null;
 
-			if(rulesetReporterConfigs.length > 0) {
-				rulesetReporterConfig = rulesetReporterConfigs[0];
-			}
+				if(rulesetReporterConfigs.length > 0) {
+					rulesetReporterConfig = rulesetReporterConfigs[0];
+				}
 
-			let reporterClass = rulesLoader.reportersMap[reporterConfig.filename];
+				let reporterClass = rulesLoader.reportersMap[reporterConfig.filename];
 
-			if(reporterClass) {
-				let reporter = new reporterClass(reporterConfig.config, rulesetReporterConfig.config);
-				this.reporters.push(reporter);
-				this.reporterInitPromises.push(reporter.initialize());
-			}
+				if(reporterClass) {
+					let reporter = new reporterClass(reporterConfig.config, rulesetReporterConfig.config);
+					this.reporters.push(reporter);
+					this.reporterInitPromises.push(reporter.initialize());
+				}
 
 
-		});
+			});
+		}
 
 		this.initialized = new Promise((resolve) => {
 
 			let doneCount = 0;
+
+			if(this.reporterInitPromises.length == 0) {
+				resolve();
+				return;
+			}
 
 			this.reporterInitPromises.forEach((promise) => {
 				promise.then((reporter) => {
@@ -69,6 +76,11 @@ class Reporter {
 		const message = generateMessage.call(this, ruleset, runId, aborted);
 
 		return new Promise((resolve) => {
+
+			if(this.reporterInitPromises.length == 0) {
+				resolve();
+				return;
+			}
 
 			let doneCount = 0;
 
@@ -147,9 +159,14 @@ function generateMessage(ruleset, runId, aborted) {
 		subject += " with warnings";
 	}
 
-	let protocol = this.validatorConfig.configHostProtocol || 'http';
+	let link = "";
 
-	let link = `${protocol}://${this.validatorConfig.configHost}/#/run/${runId}`;
+	if(this.validatorConfig) {
+		let protocol = this.validatorConfig.configHostProtocol || 'http';
+
+		link = `${protocol}://${this.validatorConfig.configHost}/#/run/${runId}`;
+	}
+
 
 	html = "";
 

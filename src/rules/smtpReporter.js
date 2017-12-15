@@ -2,18 +2,17 @@
 const nodemailer = require('nodemailer');
 
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
-const ReporterAPI = require("../api/ReporterAPI");
+const ReporterAPI = require("../api/reporterAPI");
 
 class SmtpReporter extends ReporterAPI {
 	constructor(validatorConfig, rulesetConfig) {
 		super(validatorConfig, rulesetConfig);
 		this.smtpConfig = this.validatorConfig.smtpConfig;
-
 	}
 
 	initialize() {
 		return new Promise((resolve, reject) => {
-			if(this.smtpConfig && this.smtpConfig.host && this.rulesetConfig.email) {
+			if(this.smtpConfig && this.smtpConfig.host && this.rulesetConfig && this.rulesetConfig.email) {
 				this.transporter = nodemailer.createTransport(this.smtpConfig);
 
 				this.transporter.verify().then((success) => {
@@ -33,9 +32,9 @@ class SmtpReporter extends ReporterAPI {
 
 	sendReport(subject, body) {
 
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 
-			if(!this.rulesetConfig.email || this.rulesetConfig.email.length == 0) {
+			if(!this.smtpConfig || !this.rulesetConfig.email || this.rulesetConfig.email.length == 0) {
 				resolve();
 				return;
 			}

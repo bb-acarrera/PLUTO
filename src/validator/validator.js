@@ -511,11 +511,12 @@ class Validator {
 
 	finalize() {
 		return new Promise((resolve) => {
-			this.reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+			function saveRunRecord() {
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
 					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
 					!this.abort, this.summary)
-					.then(() => {}, (error) => console.log('error saving run: ' + error))
+					.then(() => {
+					}, (error) => console.log('error saving run: ' + error))
 					.catch((e) => console.log('Exception saving run: ' + e))
 					.then(() => {
 						if (this.reporter && !this.config.testOnly)
@@ -523,7 +524,17 @@ class Validator {
 						this.cleanup();
 						resolve();
 					});
-			});
+			}
+
+			if(this.reporter && this.reporter.initialized) {
+				this.reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+					saveRunRecord.call(this);
+				});
+			} else {
+				saveRunRecord.call(this);
+			}
+
+
 
 		});
 	}
