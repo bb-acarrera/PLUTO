@@ -70,8 +70,6 @@ export default Ember.Component.extend({
 						// There are no invalid rules so the state is not invalid.
 						state.set("invalid", false);
 					}
-
-					// TODO: Refactor to be a function.
 				}
 			}
 		}
