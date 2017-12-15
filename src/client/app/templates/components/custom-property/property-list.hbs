@@ -11,8 +11,6 @@
 					<!-- Show an error message if there is one. -->
 					<span class="error-message error-color">{{get (get state instanceName) item.name}}</span>
 					{{log (get (get state instanceName) item.name)}}
-				{{else}}
-					NO ERROR!
 				{{/if}}
 				{{#if item.tooltip}}
 					{{bs-tooltip title=item.tooltip}}
