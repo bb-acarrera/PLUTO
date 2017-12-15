@@ -5,6 +5,12 @@ export default Ember.Component.extend({
 	router: Ember.inject.service(),
 	sourceConfig: {},
 	targetConfig: {},
+
+	ruleValidationStates: Ember.computed('ruleset', function() {
+		// Use "invalid" rather than "valid" to make testing for "disable" easier. (i.e. don't need to negate the value to determine the disable state.)
+		return Ember.Object.create({ invalid : false });
+	}),
+
 	actions: {
 		searchTarget(term) {
 			const store = this.get('store');

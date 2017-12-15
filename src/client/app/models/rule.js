@@ -46,8 +46,8 @@ export default DS.Model.extend({
 								// Special case. Need to compile regex strings.
 								if (key == "format") {
 									let args = Object.keys(validationArgs);
-									for (var i = 0; i < args.length; i++) {
-										let arg = args[i];
+									for (var k = 0; k < args.length; k++) {
+										let arg = args[k];
 										if (arg == "regex") {
 											let regexStr = validationArgs[arg];
 											if (typeof regexStr == 'string')

@@ -60,7 +60,24 @@ class LocalCopyImport {
                 name: 'file',
                 label: 'Source file path',
                 type: 'string',
-                tooltip: 'The full path (or partial path with a base) to where the file to process is located'
+                tooltip: 'The full path (or partial path with a base) to where the file to process is located',
+				validations: [
+					{
+						presence: true
+					},
+					{
+						format: {
+							regex: "^\\S",
+							message: "{description} may not begin with whitespace"
+						}
+					},
+					{
+						format : {
+							regex: "^(.*\\/)?\\w{1,35}\\.(csv|geojson|zip)$",
+							message: "{description} must contain only [a-zA-Z0-9_] (at most 35) and end with .csv, .geojson, or .zip"
+						}
+					}
+				]
             },
             {
                 name: 'base',
