@@ -38,6 +38,8 @@ class RulesetRouter extends BaseRouter {
 					return;
 				}
 
+				ruleset.addMissingData(this.config.validatorConfig);
+
 				var rules = [];
 				for (var i = 0; i < ruleset.rules.length; i++) {
 					const rule = ruleset.rules[i];
@@ -107,6 +109,9 @@ class RulesetRouter extends BaseRouter {
 				let rawRulesets = result.rulesets;
 
 				rawRulesets.forEach(ruleset => {
+
+					ruleset.addMissingData(this.config.validatorConfig);
+
 					ruleset["ruleset-id"] = ruleset.ruleset_id;
 					delete ruleset.ruleset_id;
 
@@ -196,6 +201,7 @@ class RulesetRouter extends BaseRouter {
 			req.body.ruleset.filename = new_rulesetId;
 			req.body.ruleset.ruleset_id = new_rulesetId;
 			ruleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
+			ruleset.addMissingData(this.config.validatorConfig);
 		} else {
 			ruleset = new RuleSet({
 				filename: new_rulesetId,

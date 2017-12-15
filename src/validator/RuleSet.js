@@ -45,7 +45,7 @@ class RuleSet {
 
 		addRules.call(this, ruleset.rules);
 
-		addReporters.call(this, ruleset.reporters, rulesLoader);
+		addReporters.call(this, ruleset.reporters);
 		
 		this.addParserDefaults(rulesLoader);
 
@@ -211,6 +211,14 @@ class RuleSet {
 		return this.ruleMap[ruleId];
 	}
 
+	addMissingData(validatorConfig) {
+
+		if(validatorConfig) {
+			addMissingReporters.call(this, validatorConfig.reporters);
+		}
+
+	}
+
 	// toJSON() {
 	// 	const ruleset = {};
 	// 	ruleset.name = this.name;
@@ -302,9 +310,8 @@ function addRules(rules) {
 	}
 }
 
-function addReporters(reporters, rulesLoader) {
+function addReporters(reporters) {
 	this.reporters = [];
-
 
 	if(reporters) {
 		for (var i = 0; i < reporters.length; i++) {
@@ -318,28 +325,27 @@ function addReporters(reporters, rulesLoader) {
 		}
 	}
 
+}
 
-	//for reporters, all specified reporters should appear in the ruleset ui
+function  addMissingReporters(validatorConfigReporters) {
+	//for reporters, all specified reporters in the validator config should appear in the ruleset ui
 
-	if(rulesLoader && rulesLoader.reporters) {
+	if(validatorConfigReporters) {
 
-		rulesLoader.reporters.forEach((reporter) => {
+		validatorConfigReporters.forEach((reporter) => {
 
 			let hasReporter = this.reporters.filter((rulesetReporter) => {
-				return rulesetReporter.filename === reporter.id;
-			}).length > 0;
+					return rulesetReporter.filename === reporter.filename;
+				}).length > 0;
 
 			if(!hasReporter) {
 				this.reporters.push({
-					filename: reporter.id,
+					filename: reporter.filename,
 					config: {}
 				})
 			}
 		});
 	}
-
-
-
 }
 
 function addGeneralConfig() {

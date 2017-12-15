@@ -14,6 +14,13 @@
 	"dbPort" : "5432",
 	"configHost": "localhost:3000",
 	"configHostProtocol": "http",
-	"smtpConfig": {},
-	"emailFrom": "\"PLUTO\" <no-reply@localhost>"
+	"reporters": [
+		{
+			"filename": "smtpReporter",
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {}
+			}
+		}
+	]
 }
