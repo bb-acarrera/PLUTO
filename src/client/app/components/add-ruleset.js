@@ -21,12 +21,6 @@ export default Ember.Component.extend({
 		return invalid;
 	}),
 
-	/*
-	rulesetChanged: Ember.observer('ruleset', function() {
-		this.set('errorStates', [])
-	}),
-	*/
-
 	actions: {
 		searchTarget(term) {
 			const store = this.get('store');
