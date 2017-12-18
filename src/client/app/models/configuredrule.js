@@ -1,5 +1,6 @@
 import DS from 'ember-data';
 import { validator, buildValidations } from 'ember-cp-validations';
+import RuleValidatorGenerator from '../mixins/rule-validator-generator';
 
 //see http://offirgolan.github.io/ember-cp-validations/
 
@@ -12,7 +13,7 @@ const Validations = buildValidations({
 	]
 });
 
-export default DS.Model.extend(Validations, {
+export default DS.Model.extend(Validations, RuleValidatorGenerator, {
 	description : DS.attr('string'),
 	rule_id : DS.attr('string'),
 	database_id : DS.attr('string'),

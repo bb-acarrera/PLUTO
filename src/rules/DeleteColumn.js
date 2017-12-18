@@ -43,7 +43,12 @@ class DeleteColumn extends TableRuleAPI {
 				name: 'column',
 				label: 'Column To Delete',
 				type: 'column',
-				tooltip: 'The column label for the column to delete.'
+				tooltip: 'The column label for the column to delete.',
+				validations: [
+					{
+						presence: true
+					}
+				]
 			}
 		]);
 	}

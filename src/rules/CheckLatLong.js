@@ -89,8 +89,15 @@ class CheckLatLong extends TableRuleAPI {
 				name: 'nullEpsilon',
 				label: 'Null Island Epsilon',
 				type: 'float',
-				minimum: '0',
-				tooltip: 'The amount of error permitted around the null island test.'
+				tooltip: 'The amount of error permitted around the null island test.',
+				validations: [
+					{
+						number: {
+							gt: 0,
+							lt: 1
+						}
+					}
+				]
 			}
 		]);
 	}

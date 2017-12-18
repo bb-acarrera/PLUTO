@@ -5,6 +5,22 @@ export default Ember.Component.extend({
 	router: Ember.inject.service(),
 	sourceConfig: {},
 	targetConfig: {},
+
+
+	errorStates: [],
+	invalid: Ember.computed('errorStates.@each.invalid', function() {
+
+		let invalid = false;
+
+		this.get('errorStates').forEach((state) => {
+			if(state.get('invalid')) {
+				invalid = true;
+			}
+		});
+
+		return invalid;
+	}),
+
 	actions: {
 		searchTarget(term) {
 			const store = this.get('store');

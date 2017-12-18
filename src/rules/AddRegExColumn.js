@@ -105,13 +105,27 @@ class AddRegExColumn extends TableRuleAPI {
 				name: 'newColumn',
 				label: 'New Column Name',
 				type: 'string',
-				tooltip: 'The name of the new column.'
+				tooltip: 'The name of the new column.',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
 			},
 			{
 				name: 'regex',
 				label: 'Regular Expression',
 				type: 'string',
-				tooltip: 'The regular expression to use to generate the new column.'
+				tooltip: 'The regular expression to use to generate the new column.',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
 			},
 			{
 				name: 'failType',
