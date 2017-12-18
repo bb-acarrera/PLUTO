@@ -36,7 +36,21 @@ function massageRule(rule, rulesLoader) {
 
 		if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
 			baseRule.attributes.ui.properties.forEach((prop) => {
-				if(rule.config[prop.name] == null && prop.private !== true && prop.hidden !== true) {
+
+				let propValue = rule.config[prop.name];
+				let propHasValue = false;
+
+				if(propValue != null) {
+					if(typeof propValue === 'string') {
+						if(propValue.length > 0) {
+							propHasValue = true;
+						}
+					} else {
+						propHasValue = true;
+					}
+				}
+
+				if( !propHasValue && prop.private !== true && prop.hidden !== true) {
 					rule.ui.properties.push(prop);
 				}
 			});
