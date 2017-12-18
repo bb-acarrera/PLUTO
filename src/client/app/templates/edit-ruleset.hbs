@@ -92,6 +92,9 @@ Process URL: {{processURL}}
 				{{component 'custom-property.property-list' uiList=source.ui.properties
 				config=model.ruleset.source.config
 				disabled=disableEdit
+				validators=source.validators
+				state=errorStates
+				instanceName='source'
 				columns=columns}}
 
 			{{/if}}
@@ -157,6 +160,9 @@ Process URL: {{processURL}}
 					{{component 'custom-property.property-list' uiList=rulesettarget.ui.properties
 					config=model.ruleset.target.config
 					disabled=disableEdit
+					validators=rulesettarget.validators
+					state=errorStates
+					instanceName='target'
 					columns=columns}}
 
 				{{/if}}
@@ -189,7 +195,7 @@ Process URL: {{processURL}}
 				config=model.ruleset.import.config
 				disabled=disableEdit
 				validators=(compute (action "getUiValidators") model.importers model.ruleset.import.filename)
-				state=ruleValidationStates
+				state=errorStates
 				instanceName="import"
 				columns=columns}}
 			{{/c.collapsable}}
@@ -219,7 +225,7 @@ Process URL: {{processURL}}
 				config=model.ruleset.export.config
 				disabled=disableEdit
 				validators=(compute (action "getUiValidators") model.exporters model.ruleset.export.filename)
-				state=ruleValidationStates
+				state=errorStates
 				instanceName="export"
 				columns=columns}}
 			{{/c.collapsable}}
@@ -247,6 +253,9 @@ Process URL: {{processURL}}
 			uiList=(compute (action "getUiProperties") model.parsers model.ruleset.parser.filename)
 			config=model.ruleset.parser.config
 			disabled=disableEdit
+			validators=(compute (action "getUiValidators") model.parsers model.ruleset.parser.filename)
+			state=errorStates
+			instanceName="import"
 			columns=columns}}
 		{{/c.collapsable}}
 	{{/edit-ruleset/collapse}}
@@ -263,6 +272,9 @@ Process URL: {{processURL}}
 			uiList=(compute (action "getUiProperties") model.rulesetconfiguis model.ruleset.general.filename)
 			config=model.ruleset.general.config
 			disabled=disableEdit
+			validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.general.filename)
+			state=errorStates
+			instanceName="generalConfig"
 			columns=columns}}
 		{{/c.collapsable}}
 
@@ -322,7 +334,7 @@ Process URL: {{processURL}}
 				disabled=disableEdit
 				columns=columns
 				validators=(compute (action "getUiValidators") model.rules ruleInstance.filename)
-				state=ruleValidationStates
+				state=errorStates
 				instanceName=ruleInstance.filename
 				}}
 			{{/c.collapsable}}
@@ -354,7 +366,7 @@ Process URL: {{processURL}}
         </span>
 
 		<span style="float: right">
-			{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=ruleValidationStates.invalid}}
+			{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
                 Save RuleSet
 			{{/bs-button}}
 		</span>

@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import moment from 'moment';
-import * as Validators from 'ember-changeset-validations/validators';
 
 function startPolling(id) {
 	this.set("processing", true);
@@ -30,9 +29,23 @@ export default Ember.Controller.extend( {
 
 	poll: Ember.inject.service(),
 
-	ruleValidationStates: Ember.computed('model.ruleset', function() {
-		// Use "invalid" rather than "valid" to make testing for "disable" easier. (i.e. don't need to negate the value to determine the disable state.)
-		return Ember.Object.create({ invalid : false });
+	errorStates: [],
+	invalid: Ember.computed('errorStates.@each.invalid', function() {
+
+		let invalid = false;
+
+		this.get('errorStates').forEach((state) => {
+			if(state.get('invalid')) {
+				invalid = true;
+			}
+		});
+
+		return invalid;
+	}),
+
+
+	rulesetChanged: Ember.observer('ruleset', function() {
+		this.set('errorStates', [])
 	}),
 
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
