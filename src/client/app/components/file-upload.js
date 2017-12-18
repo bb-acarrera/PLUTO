@@ -16,7 +16,7 @@ export default Ember.Component.extend({
                 uploader.upload( files[ 0 ], { ruleset: this.get( 'ruleset' ) } ).then( data => {
                     this.get( 'completion' )( data.runId );
                 }, error => {
-                    // Handle failure
+                    alert(error);
                 } );
             }
 

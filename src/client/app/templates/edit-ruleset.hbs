@@ -113,7 +113,7 @@ Process URL: {{processURL}}
 				config=model.ruleset.source.config
 				disabled=disableEdit
 				validators=source.validators
-				state=errorStates
+				state=propStates
 				instanceName='source'
 				columns=columns}}
 
@@ -181,7 +181,7 @@ Process URL: {{processURL}}
 					config=model.ruleset.target.config
 					disabled=disableEdit
 					validators=rulesettarget.validators
-					state=errorStates
+					state=propStates
 					instanceName='target'
 					columns=columns}}
 
@@ -215,7 +215,7 @@ Process URL: {{processURL}}
 				config=model.ruleset.import.config
 				disabled=disableEdit
 				validators=(compute (action "getUiValidators") model.importers model.ruleset.import.filename)
-				state=errorStates
+				state=propStates
 				instanceName="import"
 				columns=columns}}
 			{{/c.collapsable}}
@@ -245,7 +245,7 @@ Process URL: {{processURL}}
 				config=model.ruleset.export.config
 				disabled=disableEdit
 				validators=(compute (action "getUiValidators") model.exporters model.ruleset.export.filename)
-				state=errorStates
+				state=propStates
 				instanceName="export"
 				columns=columns}}
 			{{/c.collapsable}}
@@ -274,7 +274,7 @@ Process URL: {{processURL}}
 			config=model.ruleset.parser.config
 			disabled=disableEdit
 			validators=(compute (action "getUiValidators") model.parsers model.ruleset.parser.filename)
-			state=errorStates
+			state=propStates
 			instanceName="import"
 			columns=columns}}
 		{{/c.collapsable}}
@@ -293,7 +293,7 @@ Process URL: {{processURL}}
 			config=model.ruleset.general.config
 			disabled=disableEdit
 			validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.general.filename)
-			state=errorStates
+			state=propStates
 			instanceName="generalConfig"
 			columns=columns}}
 		{{/c.collapsable}}
@@ -354,8 +354,8 @@ Process URL: {{processURL}}
 				disabled=disableEdit
 				columns=columns
 				validators=(compute (action "getUiValidators") model.rules ruleInstance.filename)
-				state=errorStates
-				instanceName=ruleInstance.filename
+				state=propStates
+				instanceName=(concat "rule" ruleInstance.filename)
 				}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
@@ -396,13 +396,21 @@ Process URL: {{processURL}}
 </div>
 
 {{#unless processing}}
-	{{#bs-button onClick=(action "testRuleset")}}
+	{{#bs-button onClick=(action "testRuleset") disabled=changed}}
         Test Ruleset
 	{{/bs-button}}
-    <div class="fileUpload btn btn-default">
+    <span class={{concat "fileUpload btn btn-default " (if changed "disabled" )}}>
         <span>Test Ruleset from local file</span>
-		{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
-    </div>
+
+		{{#unless changed}}
+			{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
+		{{/unless}}
+    </span>
+
+	{{#if changed}}
+		You must save your changes before you can test them
+	{{/if}}
+
 {{/unless}}
 
 {{#if processing}}

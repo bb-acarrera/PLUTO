@@ -3,7 +3,7 @@ import Base from './base';
 
 export default Base.extend({
 	listValue: Ember.computed('value', {
-		get(key) {
+		get() {
 			const list = this.get('value');
 
 			if(!Array.isArray(list)) {

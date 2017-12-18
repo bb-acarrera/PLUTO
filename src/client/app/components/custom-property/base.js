@@ -99,6 +99,16 @@ function setError(stateList, itemName, instanceName) {
 
 }
 
+function setChanged(stateList, itemName, instanceName) {
+
+	let state = findOrCreateState(stateList, itemName, instanceName);
+
+	if(state) {
+		state.set('changed', true);
+	}
+
+}
+
 export default Ember.Component.extend({
 	tagName: "",
 	init() {
@@ -154,6 +164,8 @@ export default Ember.Component.extend({
 				oldValue = config[itemName];
 				config[itemName] = value;
 			}
+
+			setChanged(stateList, itemName, instanceName);
 
 			validate.call(this, ruleValidators, stateList, instanceName, itemName, value, oldValue, errorObject);
 		}

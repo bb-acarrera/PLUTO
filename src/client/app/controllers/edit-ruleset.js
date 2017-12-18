@@ -29,12 +29,12 @@ export default Ember.Controller.extend( {
 
 	poll: Ember.inject.service(),
 
-	errorStates: [],
-	invalid: Ember.computed('errorStates.@each.invalid', function() {
+	propStates: [],
+	invalid: Ember.computed('propStates.@each.invalid', function() {
 
 		let invalid = false;
 
-		this.get('errorStates').forEach((state) => {
+		this.get('propStates').forEach((state) => {
 			if(state.get('invalid')) {
 				invalid = true;
 			}
@@ -43,9 +43,22 @@ export default Ember.Controller.extend( {
 		return invalid;
 	}),
 
+	changed:  Ember.computed('propStates.@each.changed', function() {
+
+		let changed = false;
+
+		this.get('propStates').forEach((state) => {
+			if(state.get('changed')) {
+				changed = true;
+			}
+		});
+
+		return changed;
+	}),
+
 
 	rulesetChanged: Ember.observer('ruleset', function() {
-		this.set('errorStates', [])
+		this.set('propStates', [])
 	}),
 
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
