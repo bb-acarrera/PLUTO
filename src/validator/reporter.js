@@ -136,7 +136,7 @@ function generateMessage(ruleset, runId, aborted) {
 	const warnings = this.errorLogger.getCount(ErrorHandlerAPI.WARNING);
 	const dropped = this.errorLogger.getCount(ErrorHandlerAPI.DROPPED);
 
-	subject = "PLTUO ";
+	subject = "PLUTO ";
 	if(aborted) {
 		subject += "Failed ";
 	} else {
