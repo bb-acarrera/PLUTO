@@ -51,18 +51,6 @@ class LocalCopyImport {
 				validations: [
 					{
 						presence: true
-					},
-					{
-						format: {
-							regex: "^\\S",
-							message: "{description} may not begin with whitespace"
-						}
-					},
-					{
-						format : {
-							regex: "^(.*\\/)?\\w{1,35}\\.(csv|geojson|zip)$",
-							message: "{description} must contain only [a-zA-Z0-9_] (at most 35) and end with .csv, .geojson, or .zip"
-						}
 					}
 				]
 			},
