@@ -18,13 +18,51 @@ The hostname of the sever host the PLUTO web server.  This is used by the emaile
 #### configHostProtocol
 The protocol to use in generated links to the PLUTO web server. Defaults to "http" if not set.
 
-#### smtpConfig
+#### reporters
+Reporters are plugins that send a summary of a processed file's results, such as sending an email. By default, PLUTO
+comes with an email reporter that can be configured to connect to an smtp server to send emails.
+
+On the config object, reporters must be an array of object, with each object being a unique reporter type. You can learn
+more about building custom reporters (or other plugins) in the Plugins documentation (TODO). The structure should look like:
+
+```
+{ ...
+    "reporters" : [
+        {
+            "filename": "a reporter", //the name of the reporter as specified in the manifest
+            "config": {} //all the configuration specific to this reporter
+        }
+    ]
+```
+
+##### smtpReporter
+The smtpReporter is a reporter plugin included with the default PLUTO that can be used to send email summaries of processed
+files. The configuration in validatorConfig.json should look like:
+
+```
+{ ...
+    "reporters": [
+		{
+			"filename": "smtpReporter",
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {}
+			}
+		}
+	]
+}
+```
+
+It's properties are:
+
+###### smtpConfig
 This configures the connection to the smtp server so that emails can be sent from the validator once processing is complete.
 PLUTO uses Nodemailer's (https://nodemailer.com) smtp transport, and smtpConfig is passed directly to createTransport. 
 Details on configuration can be found at https://nodemailer.com/smtp/
 
-#### emailFrom
+###### emailFrom
 This is what will appear in the From on sent emails
+
 
 ## Processing a file
 

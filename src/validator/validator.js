@@ -3,14 +3,12 @@
  */
 const fs = require('fs-extra');
 const path = require("path");
-const program = require("commander");
 const rimraf = require('rimraf');
 const stream = require('stream');
 
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
 const Util = require("../common/Util");
-const Data = require("../common/dataDb");
 
 const ErrorLogger = require("./ErrorLogger");
 const RuleSet = require("./RuleSet");
@@ -18,8 +16,6 @@ const RuleSet = require("./RuleSet");
 const RuleLoader = require('../common/ruleLoader');
 
 const Reporter = require('./reporter');
-
-const version = '0.1'; //require("../../package.json").version;
 
 // Add a new method to Promises to help with running rules.
 Promise.prototype.thenReturn = function(value) {
@@ -77,7 +73,7 @@ class Validator {
 
 		this.ruleLoader = new RuleLoader(this.config.rulesDirectory, this.data);
 
-		this.reporter = new Reporter(this.config, this.logger);
+
     }
 
 	/*
@@ -145,6 +141,8 @@ class Validator {
 		this.encoding = inputEncoding || 'utf8';
 		this.currentRuleset = ruleset;
 		this.rulesDirectory = rulesDirectory;
+
+		this.reporter = new Reporter(this.config, ruleset, this.logger, this.ruleLoader);
 
 		if(ruleset.parser) {
 			this.parserClass = this.getParserClass(ruleset.parser);
@@ -513,20 +511,32 @@ class Validator {
 
 	finalize() {
 		return new Promise((resolve) => {
-			this.data.saveRunRecord(this.runId, this.logger.getLog(),
-				this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-				!this.abort, this.summary)
-				.then(() => {}, (error) => console.log('error saving run: ' + error))
-				.catch((e) => console.log('Exception saving run: ' + e))
-				.then(() => {
-					if (!this.config.testOnly)
-						this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
-					this.cleanup();
-					resolve();
-			});
+			function saveRunRecord() {
+				this.data.saveRunRecord(this.runId, this.logger.getLog(),
+					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
+					!this.abort, this.summary)
+					.then(() => {
+					}, (error) => console.log('error saving run: ' + error))
+					.catch((e) => console.log('Exception saving run: ' + e))
+					.then(() => {
+						if (this.reporter && !this.config.testOnly)
+							this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
+						this.cleanup();
+						resolve();
+					});
+			}
+
+			if(this.reporter && this.reporter.initialized) {
+				this.reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+					saveRunRecord.call(this);
+				});
+			} else {
+				saveRunRecord.call(this);
+			}
+
+
+
 		});
-
-
 	}
 
 	/**

@@ -19,5 +19,5 @@ export default DS.Model.extend({
 	deleted: DS.attr('boolean'),
 	source: DS.attr(),
 	target: DS.attr(),
-	email: DS.attr('string')
+	reporters: DS.attr()
 });

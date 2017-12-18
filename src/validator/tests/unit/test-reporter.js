@@ -1,45 +1,55 @@
 const proxyquire = require('proxyquire');
 const ErrorLogger = require("../../ErrorLogger");
 
-const Reporter = proxyquire("../../reporter", {
-	"nodemailer" : {
-		createTransport: function(config) {
-			return {
-				verify: function() {
+const Reporter = require("../../reporter");
+const ReporterAPI = require("../../../api/reporterAPI");
 
-					return new Promise((resolve, reject) => {
-						if(config && config.verify) {
-							config.verify(resolve, reject);
-						} else {
-							resolve();
-						}
-					});
-
-
-				},
-				sendMail(message) {
-					return new Promise((resolve, reject) => {
-						if(config && config.sendMail) {
-							config.sendMail(message, resolve, reject);
-						} else {
-							resolve();
-						}
-					});
-				}
-			}
-		},
-		getTestMessageUrl: function(info) {
-
-			if(info && info.getTestMessageUrl) {
-				return info.getTestMessageUrl(info);
-			}
-
-			return "";
-		}
-
+class TestReporter extends ReporterAPI {
+	constructor(validatorConfig, rulesetConfig) {
+		super(validatorConfig, rulesetConfig);
 	}
 
-});
+	initialize() {
+		return new Promise((resolve, reject) => {
+
+			if(this.validatorConfig.initialize) {
+				this.validatorConfig.initialize(this, resolve, reject);
+			} else if(this.rulesetConfig.initialize) {
+				this.rulesetConfig.initialize(this, resolve, reject);
+			} else {
+				resolve(this);
+			}
+
+		});
+	}
+
+	sendReport(subject, body) {
+
+		return new Promise((resolve, reject) => {
+
+			if(this.validatorConfig.sendReport) {
+				this.validatorConfig.sendReport(subject, body, resolve, reject);
+			} else if(this.rulesetConfig.sendReport) {
+				this.rulesetConfig.sendReport(subject, body, resolve, reject);
+			} else {
+				resolve();
+			}
+		});
+	}
+}
+
+class TestReporter2 extends TestReporter {
+	constructor(validatorConfig, rulesetConfig) {
+		super(validatorConfig, rulesetConfig);
+	}
+}
+
+const RulesLoader = {
+	reportersMap: {
+		'TestReporter': TestReporter,
+		'TestReporter2': TestReporter2
+	}
+};
 
 QUnit.module("Reporter");
 
@@ -50,35 +60,52 @@ QUnit.test( "sendReport: Successful", function(assert){
 	const ruleset = {
 		filename: 'test',
 		ruleset_id: 'test',
-		email: 'test'
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
 	};
 
 	let messageSent = false;
 
-	const smtpConfig = {
-		host: 'test',
 
-		sendMail: (message, resolve, reject) => {
 
-			messageSent = true;
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
 
-			resolve({});
-		}
-	};
-
-	const config = {
-		smtpConfig: smtpConfig,
-		configHost: "test"
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
 	};
 
 	const logger = new ErrorLogger();
-	const reporter = new Reporter(config, logger);
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
 
-	reporter.sendReport(ruleset, "0", false).then(() => {
-		assert.ok(messageSent, "Expected message to be sent");
-		done();
-	})
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
+
+
 });
+
 
 QUnit.test( "sendReport: no config", function(assert){
 
@@ -87,137 +114,382 @@ QUnit.test( "sendReport: no config", function(assert){
 	const ruleset = {
 		filename: 'test',
 		ruleset_id: 'test',
-		email: 'test'
+		reporters: [
+		]
 	};
 
-
-	const config = {
-		configHost: "test"
-	};
-
-	const logger = new ErrorLogger();
-	const reporter = new Reporter(config, logger);
-
-	reporter.sendReport(ruleset, "0", false).then(() => {
-		assert.ok(true, "Expected sneReport to succeed");
-		done();
-	})
-});
-
-QUnit.test( "sendReport: no email", function(assert){
-
-	const done = assert.async();
-
-	const ruleset = {
-		filename: 'test',
-		ruleset_id: 'test'
-	};
-
-	let messageSent = false;
-
-	const smtpConfig = {
-		host: 'test',
-
-		sendMail: (message, resolve, reject) => {
-
-			messageSent = true;
-
-			resolve({});
-		}
-	};
-
-	const config = {
-		smtpConfig: smtpConfig,
-		configHost: "test"
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+		]
 	};
 
 	const logger = new ErrorLogger();
-	const reporter = new Reporter(config, logger);
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
 
-	reporter.sendReport(ruleset, "0", false).then(() => {
-		assert.ok(messageSent == false, "Expected no message to be sent");
-		done();
-	})
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(true, "Expected to complete");
+
+			done();
+		})
+	});
+
+
 });
 
-QUnit.test( "sendReport: failed to verify", function(assert){
+QUnit.test( "sendReport: one initialize reject", function(assert){
 
 	const done = assert.async();
 
 	const ruleset = {
 		filename: 'test',
 		ruleset_id: 'test',
-		email: 'test'
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
 	};
 
 	let messageSent = false;
 
-	const smtpConfig = {
-		host: 'test',
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					initialize: function(testReporter, resolve, reject) {
 
-		sendMail: (message, resolve, reject) => {
+						reject('rejected');
+					},
+					sendReport: function(subject, body, resolve, reject) {
 
-			messageSent = true;
-
-			resolve({});
-		},
-
-		verify: (resolve, reject) => {
-			throw "Failed to connect";
-		}
-	};
-
-	const config = {
-		smtpConfig: smtpConfig,
-		configHost: "test"
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
 	};
 
 	const logger = new ErrorLogger();
-	const reporter = new Reporter(config, logger);
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
 
-	reporter.sendReport(ruleset, "0", false).then(() => {
-		assert.ok(messageSent == false, "Expected no message to be sent");
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(true, "Expected to complete");
+			assert.ok(!messageSent, "Expect message sent not be called");
+			assert.equal(logger.reports.length, 1, "Expected one log entry");
 
-		done();
-	})
+			done();
+		})
+	});
+
+
 });
 
-QUnit.test( "sendReport: sendMail failed", function(assert){
+QUnit.test( "sendReport: one initialize throw", function(assert){
 
 	const done = assert.async();
 
 	const ruleset = {
 		filename: 'test',
 		ruleset_id: 'test',
-		email: 'test'
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
 	};
 
 	let messageSent = false;
 
-	const smtpConfig = {
-		host: 'test',
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					initialize: function(testReporter, resolve, reject) {
 
-		sendMail: (message, resolve, reject) => {
+						throw 'exception';
+					},
+					sendReport: function(subject, body, resolve, reject) {
 
-			throw "error";
-		}
-	};
-
-	const config = {
-		smtpConfig: smtpConfig,
-		configHost: "test"
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
 	};
 
 	const logger = new ErrorLogger();
-	const reporter = new Reporter(config, logger);
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
 
-	reporter.sendReport(ruleset, "0", false).then(() => {
-		assert.ok(messageSent == false, "Expected no message to be sent");
-		done();
-	})
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(true, "Expected to complete");
+			assert.ok(!messageSent, "Expect message sent not be called");
+			assert.equal(logger.reports.length, 1, "Expected one log entry");
+
+			done();
+		})
+	});
+
+
 });
 
+QUnit.test( "sendReport: one sendReport reject", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
 
 
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						reject('rejected');
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(true, "Expected to complete");
+			assert.equal(logger.reports.length, 0, "Expected no log entry");
+
+			done();
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: one sendReport throw", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						throw 'Exception';
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(true, "Expected to complete");
+			assert.equal(logger.reports.length, 0, "Expected no log entry");
+
+			done();
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: Two Successful", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			},
+			{
+				filename: 'TestReporter2',
+				config: {
+					test: 'test2'
+				}
+			}
+		]
+	};
+
+	let messageSentCount = 0;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSentCount += 1;
+						resolve();
+					}
+				}
+			},
+			{
+				filename: 'TestReporter2',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSentCount += 1;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.equal(messageSentCount, 2, "Expected 2 messages to be sent");
+
+			done();
+
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: One initialize reject, one Successful", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			},
+			{
+				filename: 'TestReporter2',
+				config: {
+					test: 'test2'
+				}
+			}
+		]
+	};
+
+	let messageSentCount = 0;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test',
+					initialize: function(testReporter, resolve, reject) {
+
+						reject('rejected');
+					},
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSentCount += 1;
+						resolve();
+					}
+				}
+			},
+			{
+				filename: 'TestReporter2',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSentCount += 1;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.equal(messageSentCount, 1, "Expected 1 message to be sent");
+			assert.equal(logger.reports.length, 1, "Expected one log entry");
+			done();
+
+		})
+	});
+
+
+});
 
 QUnit.module("");

@@ -38,6 +38,8 @@ class RulesetRouter extends BaseRouter {
 					return;
 				}
 
+				ruleset.addMissingData(this.config.validatorConfig);
+
 				var rules = [];
 				for (var i = 0; i < ruleset.rules.length; i++) {
 					const rule = ruleset.rules[i];
@@ -101,12 +103,15 @@ class RulesetRouter extends BaseRouter {
 				fileFilter: req.query.fileFilter,
 				nameFilter: req.query.nameFilter
 
-			}, null, auth.group, auth.admin).then((result) => {
+			}, this.config.rulesLoader, auth.group, auth.admin).then((result) => {
 				const rulesets = [];
 
 				let rawRulesets = result.rulesets;
 
 				rawRulesets.forEach(ruleset => {
+
+					ruleset.addMissingData(this.config.validatorConfig);
+
 					ruleset["ruleset-id"] = ruleset.ruleset_id;
 					delete ruleset.ruleset_id;
 
@@ -146,7 +151,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 		const auth = this.getAuth(req);
-		const ruleset = new RuleSet(req.body);
+		const ruleset = new RuleSet(req.body, this.config.rulesLoader);
 
 		function save() {
 			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
@@ -195,7 +200,8 @@ class RulesetRouter extends BaseRouter {
 		if(req.body.ruleset) {
 			req.body.ruleset.filename = new_rulesetId;
 			req.body.ruleset.ruleset_id = new_rulesetId;
-			ruleset = new RuleSet(req.body.ruleset);
+			ruleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
+			ruleset.addMissingData(this.config.validatorConfig);
 		} else {
 			ruleset = new RuleSet({
 				filename: new_rulesetId,

@@ -26,9 +26,6 @@ class RuleSet {
 
 		this.config = ruleset.config;
 
-		this.group = ruleset.group;
-		this.email = ruleset.email;
-
 		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
@@ -47,6 +44,8 @@ class RuleSet {
 		addGeneralConfig.call(this);
 
 		addRules.call(this, ruleset.rules);
+
+		addReporters.call(this, ruleset.reporters);
 		
 		this.addParserDefaults(rulesLoader);
 
@@ -161,6 +160,8 @@ class RuleSet {
 					};
 
 					updateConfig(sourceConfig.config, this.source.config, this.import.config);
+					this.sourceDetails = Object.assign({}, sourceConfig);
+					delete this.sourceDetails.config;
 				}
 
 				if(sourceConfig.config.linkedtargetid && !this.target) {
@@ -196,6 +197,9 @@ class RuleSet {
 					};
 
 					updateConfig(targetConfig.config, this.target.config, this.export.config);
+
+					this.targetDetails = Object.assign({}, targetConfig);
+					delete this.targetDetails.config;
 				}
 
 				resolve();
@@ -205,6 +209,14 @@ class RuleSet {
 
 	getRuleById(ruleId) {
 		return this.ruleMap[ruleId];
+	}
+
+	addMissingData(validatorConfig) {
+
+		if(validatorConfig) {
+			addMissingReporters.call(this, validatorConfig.reporters);
+		}
+
 	}
 
 	// toJSON() {
@@ -295,6 +307,44 @@ function addRules(rules) {
 
 		this.rules.push(dstRule);
 		this.ruleMap[dstRule.config.id] = dstRule;
+	}
+}
+
+function addReporters(reporters) {
+	this.reporters = [];
+
+	if(reporters) {
+		for (var i = 0; i < reporters.length; i++) {
+			const srcReporter = reporters[i];
+			const dstReporter = {};
+			dstReporter.config = srcReporter.config;
+			dstReporter.filename = srcReporter.filename;
+
+
+			this.reporters.push(dstReporter);
+		}
+	}
+
+}
+
+function  addMissingReporters(validatorConfigReporters) {
+	//for reporters, all specified reporters in the validator config should appear in the ruleset ui
+
+	if(validatorConfigReporters) {
+
+		validatorConfigReporters.forEach((reporter) => {
+
+			let hasReporter = this.reporters.filter((rulesetReporter) => {
+					return rulesetReporter.filename === reporter.filename;
+				}).length > 0;
+
+			if(!hasReporter) {
+				this.reporters.push({
+					filename: reporter.filename,
+					config: {}
+				})
+			}
+		});
 	}
 }
 

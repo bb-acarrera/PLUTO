@@ -54,6 +54,12 @@
       "filename":"S3Export",
       "path": "./S3Export.js"
     }
+  ],
+  "reporters" : [
+    {
+      "filename":"smtpReporter",
+      "path": "./smtpReporter.js"
+    }
   ]
 }
 

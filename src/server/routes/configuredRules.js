@@ -1,5 +1,4 @@
 const BaseRouter = require('./baseRouter');
-const RuleSet = require('../../validator/RuleSet');
 const Util = require('../../common/Util');
 
 function massageRule(rule, rulesLoader) {

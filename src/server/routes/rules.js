@@ -63,6 +63,14 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getReporters(req, res) {
+        // Send reporters.
+
+        res.json({
+            data: this.rulesLoader.reporters
+        });
+    }
+
 
 }
 
