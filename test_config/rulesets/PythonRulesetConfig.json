@@ -1,0 +1,25 @@
+{
+	"ruleset" : {
+		"name" : "Python Example RuleSet",
+		"rules" : [
+			{
+				"filename" : "ValidateZipFilenames",
+				"config" : {
+					"id" : 1
+				}
+			}
+		],
+		"import" : {
+			"filename": "LocalCopyImport",
+			"config": {
+				"file": "/opt/PLUTO/config/test_data/toronto_canada.land.coastline.zip"
+			}
+		},
+		"export" : {
+			"filename": "LocalCopyExport",
+			"config" : {
+				"file": "/opt/PLUTO/config/tmp/toronto_canada.land.coastline.zip"
+			}
+		}
+	}
+}

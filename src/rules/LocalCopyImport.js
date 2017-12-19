@@ -47,8 +47,13 @@ class LocalCopyImport {
                 name: 'file',
                 label: 'Source file path',
                 type: 'string',
-                tooltip: 'The full path (or partial path with a base) to where the file to process is located'
-            },
+                tooltip: 'The full path (or partial path with a base) to where the file to process is located',
+				validations: [
+					{
+						presence: true
+					}
+				]
+			},
             {
                 name: 'base',
                 label: 'Source file base path',

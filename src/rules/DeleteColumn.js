@@ -43,7 +43,12 @@ class DeleteColumn extends TableRuleAPI {
 				name: 'column',
 				label: 'Column To Delete',
 				type: 'column',
-				tooltip: 'The column label for the column to delete.'
+				tooltip: 'The column label for the column to delete.',
+				validations: [
+					{
+						presence: true
+					}
+				]
 			}
 		]);
 	}
@@ -51,6 +56,13 @@ class DeleteColumn extends TableRuleAPI {
 
 	static get ConfigDefaults() {
 		return this.appendDefaults({});
+	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Delete a column from a CSV file.",
+			longDescription: "This rule deletes a column from the records in a CSV file. No errors are reported if the column does not exist."
+		}
 	}
 }
 

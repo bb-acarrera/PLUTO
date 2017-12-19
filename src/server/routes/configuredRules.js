@@ -1,5 +1,4 @@
 const BaseRouter = require('./baseRouter');
-const RuleSet = require('../../validator/RuleSet');
 const Util = require('../../common/Util');
 
 function massageRule(rule, rulesLoader) {
@@ -10,6 +9,15 @@ function massageRule(rule, rulesLoader) {
 
 	rule["database-id"] = id;
 	delete rule.id;
+
+	rule["owner-group"] = rule.owner_group;
+	delete rule.owner_group;
+
+	rule["update-user"] = rule.update_user;
+	delete rule.update_user;
+
+	rule["update-time"] = rule.update_time;
+	delete rule.update_time;
 
 	if(!rule.config) {
 		rule.config = {};
@@ -27,13 +35,26 @@ function massageRule(rule, rulesLoader) {
 
 		if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
 			baseRule.attributes.ui.properties.forEach((prop) => {
-				if(!rule.config[prop.name]) {
+
+				let propValue = rule.config[prop.name];
+				let propHasValue = false;
+
+				if(propValue != null) {
+					if(typeof propValue === 'string') {
+						if(propValue.length > 0) {
+							propHasValue = true;
+						}
+					} else {
+						propHasValue = true;
+					}
+				}
+
+				if( !propHasValue && prop.private !== true && prop.hidden !== true) {
 					rule.ui.properties.push(prop);
 				}
 			});
 		}
 	}
-
 
 	return rule;
 }
@@ -67,7 +88,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			this.config.data.retrieveRule(id, version, dbId, auth.group, auth.admin).then((rule) => {
+			this.config.data.retrieveRule(id, version, dbId, auth.group, auth.admin, this.config.rulesLoader).then((rule) => {
 				if (!rule) {
 					res.statusMessage = `Unable to retrieve rule '${id}'.`;
 					res.status(404).end();
@@ -103,10 +124,10 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 			this.config.data.getRules(page, size, {
 				ruleFilter: req.query.ruleFilter,
-				groupFilter: req.query.groupFilter,
 				typeFilter: req.query.typeFilter,
-				ownerFilter: req.query.ownerFilter
-			}).then((result) => {
+				ownerFilter: req.query.ownerFilter,
+				descriptionFilter: req.query.descriptionFilter
+			}, auth.group, auth.admin, this.config.rulesLoader).then((result) => {
 				const rules = [];
 
 				result.rules.forEach(rule => {
@@ -158,34 +179,45 @@ class ConfiguredRuleRouter extends BaseRouter {
 		const auth = this.getAuth(req);
 		let new_ruleId = req.body.ruleId;
 
-		this.config.data.ruleExists(new_ruleId).then((exists) => {
-			if(exists) {
-				res.statusMessage = `Rule '${new_ruleId}' already exists.`;
-				res.status(422).end();
-				return;
-			}
 
+		function createRule(ruleId) {
 			let rule = null;
 
-			if(req.body.rule) {
-				req.body.rule.rule_id = new_ruleId;
+			if (req.body.rule) {
+				req.body.rule.rule_id = ruleId;
 				rule = req.body.rule;
 			} else {
 				rule = {
-					rule_id: new_ruleId
+					rule_id: ruleId
 				};
 			}
 
-			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((name) => {
-				res.status(201).location('/configuredRule/' + name).json(req.body);
+			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((id) => {
+				res.status(201).location('/configuredRule/' + id).json(rule);
 
 			}, (error) => {
 				next(error);
 			}).catch(next);
+		}
 
-		}, (error) => {
-			next(error);
-		}).catch(next);
+		if(new_ruleId) {
+			this.config.data.ruleExists(new_ruleId).then((exists) => {
+				if(exists) {
+					res.statusMessage = `Rule '${new_ruleId}' already exists.`;
+					res.status(422).end();
+					return;
+				}
+
+				createRule.call(this, new_ruleId);
+
+			}, (error) => {
+				next(error);
+			}).catch(next);
+		} else {
+			createRule.call(this);
+		}
+
+
 	}
 }
 

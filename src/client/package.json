@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Small description for client goes here",
   "license": "MIT",
   "author": "",
@@ -19,6 +19,7 @@
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^2.4.1",
     "ember-bootstrap": "^1.0.0-rc.1",
+    "ember-changeset-validations": "^1.2.9",
     "ember-cli": "2.16.2",
     "ember-cli-app-version": "^2.0.0",
     "ember-cli-babel": "^5.1.7",

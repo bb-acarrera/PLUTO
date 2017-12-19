@@ -1,0 +1,4 @@
+{
+	"shortdescription": "Validate the names of the files within a zip file.",
+	"longdescription": "This rule validates the names of files contained within a zip file. Errors are reported if the input file is not a zip file (or badly formed), or if the contained files do not end with one of '.csv', '.geojson', '.shp', '.shx', '.dbf', '.sbn', '.sbx', '.fbn', '.fbx', '.ain', '.aih', '.atx', '.ixs', '.mxs', '.prj', '.xml', '.cpg', '.qix', or '.shp.xml', have no extension, are longer than 35 characters before the extension, or do not begin with a letter, or contains characters other than letter, numbers or an underscore."
+}

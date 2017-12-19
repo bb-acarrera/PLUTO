@@ -53,8 +53,17 @@ class CheckColumnCount extends TableRuleAPI {
 				name: 'columns',
 				type: 'integer',
 				label: 'Number of Columns',
-				minimum: '1',
-				tooltip: 'The expected number of columns in the input file.'
+				tooltip: 'The expected number of columns in the input file.',
+				validations: [
+					{
+						presence: true
+					},
+					{
+						number : {
+							gte: 1
+						}
+					}
+				]
 			}
 		]);
 	}
@@ -63,6 +72,13 @@ class CheckColumnCount extends TableRuleAPI {
 		return this.appendDefaults({
 			columns: 9
 		});
+	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify the number of columns in the records in a CSV file.",
+			longDescription: "This rule verifies that the number of columns in the records in a CSV file is correct. An error is reported if there are too few columns and a warning is reported if there are too many columns."
+		}
 	}
 }
 

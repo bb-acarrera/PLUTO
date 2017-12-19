@@ -3,6 +3,17 @@
 		"name": "regex",
 		"label": "Regular Expression",
 		"type": "string",
-		"tooltip": "The regular expression to use to validate the filename."
+		"tooltip": "The regular expression to use to validate the filename.",
+		"validations": [
+			{
+				"length": {
+					"min": 1
+				}
+			}
+		]
+},
+	{
+		"shortdescription": "Validate the name of the source file.",
+		"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression."
 	}
 ]

@@ -32,16 +32,10 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 		processing: {
 			refreshModel: true
 		},
-		sourceGroupFilter: {
-			refreshModel: true
-		},
 		sourceDescriptionFilter: {
 			refreshModel: true
 		},
 		fileFilter: {
-			refreshModel: true
-		},
-		sourceFilter: {
 			refreshModel: true
 		}
 	},
@@ -54,20 +48,39 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 				page: params.rulePage,
 				perPage: params.rulePerPage,
 				groupFilter: params.rulesetGroupFilter,
-				sourceGroupFilter: params.sourceGroupFilter,
 				sourceDescriptionFilter: params.sourceDescriptionFilter,
 				fileFilter: params.fileFilter,
-				nameFilter: params.rulesetNameFilter,
-				sourceFilter: params.sourceFilter
+				nameFilter: params.rulesetNameFilter
 			}).then((result) => {
 				let meta = result.get('meta');
 
+				let rulesetIds = [];
 
 				result.forEach((ruleset) => {
 					this.emberizeRuleset(ruleset);
+					rulesetIds.push(ruleset.get('ruleset_id'));
 				});
 
-				return {result: result, meta: meta};
+				this.store.query('run', {
+					perPage: rulesetIds.length + 1,
+					rulesetIdListFilter: rulesetIds
+				}).then(function (runs) {
+					runs.forEach((run) => {
+						let ruleset =  result.find((rulesetItem) => {
+							return rulesetItem.get('ruleset_id') === run.get('ruleset');
+						});
+
+						if(ruleset) {
+							ruleset.set('run', run);
+						}
+					})
+
+				});
+
+				return {
+					result: result,
+					meta: meta
+				}
 			}),
 			parsers: this.store.findAll('parser'),
 			defaultSources: this.store.query('configuredrule', {

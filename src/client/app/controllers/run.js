@@ -1,6 +1,5 @@
 import Ember from 'ember';
 
-
 export default Ember.Controller.extend({
 	queryParams: ["page", "perPage", "ruleid", "type"],
 
@@ -11,6 +10,10 @@ export default Ember.Controller.extend({
 	ruleid: null,
 	type: null,
 	actions: {
+		goBack() {
+			window.history.back();
+		},
+
 		updateFilters() {
 
 		}

@@ -1,18 +1,12 @@
 const Util = require("../common/Util");
-
+const path = require("path");
 
 
 class RuleSet {
 
-	constructor(ruleset, ruleLoader) {
+	constructor(ruleset, rulesLoader) {
 		this.name = ruleset.name;
 		this.filename = ruleset.filename;
-
-		if(!this.filename && this.name) {
-			this.filename = this.name.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-				return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-			}).replace(/\s+/g, '');
-		}
 
 		// The ruleset_id is an unversioned ID that groups similar rulesets together.
 		this.ruleset_id = ruleset.ruleset_id;
@@ -32,9 +26,6 @@ class RuleSet {
 
 		this.config = ruleset.config;
 
-		this.group = ruleset.group;
-		this.email = ruleset.email;
-
 		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
@@ -53,13 +44,38 @@ class RuleSet {
 		addGeneralConfig.call(this);
 
 		addRules.call(this, ruleset.rules);
+
+		addReporters.call(this, ruleset.reporters);
 		
-		this.addParserDefaults(ruleLoader);
+		this.addParserDefaults(rulesLoader);
+
+		if(!this.canedit && rulesLoader) {
+			privatize.call(this, rulesLoader);
+		}
+
+		let targetPath;
+		if(this.target) {
+			if(this.target.config && this.target.config.file) {
+				targetPath = this.target.config.file
+			}
+		} else if(this.source) { //let's make an assumption here that if there is no target, but there is a source, it's linked
+			if(this.source.config && this.source.config.file) {
+				targetPath = this.source.config.file
+			}
+		}
+
+		if(targetPath) {
+			try {
+				this.target_file = path.basename(targetPath, path.extname(targetPath));
+			} catch(e) {}
+
+		}
+
 	}
 
-	addParserDefaults(ruleLoader) {
-        if (ruleLoader && this.parser && this.parser.filename) {
-            var parserClass = ruleLoader.parsersMap[this.parser.filename];
+	addParserDefaults(rulesLoader) {
+        if (rulesLoader && this.parser && this.parser.filename) {
+            var parserClass = rulesLoader.parsersMap[this.parser.filename];
             if (parserClass && parserClass.ConfigDefaults) {
                 var defaults = parserClass.ConfigDefaults;
                 for (var key in defaults) {
@@ -107,7 +123,7 @@ class RuleSet {
 		}
 	}
 
-	resolve(ruleLoader) {
+	resolve(rulesLoader, group, admin) {
 
 
 
@@ -116,11 +132,11 @@ class RuleSet {
 			let promises = [];
 
 			if(this.source) {
-				promises.push(this.updateSource(ruleLoader));
+				promises.push(this.updateSource(rulesLoader, group, admin));
 			}
 
 			if(this.target) {
-				promises.push(this.updateTarget(ruleLoader));
+				promises.push(this.updateTarget(rulesLoader, group, admin));
 			}
 
 
@@ -134,9 +150,9 @@ class RuleSet {
 
 	}
 
-	updateSource(ruleLoader) {
+	updateSource(rulesLoader, group, admin) {
 		return new Promise((resolve) => {
-			ruleLoader.getDbRule(this.source.filename).then((sourceConfig) => {
+			rulesLoader.getDbRule(this.source.filename, group, admin).then((sourceConfig) => {
 				if (sourceConfig && sourceConfig.type === 'source') {
 					this.import = {
 						filename: sourceConfig.base,
@@ -144,6 +160,8 @@ class RuleSet {
 					};
 
 					updateConfig(sourceConfig.config, this.source.config, this.import.config);
+					this.sourceDetails = Object.assign({}, sourceConfig);
+					delete this.sourceDetails.config;
 				}
 
 				if(sourceConfig.config.linkedtargetid && !this.target) {
@@ -156,7 +174,7 @@ class RuleSet {
 
 					updateConfig(this.source.config, {}, this.target.config);
 
-					this.updateTarget(ruleLoader).then(() => {
+					this.updateTarget(rulesLoader).then(() => {
 						resolve();
 					});
 
@@ -169,9 +187,9 @@ class RuleSet {
 		});
 	}
 
-	updateTarget(ruleLoader) {
+	updateTarget(rulesLoader, group, admin) {
 		return new Promise((resolve) => {
-			ruleLoader.getDbRule(this.target.filename).then((targetConfig) => {
+			rulesLoader.getDbRule(this.target.filename, group, admin).then((targetConfig) => {
 				if (targetConfig && targetConfig.type === 'target') {
 					this.export = {
 						filename: targetConfig.base,
@@ -179,6 +197,9 @@ class RuleSet {
 					};
 
 					updateConfig(targetConfig.config, this.target.config, this.export.config);
+
+					this.targetDetails = Object.assign({}, targetConfig);
+					delete this.targetDetails.config;
 				}
 
 				resolve();
@@ -188,6 +209,14 @@ class RuleSet {
 
 	getRuleById(ruleId) {
 		return this.ruleMap[ruleId];
+	}
+
+	addMissingData(validatorConfig) {
+
+		if(validatorConfig) {
+			addMissingReporters.call(this, validatorConfig.reporters);
+		}
+
 	}
 
 	// toJSON() {
@@ -281,6 +310,44 @@ function addRules(rules) {
 	}
 }
 
+function addReporters(reporters) {
+	this.reporters = [];
+
+	if(reporters) {
+		for (var i = 0; i < reporters.length; i++) {
+			const srcReporter = reporters[i];
+			const dstReporter = {};
+			dstReporter.config = srcReporter.config;
+			dstReporter.filename = srcReporter.filename;
+
+
+			this.reporters.push(dstReporter);
+		}
+	}
+
+}
+
+function  addMissingReporters(validatorConfigReporters) {
+	//for reporters, all specified reporters in the validator config should appear in the ruleset ui
+
+	if(validatorConfigReporters) {
+
+		validatorConfigReporters.forEach((reporter) => {
+
+			let hasReporter = this.reporters.filter((rulesetReporter) => {
+					return rulesetReporter.filename === reporter.filename;
+				}).length > 0;
+
+			if(!hasReporter) {
+				this.reporters.push({
+					filename: reporter.filename,
+					config: {}
+				})
+			}
+		});
+	}
+}
+
 function addGeneralConfig() {
 	if(!this.general) {
 		this.general = {};
@@ -305,6 +372,49 @@ function addGeneralConfig() {
 	config.singleRuleWarningsToAbort = cleanNumber(config.singleRuleWarningsToAbort);
 
 
+}
+
+function privatize(rulesLoader) {
+	const items = [
+		'import',
+		'export',
+		'parser'
+	];
+
+	const configuredRules = ['source', 'target'];
+
+	items.forEach((item) => {
+		privatizeItem.call(this, this[item], rulesLoader, 'filename');
+	});
+
+	configuredRules.forEach((item) => {
+		privatizeItem.call(this, this[item], rulesLoader, 'base');
+	});
+
+	this.rules.forEach((item) => {
+		privatizeItem.call(this, item, rulesLoader, 'filename');
+	});
+}
+
+function privatizeItem(item, rulesLoader, basePropName) {
+	if(item && rulesLoader && item.config) {
+		let baseRule = rulesLoader.rulePropertiesMap[item[basePropName]];
+
+		if(baseRule && baseRule.attributes && baseRule.attributes.ui && baseRule.attributes.ui.properties) {
+			baseRule.attributes.ui.properties.forEach((prop) => {
+
+				if(prop.private)
+				{
+					if(prop.type === 'string') {
+						item.config[prop.name] = '********';
+					} else {
+						delete item.config[prop.name];
+					}
+				}
+
+			});
+		}
+	}
 }
 
 function cleanNumber(value, defaultVal, fn) {

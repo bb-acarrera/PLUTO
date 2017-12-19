@@ -5,12 +5,28 @@ export default Ember.Component.extend({
 	router: Ember.inject.service(),
 	sourceConfig: {},
 	targetConfig: {},
+
+
+	errorStates: [],
+	invalid: Ember.computed('errorStates.@each.invalid', function() {
+
+		let invalid = false;
+
+		this.get('errorStates').forEach((state) => {
+			if(state.get('invalid')) {
+				invalid = true;
+			}
+		});
+
+		return invalid;
+	}),
+
 	actions: {
 		searchTarget(term) {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'target'
 			});
 		},
@@ -18,7 +34,7 @@ export default Ember.Component.extend({
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'source'
 			});
 		},
@@ -76,7 +92,7 @@ export default Ember.Component.extend({
 			let ruleset = this.get('ruleset');
 			if(!ruleset) {
 				ruleset = {
-					name: source.get('group') + " " + sourceConfig.file
+					name: source.get('description') + " " + sourceConfig.file
 				};
 			} else {
 				ruleset = ruleset.toJSON();
@@ -113,13 +129,6 @@ export default Ember.Component.extend({
 			ruleset.importer = null;
 			ruleset.exporter = null;
 
-			let group = '';
-			if(source.get('group')) {
-				group = source.get('group');
-			}
-
-			const rulesetId = group + "-" + sourceConfig.file;
-
 			if(!ruleset.name) {
 				ruleset.name = sourceConfig.file + ' from ' + (source.get('description') || source.get('rule_id'));
 			}
@@ -128,7 +137,20 @@ export default Ember.Component.extend({
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
 				if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
-					this.get('router').transitionTo('editRuleset', rulesetId);
+
+					let rulesetId = '';
+
+					try {
+						let ruleset = JSON.parse(xmlHttp.response);
+						rulesetId = ruleset.ruleset_id;
+					} catch (e) {
+						console.log(e);
+					}
+
+					if(rulesetId) {
+						this.get('router').transitionTo('editRuleset', rulesetId);
+					}
+
 				}
 				else if (xmlHttp.readyState == 4) {
 					alert(`Failed to create: ${xmlHttp.statusText}`);
@@ -137,7 +159,6 @@ export default Ember.Component.extend({
 
 			let theUrl = document.location.origin + "/rulesets/";
 			let theJSON = {
-				rulesetId: rulesetId,
 				ruleset: ruleset
 			};
 

@@ -7,16 +7,13 @@ export default Ember.Route.extend(RouteMixin, {
 		page: {
 			refreshModel: true
 		},
-		ruleFilter: {
-			refreshModel: true
-		},
-		groupFilter: {
-			refreshModel: true
-		},
 		typeFilter: {
 			refreshModel: true
 		},
 		ownerFilter: {
+			refreshModel: true
+		},
+		ruleDescriptionFilter: {
 			refreshModel: true
 		}
 	},
@@ -28,10 +25,9 @@ export default Ember.Route.extend(RouteMixin, {
 			rules: this.store.query('configuredrule', {
 				page: params.page,
 				perPage: params.perPage,
-				ruleFilter: params.ruleFilter,
-				groupFilter: params.groupFilter,
 				ownerFilter: params.ownerFilter,
-				typeFilter: params.typeFilter
+				typeFilter: params.typeFilter,
+				descriptionFilter: params.ruleDescriptionFilter
 			}).then(function (result) {
 				let meta = result.get('meta');
 				return { result: result, meta: meta};

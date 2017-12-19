@@ -1,9 +1,24 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
-		{{component (concat "custom-property/" (custom-property-type item.type) )
-			label=item.label value=(get config item.name)
-			config=config
-			uiItem=item disabled=disabled columns=columns}}
+		{{#with (create-object) as |errorObject|}}
+			<div>
+				<span>
+					{{item.label}} {{component (concat "custom-property/" (custom-property-type item.type) )
+						value=(get config item.name)
+						config=config instanceName=instanceName
+						uiItem=item disabled=disabled columns=columns
+						errorObject=errorObject
+						validators=validators state=state validateOnInit=validateOnInit}}
+					{{#if errorObject.error}}
+						<!-- Show an error message if there is one. -->
+						<span class="error-message error-color">{{errorObject.error}}</span>
+					{{/if}}
+					{{#if item.tooltip}}
+						{{bs-tooltip title=item.tooltip}}
+					{{/if}}
+				</span>
+			</div>
+		{{/with}}
 	{{/each}}
 </div>
 {{yield}}

@@ -32,6 +32,7 @@ export default Ember.Route.extend(RulesetEmberizer, {
 					rules: this.store.findAll('rule'),
 					importers: this.store.findAll('importer'),
 					exporters: this.store.findAll('exporter'),
+					reporters: this.store.findAll('reporter'),
 					rulesetconfiguis: this.store.findAll('rulesetconfigui'),
 					source: source,
 					target: target,

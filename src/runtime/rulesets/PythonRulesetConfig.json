@@ -6,27 +6,20 @@
 				"filename" : "validateFilename",
 				"config" : {
 					"id" : 1,
-					"regex" : ".*\\.csv"
+					"regex" : ".*\\.zip"
 				}
 			}
 		],
 		"import" : {
 			"filename": "LocalCopyImport",
 			"config": {
-				"file": "./examples/data/simplemaps-worldcities-basic.csv"
+				"file": "./examples/data/toronto_canada.land.coastline.zip"
 			}
 		},
 		"export" : {
 			"filename": "LocalCopyExport",
 			"config" : {
-				"file": "./tmp/simplemaps-worldcities-basic.csv"
-			}
-		},
-		"parser" : {
-			"filename": "CSVParser",
-			"config": {
-				"numHeaderRows" : 1,
-				"columnNames" : [ "city", "city_ascii", "lat", "lng", "pop", "country", "iso2", "iso3", "province" ]
+				"file": "./tmp/toronto_canada.land.coastline.zip"
 			}
 		}
 	}

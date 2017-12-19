@@ -81,28 +81,60 @@ class CheckRowCount extends TableRuleAPI {
 				type: 'integer',
 				label: 'Minimum Number of Data Rows Otherwise Warning',
 				minimum: '10',
-				tooltip: 'Need at least this many data rows or a warning is issued.'
+				tooltip: 'Need at least this many data rows or a warning is issued.',
+				validations: [
+					{
+						number: {
+							gte: 0,
+							allowBlank: true
+						}
+					}
+				]
 			},
 			{
 				name: 'maxWarningThreshold',
 				type: 'integer',
 				label: 'Maximum Number of Data Rows Otherwise Warning',
 				minimum: '20',
-				tooltip: 'Need no more than this many data rows or a warning is issued.'
+				tooltip: 'Need no more than this many data rows or a warning is issued.',
+				validations: [
+					{
+						number: {
+							gte: 0,
+							allowBlank: true
+						}
+					}
+				]
 			},
 			{
 				name: 'minErrorThreshold',
 				type: 'integer',
 				label: 'Minimum Number of Data Rows Otherwise Error',
 				minimum: '5',
-				tooltip: 'Need at least this many data rows or an error is issued.'
+				tooltip: 'Need at least this many data rows or an error is issued.',
+				validations: [
+					{
+						number: {
+							gte: 0,
+							allowBlank: true
+						}
+					}
+				]
 			},
 			{
 				name: 'maxErrorThreshold',
 				type: 'integer',
 				label: 'Maximum Number of Data Rows Otherwise Error',
 				minimum: '25',
-				tooltip: 'Need no more than this many data rows or an error is issued.'
+				tooltip: 'Need no more than this many data rows or an error is issued.',
+				validations: [
+					{
+						number: {
+							gte: 0,
+							allowBlank: true
+						}
+					}
+				]
 			}
 		]);
 	}
@@ -114,6 +146,13 @@ class CheckRowCount extends TableRuleAPI {
 			minErrorThreshold: 10,
 			maxErrorThreshold: 20
 		});
+	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify that a CSV file has the required number of rows.",
+			longDescription: "This rule verifies that a CSV file has the required number of data rows. (Header rows are not included in the count.) Four configuration properties allow you to set thresholds for warnings and errors. If a property is set to zero or not set it is ignored so it is possible to configure for reporting only errors, only warnings, or both. Thresholds are exclusive, so a minimum threshold of 2, for example, will report an error or warning if the number of rows is less than 2."
+		}
 	}
 }
 

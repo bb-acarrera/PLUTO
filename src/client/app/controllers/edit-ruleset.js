@@ -29,6 +29,37 @@ export default Ember.Controller.extend( {
 
 	poll: Ember.inject.service(),
 
+	propStates: [],
+	invalid: Ember.computed('propStates.@each.invalid', function() {
+
+		let invalid = false;
+
+		this.get('propStates').forEach((state) => {
+			if(state.get('invalid')) {
+				invalid = true;
+			}
+		});
+
+		return invalid;
+	}),
+
+	changed:  Ember.computed('propStates.@each.changed', function() {
+
+		let changed = false;
+
+		this.get('propStates').forEach((state) => {
+			if(state.get('changed')) {
+				changed = true;
+			}
+		});
+
+		return changed;
+	}),
+
+
+	rulesetChanged: Ember.observer('ruleset', function() {
+		this.set('propStates', [])
+	}),
 
 	disableEdit: Ember.computed('model.ruleset.canedit', function() {
 		return !this.get('model.ruleset.canedit');
@@ -101,7 +132,7 @@ export default Ember.Controller.extend( {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'target'
 			});
 		},
@@ -109,7 +140,7 @@ export default Ember.Controller.extend( {
 			const store = this.get('store');
 			return store.query('configuredrule', {
 				perPage: 25,
-				ruleFilter: term,
+				descriptionFilter: term,
 				typeFilter: 'source'
 			});
 		},
@@ -306,6 +337,57 @@ export default Ember.Controller.extend( {
 			return item.get('ui.properties');
 		},
 
+		getUiValidators(list, itemName) {
+			let item = null;
+
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('validators');
+		},
+
+		getShortDescription(list, itemName) {
+			let item = null;
+
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('shortdescription');
+		},
+
+		getLongDescription(list, itemName) {
+			let item = null;
+
+			if(list) {
+				list.forEach((i) => {
+					if(i.get('filename') == itemName) {
+						item = i;
+					}
+				})
+			}
+
+			if(!item)
+				return null;
+
+			return item.get('longdescription');
+		},
+
 		testRuleset() {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
@@ -338,8 +420,13 @@ export default Ember.Controller.extend( {
 			xmlHttp.open("POST", theUrl, true); // true for asynchronous
 			xmlHttp.setRequestHeader("Content-Type", "application/json");
 			xmlHttp.send(JSON.stringify(theJSON));
-		}
+		},
 
+		hideTooltip() {
+			var tooltip = document.querySelector( ".tooltip" );	// ember-bootstrap uses this in their class name. (Can't see how to assign an ID.)
+			if (tooltip)
+				tooltip.style.display = 'none';
+		}
 	}
 } );
 
@@ -354,7 +441,7 @@ function save ( ruleset ) {
 			alert( "Successfully saved." );
 		}
 		else if ( xmlHttp.readyState == 4 ) {
-			alert( `Failed to save. Status = ${xmlHttp.status}` );
+			alert( `Could not save:  ${xmlHttp.statusText}` );
 		}
 	};
 

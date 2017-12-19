@@ -1,7 +1,4 @@
-import DS from 'ember-data';
+import Rule from './rule';
 
-export default DS.Model.extend({
-  filename : DS.attr('string'),
-  name: DS.attr('string'),
-  ui: DS.attr()
+export default Rule.extend({
 });

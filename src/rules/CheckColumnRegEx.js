@@ -66,7 +66,14 @@ class CheckColumnRegEx extends TableRuleAPI {
 				name: 'regex',
 				label: 'Regular Expression',
 				type: 'string',
-				tooltip: 'The regular expression to use to validate the given column.'
+				tooltip: 'The regular expression to use to validate the given column.',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
 			},
 			{
 				name: 'failType',
@@ -84,6 +91,13 @@ class CheckColumnRegEx extends TableRuleAPI {
 		return this.appendDefaults({
 			failType: ErrorHandlerAPI.ERROR
 		});
+	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify that values in a column in a CSV file match a regular expression.",
+			longDescription: "This rule verifies that the values in a column in a CSV file match a regular expression (RegEx). An error is reported if the column doesn't exist. Depending on the failure type either a warning or error can be reported if the value in a column does not match the regular expression. "
+		}
 	}
 
 }

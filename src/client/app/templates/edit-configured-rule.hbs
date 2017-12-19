@@ -3,19 +3,23 @@
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
         <i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
-    <h2>{{title}} {{model.rule.rule_id}}</h2>
+
+    <div class="authDetails">
+        <div>Owned by {{ownedBy}}</div>
+        <div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
+    </div>
+
+    <h2>{{title}} {{model.rule.description}}</h2>
+
+
 </div>
 
 <div>
     <div>
-        Group:
-		{{#unless (v-get model.rule 'group' 'isValid')}}
-            <span class="error-color">{{v-get model.rule 'group' 'message'}}</span>
+        Name:
+		{{#unless (v-get model.rule 'description' 'isValid')}}
+            <span class="error-color">{{v-get model.rule 'description' 'message'}}</span>
 		{{/unless}}
-		{{input id="groupName" type="text" value=model.rule.group class="text-input" disabled=disableEdit}}
-    </div>
-    <div>
-		Name:
 		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
     </div>
 
@@ -29,13 +33,14 @@
 			onchange=(action "chooseBase")
 			selected=base
 			allowClear=true
+			disabled=disableEdit
 			as |baseChoice|}}
 				{{baseChoice.id}}
 		{{/power-select}}
 	</div>
 	<div>
 		Properties
-		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disabled}}
+		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disableEdit}}
 	</div>
 
 	{{#if (eq model.rule.type "source") }}
@@ -47,19 +52,24 @@
 				selected=linkedtarget
 				options=model.defaultTargets
 				allowClear=true
+				disabled=disableEdit
 				as |targetChoice|}}
-				{{targetChoice.rule_id}}: {{targetChoice.description}}
+				{{targetChoice.description}}
 			{{/power-select}}
 		</div>
 	{{/if}}
 </div>
 
-{{#bs-button onClick=(action "saveRule") disabled=(v-get model.rule 'isInvalid') }}
-    Save
-{{/bs-button}}
+{{#unless disableEdit}}
 
-{{#unless (v-get model.rule 'isValid')}}
-	<span class="error-color">Correct the errors before saving</span>
+	{{#bs-button onClick=(action "saveRule") disabled=(v-get model.rule 'isInvalid') }}
+		Save
+	{{/bs-button}}
+
+	{{#unless (v-get model.rule 'isValid')}}
+		<span class="error-color">Correct the errors before saving</span>
+	{{/unless}}
+
 {{/unless}}
 
 {{outlet}}

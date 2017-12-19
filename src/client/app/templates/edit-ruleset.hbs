@@ -8,18 +8,18 @@
 	<h2>Edit Rules for
 
 		{{#if  model.ruleset.source}}
-			{{source.group}} {{model.ruleset.source.config.file}}
+			{{source.description}} {{model.ruleset.source.config.file}}
 		{{else}}
 			{{model.ruleset.filename}}
 		{{/if}}
 
 	</h2>
-	<div class="authDetails">
-		<div>Owned by {{ownedBy}}</div>
-		<div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
-	</div>
 
+</div>
 
+<div class="authDetails">
+    <div>Owned by {{ownedBy}}</div>
+    <div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
 </div>
 
 Process URL: {{processURL}}
@@ -30,9 +30,29 @@ Process URL: {{processURL}}
 		value=model.ruleset.name class="text-input" disabled=disableEdit}}
 	</div>
 
-    <div class="section-content ruleset-section-content">Email: {{input id="email" type="text"
-		value=model.ruleset.email class="text-input" disabled=disableEdit}}
-    </div>
+    <!-- Reporting -->
+	{{#edit-ruleset/collapse as |c| }}
+
+		{{#c.title}}
+            Reporting
+		{{/c.title}}
+
+		{{#c.collapsable}}
+			{{#each model.ruleset.reporters as |reporterInstance|}}
+				{{component 'custom-property.property-list'
+				uiList=(compute (action "getUiProperties") model.reporters reporterInstance.filename)
+				config=(get reporterInstance "config")
+				disabled=disableEdit
+				columns=columns
+				validators=(compute (action "getUiValidators") model.reporters reporterInstance.filename)
+				state=ruleValidationStates
+				instanceName=reporterInstance.filename
+				}}
+			{{/each}}
+
+		{{/c.collapsable}}
+
+	{{/edit-ruleset/collapse}}
 
 	<!-- source -->
 	{{#edit-ruleset/collapse  as |c|}}
@@ -63,7 +83,7 @@ Process URL: {{processURL}}
 							selected=source
 							renderInPlace=true
 							as |sourceChoice|}}
-								{{sourceChoice.rule_id}}: {{sourceChoice.description}}
+								{{sourceChoice.description}}
 							{{/power-select}}
                         </div>
 
@@ -91,7 +111,10 @@ Process URL: {{processURL}}
 
 				{{component 'custom-property.property-list' uiList=source.ui.properties
 				config=model.ruleset.source.config
-				disabled=disabled
+				disabled=disableEdit
+				validators=source.validators
+				state=propStates
+				instanceName='source'
 				columns=columns}}
 
 			{{/if}}
@@ -130,7 +153,7 @@ Process URL: {{processURL}}
 								selected=rulesettarget
 								renderInPlace=true
 								as |targetChoice|}}
-									{{targetChoice.rule_id}}: {{targetChoice.description}}
+									{{targetChoice.description}}
 								{{/power-select}}
                             </div>
 
@@ -156,7 +179,10 @@ Process URL: {{processURL}}
 
 					{{component 'custom-property.property-list' uiList=rulesettarget.ui.properties
 					config=model.ruleset.target.config
-					disabled=disabled
+					disabled=disableEdit
+					validators=rulesettarget.validators
+					state=propStates
+					instanceName='target'
 					columns=columns}}
 
 				{{/if}}
@@ -187,7 +213,10 @@ Process URL: {{processURL}}
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
 				config=model.ruleset.import.config
-				disabled=disabled
+				disabled=disableEdit
+				validators=(compute (action "getUiValidators") model.importers model.ruleset.import.filename)
+				state=propStates
+				instanceName="import"
 				columns=columns}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
@@ -214,7 +243,10 @@ Process URL: {{processURL}}
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
 				config=model.ruleset.export.config
-				disabled=disabled
+				disabled=disableEdit
+				validators=(compute (action "getUiValidators") model.exporters model.ruleset.export.filename)
+				state=propStates
+				instanceName="export"
 				columns=columns}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
@@ -240,7 +272,10 @@ Process URL: {{processURL}}
 			{{component 'custom-property.property-list'
 			uiList=(compute (action "getUiProperties") model.parsers model.ruleset.parser.filename)
 			config=model.ruleset.parser.config
-			disabled=disabled
+			disabled=disableEdit
+			validators=(compute (action "getUiValidators") model.parsers model.ruleset.parser.filename)
+			state=propStates
+			instanceName="import"
 			columns=columns}}
 		{{/c.collapsable}}
 	{{/edit-ruleset/collapse}}
@@ -256,7 +291,10 @@ Process URL: {{processURL}}
 			{{component 'custom-property.property-list'
 			uiList=(compute (action "getUiProperties") model.rulesetconfiguis model.ruleset.general.filename)
 			config=model.ruleset.general.config
-			disabled=disabled
+			disabled=disableEdit
+			validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.general.filename)
+			state=propStates
+			instanceName="generalConfig"
 			columns=columns}}
 		{{/c.collapsable}}
 
@@ -274,7 +312,14 @@ Process URL: {{processURL}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
 						- {{ruleInstance.name}}
 					{{/unless}}
-
+					{{#if (compute (action "getLongDescription") model.rules ruleInstance.filename)}}
+						<i class="fa fa-info-circle fa-fw info-color">
+							{{#bs-popover triggerEvents="hover" onShow=(action "hideTooltip")}}{{compute (action "getLongDescription") model.rules ruleInstance.filename}}{{/bs-popover}}
+						</i>
+					{{/if}}
+					{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
+						{{#bs-tooltip autoPlacement="true"}}{{compute (action "getShortDescription") model.rules ruleInstance.filename}}{{/bs-tooltip}}
+					{{/if}}
 				</span>
 			{{/c.subTitle}}
 
@@ -301,13 +346,16 @@ Process URL: {{processURL}}
 
 			{{#c.collapsable}}
 				<div>
-					Name {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
+					Description {{input type="text" value=(mut ruleInstance.name) disabled=disabled}}
 				</div>
 				{{component 'custom-property.property-list'
 				uiList=(compute (action "getUiProperties") model.rules ruleInstance.filename)
 				config=(get ruleInstance "config")
-				disabled=disabled
+				disabled=disableEdit
 				columns=columns
+				validators=(compute (action "getUiValidators") model.rules ruleInstance.filename)
+				state=propStates
+				instanceName=(concat "rule" ruleInstance.filename)
 				}}
 			{{/c.collapsable}}
 		{{/edit-ruleset/collapse}}
@@ -338,7 +386,7 @@ Process URL: {{processURL}}
         </span>
 
 		<span style="float: right">
-			{{#bs-button onClick=(action "saveRuleSet" model.ruleset)}}
+			{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
                 Save RuleSet
 			{{/bs-button}}
 		</span>
@@ -348,13 +396,21 @@ Process URL: {{processURL}}
 </div>
 
 {{#unless processing}}
-	{{#bs-button onClick=(action "testRuleset")}}
+	{{#bs-button onClick=(action "testRuleset") disabled=changed}}
         Test Ruleset
 	{{/bs-button}}
-    <div class="fileUpload btn btn-default">
+    <span class={{concat "fileUpload btn btn-default " (if changed "disabled" )}}>
         <span>Test Ruleset from local file</span>
-		{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
-    </div>
+
+		{{#unless changed}}
+			{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
+		{{/unless}}
+    </span>
+
+	{{#if changed}}
+		You must save your changes before you can test them
+	{{/if}}
+
 {{/unless}}
 
 {{#if processing}}

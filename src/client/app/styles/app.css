@@ -142,6 +142,10 @@ tr.error-row {
   color: forestgreen;
 }
 
+.info-color {
+	color: #37a7ed;
+}
+
 .no-icon {
   display: none;
 }
@@ -159,6 +163,10 @@ tr.error-row {
 
 .paginator-item button {
   margin-top: 2px;
+}
+
+.error-message {
+	padding-left: 10px;
 }
 
 /* Conflicts with the selection background coloring.
@@ -180,9 +188,8 @@ div.footer .version {
 }
 
 div.authDetails {
-	position: absolute;
-	right: 10px;
-	top: 10px;
+	float: right;
+	display: inline-block;
 }
 
 .fileUpload {

@@ -105,13 +105,27 @@ class AddRegExColumn extends TableRuleAPI {
 				name: 'newColumn',
 				label: 'New Column Name',
 				type: 'string',
-				tooltip: 'The name of the new column.'
+				tooltip: 'The name of the new column.',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
 			},
 			{
 				name: 'regex',
 				label: 'Regular Expression',
 				type: 'string',
-				tooltip: 'The regular expression to use to generate the new column.'
+				tooltip: 'The regular expression to use to generate the new column.',
+				validations: [
+					{
+						length: {
+							min: 1
+						}
+					}
+				]
 			},
 			{
 				name: 'failType',
@@ -131,6 +145,13 @@ class AddRegExColumn extends TableRuleAPI {
 		return this.appendDefaults({
 			failType: 'Nothing'
 		});
+	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Execute a regular expression on one column creating a new column.",
+			longDescription: "This rule executes a regular expression on a column of the records in a CSV file extracting data that is then placed in a new column. An error is reported if the source column doesn't exist. Depending on the failure type either a warning or error can be reported if the value in a column does not match the regular expression."
+		}
 	}
 
 }

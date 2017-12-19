@@ -72,7 +72,7 @@ class CheckColumnType extends TableRuleAPI {
 				name: 'column',
 				label: 'Column',
 				type: 'column',
-        minimum: '0',
+				minimum: '0',
 				tooltip: 'The column label to run the regular expression against.'
 			},
 			{
@@ -92,6 +92,13 @@ class CheckColumnType extends TableRuleAPI {
 
 	static get ConfigDefaults() {
 		return this.appendDefaults({});
+	}
+
+	static get Descriptions() {
+		return {
+			shortDescription: "Verify that values in a column in a CSV file match a particular type.",
+			longDescription: "This rule verifies that values in a column in a CSV file are the correct type. Valid types are 'string', 'float', and 'integer'. An error is reported if the column doesn't exist or if a value is not of the specified type."
+		}
 	}
 }
 

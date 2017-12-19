@@ -1,14 +1,10 @@
-<div>
-	{{label}}
-    <select onchange={{action (mut value) value="target.value"}} disabled={{disabled}}>
-		{{#each columns as |choice|}}
-			<option value={{choice}} selected={{eq value choice}}>{{choice}}</option>
-		{{/each}}
-		{{#unless value}}
-            <option value="" selected=true>Choose</option>
-		{{/unless}}
-
-    </select>
-</div>
+<select onchange={{action (mut value) value="target.value"}} disabled={{disabled}}>
+	{{#each columns as |choice|}}
+		<option value={{choice}} selected={{eq value choice}}>{{choice}}</option>
+	{{/each}}
+	{{#unless value}}
+		<option value="" selected=true>Choose</option>
+	{{/unless}}
+</select>
 
 {{yield}}

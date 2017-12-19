@@ -15,13 +15,21 @@
 	"dbSchema": "pluto",
 	"configHost": "localhost:3000",
 	"configHostProtocol": "http",
-	"smtpConfig": {
-		"host": "smtp.ethereal.email",
-		"port": 587,
-		"auth": {
-			"user": "gxvuceuznrh2hc5d@ethereal.email",
-			"pass": "xuxk8RttsqNjJwCufs"
+	"forceUniqueTargetFile": true,
+	"reporters": [
+		{
+			"filename": "smtpReporter",
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {
+					"host": "smtp.ethereal.email",
+					"port": 587,
+					"auth": {
+						"user": "lxavjnuaeqcs7cax@ethereal.email",
+						"pass": "rYrqKvj6VKpyAdafaD"
+					}
+				}
+			}
 		}
-	},
-	"emailFrom": "\"PLUTO\" <no-reply@localhost>"
+	]
 }

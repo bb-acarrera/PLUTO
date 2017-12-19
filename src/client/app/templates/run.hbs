@@ -1,12 +1,11 @@
 <div>
-	{{#link-to 'runs' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
-		{{#bs-tooltip placement="left"}}Return to runs{{/bs-tooltip}}
-        <i class="fa fa-angle-double-left"></i>
-	{{/link-to}}
+	<div class="btn btn-success btn-sm btn-return-title" {{action "goBack"}}>
+		<i class="fa fa-angle-double-left"></i>
+	</div>
 
 	<h3>
 		{{#if model.ruleset.source}}
-			{{model.source.group}} {{model.source.description}} {{model.ruleset.source.config.file}}
+			{{model.source.description}} {{model.ruleset.source.config.file}}
 		{{else if model.ruleset.importer}}
 			{{model.run.inputfilename}} from {{model.ruleset.importer.filename}}
 		{{else}}

@@ -3,7 +3,11 @@
     
   ],
   "rules": [
-    
+    {
+		"filename":"ValidateZipFilenames",
+		"script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",
+		"executable" : "python"
+	  }
   ],
   "importers" : [
     {

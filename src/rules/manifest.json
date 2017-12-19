@@ -34,17 +34,31 @@
       "script" : "validateFilename.py",
       "executable" : "python"
     }
-  ],
+	],
   "importers" : [
     {
       "filename":"LocalCopyImport",
       "path": "./LocalCopyImport.js"
+    },
+    {
+      "filename":"S3Import",
+      "path": "./S3Import.js"
     }
   ],
   "exporters" : [
     {
       "filename":"LocalCopyExport",
       "path": "./LocalCopyExport.js"
+    },
+    {
+      "filename":"S3Export",
+      "path": "./S3Export.js"
+    }
+  ],
+  "reporters" : [
+    {
+      "filename":"smtpReporter",
+      "path": "./smtpReporter.js"
     }
   ]
 }
