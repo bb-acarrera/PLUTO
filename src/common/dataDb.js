@@ -1243,52 +1243,6 @@ function generateId(tableName, idName) {
     });
 }
 
-function getLatestRunForRulesets(ruleset_ids, tableNames) {
-
-    /*
-     SELECT rulesets.ruleset_id, MAX(runs.id) as run_id
-     FROM runs
-     INNER JOIN rulesets ON runs.ruleset_id = rulesets.id
-     WHERE runs.summary->>'wasTest' IS NULL OR (runs.summary->>'wasTest')::boolean = FALSE
-     GROUP BY rulesets.ruleset_id;
-     */
-
-    return new Promise((resolve, reject) => {
-        let whereQuery = updateTableNames("WHERE {{runs}}.id IN (" +
-            "SELECT MAX({{runs}}.id) FROM {{runs}} " +
-            "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
-            "WHERE {{rulesets}}.ruleset_id IN ($1) AND " +
-            "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
-            "GROUP BY {{rulesets}}.ruleset_id)"
-        , tableNames);
-
-        let query = getRunQuery(tableNames) + whereQuery;
-
-        let values = [ruleset_ids];
-
-        db.query(query, values)
-            .then((result) => {
-
-                let runs = [];
-                result.rows.forEach( ( row ) => {
-
-                    let run = getRunResult( row );
-
-                    if(run.id) {
-                        runs.push( run );
-                    }
-
-                } );
-
-                resolve( runs );
-
-            }, ( error ) => {
-                reject( error );
-            } );
-
-    } );
-}
-
 function getRunQuery(tableNames) {
     return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
         "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
