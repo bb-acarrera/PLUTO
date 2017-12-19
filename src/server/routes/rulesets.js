@@ -40,26 +40,6 @@ class RulesetRouter extends BaseRouter {
 
 				ruleset.addMissingData(this.config.validatorConfig);
 
-				var rules = [];
-				for (var i = 0; i < ruleset.rules.length; i++) {
-					const rule = ruleset.rules[i];
-					const ruleFilename = rule.filename;
-                    if (!rule.hasOwnProperty('name'))
-                        rule.name = ruleFilename;	// Make sure the rule has a name.
-					if (rule.hasOwnProperty('config')) {
-                        if (!rule.config.hasOwnProperty('id'))
-                            rule.config.id = Util.createGUID();	// Make sure the rule has an ID.
-                    }
-					rules.push(
-						{
-							filename: ruleFilename,
-							name: rule.name,
-							config: rule.config
-						});
-				}
-
-
-
 				ruleset["ruleset-id"] = ruleset.ruleset_id;
 				delete ruleset.ruleset_id;
 
@@ -67,6 +47,15 @@ class RulesetRouter extends BaseRouter {
 
 				ruleset["database-id"] = id;
 				delete ruleset.id;
+
+				if(ruleset.source || ruleset.target) {
+					if(ruleset.source) {
+						ruleset.sourcedetails = ruleset.source.filename;
+					}
+					if(ruleset.target) {
+						ruleset.targetdetails = ruleset.target.filename;
+					}
+				}
 
 				let jsonResp = {
 					data: {

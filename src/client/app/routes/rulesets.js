@@ -54,12 +54,33 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 			}).then((result) => {
 				let meta = result.get('meta');
 
+				let rulesetIds = [];
 
 				result.forEach((ruleset) => {
 					this.emberizeRuleset(ruleset);
+					rulesetIds.push(ruleset.get('ruleset_id'));
 				});
 
-				return {result: result, meta: meta};
+				this.store.query('run', {
+					perPage: rulesetIds.length + 1,
+					rulesetIdListFilter: rulesetIds
+				}).then(function (runs) {
+					runs.forEach((run) => {
+						let ruleset =  result.find((rulesetItem) => {
+							return rulesetItem.get('ruleset_id') === run.get('ruleset');
+						});
+
+						if(ruleset) {
+							ruleset.set('run', run);
+						}
+					})
+
+				});
+
+				return {
+					result: result,
+					meta: meta
+				}
 			}),
 			parsers: this.store.findAll('parser'),
 			defaultSources: this.store.query('configuredrule', {

@@ -28,7 +28,7 @@ class Reporter {
 				let reporterClass = rulesLoader.reportersMap[reporterConfig.filename];
 
 				if(reporterClass) {
-					let reporter = new reporterClass(reporterConfig.config, rulesetReporterConfig.config);
+					let reporter = new reporterClass(reporterConfig.config, rulesetReporterConfig ? rulesetReporterConfig.config : null);
 					this.reporters.push(reporter);
 					this.reporterInitPromises.push(reporter.initialize());
 				}

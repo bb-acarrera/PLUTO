@@ -354,6 +354,44 @@ class data {
                 countWhere += "{{rulesets}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
             }
 
+            if(filters.rulesetIdListFilter && filters.rulesetIdListFilter.length) {
+
+                let valuesList = '';
+                let countValuesList = '';
+
+                filters.rulesetIdListFilter.forEach((ruelset_id) => {
+                    values.push( ruelset_id );
+                    countValues.push( ruelset_id );
+
+                    if(valuesList.length) {
+                        valuesList += ',';
+                        countValuesList += ','
+                    }
+
+                    valuesList += '$' + values.length;
+                    countValuesList += '$' + countValues.length;
+
+                });
+
+                extendWhere();
+
+
+                where += "{{runs}}.id IN (" +
+                "SELECT MAX({{runs}}.id) FROM {{runs}} " +
+                "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
+                "WHERE {{rulesets}}.ruleset_id IN (" + valuesList + ") AND " +
+                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                "GROUP BY {{rulesets}}.ruleset_id)";
+
+
+                countWhere += "{{runs}}.id IN (" +
+                    "SELECT MAX({{runs}}.id) FROM {{runs}} " +
+                    "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
+                    "WHERE {{rulesets}}.ruleset_id IN (" + countValuesList + ") AND " +
+                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                    "GROUP BY {{rulesets}}.ruleset_id)";
+            }
+
             if(filters.sourceFilter && filters.sourceFilter.length) {
                 let subWhere = safeStringLike( filters.sourceFilter );
 
@@ -1203,6 +1241,52 @@ function generateId(tableName, idName) {
                 reject(error)
             });
     });
+}
+
+function getLatestRunForRulesets(ruleset_ids, tableNames) {
+
+    /*
+     SELECT rulesets.ruleset_id, MAX(runs.id) as run_id
+     FROM runs
+     INNER JOIN rulesets ON runs.ruleset_id = rulesets.id
+     WHERE runs.summary->>'wasTest' IS NULL OR (runs.summary->>'wasTest')::boolean = FALSE
+     GROUP BY rulesets.ruleset_id;
+     */
+
+    return new Promise((resolve, reject) => {
+        let whereQuery = updateTableNames("WHERE {{runs}}.id IN (" +
+            "SELECT MAX({{runs}}.id) FROM {{runs}} " +
+            "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
+            "WHERE {{rulesets}}.ruleset_id IN ($1) AND " +
+            "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+            "GROUP BY {{rulesets}}.ruleset_id)"
+        , tableNames);
+
+        let query = getRunQuery(tableNames) + whereQuery;
+
+        let values = [ruleset_ids];
+
+        db.query(query, values)
+            .then((result) => {
+
+                let runs = [];
+                result.rows.forEach( ( row ) => {
+
+                    let run = getRunResult( row );
+
+                    if(run.id) {
+                        runs.push( run );
+                    }
+
+                } );
+
+                resolve( runs );
+
+            }, ( error ) => {
+                reject( error );
+            } );
+
+    } );
 }
 
 function getRunQuery(tableNames) {

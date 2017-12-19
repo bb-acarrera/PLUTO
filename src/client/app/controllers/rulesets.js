@@ -28,6 +28,13 @@ function addRuleset(controller, rulesetId, ruleset) {
 	xmlHttp.send(JSON.stringify(theJSON));
 }
 
+function runFailedToStart(controller, rulesetID) {
+	let run = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
+	run.set('processing', false);
+	run.set('failedToStart', true);
+
+}
+
 function runRuleset(controller, rulesetId) {
 	var xmlHttp = new XMLHttpRequest();
 	xmlHttp.onreadystatechange = () => {
@@ -38,17 +45,20 @@ function runRuleset(controller, rulesetId) {
 				if (jsonResponse.runId != null) {
 					startPolling(controller, rulesetId, jsonResponse.runId);
 				} else {
-					alert('Error processing file: ' + jsonResponse.processing)
+					alert('Error processing file: ' + jsonResponse.processing);
+					runFailedToStart(controller, rulesetId);
 				}
 
 				controller.get('target.router').refresh();
 			}
 			catch (e) {
 				console.log("rulesetController.runRuleset() expected a JSON response.\n\t" + e);
+				runFailedToStart(controller, rulesetId);
 			}
 		}
 		else if (xmlHttp.readyState == 4) {
 			alert(`Failed to create: ${xmlHttp.statusText}`);
+			runFailedToStart(controller, rulesetId);
 		}
 	};
 
@@ -60,35 +70,41 @@ function runRuleset(controller, rulesetId) {
 	xmlHttp.open("POST", theUrl, true); // true for asynchronous
 	xmlHttp.setRequestHeader("Content-Type", "application/json");
 	xmlHttp.send(JSON.stringify(theJSON));
+
+	let tracker = controller.get('rulesetTrackerMap').get(rulesetId);
+	let run = Ember.Object.create({
+		processing: true
+	});
+	tracker.set('run', run);
 }
 
 function startPolling(controller, rulesetID, runID) {
 	let pollId = controller.get('poll').addPoll({
 		interval: 1000, // one second
 		callback: () => {
-			let tracker = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
-			var _runId = tracker.get('runID');	// Somehow the passed in runID is getting overwritten eventually.
+			let run = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
+			var _runId = run.get('runID');	// Somehow the passed in runID is getting overwritten eventually.
 			controller.store.findRecord('run', _runId).then(
-				run => {
-					if (!run.get('isrunning')) {
-						tracker.set('processing', false);
-						var pId = tracker.get('pollId');
+				runDetails => {
+					if (!runDetails.get('isrunning')) {
+						run.set('processing', false);
+						var pId = run.get('pollId');
 						controller.get('poll').stopPoll(pId);
 
-						tracker.set('details', run);
+						run.set('details', runDetails);
 
+					} else {
+						run.set('processing', true);
 					}
 				});
 		}
 	});
 
 	let tracker = controller.get('rulesetTrackerMap').get(rulesetID);
-	let run = Ember.Object.create({
-		processing: true,
-		runID: runID,
-		pollId: pollId
-	});
-	tracker.set('run', run);
+	let run = tracker.get('run');
+
+	run.set('runID', runID);
+	run.set('pollId', pollId);
 
 }
 
@@ -102,7 +118,6 @@ export default Ember.Controller.extend({
 		"rulesetNameFilter",
 		"rulesetGroupFilter",
 		"runGroupFilter",
-		"run",
 		"sourceDescriptionFilter",
 		"fileFilter"
 	],
@@ -124,8 +139,9 @@ export default Ember.Controller.extend({
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
 
-	run: false,
 	poll: Ember.inject.service(),
+
+	rulesetTrackerMap: Ember.Map.create(),
 
 
 	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
@@ -139,22 +155,22 @@ export default Ember.Controller.extend({
 	}),
 
 	rulesets: Ember.computed('model.rulesets.result', function () {
+
 		const rulesets = this.get('model.rulesets.result');
 
 		const list = [];
 
-		const rulesetTrackerMap = Ember.Map.create();
-		const oldTrackerMap = this.get('rulesetTrackerMap');
+		const rulesetTrackerMap  = this.get('rulesetTrackerMap');
 
 		rulesets.forEach((ruleset) => {
 			let run = null;
 
-			if (oldTrackerMap) {
-				const tracker = oldTrackerMap.get(ruleset.get('filename'));
-				if (tracker) {
-					run = tracker.get('run');
-				}
+
+			const tracker = rulesetTrackerMap.get(ruleset.get('filename'));
+			if (tracker) {
+				run = tracker.get('run');
 			}
+
 
 			let source = null;
 			const sourceId = ruleset.get('source.filename');
@@ -174,9 +190,41 @@ export default Ember.Controller.extend({
 			rulesetTrackerMap.set(ruleset.get('filename'), obj);
 		});
 
-		this.set('rulesetTrackerMap', rulesetTrackerMap);
-
 		return list;
+	}),
+
+	rulesetRunLoad: Ember.observer('model.rulesets.result.@each.run', function() {
+		const rulesetTrackerMap  = this.get('rulesetTrackerMap');
+		const rulesets = this.get('model.rulesets.result');
+
+		rulesets.forEach((ruleset) => {
+			const tracker = rulesetTrackerMap.get(ruleset.get('filename'));
+			if (tracker) {
+				let currRun = tracker.get('run');
+				let runDetails = ruleset.get('run');
+
+
+				if(currRun && runDetails && currRun.get('runID') >= runDetails.get('id')) {
+					runDetails = null;
+				}
+
+				if(runDetails) {
+					let run = new Ember.Object({
+						runID: runDetails.get('id')
+					});
+
+					tracker.set('run', run);
+
+					if(runDetails.get('isrunning')) {
+						startPolling(this, ruleset.get('ruleset_id'), runDetails.get('id'))
+					} else {
+						run.set('details', runDetails);
+					}
+
+				}
+			}
+		});
+
 	}),
 
 	actions: {
@@ -275,8 +323,7 @@ export default Ember.Controller.extend({
 		}
 	},
 	init: function () {
-//		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
-//		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
+		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 	}
 });
 
