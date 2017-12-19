@@ -105,7 +105,6 @@ export default Ember.Controller.extend({
 
 	},
 	init: function() {
-		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
 		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
 	}
 });

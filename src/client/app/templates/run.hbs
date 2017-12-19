@@ -1,8 +1,7 @@
 <div>
-	{{#link-to 'runs' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
-		{{#bs-tooltip placement="left"}}Return to runs{{/bs-tooltip}}
-        <i class="fa fa-angle-double-left"></i>
-	{{/link-to}}
+	<div class="btn btn-success btn-sm btn-return-title" {{action "goBack"}}>
+		<i class="fa fa-angle-double-left"></i>
+	</div>
 
 	<h3>
 		{{#if model.ruleset.source}}
