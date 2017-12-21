@@ -385,33 +385,48 @@ Process URL: {{processURL}}
 			{{/bs-button}}
         </span>
 
-		<span style="float: right">
-			{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
-                Save RuleSet
-			{{/bs-button}}
-		</span>
+
 
 
 	{{/if}}
 </div>
 
 {{#unless processing}}
-	{{#bs-button onClick=(action "testRuleset") disabled=changed}}
-        Test Ruleset
-	{{/bs-button}}
-    <span class={{concat "fileUpload btn btn-default " (if changed "disabled" )}}>
-        <span>Test Ruleset from local file</span>
 
-		{{#unless changed}}
-			{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
-		{{/unless}}
-    </span>
+	{{#unless applicationController.currentUser.features.hideTestButtons}}
+		{{#bs-button onClick=(action "runRuleset" true) disabled=changed}}
+            Test
+		{{/bs-button}}
+        <span class={{concat "fileUpload btn btn-default " (if changed "disabled" )}}>
+			<span>Test from local file</span>
+
+				{{#unless changed}}
+					{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
+				{{/unless}}
+		</span>
+	{{/unless}}
+	{{#bs-button onClick=(action "runRuleset") disabled=changed}}
+        Upload
+	{{/bs-button}}
+
+	{{#bs-button onClick=(action "deleteRuleset")}}
+        Delete Validation Setup
+	{{/bs-button}}
+
 
 	{{#if changed}}
-		You must save your changes before you can test them
+		You must save your changes to use
 	{{/if}}
 
 {{/unless}}
+
+{{#if (not disableEdit)}}
+    <span style="float: right">
+		{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
+            Save
+		{{/bs-button}}
+    </span>
+{{/if}}
 
 {{#if processing}}
     <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>

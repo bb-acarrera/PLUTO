@@ -52,23 +52,18 @@
                 <td align="right">
 
 					{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
-						<i class="fa fa-play"></i>
-						{{#bs-tooltip placement="top"}}Run ruleset{{/bs-tooltip}}
-					{{/bs-button}}
-
-					{{#bs-button onClick=(action "deleteRuleset" rulesetInstance.ruleset model.rulesets.result)}}
-						<i class="fa fa-trash"></i>
-						{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
+						Upload
+						{{#bs-tooltip placement="top"}}Run validation and upload file{{/bs-tooltip}}
 					{{/bs-button}}
 
 					{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
-						<i class="fa fa-clone"></i>
-						{{#bs-tooltip placement="top"}}Clone ruleset{{/bs-tooltip}}
+						Clone
+						{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
 					{{/bs-button}}
 
 					{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
-						{{#bs-tooltip placement="left"}}Edit ruleset{{/bs-tooltip}}
-						<i class="fa fa-pencil"></i>
+						{{#bs-tooltip placement="left"}}Edit Validation Setup{{/bs-tooltip}}
+						Edit
 					{{/link-to}}
 
                 </td>
