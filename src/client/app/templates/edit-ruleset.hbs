@@ -5,7 +5,7 @@
 	{{/link-to}}
 
 
-	<h2>Edit Rules for
+	<h2>Validation Setup for
 
 		{{#if  model.ruleset.source}}
 			{{source.description}} {{model.ruleset.source.config.file}}
@@ -34,7 +34,7 @@ Process URL: {{processURL}}
 	{{#edit-ruleset/collapse as |c| }}
 
 		{{#c.title}}
-            Reporting
+            Notification
 		{{/c.title}}
 
 		{{#c.collapsable}}
@@ -58,7 +58,7 @@ Process URL: {{processURL}}
 	{{#edit-ruleset/collapse  as |c|}}
 
 		{{#c.title}}
-            Source:
+            Download from:
 		{{/c.title}}
 
 		{{#c.subTitle}}
@@ -128,7 +128,7 @@ Process URL: {{processURL}}
 		{{#edit-ruleset/collapse  as |c|}}
 
 			{{#c.title}}
-                Target:
+                Upload to:
 			{{/c.title}}
 
 			{{#c.subTitle}}
@@ -281,10 +281,10 @@ Process URL: {{processURL}}
 	{{/edit-ruleset/collapse}}
 
     <!-- general config -->
-	{{#edit-ruleset/collapse as |c| }}
+	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
 		{{#c.title}}
-            General Configuration
+            Global Configuration
 		{{/c.title}}
 
 		{{#c.collapsable}}

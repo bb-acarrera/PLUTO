@@ -55,7 +55,7 @@ class Importer {
         return [
             {
                 name: 'file',
-                label: 'Source file path',
+                label: 'File path',
                 type: 'string',
                 tooltip: 'The path to a file in the bucket'
             },
@@ -68,7 +68,7 @@ class Importer {
             },
             {
                 name: 'endpoint',
-                label: 'base URL endpoint (e.g. s3.amazonaws.com)',
+                label: 'Base URL endpoint (e.g. s3.amazonaws.com)',
                 type: 'string',
                 tooltip: 'The URL (without protocol), including port if not standard',
                 hidden: true
