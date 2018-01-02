@@ -34,9 +34,9 @@ export default Ember.Controller.extend({
 		let title = '';
 
 		if(type == 'source') {
-			title = 'Source';
+			title = 'Download Location';
 		} else if(type == 'target') {
-			title = 'Target'
+			title = 'Upload Location'
 		}
 
 		return title;

@@ -64,9 +64,9 @@ export default Ember.Controller.extend({
 		let title = '';
 
 		if(type == 'source') {
-			title = 'Sources';
+			title = 'Download Locations';
 		} else if(type == 'target') {
-			title = 'Targets'
+			title = 'Upload Locations'
 		}
 
 		return title;
@@ -86,7 +86,17 @@ export default Ember.Controller.extend({
 			this.transitionToRoute({queryParams: {page: Math.min(this.page + 1, this.get('totalPages'))}});
 		},
 		openNewDialog(){
-			this.set("ptarget", "New " + this.get('typeFilter'));
+
+			const type = this.get('typeFilter');
+			let title = '';
+
+			if(type == 'source') {
+				title = 'Download Location';
+			} else if(type == 'target') {
+				title = 'Upload Location'
+			}
+
+			this.set("ptarget", "New " + title);
 			this.set("dialogtarget", "");
 			this.set("buttontext", "Save");
 			this.set("showdialog", true);
