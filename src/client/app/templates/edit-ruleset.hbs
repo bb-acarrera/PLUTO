@@ -409,11 +409,6 @@ Process URL: {{processURL}}
         Upload
 	{{/bs-button}}
 
-	{{#bs-button onClick=(action "deleteRuleset")}}
-        Delete Validation Setup
-	{{/bs-button}}
-
-
 	{{#if changed}}
 		You must save your changes to use
 	{{/if}}
@@ -422,6 +417,11 @@ Process URL: {{processURL}}
 
 {{#if (not disableEdit)}}
     <span style="float: right">
+
+		{{#bs-button onClick=(action "deleteRuleset")}}
+            Delete
+		{{/bs-button}}
+
 		{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
             Save
 		{{/bs-button}}
