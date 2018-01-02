@@ -388,7 +388,7 @@ export default Ember.Controller.extend( {
 			return item.get('longdescription');
 		},
 
-		testRuleset() {
+		runRuleset(test) {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
 				if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -414,8 +414,10 @@ export default Ember.Controller.extend( {
 			let theUrl = document.location.origin + "/processFile/";
 			let theJSON = {
 				ruleset: this.get('model.ruleset.filename'),
-				test: true
+				test: test
 			};
+
+
 
 			xmlHttp.open("POST", theUrl, true); // true for asynchronous
 			xmlHttp.setRequestHeader("Content-Type", "application/json");
@@ -426,6 +428,39 @@ export default Ember.Controller.extend( {
 			var tooltip = document.querySelector( ".tooltip" );	// ember-bootstrap uses this in their class name. (Can't see how to assign an ID.)
 			if (tooltip)
 				tooltip.style.display = 'none';
+		},
+
+		deleteRuleset() {
+
+			let ruleset = this.get('model.ruleset');
+
+			let name = this.get(ruleset.get("filename"));
+			if(this.get('model.ruleset.source')) {
+				name = this.get('source.description') + ' ' + this.get('model.ruleset.source.config.file')
+			}
+
+			if (confirm(`Delete "${name}"?`)) {
+				var xmlHttp = new XMLHttpRequest();
+				xmlHttp.onreadystatechange = () => {
+					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+						this.store.unloadRecord(ruleset);
+					}
+					else if (xmlHttp.readyState == 4) {
+						alert(`Failed to delete: ${xmlHttp.statusText}`);
+					}
+				};
+
+				let theUrl = document.location.origin + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theJSON = ruleset.toJSON();
+				theJSON.id = ruleset.id;
+
+				xmlHttp.open("DELETE", theUrl, true); // true for asynchronous
+				xmlHttp.setRequestHeader("Content-Type", "application/json");
+				xmlHttp.send(JSON.stringify(theJSON));
+
+
+				this.transitionToRoute('rulesets');
+			}
 		}
 	}
 } );

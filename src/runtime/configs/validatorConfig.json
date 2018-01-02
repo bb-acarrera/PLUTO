@@ -15,7 +15,7 @@
 	"dbSchema": "pluto",
 	"configHost": "localhost:3000",
 	"configHostProtocol": "http",
-	"forceUniqueTargetFile": true,
+
 	"reporters": [
 		{
 			"filename": "smtpReporter",
@@ -31,5 +31,8 @@
 				}
 			}
 		}
-	]
+	],
+
+	"forceUniqueTargetFile": true,
+	"hideTestButtons": true
 }
