@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import moment from 'moment';
 
+const apiBase = document.location.origin + '/api/v1';
+
 export default Ember.Controller.extend({
 	ajax: Ember.inject.service(),
 	base: Ember.computed('model.rule.base', function() {
@@ -131,7 +133,7 @@ function save ( controller ) {
 
 	const rule = controller.get('model.rule');
 
-	let theUrl = document.location.origin + "/configuredrules/" + rule.id;
+	let theUrl = apiBase + "/configuredrules/" + rule.id;
 	let theJSON = rule.toJSON();
 
 	xmlHttp.open( "PATCH", theUrl, true ); // true for asynchronous
