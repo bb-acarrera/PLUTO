@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import moment from 'moment';
 
+const apiBase = document.location.origin + '/api/v1';
+
 function startPolling(id) {
 	this.set("processing", true);
 	let pollId = this.get('poll').addPoll({
@@ -423,7 +425,7 @@ export default Ember.Controller.extend( {
 				}
 			};
 
-			let theUrl = document.location.origin + "/processFile/";
+			let theUrl = apiBase + "/processFile/";
 			let theJSON = {
 				ruleset: this.get('model.ruleset.filename'),
 				test: test
@@ -462,7 +464,7 @@ export default Ember.Controller.extend( {
 					}
 				};
 
-				let theUrl = document.location.origin + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theUrl = apiBase + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
 				let theJSON = ruleset.toJSON();
 				theJSON.id = ruleset.id;
 
@@ -492,7 +494,7 @@ function save ( ruleset ) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+	let theUrl = apiBase + "/rulesets/" + ruleset.id;
 	let theJSON = ruleset.toJSON();
 	// theJSON.id = ruleset.id;
 

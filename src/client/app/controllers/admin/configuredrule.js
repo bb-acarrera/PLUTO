@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+const apiBase = document.location.origin + '/api/v1';
+
 function addRule(controller, rule) {
 
 	var xmlHttp = new XMLHttpRequest();
@@ -26,7 +28,7 @@ function addRule(controller, rule) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/configuredrules/";
+	let theUrl = apiBase + "/configuredrules/";
 	let theJSON = {
 		rule: rule
 	};
@@ -138,7 +140,7 @@ export default Ember.Controller.extend({
 					}
 				};
 
-				let theUrl = document.location.origin + "/configuredrules/" + rule.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theUrl = apiBase + "/configuredrules/" + rule.id;  // This 'id' should be the same as the 'ruleset_id'.
 				let theJSON = rule.toJSON();
 				theJSON.id = rule.id;
 

@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import moment from 'moment';
 
+const apiBase = document.location.origin + '/api/v1';
+
 export default Ember.Controller.extend( {
 	queryParams: [ "collapsedRun" ],
 	collapsedRun: false,
@@ -209,7 +211,7 @@ function save ( ruleset ) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+	let theUrl = apiBase + "/rulesets/" + ruleset.id;
 	let theJSON = ruleset.toJSON();
 	// theJSON.id = ruleset.id;
 

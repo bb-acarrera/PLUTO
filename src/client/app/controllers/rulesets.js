@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+const apiBase = document.location.origin + '/api/v1';
+
 function addRuleset(controller, rulesetId, ruleset) {
 	if (rulesetId === "_run_") {
 		alert(`_run_ is a reserved name. Please choose a different one.`);
@@ -17,7 +19,7 @@ function addRuleset(controller, rulesetId, ruleset) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/rulesets/";
+	let theUrl = apiBase + "/rulesets/";
 	let theJSON = {
 		rulesetId: rulesetId,
 		ruleset: ruleset
@@ -62,7 +64,7 @@ function runRuleset(controller, rulesetId) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/processFile/";
+	let theUrl = apiBase + "/processFile/";
 	let theJSON = {
 		ruleset: rulesetId
 	};
@@ -294,7 +296,7 @@ export default Ember.Controller.extend({
 					}
 				};
 
-				let theUrl = document.location.origin + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theUrl = apiBase + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
 				let theJSON = ruleset.toJSON();
 				theJSON.id = ruleset.id;
 

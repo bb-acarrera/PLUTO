@@ -14,6 +14,8 @@ const Util = require('../common/Util');
 const Data = require('../common/dataDb');
 const RuleLoader = require('../common/ruleLoader');
 
+const fallback = require('express-history-api-fallback');
+
 let version = "0";
 if(fs.existsSync("../../package.json")) {
 	version = require("../../../package.json").version;
@@ -51,6 +53,8 @@ class Server {
 		// Set up the routing.
 		app.use(this.router.router);
 		app.use(express.static(this.assetsDirectory));
+
+		app.use(fallback('index.html', { root: this.assetsDirectory }));
 
 		// TODO: Basic error handling. Make it a little less basic?
 		if (app.get('env') === 'development') {
