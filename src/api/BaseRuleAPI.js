@@ -134,7 +134,6 @@ class BaseRuleAPI extends ErrorHandlerAPI {
         return this.appendDefaults();
     }
 
-
 }
 
 module.exports = BaseRuleAPI;	// Export this so derived classes can extend it.
