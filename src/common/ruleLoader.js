@@ -99,7 +99,7 @@ class RuleLoader {
 
 	loadFromManifest(dir, item, type) {
 
-		let file, suffixedFile, executable, shortDescription, longDescription;
+		let file, suffixedFile, executable, shortDescription, longDescription, title;
 
 		try {
 			executable = item.executable;
@@ -131,6 +131,8 @@ class RuleLoader {
 				shortDescription = descriptions.shortDescription;
 			if (descriptions && descriptions.longDescription)
 				longDescription = descriptions.longDescription;
+			if (descriptions && descriptions.title)
+				title = descriptions.title;
 
 			// A description in the manifest takes precedence over one in the file (allows for localization/internationalization).
 			// ??? Might want this after the script descriptions are loaded to allow replacing them with local descriptions too.
@@ -140,6 +142,10 @@ class RuleLoader {
 
 			if (item.longDescription) {
 				longDescription = item.longDescription;
+			}
+
+			if (item.title) {
+				title = item.title;
 			}
 			
 			var properties = RuleLoader.getClassProperties(ruleClass);
@@ -170,6 +176,10 @@ class RuleLoader {
 								longDescription = moreProperties[i].longdescription;
 								delete moreProperties[i].longdescription;
 							}
+							if (moreProperties[i].title) {
+								title = moreProperties[i].title;
+								delete moreProperties[i].title;
+							}
 							if (Object.keys(moreProperties[i]).length == 0)
 								propsToDelete.push(i);	// Remember this element. It's empty so we'll need to delete it.
 						}
@@ -189,6 +199,10 @@ class RuleLoader {
 						if (moreProperties.longdescription) {
 							longDescription = moreProperties.longdescription;
 							delete moreProperties.longdescription;
+						}
+						if (moreProperties.title) {
+							title = moreProperties.title;
+							delete moreProperties.title;
 						}
 
 						if (Object.keys(moreProperties).length > 0)
@@ -212,7 +226,8 @@ class RuleLoader {
 							properties: properties
 						},
 						shortdescription: shortDescription,
-						longdescription: longDescription
+						longdescription: longDescription,
+						title: title
 					}
 				};
 

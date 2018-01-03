@@ -308,7 +308,7 @@ Process URL: {{processURL}}
 		{{#edit-ruleset/collapse as |c| }}
 			{{#c.subTitle}}
 				<span class="rule-header">
-					{{ruleInstance.filename}}
+					{{compute (action "getTitle") model.rules ruleInstance.filename}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
 						- {{ruleInstance.name}}
 					{{/unless}}
@@ -362,16 +362,22 @@ Process URL: {{processURL}}
 
 	{{/each}}
 	{{#if showAddRule}}
-		<div class="section-content ruleset-section-content">
-            <select id="selectRule">
-                <option value="None" selected>None</option>
-				{{#each model.rules as |rule|}}
-                    <option value="{{rule.filename}}">{{rule.name}}</option>
-				{{/each}}
-            </select>
+		<div class="section-content ruleset-section-content"
+			 style="float: right; width:100%; display: flex; justify-content: flex-end">
+
+            <div style="display: inline-block;margin-right: 5px;flex: 1" onclick={{action "stopPropagation"}}>
+				{{#power-select
+				options=model.rules
+				matcher=ruleMatcher
+				onchange=(action "addRule" bubbles=false)
+				renderInPlace=true
+				initiallyOpened=true
+				as |ruleChoice|}}
+					{{if ruleChoice.title ruleChoice.title ruleChoice.name}}
+				{{/power-select}}
+			</div>
 
             <button {{action "hideAddRule"}}>Cancel</button>
-            <button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
 
 		</div>
 	{{/if}}

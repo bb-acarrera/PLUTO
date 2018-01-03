@@ -134,6 +134,17 @@ class BaseRuleAPI extends ErrorHandlerAPI {
         return this.appendDefaults();
     }
 
+    /**
+     * The default values for descriptions.
+     * @returns {}
+     */
+    static get Descriptions() {
+        return {
+            shortDescription: "",
+            longDescription: "",
+            title: ""
+        }
+    }
 
 }
 

@@ -61,7 +61,8 @@ class DeleteColumn extends TableRuleAPI {
 	static get Descriptions() {
 		return {
 			shortDescription: "Delete a column from a CSV file.",
-			longDescription: "This rule deletes a column from the records in a CSV file. No errors are reported if the column does not exist."
+			longDescription: "This rule deletes a column from the records in a CSV file. No errors are reported if the column does not exist.",
+			title: "Delete Column"
 		}
 	}
 }

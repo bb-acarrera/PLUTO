@@ -7,7 +7,8 @@ export default DS.Model.extend({
     name: DS.attr('string'),
 	ui: DS.attr(),
 	shortdescription: DS.attr('string'),
-	longdescription: DS.attr('string')
+	longdescription: DS.attr('string'),
+	title: DS.attr('string')
 
 
 }, RuleValidatorGenerator);
