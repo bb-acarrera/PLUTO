@@ -1,0 +1,21 @@
+{
+  "parsers": [
+  ],
+  "rules": [
+	],
+  "importers" : [
+    {
+      "filename":"LocalCopyImport",
+      "path": "./LocalCopyImport.js"
+    }
+  ],
+  "exporters" : [
+    {
+      "filename":"LocalCopyExport",
+      "path": "./LocalCopyExport.js"
+    }
+  ],
+  "reporters" : [
+  ]
+}
+
