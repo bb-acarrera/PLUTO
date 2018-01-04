@@ -98,6 +98,8 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 			alert(reason);
 		},
 		willTransition (transition) {
+			transition.send('willTransition', transition);
+
 			if (transition.targetName != "rulesets" && this.controller) {
 				this.controller.get('poll').stopAll();
 				this.controller.get('poll').clearAll();

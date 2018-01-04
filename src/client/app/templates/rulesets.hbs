@@ -1,6 +1,6 @@
 {{outlet}}
 <div>
-	{{#link-to 'index' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
+	{{#link-to 'index' (query-params rulesetGroupFilter=applicationController.currentUser.group) tagName='button' class='btn btn-success btn-sm btn-return-title' }}
 		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
         <i class="fa fa-angle-double-left"></i>
 	{{/link-to}}
