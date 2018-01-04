@@ -2,8 +2,16 @@
 <div>
 	<h2>PLUTO Main Page</h2>
 	<table id="mainPageTable" class="main-page-table">
-		<tr><td>{{#link-to "runs" (query-params runGroupFilter=applicationController.currentUser.group)}}File Load Status{{/link-to}}</td></tr>
-		<tr><td>{{#link-to "rulesets" (query-params rulesetGroupFilter=applicationController.currentUser.group)}}Edit Validation Setups{{/link-to}}</td></tr>
+
+		{{#if applicationController.currentUser.group}}
+            <tr><td>{{#link-to "runs" (query-params runGroupFilter=applicationController.currentUser.group)}}File Load Status{{/link-to}}</td></tr>
+            <tr><td>{{#link-to "rulesets" (query-params rulesetGroupFilter=applicationController.currentUser.group)}}Edit Validation Setups{{/link-to}}</td></tr>
+		{{else}}
+            <tr><td>{{#link-to "runs" }}File Load Status{{/link-to}}</td></tr>
+            <tr><td>{{#link-to "rulesets" }}Edit Validation Setups{{/link-to}}</td></tr>
+		{{/if}}
+
+
 
         <!--
         <tr><td>Edit Rule Groups</td></tr>
