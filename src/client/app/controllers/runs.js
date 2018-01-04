@@ -57,7 +57,14 @@ export default Ember.Controller.extend({
 
 
 	userChanged: Ember.observer('applicationController.currentUser', function() {
-		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
+
+		let group = this.get('applicationController.currentUser.group');
+
+		if(group) {
+			this.set('runGroupFilter', group);
+		}
+
+
 	}),
 
 	runs: Ember.computed('model.runs.result', function () {

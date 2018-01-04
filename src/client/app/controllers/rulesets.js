@@ -153,7 +153,13 @@ export default Ember.Controller.extend({
 		}),
 
 	userChanged: Ember.observer('applicationController.currentUser', function () {
-		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
+
+		let group = this.get('applicationController.currentUser.group');
+
+		if(group) {
+			this.set('rulesetGroupFilter', group);
+		}
+
 	}),
 
 	rulesets: Ember.computed('model.rulesets.result', function () {
