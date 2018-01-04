@@ -173,7 +173,7 @@
 </div>
 <div class="fileUpload btn btn-default">
     <span>Test Ruleset</span>
-	{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
+	{{file-upload url="/api/v1/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing")}}
 </div>
 
 
