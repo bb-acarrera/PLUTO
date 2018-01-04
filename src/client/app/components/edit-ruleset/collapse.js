@@ -6,7 +6,14 @@ export default Ember.Component.extend({
 		this._super(...arguments);
 		let collapsed = this.get('collapsed');
 		if(collapsed == null) {
-			this.set('collapsed', true);
+
+			let collapsedDefault = this.get('initialCollapsed');
+
+			if(collapsedDefault != null) {
+				this.set('collapsed', collapsedDefault);
+			} else {
+				this.set('collapsed', true);
+			}
 		}
 	},
 	actions: {
