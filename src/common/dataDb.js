@@ -567,7 +567,7 @@ class data {
             promises.push(new Promise((resolve, reject) => {
                 getRuleset(this.db, ruleset.ruleset_id, null, null, this.tables).then( (result) => {
                     if(result.rows.length > 0) {
-                        reject( `Ruleset '${ruleset.ruleset_id}' already exsists.` );
+                        reject( `'${ruleset.ruleset_id}' already exsists.` );
                     } else {
                         resolve();
                     }
@@ -584,7 +584,7 @@ class data {
                     notIdFilter: ruleset.ruleset_id
                 }).then((result) => {
                     if(result.rulesets.length > 0) {
-                        reject( `Another ruleset is already using the file '${ruleset.target_file}' as the target.` );
+                        reject( `The file '${ruleset.target_file}' is already used as the target for another validation.` );
                     } else {
                         resolve();
                     }
@@ -718,7 +718,7 @@ class data {
 
 
                 } else {
-                    reject('No ruleset found to delete')
+                    reject('No validation found to delete')
                 }
 
 
@@ -1287,7 +1287,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, getDeleted) {
 
     if ( !ruleset_id && !dbId ) {
         return new Promise( ( resolve, reject ) => {
-            reject( "You must specify a Ruleset name or id" );
+            reject( "You must specify a name or id" );
         } );
     }
 
@@ -1348,7 +1348,7 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
                     }
 
                     if (result.rows[0].owner_group != null && !admin && result.rows[0].owner_group != group) {
-                        reject('Cannot change a ruleset that has been created by another group. Owner is ' + result.rows[0].owner_group);
+                        reject('This has been created by another group and cannot be changed by you. Owner is ' + result.rows[0].owner_group);
                         return;
                     }
                 }

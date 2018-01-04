@@ -305,7 +305,7 @@ Process URL: {{processURL}}
 
 	{{#each model.ruleset.rules as |ruleInstance index|}}
 
-		{{#edit-ruleset/collapse as |c| }}
+		{{#edit-ruleset/collapse initialCollapsed=(get this (concat "collapseRule" ruleInstance.config.id) ) as |c| }}
 			{{#c.subTitle}}
 				<span class="rule-header">
 					{{compute (action "getTitle") model.rules ruleInstance.filename}}

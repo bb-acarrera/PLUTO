@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+const apiBase = document.location.origin + '/api/v1';
+
 function addRuleset(controller, rulesetId, ruleset) {
 	if (rulesetId === "_run_") {
 		alert(`_run_ is a reserved name. Please choose a different one.`);
@@ -17,7 +19,7 @@ function addRuleset(controller, rulesetId, ruleset) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/rulesets/";
+	let theUrl = apiBase + "/rulesets/";
 	let theJSON = {
 		rulesetId: rulesetId,
 		ruleset: ruleset
@@ -62,7 +64,7 @@ function runRuleset(controller, rulesetId) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/processFile/";
+	let theUrl = apiBase + "/processFile/";
 	let theJSON = {
 		ruleset: rulesetId
 	};
@@ -126,7 +128,7 @@ export default Ember.Controller.extend({
 	// set default values, can cause problems if left out
 	// if value matches default, it won't display in the URL
 	rulePage: 1,
-	rulePerPage: 10,
+	rulePerPage: 20,
 	rulesetFilter: '',
 	filenameFilter: '',
 	showErrors: true,
@@ -151,7 +153,13 @@ export default Ember.Controller.extend({
 		}),
 
 	userChanged: Ember.observer('applicationController.currentUser', function () {
-		this.set('rulesetGroupFilter', this.get('applicationController.currentUser.group'));
+
+		let group = this.get('applicationController.currentUser.group');
+
+		if(group) {
+			this.set('rulesetGroupFilter', group);
+		}
+
 	}),
 
 	rulesets: Ember.computed('model.rulesets.result', function () {
@@ -294,7 +302,7 @@ export default Ember.Controller.extend({
 					}
 				};
 
-				let theUrl = document.location.origin + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theUrl = apiBase + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
 				let theJSON = ruleset.toJSON();
 				theJSON.id = ruleset.id;
 

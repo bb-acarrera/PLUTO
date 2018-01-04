@@ -1,4 +1,5 @@
 import Ember from 'ember';
+const apiBase = document.location.origin + '/api/v1';
 
 export default Ember.Component.extend({
 	store: Ember.inject.service('store'),
@@ -157,7 +158,7 @@ export default Ember.Component.extend({
 				}
 			};
 
-			let theUrl = document.location.origin + "/rulesets/";
+			let theUrl = apiBase + "/rulesets/";
 			let theJSON = {
 				ruleset: ruleset
 			};

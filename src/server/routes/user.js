@@ -30,7 +30,7 @@ class RulesetRouter extends BaseRouter {
 					configHostProtocol = this.config.validatorConfig.configHostProtocol;
 				}
 
-				this.apiURL = configHostProtocol + '://' + this.config.validatorConfig.configHost + '/';
+				this.apiURL = configHostProtocol + '://' + this.config.validatorConfig.configHost + '/api/v1/';
 			}
 
 			this.features.hideTestButtons = this.config.validatorConfig.hideTestButtons;
