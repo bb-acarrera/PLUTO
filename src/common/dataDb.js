@@ -624,6 +624,7 @@ class data {
                 checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
                     let version = result.nextVersion;
                     let rowGroup = group;
+                    let targetFile = null;
 
                     if(result && result.rows.length > 0) {
                         rowGroup = result.rows[0].owner_group;
@@ -631,9 +632,13 @@ class data {
 
                     ruleset.version = version;
 
+                    if(this.config.forceUniqueTargetFile) {
+                        targetFile = ruleset.target_file;
+                    }
+
                     this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
                             "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.target_file])
+                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, targetFile])
                         .then(() => {
                             resolve(ruleset);
                         }, (error) => {
