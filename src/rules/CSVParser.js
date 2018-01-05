@@ -326,7 +326,7 @@ class CSVParser extends TableParserAPI {
                 name: 'columnNames',
                 label: 'Column names',
                 type: 'list',
-                tooltip: 'The names of the columns; used for column selection in rules',
+                tooltip: 'The names of the columns; used for column selection in rules. Expects a comma separated list (e.g. "Company, Address, City, State, Country"), and can be copied directly from the header of the CSV.',
 				validations: [
 					{
 						length: {

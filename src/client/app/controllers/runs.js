@@ -30,7 +30,7 @@ export default Ember.Controller.extend({
 	// set default values, can cause problems if left out
 	// if value matches default, it won't display in the URL
 	page: 1,
-	perPage: 10,
+	perPage: 20,
 	rulesetFilter: '',
 	filenameFilter: '',
 	showErrors: true,
@@ -57,7 +57,14 @@ export default Ember.Controller.extend({
 
 
 	userChanged: Ember.observer('applicationController.currentUser', function() {
-		this.set('runGroupFilter', this.get('applicationController.currentUser.group'));
+
+		let group = this.get('applicationController.currentUser.group');
+
+		if(group) {
+			this.set('runGroupFilter', group);
+		}
+
+
 	}),
 
 	runs: Ember.computed('model.runs.result', function () {

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+const apiBase = document.location.origin + '/api/v1';
+
 function addRule(controller, rule) {
 
 	var xmlHttp = new XMLHttpRequest();
@@ -26,7 +28,7 @@ function addRule(controller, rule) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/configuredrules/";
+	let theUrl = apiBase + "/configuredrules/";
 	let theJSON = {
 		rule: rule
 	};
@@ -64,9 +66,9 @@ export default Ember.Controller.extend({
 		let title = '';
 
 		if(type == 'source') {
-			title = 'Sources';
+			title = 'Download Locations';
 		} else if(type == 'target') {
-			title = 'Targets'
+			title = 'Upload Locations'
 		}
 
 		return title;
@@ -86,7 +88,17 @@ export default Ember.Controller.extend({
 			this.transitionToRoute({queryParams: {page: Math.min(this.page + 1, this.get('totalPages'))}});
 		},
 		openNewDialog(){
-			this.set("ptarget", "New " + this.get('typeFilter'));
+
+			const type = this.get('typeFilter');
+			let title = '';
+
+			if(type == 'source') {
+				title = 'Download Location';
+			} else if(type == 'target') {
+				title = 'Upload Location'
+			}
+
+			this.set("ptarget", "New " + title);
 			this.set("dialogtarget", "");
 			this.set("buttontext", "Save");
 			this.set("showdialog", true);
@@ -128,7 +140,7 @@ export default Ember.Controller.extend({
 					}
 				};
 
-				let theUrl = document.location.origin + "/configuredrules/" + rule.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theUrl = apiBase + "/configuredrules/" + rule.id;  // This 'id' should be the same as the 'ruleset_id'.
 				let theJSON = rule.toJSON();
 				theJSON.id = rule.id;
 

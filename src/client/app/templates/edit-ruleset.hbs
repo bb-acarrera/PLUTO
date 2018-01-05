@@ -5,7 +5,7 @@
 	{{/link-to}}
 
 
-	<h2>Edit Rules for
+	<h2>Validation Setup for
 
 		{{#if  model.ruleset.source}}
 			{{source.description}} {{model.ruleset.source.config.file}}
@@ -34,7 +34,7 @@ Process URL: {{processURL}}
 	{{#edit-ruleset/collapse as |c| }}
 
 		{{#c.title}}
-            Reporting
+            Notification
 		{{/c.title}}
 
 		{{#c.collapsable}}
@@ -58,7 +58,7 @@ Process URL: {{processURL}}
 	{{#edit-ruleset/collapse  as |c|}}
 
 		{{#c.title}}
-            Source:
+            Download from:
 		{{/c.title}}
 
 		{{#c.subTitle}}
@@ -128,7 +128,7 @@ Process URL: {{processURL}}
 		{{#edit-ruleset/collapse  as |c|}}
 
 			{{#c.title}}
-                Target:
+                Upload to:
 			{{/c.title}}
 
 			{{#c.subTitle}}
@@ -281,10 +281,10 @@ Process URL: {{processURL}}
 	{{/edit-ruleset/collapse}}
 
     <!-- general config -->
-	{{#edit-ruleset/collapse as |c| }}
+	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
 		{{#c.title}}
-            General Configuration
+            Global Configuration
 		{{/c.title}}
 
 		{{#c.collapsable}}
@@ -305,10 +305,10 @@ Process URL: {{processURL}}
 
 	{{#each model.ruleset.rules as |ruleInstance index|}}
 
-		{{#edit-ruleset/collapse as |c| }}
+		{{#edit-ruleset/collapse initialCollapsed=(get this (concat "collapseRule" ruleInstance.config.id) ) as |c| }}
 			{{#c.subTitle}}
 				<span class="rule-header">
-					{{ruleInstance.filename}}
+					{{compute (action "getTitle") model.rules ruleInstance.filename}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
 						- {{ruleInstance.name}}
 					{{/unless}}
@@ -362,16 +362,22 @@ Process URL: {{processURL}}
 
 	{{/each}}
 	{{#if showAddRule}}
-		<div class="section-content ruleset-section-content">
-            <select id="selectRule">
-                <option value="None" selected>None</option>
-				{{#each model.rules as |rule|}}
-                    <option value="{{rule.filename}}">{{rule.name}}</option>
-				{{/each}}
-            </select>
+		<div class="section-content ruleset-section-content"
+			 style="float: right; width:100%; display: flex; justify-content: flex-end">
+
+            <div style="display: inline-block;margin-right: 5px;flex: 1" onclick={{action "stopPropagation"}}>
+				{{#power-select
+				options=model.rules
+				matcher=ruleMatcher
+				onchange=(action "addRule" bubbles=false)
+				renderInPlace=true
+				initiallyOpened=true
+				as |ruleChoice|}}
+					{{if ruleChoice.title ruleChoice.title ruleChoice.name}}
+				{{/power-select}}
+			</div>
 
             <button {{action "hideAddRule"}}>Cancel</button>
-            <button {{action "addRule" model.ruleset model.rules}}><i class="fa fa-plus"></i></button>
 
 		</div>
 	{{/if}}
@@ -385,33 +391,48 @@ Process URL: {{processURL}}
 			{{/bs-button}}
         </span>
 
-		<span style="float: right">
-			{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
-                Save RuleSet
-			{{/bs-button}}
-		</span>
+
 
 
 	{{/if}}
 </div>
 
 {{#unless processing}}
-	{{#bs-button onClick=(action "testRuleset") disabled=changed}}
-        Test Ruleset
-	{{/bs-button}}
-    <span class={{concat "fileUpload btn btn-default " (if changed "disabled" )}}>
-        <span>Test Ruleset from local file</span>
 
-		{{#unless changed}}
-			{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
-		{{/unless}}
-    </span>
+	{{#unless applicationController.currentUser.features.hideTestButtons}}
+		{{#bs-button onClick=(action "runRuleset" true) disabled=changed}}
+            Test
+		{{/bs-button}}
+        <span class={{concat "fileUpload btn btn-default " (if changed "disabled" )}}>
+			<span>Test from local file</span>
+
+				{{#unless changed}}
+					{{file-upload url="/api/v1/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
+				{{/unless}}
+		</span>
+	{{/unless}}
+	{{#bs-button onClick=(action "runRuleset") disabled=changed}}
+        Upload
+	{{/bs-button}}
 
 	{{#if changed}}
-		You must save your changes before you can test them
+		You must save your changes to use
 	{{/if}}
 
 {{/unless}}
+
+{{#if (not disableEdit)}}
+    <span style="float: right">
+
+		{{#bs-button onClick=(action "deleteRuleset")}}
+            Delete
+		{{/bs-button}}
+
+		{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
+            Save
+		{{/bs-button}}
+    </span>
+{{/if}}
 
 {{#if processing}}
     <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>

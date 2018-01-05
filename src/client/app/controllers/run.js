@@ -10,9 +10,6 @@ export default Ember.Controller.extend({
 	ruleid: null,
 	type: null,
 	actions: {
-		goBack() {
-			window.history.back();
-		},
 
 		updateFilters() {
 

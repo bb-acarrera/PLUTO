@@ -19,16 +19,22 @@ class RulesetRouter extends BaseRouter {
 		super(config);
 
 		this.apiURL = '';
+		this.features = {};
 
-		if(this.config && this.config.validatorConfig && this.config.validatorConfig.configHost) {
+		if(this.config && this.config.validatorConfig) {
 
-			let configHostProtocol = 'http';
+			if(this.config.validatorConfig.configHost) {
+				let configHostProtocol = 'http';
 
-			if(this.config.validatorConfig.configHostProtocol) {
-				configHostProtocol = this.config.validatorConfig.configHostProtocol;
+				if(this.config.validatorConfig.configHostProtocol) {
+					configHostProtocol = this.config.validatorConfig.configHostProtocol;
+				}
+
+				this.apiURL = configHostProtocol + '://' + this.config.validatorConfig.configHost + '/api/v1/';
 			}
 
-			this.apiURL = configHostProtocol + '://' + this.config.validatorConfig.configHost + '/';
+			this.features.hideTestButtons = this.config.validatorConfig.hideTestButtons;
+
 		}
 	}
 
@@ -59,7 +65,10 @@ class RulesetRouter extends BaseRouter {
 							userid: auth.user,
 							group: auth.group,
 							admin: auth.admin,
-							apiurl: this.apiURL
+							apiurl: this.apiURL,
+							features: {
+								hideTestButtons: this.features.hideTestButtons
+							}
 						}
 					}
 				});

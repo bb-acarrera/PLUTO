@@ -1,5 +1,5 @@
 <div>
-	<div class="btn btn-success btn-sm btn-return-title" {{action "goBack"}}>
+	<div class="btn btn-success btn-sm btn-return-title" {{action "back"}}>
 		<i class="fa fa-angle-double-left"></i>
 	</div>
 
@@ -30,7 +30,7 @@
 <div>
 	{{#if model.ruleset}}
 		{{#if (not model.ruleset.deleted)}}
-			{{#link-to 'editRuleset' model.ruleset.filename}}Edit Current Ruleset{{/link-to}}
+			{{#link-to 'editRuleset' model.ruleset.filename}}Edit Validation Setup{{/link-to}}
 		{{/if}}
 	{{/if}}
 </div>

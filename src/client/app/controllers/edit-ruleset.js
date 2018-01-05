@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import moment from 'moment';
 
+const apiBase = document.location.origin + '/api/v1';
+
 function startPolling(id) {
 	this.set("processing", true);
 	let pollId = this.get('poll').addPoll({
@@ -19,6 +21,20 @@ function startPolling(id) {
 
 	this.set('pollId', pollId);
 }
+
+function findRuleConfig(list, itemName) {
+	let item = null;
+
+	if (list) {
+		list.forEach((i) => {
+			if (i.get('filename') == itemName) {
+				item = i;
+			}
+		})
+	}
+	return item;
+}
+
 export default Ember.Controller.extend( {
 	queryParams: [ "collapsedRun" ],
 
@@ -126,6 +142,10 @@ export default Ember.Controller.extend( {
 		}
 	}),
 
+	ruleMatcher(rule, term) {
+		return `${rule.get('name')} ${rule.get('title')}`.toLowerCase().indexOf(term.toLowerCase());
+	},
+
 	// {{applicationController.currentUser.apiUrl}}/processfile/{{url}}
 	actions: {
 		searchTarget(term) {
@@ -195,34 +215,30 @@ export default Ember.Controller.extend( {
 			this.set( 'showAddRule', false );
 		},
 
-		addRule ( ruleset, rules ) {
+		addRule ( rule ) {
 
-			const newRuleFilename = document.getElementById( "selectRule" ).value;
-			if ( newRuleFilename == "None" )
-				return;
-
+			const ruleset = this.get('model.ruleset');
 			let newRule = null;
 
-			rules.forEach( rule => {
-				if ( rule.get( "filename" ) == newRuleFilename ) {
-					newRule = {};
-					newRule.filename = rule.get( "filename" );
+			if ( rule ) {
+				newRule = {};
+				newRule.filename = rule.get( "filename" );
 
-					var uiConfig = rule.get( 'ui' ).properties;
-					var startingConfig = {};
-					uiConfig.forEach( config => {
-						if ( config.default ) {
-							startingConfig[ config.name ] = config.default;
-						}
-					} );
+				var uiConfig = rule.get( 'ui' ).properties;
+				var startingConfig = {};
+				uiConfig.forEach( config => {
+					if ( config.default ) {
+						startingConfig[ config.name ] = config.default;
+					}
+				} );
 
-					newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
-					newRule.config.id = createGUID();
+				newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
+				newRule.config.id = createGUID();
 
-					ruleset.get( "rules" ).push( newRule );
-					ruleset.notifyPropertyChange( "rules" );
-				}
-			} );
+				ruleset.get( "rules" ).push( newRule );
+				ruleset.notifyPropertyChange( "rules" );
+			}
+
 
 			this.set( 'showAddRule', false );
 			if(newRule) {
@@ -355,15 +371,7 @@ export default Ember.Controller.extend( {
 		},
 
 		getShortDescription(list, itemName) {
-			let item = null;
-
-			if(list) {
-				list.forEach((i) => {
-					if(i.get('filename') == itemName) {
-						item = i;
-					}
-				})
-			}
+			var item = findRuleConfig.call(this, list, itemName);
 
 			if(!item)
 				return null;
@@ -372,15 +380,7 @@ export default Ember.Controller.extend( {
 		},
 
 		getLongDescription(list, itemName) {
-			let item = null;
-
-			if(list) {
-				list.forEach((i) => {
-					if(i.get('filename') == itemName) {
-						item = i;
-					}
-				})
-			}
+			var item = findRuleConfig.call(this, list, itemName);
 
 			if(!item)
 				return null;
@@ -388,7 +388,21 @@ export default Ember.Controller.extend( {
 			return item.get('longdescription');
 		},
 
-		testRuleset() {
+		getTitle(list, itemName) {
+			var item = findRuleConfig.call(this, list, itemName);
+
+			if(!item)
+				return itemName;
+
+			var title = item.get('title');
+
+			if(!title || !title.length)
+				return itemName;
+
+			return title;
+		},
+
+		runRuleset(test) {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
 				if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -411,11 +425,13 @@ export default Ember.Controller.extend( {
 				}
 			};
 
-			let theUrl = document.location.origin + "/processFile/";
+			let theUrl = apiBase + "/processFile/";
 			let theJSON = {
 				ruleset: this.get('model.ruleset.filename'),
-				test: true
+				test: test
 			};
+
+
 
 			xmlHttp.open("POST", theUrl, true); // true for asynchronous
 			xmlHttp.setRequestHeader("Content-Type", "application/json");
@@ -426,6 +442,39 @@ export default Ember.Controller.extend( {
 			var tooltip = document.querySelector( ".tooltip" );	// ember-bootstrap uses this in their class name. (Can't see how to assign an ID.)
 			if (tooltip)
 				tooltip.style.display = 'none';
+		},
+
+		deleteRuleset() {
+
+			let ruleset = this.get('model.ruleset');
+
+			let name = this.get(ruleset.get("filename"));
+			if(this.get('model.ruleset.source')) {
+				name = this.get('source.description') + ' ' + this.get('model.ruleset.source.config.file')
+			}
+
+			if (confirm(`Delete "${name}"?`)) {
+				var xmlHttp = new XMLHttpRequest();
+				xmlHttp.onreadystatechange = () => {
+					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+						this.store.unloadRecord(ruleset);
+					}
+					else if (xmlHttp.readyState == 4) {
+						alert(`Failed to delete: ${xmlHttp.statusText}`);
+					}
+				};
+
+				let theUrl = apiBase + "/rulesets/" + ruleset.id;  // This 'id' should be the same as the 'ruleset_id'.
+				let theJSON = ruleset.toJSON();
+				theJSON.id = ruleset.id;
+
+				xmlHttp.open("DELETE", theUrl, true); // true for asynchronous
+				xmlHttp.setRequestHeader("Content-Type", "application/json");
+				xmlHttp.send(JSON.stringify(theJSON));
+
+
+				this.transitionToRoute('rulesets');
+			}
 		}
 	}
 } );
@@ -445,7 +494,7 @@ function save ( ruleset ) {
 		}
 	};
 
-	let theUrl = document.location.origin + "/rulesets/" + ruleset.id;
+	let theUrl = apiBase + "/rulesets/" + ruleset.id;
 	let theJSON = ruleset.toJSON();
 	// theJSON.id = ruleset.id;
 
