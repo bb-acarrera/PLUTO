@@ -407,7 +407,7 @@ Process URL: {{processURL}}
 			<span>Test from local file</span>
 
 				{{#unless changed}}
-					{{file-upload url="/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
+					{{file-upload url="/api/v1/processupload" ruleset=model.ruleset.filename completion=(action "toggleUpload") status=(action "showProcessing") disabled=changed}}
 				{{/unless}}
 		</span>
 	{{/unless}}
