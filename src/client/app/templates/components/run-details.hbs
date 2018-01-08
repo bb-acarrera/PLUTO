@@ -18,8 +18,8 @@
 
 			{{#if model.run.summary.exported}}
 				{{#if model.run.summary.target}}
-                    and sent to
-					{{model.run.summary.targetFile}} on target {{model.run.summary.target}}
+                    and uploaded as
+					{{model.run.summary.targetFile}} in {{model.run.summary.target}}
 				{{else}}
 					and exported via {{model.ruleset.export.filename}}
 				{{/if}}
