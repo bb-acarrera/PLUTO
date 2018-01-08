@@ -443,7 +443,14 @@ class Validator {
 							if(resultsFile) {
 								this.summary.exported = true;
 								if(this.currentRuleset.target) {
-									this.summary.target = this.currentRuleset.target.filename;
+
+									if(this.currentRuleset.targetDetails) {
+										this.summary.target = this.currentRuleset.targetDetails.description;
+									} else {
+										this.summary.target = this.currentRuleset.target.filename;
+									}
+
+									this.summary.targetid = this.currentRuleset.target.filename;
 									this.summary.targetFile = this.currentRuleset.target.config.file;
 								}
 							}
