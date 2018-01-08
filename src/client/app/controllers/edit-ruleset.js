@@ -121,7 +121,7 @@ export default Ember.Controller.extend( {
 			return encodeURI(apiBase + 'processfile/' + rulesetid);
 		}
 
-		return null;
+		return encodeURI(window.location.origin + '/api/v1/processfile/' + rulesetid);
 
 	}),
 	sourceChanged: Ember.observer('model.source', 'model.ruleset.source.filename', function() {
