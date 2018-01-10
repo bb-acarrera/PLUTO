@@ -649,9 +649,9 @@ class data {
                         targetFile = ruleset.target_file;
                     }
 
-                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, source_file) ' +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, targetFile, ruleset.source_file])
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
+                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, targetFile])
                         .then(() => {
                             resolve(ruleset);
                         }, (error) => {
@@ -715,9 +715,9 @@ class data {
                         targetFile = ruleset.target_file;
                     }
 
-                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, source_file, deleted) ' +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, targetFile, ruleset.source_file, true])
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, deleted) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, targetFile, true])
                         .then((result) => {
 
                             this.db.query(
@@ -843,20 +843,6 @@ class data {
 
             }
 
-            if(filters.sourceFileExactFilter && filters.sourceFileExactFilter.length) {
-                let subWhere = filters.sourceFileExactFilter;
-
-                extendWhere();
-
-                values.push( subWhere );
-                where += "{{currentRuleset}}.source_file = $" + values.length;
-
-                countValues.push( subWhere );
-                countWhere += "{{currentRuleset}}.source_file = $" + countValues.length;
-
-            }
-
-
             if(filters.notIdFilter && filters.notIdFilter.length) {
                 let subWhere = filters.notIdFilter;
 
@@ -887,11 +873,6 @@ class data {
 
                 extendWhere();
 
-                if(!joinedSource) {
-                    joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
-                }
-
                 values.push( subWhere );
                 where += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + values.length;
 
@@ -915,6 +896,23 @@ class data {
 
                 countValues.push( subWhere );
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
+            }
+
+            if(filters.sourceDescriptionExactFilter && filters.sourceDescriptionExactFilter.length) {
+                let subWhere = filters.sourceDescriptionExactFilter;
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description = $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description = $' + countValues.length;
             }
 
 
