@@ -70,7 +70,6 @@ class RuleSet {
 			} catch(e) {}
 
 		}
-
 	}
 
 	addParserDefaults(rulesLoader) {

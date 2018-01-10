@@ -552,9 +552,22 @@ class data {
                reject(e)
            } );
         });
+    }
 
+    rulesetExists(ruleset_id) {
+        return new Promise((resolve, reject) => {
+            getRuleset( this.db, ruleset_id, null, null, this.tables).then( (result) => {
+                if ( result.rows.length > 0 ) {
 
+                    resolve( true );
 
+                } else {
+                    resolve( false );
+                }
+            }, (e) => {
+                reject(e)
+            } );
+        });
     }
 
     rulesetValid(ruleset, checkIdUnique, checkTargetFile) {
@@ -697,9 +710,14 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
+                    let targetFile = null;
+                    if(this.config.forceUniqueTargetFile) {
+                        targetFile = ruleset.target_file;
+                    }
+
                     this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, deleted) ' +
                             "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, ruleset.target_file, true])
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, targetFile, true])
                         .then((result) => {
 
                             this.db.query(
@@ -850,6 +868,19 @@ class data {
                 countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
             }
 
+            if(filters.fileExactFilter && filters.fileExactFilter.length) {
+                let subWhere = filters.fileExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + countValues.length;
+
+            }
+
             if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
                 let subWhere = safeStringLike( filters.sourceDescriptionFilter );
 
@@ -865,6 +896,23 @@ class data {
 
                 countValues.push( subWhere );
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
+            }
+
+            if(filters.sourceDescriptionExactFilter && filters.sourceDescriptionExactFilter.length) {
+                let subWhere = filters.sourceDescriptionExactFilter;
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description = $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description = $' + countValues.length;
             }
 
 
@@ -907,11 +955,6 @@ class data {
 
 
     }
-
-
-
-
-
 
     ruleExists(rule_id) {
 
