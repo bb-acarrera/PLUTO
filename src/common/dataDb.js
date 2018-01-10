@@ -552,9 +552,22 @@ class data {
                reject(e)
            } );
         });
+    }
 
+    rulesetExists(ruleset_id) {
+        return new Promise((resolve, reject) => {
+            getRuleset( this.db, ruleset_id, null, null, this.tables).then( (result) => {
+                if ( result.rows.length > 0 ) {
 
+                    resolve( true );
 
+                } else {
+                    resolve( false );
+                }
+            }, (e) => {
+                reject(e)
+            } );
+        });
     }
 
     rulesetValid(ruleset, checkIdUnique, checkTargetFile) {
@@ -636,9 +649,9 @@ class data {
                         targetFile = ruleset.target_file;
                     }
 
-                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, targetFile])
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, source_file) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
+                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, targetFile, ruleset.source_file])
                         .then(() => {
                             resolve(ruleset);
                         }, (error) => {
@@ -697,9 +710,14 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
-                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, deleted) ' +
-                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, ruleset.target_file, true])
+                    let targetFile = null;
+                    if(this.config.forceUniqueTargetFile) {
+                        targetFile = ruleset.target_file;
+                    }
+
+                    this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, source_file, deleted) ' +
+                            "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id", this.tables),
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, targetFile, ruleset.source_file, true])
                         .then((result) => {
 
                             this.db.query(
@@ -825,6 +843,20 @@ class data {
 
             }
 
+            if(filters.sourceFileExactFilter && filters.sourceFileExactFilter.length) {
+                let subWhere = filters.sourceFileExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.source_file = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.source_file = $" + countValues.length;
+
+            }
+
+
             if(filters.notIdFilter && filters.notIdFilter.length) {
                 let subWhere = filters.notIdFilter;
 
@@ -848,6 +880,24 @@ class data {
 
                 countValues.push( subWhere );
                 countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
+            }
+
+            if(filters.fileExactFilter && filters.fileExactFilter.length) {
+                let subWhere = filters.fileExactFilter;
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + countValues.length;
+
             }
 
             if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
@@ -907,11 +957,6 @@ class data {
 
 
     }
-
-
-
-
-
 
     ruleExists(rule_id) {
 

@@ -42,35 +42,75 @@ class ProcessFileRouter extends BaseRouter {
         let outputFile;
         let importConfig;
         let test;
+        let sourceFile;
 
         if(req.body) {
             inputFile = req.body.input;
             outputFile = req.body.output;
             importConfig = req.body.import;
             test = req.body.test;
+            sourceFile = req.body.source_file;
         }
 
-        let finishHandler = null;
+        let prepProcessFile = () => {
+            let finishHandler = null;
 
-        if(!ruleset) {
-            res.json({
-                processing: 'Failed to start: no rule specified'
-            });
-            return;
-        }
+            if(!ruleset) {
+                res.json({
+                    processing: 'Failed to start: no rule specified'
+                });
+                return;
+            }
 
-        if(test) {
-            outputFile = this.getTempName(this.config);
+            if(test) {
+                outputFile = this.getTempName(this.config);
 
-            finishHandler = () => {
+                finishHandler = () => {
 
-                if (fs.existsSync(outputFile)) {
-                    fs.unlink(outputFile);
+                    if (fs.existsSync(outputFile)) {
+                        fs.unlink(outputFile);
+                    }
                 }
             }
+
+            this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, test, finishHandler));
+        };
+
+        if(sourceFile && !ruleset) {
+            this.config.data.getRulesets(1, 5, {
+                sourceFileExactFilter: sourceFile
+            }).then((result) => {
+                if(result.rulesets.length > 0) {
+                    ruleset = result.rulesets[0].ruleset_id;
+
+                    prepProcessFile();
+
+                } else {
+                    res.statusMessage = `${sourceFile} not found.`;
+                    res.status(404).send(`${sourceFile} not found.`);
+                }
+            }, (error) => {
+                next(error);
+            }).catch(next);
+        } else {
+
+            this.config.data.rulesetExists(ruleset).then((exists) => {
+
+                if(exists) {
+                    prepProcessFile();
+                } else {
+                    res.statusMessage = `${ruleset} not found.`;
+                    res.status(404).send(`${ruleset} not found.`);
+                }
+
+            }, (error) => {
+                next(error);
+            }).catch(next);
+
+
         }
 
-        this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, test, finishHandler));
+
     }
 
     processUpload(req, res, next) {
@@ -227,8 +267,6 @@ class ProcessFileRouter extends BaseRouter {
 
         })
     }
-
-
 
     // Create a unique temporary filename in the temp directory.
     getTempName(config) {
