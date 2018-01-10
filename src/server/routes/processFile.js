@@ -131,24 +131,36 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
-        // Use the mv() method to place the file somewhere on your server
-        file.mv(fileToProcess, err => {
-            if (err)
-                return res.status(500).send(err);
+        this.config.data.rulesetExists(ruleset).then((exists) => {
 
-            this.generateResponse(res, ruleset,
-                this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, false, () => {
+            if(exists) {
+                // Use the mv() method to place the file somewhere on your server
+                file.mv(fileToProcess, err => {
+                    if (err)
+                        return res.status(500).send(err);
 
-                    fs.unlink(fileToProcess);
+                    this.generateResponse(res, ruleset,
+                        this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, false, () => {
 
-                    if (fs.existsSync(outputFile)) {
-                        fs.unlink(outputFile);
-                    }
-                })
-            );
+                            fs.unlink(fileToProcess);
+
+                            if (fs.existsSync(outputFile)) {
+                                fs.unlink(outputFile);
+                            }
+                        })
+                    );
 
 
-        });
+                });
+            } else {
+                res.statusMessage = `${ruleset} not found.`;
+                res.status(404).send(`${ruleset} not found.`);
+            }
+
+        }, (error) => {
+            next(error);
+        }).catch(next);
+
     }
 
     generateResponse(res, ruleset, processFilePromise) {
