@@ -5,6 +5,8 @@ const fs = require('fs-extra');
 const path = require("path");
 const rimraf = require('rimraf');
 const stream = require('stream');
+const md5File = require('md5-file');
+
 
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
@@ -187,6 +189,21 @@ class Validator {
 		}
 
     }
+
+	checkFile(ruleset, file) {
+
+		try {
+
+			if (!fs.existsSync(file))
+				throw "Input file \"" + file + "\" does not exist.";
+
+		} catch(e) {
+			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			throw e;
+		}
+
+		runRules(ruleset, file);
+	}
 
 	/*
 	 * Run the list of rules that are all in the same rulesDirectory, starting with the given file.
