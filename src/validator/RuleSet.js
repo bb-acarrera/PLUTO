@@ -70,20 +70,6 @@ class RuleSet {
 			} catch(e) {}
 
 		}
-
-		let sourcePath;
-		if(this.source) {
-			if(this.source.config && this.source.config.file) {
-				sourcePath = this.source.config.file
-			}
-		}
-
-		if(sourcePath) {
-			try {
-				this.source_file = path.basename(sourcePath);
-			} catch(e) {}
-		}
-
 	}
 
 	addParserDefaults(rulesLoader) {

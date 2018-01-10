@@ -78,7 +78,7 @@ class ProcessFileRouter extends BaseRouter {
 
         if(sourceFile && !ruleset) {
             this.config.data.getRulesets(1, 5, {
-                sourceFileExactFilter: sourceFile
+                fileExactFilter: sourceFile
             }).then((result) => {
                 if(result.rulesets.length > 0) {
                     ruleset = result.rulesets[0].ruleset_id;
