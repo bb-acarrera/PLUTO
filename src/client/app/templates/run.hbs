@@ -12,10 +12,9 @@
 			{{model.run.inputfilename}}
 		{{/if}}
 
-		{{#if model.run.passed}}
+		{{#if passed}}
             <i class="fa fa-thumbs-up good-color"></i>
-
-		{{else}}
+		{{else if failed}}
             <i class="fa fa-thumbs-down error-color"></i>
 		{{/if}}
 	</h3>

@@ -66,7 +66,8 @@ function runRuleset(controller, rulesetId) {
 
 	let theUrl = apiBase + "/processFile/";
 	let theJSON = {
-		ruleset: rulesetId
+		ruleset: rulesetId,
+		report_skip: true
 	};
 
 	xmlHttp.open("POST", theUrl, true); // true for asynchronous
@@ -86,8 +87,8 @@ function startPolling(controller, rulesetID, runID) {
 		callback: () => {
 			let run = controller.get('rulesetTrackerMap').get(rulesetID).get('run');
 			var _runId = run.get('runID');	// Somehow the passed in runID is getting overwritten eventually.
-			controller.store.findRecord('run', _runId).then(
-				runDetails => {
+			controller.store.queryRecord('run', {id: _runId}).then(
+				(runDetails) => {
 					if (!runDetails.get('isrunning')) {
 						run.set('processing', false);
 						var pId = run.get('pollId');
@@ -98,6 +99,10 @@ function startPolling(controller, rulesetID, runID) {
 					} else {
 						run.set('processing', true);
 					}
+				}).catch(() => {
+					run.set('processing', false);
+					var pId = run.get('pollId');
+					controller.get('poll').stopPoll(pId);
 				});
 		}
 	});

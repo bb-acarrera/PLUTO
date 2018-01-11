@@ -44,7 +44,7 @@
 							<i class="fa fa-exclamation error-color"></i>
 						{{else if rulesetInstance.run.processing}}
 							<i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>
-						{{else}}
+						{{else if rulesetInstance.run.details}}
 
 							{{#link-to "run" rulesetInstance.run.runID}}
 								{{#pass-fail-icon runcounts=rulesetInstance.run.details}}{{/pass-fail-icon}}
