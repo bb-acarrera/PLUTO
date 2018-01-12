@@ -52,6 +52,7 @@ class RunsRouter extends BaseRouter {
             let showDropped = JSON.parse(req.query.droppedFilter || true);
             let showPassed = JSON.parse(req.query.passedFilter || true);
             let showFailed = JSON.parse(req.query.failedFilter || true);
+            let showValidOnly = JSON.parse(req.query.failedFilter || false);
 
             if(req.query.dateFilter && req.query.dateFilter.length > 0) {
                 let time = Date.parse(req.query.dateFilter);
@@ -83,7 +84,8 @@ class RunsRouter extends BaseRouter {
                 showFailed: showFailed,
                 sourceFileFilter: req.query.sourceFileFilter,
                 sourceFilter: req.query.sourceFilter,
-                rulesetIdListFilter: req.query.rulesetIdListFilter
+                rulesetIdListFilter: req.query.rulesetIdListFilter,
+                showValidOnly: showValidOnly
             }).then((result) => {
                     var data = [];
 

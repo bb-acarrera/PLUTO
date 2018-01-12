@@ -295,6 +295,16 @@ class data {
                 countWhere += errorsWhere;
             }
 
+            if( filters.showValidOnly ) {
+                extendWhere();
+
+                subWhere = "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                    "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE)";
+
+                where += subWhere;
+                countWhere += subWhere;
+            }
+
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
                 subWhere = safeStringLike( filters.rulesetFilter );
 
@@ -421,7 +431,8 @@ class data {
                 "SELECT MAX({{runs}}.id) FROM {{runs}} " +
                 "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
                 "WHERE {{rulesets}}.ruleset_id IN (" + valuesList + ") AND " +
-                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE) " +
                 "GROUP BY {{rulesets}}.ruleset_id)";
 
 
@@ -429,7 +440,8 @@ class data {
                     "SELECT MAX({{runs}}.id) FROM {{runs}} " +
                     "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
                     "WHERE {{rulesets}}.ruleset_id IN (" + countValuesList + ") AND " +
-                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                    "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE) " +
                     "GROUP BY {{rulesets}}.ruleset_id)";
             }
 

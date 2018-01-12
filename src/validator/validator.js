@@ -276,21 +276,9 @@ class Validator {
 				}
 
 				//found a match
-				this.runRecordUpdated = true;
-				if(this.config.reportOnMd5HashCheckFail) {
-
-					this.warning("The configuration and file are the same as the last validation. Nothing to validate or upload.");
-
-					this.data.saveRunRecord(this.runId, this.logger.getLog(), null, null, null, this.logger.getCounts(), null, null, null, true)
-						.then(()=>{},()=>{}).catch(()=>{}).then(() => {
-							resolve(false);
-						});
-				} else {
-					this.data.deleteRunRecord(this.runId)
-						.then(()=>{},()=>{}).catch(()=>{}).then(() => {
-							resolve(false);
-						});
-				}
+				this.warning("The configuration and file are the same as the last validation. Nothing to validate or upload.");
+				this.skipped = true;
+				resolve(false);
 
 			}, (err) => {
 				//some unknown problem getting the list
@@ -519,17 +507,18 @@ class Validator {
 				results = null;
 			}
 
-			if(!results && !this.abort) {
-				console.error("No results");
-				this.error("No results were produced.");
-			}
 
-			if(this.outputFileName) {
+			if(!results) {
 
-				if(results) {
-					this.saveResults(results);
-
+				if(!this.abort && !this.skipped) {
+					console.error("No results");
+					this.error("No results were produced.");
 				}
+
+				this.finalize().then(() => resolve());
+			} else if(this.outputFileName) {
+
+				this.saveResults(results);
 				this.finalize().then(() => resolve());
 
 			} else if(this.currentRuleset && this.currentRuleset.export) {
@@ -596,6 +585,7 @@ class Validator {
 		summary.processeditems = 0;
 		summary.outputitems = 0;
 		summary.wasTest = this.config.testOnly;
+		summary.wasSkipped = this.skipped;
 
 		if(this.executedRules) {
 			//find the initial # of processed items
@@ -631,7 +621,7 @@ class Validator {
 		return new Promise((resolve) => {
 
 			function postSave() {
-				if (this.reporter && !this.config.testOnly)
+				if (this.reporter && !this.config.testOnly &&!this.config.skipped)
 					this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
 				this.cleanup();
 				resolve();
@@ -639,14 +629,14 @@ class Validator {
 
 			function saveRunRecord() {
 
-				if(this.runRecordUpdated) {
-					postSave.call(this);
-					return;
+				let passed = null;
+				if(!this.skipped) {
+					passed = !this.abort;
 				}
 
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
 					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-					!this.abort, this.summary, null, true)
+					passed, this.summary, null, true)
 					.then(() => { //no-op
 					}, (error) => console.log('error saving run: ' + error))
 					.catch((e) => console.log('Exception saving run: ' + e))
