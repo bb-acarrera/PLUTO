@@ -85,7 +85,8 @@ class RunsRouter extends BaseRouter {
                 sourceFileFilter: req.query.sourceFileFilter,
                 sourceFilter: req.query.sourceFilter,
                 rulesetIdListFilter: req.query.rulesetIdListFilter,
-                showValidOnly: showValidOnly
+                showValidOnly: showValidOnly,
+                idFilter: req.query.idFilter
             }).then((result) => {
                     var data = [];
 

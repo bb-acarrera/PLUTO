@@ -271,3 +271,7 @@ div.expand-controls {
 .run-section-break {
 	padding-bottom: 12px;
 }
+
+.input-run-id {
+	width: 60px;
+}
