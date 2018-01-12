@@ -436,15 +436,15 @@ function cleanNumber(value, defaultVal, fn) {
 }
 
 function updateConfig(dbItem, locItem, targetItem) {
-	for(const key in locItem) {
-		if(locItem.hasOwnProperty(key)) {
-			targetItem[key] = locItem[key];
-		}
-	}
-
 	for(const key in dbItem) {
 		if(dbItem.hasOwnProperty(key)) {
 			targetItem[key] = dbItem[key];
+		}
+	}
+
+	for(const key in locItem) {
+		if(locItem.hasOwnProperty(key)) {
+			targetItem[key] = locItem[key];
 		}
 	}
 }
