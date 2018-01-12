@@ -81,6 +81,14 @@ export default Ember.Component.extend({
 		return out;
 	}),
 
+	passed: Ember.computed('model.run.passed', function () {
+		return this.get('model.run.passed') === true;
+	}),
+
+	failed: Ember.computed('model.run.passed', function () {
+		return this.get('model.run.passed') === false;
+	}),
+
 	ruleData: Ember.computed('model.ruleset.rules','model.log', function() {
 		let rules = this.get('model.ruleset.rules');
 		let log = this.get('model.log.meta.ruleState');

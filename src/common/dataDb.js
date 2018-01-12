@@ -203,8 +203,9 @@ class data {
 
         return new Promise( ( resolve, reject ) => {
 
-            let where = "", countWhere = "", rulesetWhere = "", filenameWhere = "";
-            let join = "", joinedSource = false;
+            let where = "", countWhere = "", subWhere = "", filenameWhere = "";
+            let allJoin = "", joinedSource = false;
+            let join = '', countJoin = '';
 
             let values = [ size, offset ];
             let countValues = [];
@@ -294,18 +295,68 @@ class data {
                 countWhere += errorsWhere;
             }
 
+            if( filters.showValidOnly ) {
+                extendWhere();
+
+                subWhere = "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                    "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE)";
+
+                where += subWhere;
+                countWhere += subWhere;
+            }
+
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
-                rulesetWhere = safeStringLike( filters.rulesetFilter );
+                subWhere = safeStringLike( filters.rulesetFilter );
 
                 extendWhere();
 
-                values.push( rulesetWhere );
+                values.push( subWhere );
                 where += "{{rulesets}}.ruleset_id ILIKE $" + values.length;
 
-                countValues.push( rulesetWhere );
+                countValues.push( subWhere );
                 countWhere += "{{rulesets}}.ruleset_id ILIKE $" + countValues.length;
 
             }
+
+            if ( filters.rulesetExactFilter && filters.rulesetExactFilter.length ) {
+                subWhere = filters.rulesetExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{rulesets}}.ruleset_id = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{rulesets}}.ruleset_id = $" + countValues.length;
+
+            }
+
+            if ( filters.rulesetVersionIdFilter != null ) {
+                subWhere = filters.rulesetVersionIdFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{runs}}.ruleset_id = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{runs}}.ruleset_id = $" + countValues.length;
+
+            }
+
+            if ( filters.inputMd5Filter && filters.inputMd5Filter.length ) {
+                subWhere = filters.inputMd5Filter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{runs}}.input_md5 = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{runs}}.input_md5 = $" + countValues.length;
+
+            }
+
 
             if ( filters.filenameFilter && filters.filenameFilter.length > 0 ) {
                 filenameWhere = safeStringLike( filters.filenameFilter );
@@ -380,7 +431,8 @@ class data {
                 "SELECT MAX({{runs}}.id) FROM {{runs}} " +
                 "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
                 "WHERE {{rulesets}}.ruleset_id IN (" + valuesList + ") AND " +
-                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE) " +
                 "GROUP BY {{rulesets}}.ruleset_id)";
 
 
@@ -388,7 +440,8 @@ class data {
                     "SELECT MAX({{runs}}.id) FROM {{runs}} " +
                     "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
                     "WHERE {{rulesets}}.ruleset_id IN (" + countValuesList + ") AND " +
-                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                    "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE) " +
                     "GROUP BY {{rulesets}}.ruleset_id)";
             }
 
@@ -399,7 +452,7 @@ class data {
 
                 if(!joinedSource) {
                     joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{rulesets}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                    allJoin += " LEFT OUTER JOIN {{currentRule}} ON {{rulesets}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
                 }
 
                 values.push( subWhere );
@@ -409,10 +462,32 @@ class data {
                 countWhere += '({{currentRule}}."group" ILIKE $' + countValues.length + ' OR {{currentRule}}.description ILIKE $' + countValues.length + ')';
             }
 
+            if(filters.latestRulesetVersionWithMd5 === true) {
 
-            if(join && join.length > 0) {
-                where = join + ' ' + where;
-                countWhere = join + ' ' + countWhere;
+                function getLatestRulesetVersionWithMd5SQL(where) {
+                    return ' JOIN (SELECT {{runs}}.ruleset_id, ' +
+                        'max({{runs}}.finishtime) AS finishtime ' +
+                        'FROM {{runs}} ' +
+                        'WHERE {{runs}}.input_md5 IS NOT NULL ' + where +
+                        'GROUP BY {{runs}}.ruleset_id) c ON c.ruleset_id = {{runs}}.ruleset_id AND c.finishtime = {{runs}}.finishtime';
+                }
+
+                if(filters.latestRulesetVersionExcludeRunId != null) {
+                    values.push( filters.latestRulesetVersionExcludeRunId );
+                    join += getLatestRulesetVersionWithMd5SQL('AND {{runs}}.id <> $'+ values.length);
+
+                    countValues.push( filters.latestRulesetVersionExcludeRunId );
+                    countJoin += getLatestRulesetVersionWithMd5SQL('AND {{runs}}.id <> $'+ countValues.length);
+
+                } else {
+                    allJoin += getLatestRulesetVersionWithMd5SQL('');
+                }
+            }
+
+
+            if(allJoin.length > 0 || join.length > 0) {
+                where = allJoin + ' ' + join + ' ' + where;
+                countWhere = allJoin + ' ' + countJoin +  ' ' + countWhere;
             }
 
 
@@ -473,9 +548,9 @@ class data {
 
                 let date = new Date();
 
-                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime, passed) " +
-                        "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
-                    [rulesetId, date, date, false])
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime) " +
+                        "VALUES($1, $2, $3) RETURNING id", this.tables),
+                    [rulesetId, date, date])
                     .then((result) => {
                         resolve(result.rows[0].id);
                     }, (error) => {
@@ -498,27 +573,101 @@ class data {
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary) {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary, inputMd5, finished) {
 
         return new Promise((resolve, reject) => {
-            let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
-        	let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
-            let numDropped = logCounts[ErrorHandlerAPI.DROPPED] || 0;
 
-        	this.db.query(updateTableNames("UPDATE {{runs}} SET " +
-        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7, " +
-                "num_dropped = $8, passed = $9, summary = $10 " +
-            	"WHERE id = $1", this.tables),
-            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings, numDropped,
-                    passed, JSON.stringify(summary)])
-            	.then(() => {
-            		resolve();
-            	}, (error) => {
-                	console.log(error);
-                	reject(error);
-            	});
+            let values = [];
+            let valueStr = '';
+
+            function extend() {
+                if ( valueStr.length !== 0 ) {
+                    valueStr += ', ';
+                }
+            }
+
+            values.push(runId);
+
+            if(logCounts) {
+                extend();
+
+                values.push(logCounts[ErrorHandlerAPI.ERROR] || 0);
+                valueStr += `num_errors = $${values.length},`;
+
+                values.push(logCounts[ErrorHandlerAPI.WARNING] || 0);
+                valueStr += `num_warnings = $${values.length},`;
+
+                values.push(logCounts[ErrorHandlerAPI.DROPPED] || 0);
+                valueStr += `num_dropped = $${values.length}`;
+            }
+
+            if(inputFile) {
+                extend();
+                values.push(inputFile);
+                valueStr += `inputfile = $${values.length}`;
+            }
+
+            if(outputFile) {
+                extend();
+                values.push(outputFile);
+                valueStr += `outputfile = $${values.length}`;
+            }
+
+            if(passed != null) {
+                extend();
+                values.push(passed);
+                valueStr += `passed = $${values.length}`;
+            }
+
+            if(log) {
+                extend();
+                values.push(JSON.stringify(log));
+                valueStr += `log = $${values.length}`;
+            }
+
+            if(summary) {
+                extend();
+                values.push(JSON.stringify(summary));
+                valueStr += `summary = $${values.length}`;
+            }
+
+            if(inputMd5) {
+                extend();
+                values.push(inputMd5);
+                valueStr += `input_md5 = $${values.length}`;
+            }
+
+            if(finished || passed != null) {
+                extend();
+                values.push(new Date());
+                valueStr += `finishtime = $${values.length}`;
+            }
+
+            this.db.query(updateTableNames("UPDATE {{runs}} SET " +
+                    valueStr +
+                    " WHERE id = $1", this.tables), values)
+                .then(() => {
+                    resolve();
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                });
+
         });
 
+    }
+
+    deleteRunRecord(runId) {
+        return new Promise((resolve, reject) => {
+
+            this.db.query(updateTableNames("DELETE FROM {{runs}} WHERE id = $1", this.tables), [runId])
+                .then((result) => {
+                    resolve();
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        });
     }
 
     /**
@@ -1292,9 +1441,9 @@ function generateId(tableName, idName) {
 }
 
 function getRunQuery(tableNames) {
-    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
-        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
-        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed, " +
+    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, {{runs}}.run_id, {{runs}}.inputfile, {{runs}}.outputfile, {{runs}}.finishtime, " +
+        "{{runs}}.num_errors, {{runs}}.num_warnings, {{runs}}.starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
+        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed, {{runs}}.input_md5, " +
         "{{rulesets}}.rules->'source'->>'filename' as sourceid, {{rulesets}}.rules->'source'->'config'->>'file' as sourcefile " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
@@ -1322,7 +1471,8 @@ function getRunResult(row) {
         deleted: row.deleted,
         group: row.owner_group,
         sourceid: row.sourceid,
-        sourcefile: row.sourcefile
+        sourcefile: row.sourcefile,
+        inputmd5: row.input_md5
     };
 }
 

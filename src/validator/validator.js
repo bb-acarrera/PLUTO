@@ -5,6 +5,8 @@ const fs = require('fs-extra');
 const path = require("path");
 const rimraf = require('rimraf');
 const stream = require('stream');
+const md5File = require('md5-file');
+
 
 const ErrorHandlerAPI = require("../api/errorHandlerAPI");
 
@@ -166,7 +168,7 @@ class Validator {
 			}
 
 
-			this.runRules(ruleset, this.inputFileName);
+			this.checkFile(ruleset, this.inputFileName);
 		} else {
 			this.inputFileName = this.getTempName();
 
@@ -174,7 +176,7 @@ class Validator {
 
 					this.displayInputFileName = displayInputFileName;
 
-					this.runRules(ruleset, this.inputFileName);
+					this.checkFile(ruleset, this.inputFileName);
 
 
 				},error => {
@@ -188,6 +190,106 @@ class Validator {
 
     }
 
+	checkFile(ruleset, file) {
+
+		try {
+
+			if (!fs.existsSync(file))
+				throw "Input file \"" + file + "\" does not exist.";
+
+		} catch(e) {
+			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			throw e;
+		}
+
+		md5File(file, (err, hash) => {
+
+			try
+			{
+				if(err) {
+					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+					throw err;
+				}
+
+				this.checkHash(ruleset, hash).then((proceed) => {
+
+					if(proceed) {
+						this.runRules(ruleset, file);
+					} else {
+						this.finishRun();
+					}
+
+				}, (err) => {
+					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+					throw err;
+				}).catch(() => {
+					this.finishRun();
+				});
+			} catch(e) {
+				this.finishRun();
+			}
+
+		});
+	}
+
+	// returns Promise, with value true if the check is OK, and false if the check matches and we should not proceed.
+	checkHash(ruleset, hash) {
+
+		return new Promise((resolve) => {
+
+			if(this.config.testOnly) {
+				resolve(true);
+				return;
+			} else if(!this.config.doMd5HashCheck) {
+				//update the hash
+				this.data.saveRunRecord(this.runId, null, null, null, null, null, null, null, hash)
+					.then(()=>{},()=>{}).catch(()=>{}).then(() => {
+						resolve(true);
+					});
+
+				return;
+			}
+
+			//TODO: only look at the last run
+			this.data.getRuns(1,1, {
+				rulesetVersionIdFilter: ruleset.id,
+				inputMd5Filter: hash,
+				latestRulesetVersionWithMd5: true,
+				latestRulesetVersionExcludeRunId: this.runId,
+				showErrors: true,
+				showWarnings: true,
+				showNone: true,
+				showDropped: true,
+				showPassed: true,
+				showFailed: true
+			}).then((results) => {
+
+				if(results.runs.length == 0) {
+					//no match, so we can proceed
+					//update the hash
+					this.data.saveRunRecord(this.runId, null, null, null, null, null, null, null, hash)
+						.then(()=>{},()=>{}).catch(()=>{}).then(() => {
+							resolve(true);
+						});
+
+					return;
+				}
+
+				//found a match
+				this.warning("The configuration and file are the same as the last validation. Nothing to validate or upload.");
+				this.skipped = true;
+				resolve(false);
+
+			}, (err) => {
+				//some unknown problem getting the list
+				this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+				throw err;
+			});
+
+		})
+
+	}
+
 	/*
 	 * Run the list of rules that are all in the same rulesDirectory, starting with the given file.
 	 * (The output from a rule will generally be a new file which is input to the next rule.)
@@ -198,9 +300,6 @@ class Validator {
 		this.abort = false;
 
 		try {
-
-			if (!fs.existsSync(file))
-				throw "Input file \"" + file + "\" does not exist.";
 
 			if (!ruleset.rules || ruleset.rules.length == 0) {
 				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
@@ -408,17 +507,18 @@ class Validator {
 				results = null;
 			}
 
-			if(!results && !this.abort) {
-				console.error("No results");
-				this.error("No results were produced.");
-			}
 
-			if(this.outputFileName) {
+			if(!results) {
 
-				if(results) {
-					this.saveResults(results);
-
+				if(!this.abort && !this.skipped) {
+					console.error("No results");
+					this.error("No results were produced.");
 				}
+
+				this.finalize().then(() => resolve());
+			} else if(this.outputFileName) {
+
+				this.saveResults(results);
 				this.finalize().then(() => resolve());
 
 			} else if(this.currentRuleset && this.currentRuleset.export) {
@@ -485,6 +585,7 @@ class Validator {
 		summary.processeditems = 0;
 		summary.outputitems = 0;
 		summary.wasTest = this.config.testOnly;
+		summary.wasSkipped = this.skipped;
 
 		if(this.executedRules) {
 			//find the initial # of processed items
@@ -518,18 +619,29 @@ class Validator {
 
 	finalize() {
 		return new Promise((resolve) => {
+
+			function postSave() {
+				if (this.reporter && !this.config.testOnly &&!this.config.skipped)
+					this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
+				this.cleanup();
+				resolve();
+			}
+
 			function saveRunRecord() {
+
+				let passed = null;
+				if(!this.skipped) {
+					passed = !this.abort;
+				}
+
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
 					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-					!this.abort, this.summary)
-					.then(() => {
+					passed, this.summary, null, true)
+					.then(() => { //no-op
 					}, (error) => console.log('error saving run: ' + error))
 					.catch((e) => console.log('Exception saving run: ' + e))
 					.then(() => {
-						if (this.reporter && !this.config.testOnly)
-							this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
-						this.cleanup();
-						resolve();
+						postSave.call(this);
 					});
 			}
 
@@ -540,9 +652,6 @@ class Validator {
 			} else {
 				saveRunRecord.call(this);
 			}
-
-
-
 		});
 	}
 

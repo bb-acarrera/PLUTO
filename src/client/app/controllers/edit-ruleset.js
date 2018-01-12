@@ -8,13 +8,17 @@ function startPolling(id) {
 	let pollId = this.get('poll').addPoll({
 		interval: 1000, // one minute
 		callback: () => {
-			this.store.findRecord('run', id).then(
+			this.store.queryRecord('run', {id: id}).then(
 				run => {
 					if (!run.get('isrunning')) {
 						this.set("processing", false);
 						let rulesetid = this.model.ruleset.get("filename");
 						this.replaceRoute("editRuleset.run", rulesetid, id);
 					}
+				}).catch(() => {
+					this.set('processing', false);
+					let rulesetid = this.model.ruleset.get("filename");
+					this.replaceRoute("editRuleset", rulesetid);
 				});
 		}
 	});

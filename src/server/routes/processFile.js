@@ -73,7 +73,9 @@ class ProcessFileRouter extends BaseRouter {
                 }
             }
 
-            this.generateResponse(res, ruleset, this.processFile(ruleset, importConfig, inputFile, outputFile, null, next, res, test, finishHandler));
+            this.generateResponse(res, ruleset,
+                this.processFile(ruleset, importConfig, inputFile, outputFile, null,
+                    next, res, test, finishHandler));
         };
 
         if(sourceFile && !ruleset) {
@@ -140,7 +142,7 @@ class ProcessFileRouter extends BaseRouter {
                         return res.status(500).send(err);
 
                     this.generateResponse(res, ruleset,
-                        this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, false, () => {
+                        this.processFile(ruleset, null, fileToProcess, outputFile, 'Upload test: ' + file.name, next, res, true, () => {
 
                             fs.unlink(fileToProcess);
 
@@ -221,6 +223,9 @@ class ProcessFileRouter extends BaseRouter {
             if (test) {
                 execCmd += ' -t';
                 spawnArgs.push('-t');
+            }  else {
+                execCmd += ' -h';
+                spawnArgs.push('-h');
             }
 
             const options = {
