@@ -32,13 +32,7 @@ program
     .option('-l, --local', 'Run the validator locally (no database, run rulesets from disk, write outputs to results folder)')
     .option('-n, --inputname <string>', 'Filename to use in run record for reporting')
     .option('-t, --testOnly', 'Test the input. Do not upload or report results. Default false')
-    .option('-h, --checkhash  <string>',
-        'Perform an md5 hash check of the last run of this ruleset.  Values: \n ' +
-        '  "check": Check the hash of the input file against the last run for this ruleset, if the hash is the same don\'t process and do not create a run record.\n' +
-        '  "nocheck": Do no perform the md5 hash check.\n' +
-        '  "checkreport": Check the hash of the input file against the last run for this ruleset, if the hash is the same don\'t process and create a run record.\n' +
-        'Default "nocheck"\n' +
-        'If "testOnly" is set this is ignored and no md5 hash check is performed.')
+    .option('-h, --checkhash', 'Perform an md5 hash check of the last run of this ruleset. Default false')
     .parse(process.argv);
 
 if (!program.config)
@@ -73,25 +67,9 @@ if(program.rulesetoverride) {
 // Test the input file, ruleset, and config. Do not report the results. (But do save to the local file if given.)
 config.testOnly = program.testOnly;
 
-if(!config.testOnly && program.checkhash != null) {
+if(!config.testOnly && program.checkhash) {
 
-    switch(program.checkhash) {
-        case 'check':
-            config.doMd5HashCheck = true;
-            config.reportOnMd5HashCheckFail = false;
-            break;
-        case 'checkreport':
-            config.doMd5HashCheck = true;
-            config.reportOnMd5HashCheckFail = true;
-            break;
-        case 'nocheck':
-            break;
-        default:
-            program.help((text) => {
-                return program.checkhash + " is not a valid value for checkhash.\n" + text;
-            });
-    }
-
+    config.doMd5HashCheck = true;
 
 }
 

@@ -42,7 +42,7 @@ class ProcessFileRouter extends BaseRouter {
         let outputFile;
         let importConfig;
         let test;
-        let sourceFile, reportSkip;
+        let sourceFile;
 
         if(req.body) {
             inputFile = req.body.input;
@@ -50,7 +50,6 @@ class ProcessFileRouter extends BaseRouter {
             importConfig = req.body.import;
             test = req.body.test;
             sourceFile = req.body.source_file;
-            reportSkip = req.body.report_skip;
         }
 
         let prepProcessFile = () => {
@@ -76,7 +75,7 @@ class ProcessFileRouter extends BaseRouter {
 
             this.generateResponse(res, ruleset,
                 this.processFile(ruleset, importConfig, inputFile, outputFile, null,
-                    next, res, test, reportSkip, finishHandler));
+                    next, res, test, finishHandler));
         };
 
         if(sourceFile && !ruleset) {
@@ -188,7 +187,7 @@ class ProcessFileRouter extends BaseRouter {
         });
     }
 
-    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, reportSkip, finishedFn) {
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn) {
         return new Promise((resolve, reject) => {
 
             var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
@@ -224,14 +223,9 @@ class ProcessFileRouter extends BaseRouter {
             if (test) {
                 execCmd += ' -t';
                 spawnArgs.push('-t');
-            } else if(reportSkip) {
-                execCmd += ' -h checkreport';
+            }  else {
+                execCmd += ' -h';
                 spawnArgs.push('-h');
-                spawnArgs.push('checkreport');
-            } else {
-                execCmd += ' -h check';
-                spawnArgs.push('-h');
-                spawnArgs.push('check');
             }
 
             const options = {

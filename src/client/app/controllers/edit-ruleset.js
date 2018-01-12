@@ -432,8 +432,7 @@ export default Ember.Controller.extend( {
 			let theUrl = apiBase + "/processFile/";
 			let theJSON = {
 				ruleset: this.get('model.ruleset.filename'),
-				test: test,
-				report_skip: true
+				test: test
 			};
 
 

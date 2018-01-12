@@ -66,8 +66,7 @@ function runRuleset(controller, rulesetId) {
 
 	let theUrl = apiBase + "/processFile/";
 	let theJSON = {
-		ruleset: rulesetId,
-		report_skip: true
+		ruleset: rulesetId
 	};
 
 	xmlHttp.open("POST", theUrl, true); // true for asynchronous
