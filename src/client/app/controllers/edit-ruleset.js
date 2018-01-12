@@ -462,8 +462,9 @@ export default Ember.Controller.extend( {
 				xmlHttp.onreadystatechange = () => {
 					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 						this.store.unloadRecord(ruleset);
+						this.transitionToRoute('rulesets');
 					}
-					else if (xmlHttp.readyState == 4) {
+					else if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
 						alert(`Failed to delete: ${xmlHttp.statusText}`);
 					}
 				};
@@ -477,7 +478,7 @@ export default Ember.Controller.extend( {
 				xmlHttp.send(JSON.stringify(theJSON));
 
 
-				this.transitionToRoute('rulesets');
+
 			}
 		}
 	}

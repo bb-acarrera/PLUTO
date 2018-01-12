@@ -299,6 +299,7 @@ export default Ember.Controller.extend({
 					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 						rulesets.removeObject(ruleset);
 						rulesets.notifyPropertyChange("length");
+						ruleset.unloadRecord();
 						this.get('target.router').refresh();
 					}
 					else if (xmlHttp.readyState == 4) {
