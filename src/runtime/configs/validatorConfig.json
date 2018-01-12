@@ -34,5 +34,5 @@
 	],
 
 	"forceUniqueTargetFile": true,
-	"hideTestButtons": true
+	"hideTestButtons": false
 }

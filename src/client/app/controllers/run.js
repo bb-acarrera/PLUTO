@@ -9,6 +9,15 @@ export default Ember.Controller.extend({
 	perPage: 13,
 	ruleid: null,
 	type: null,
+
+	passed: Ember.computed('model.run.passed', function () {
+		return this.get('model.run.passed') === true;
+	}),
+
+	failed: Ember.computed('model.run.passed', function () {
+		return this.get('model.run.passed') === false;
+	}),
+
 	actions: {
 
 		updateFilters() {

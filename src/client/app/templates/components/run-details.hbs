@@ -2,15 +2,19 @@
     <div class="column">
 		<div>
 
-			{{#if model.run.passed}}
+			{{#if passed}}
                 <i class="fa fa-thumbs-up good-color"></i>
 				<span class="good-color run-bold-text">
 					Passed
 				</span>
-			{{else}}
+			{{else if failed}}
                 <i class="fa fa-thumbs-down error-color"></i>
                 <span class="error-color run-bold-text">
 					Failed
+				</span>
+			{{else}}
+                <span class="run-bold-text">
+					Not validated
 				</span>
 			{{/if}}
 
@@ -18,13 +22,13 @@
 
 			{{#if model.run.summary.exported}}
 				{{#if model.run.summary.target}}
-                    and sent to
-					{{model.run.summary.targetFile}} on target {{model.run.summary.target}}
+                    and uploaded as
+					{{model.run.summary.targetFile}} in {{model.run.summary.target}}
 				{{else}}
 					and exported via {{model.ruleset.export.filename}}
 				{{/if}}
 			{{else}}
-				and not exported
+				and not uploaded
 			{{/if}}
 
 		</div>

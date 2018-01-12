@@ -1,6 +1,6 @@
 {
   "name": "pluto",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A data validation framework.",
   "main": "server.js",
   "scripts": {
@@ -38,6 +38,7 @@
     "express-fileupload": "^0.2.0",
     "express-history-api-fallback": "^2.2.1",
     "fs-extra": "^3.0.1",
+    "md5-file": "^3.2.3",
     "moment": "^2.18.1",
     "nodemailer": "^4.4.0",
     "pg": "^7.0",

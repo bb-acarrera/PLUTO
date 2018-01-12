@@ -15,7 +15,7 @@ export default DS.Model.extend({
 	version: DS.attr('number'),
 	deleted: DS.attr('boolean'),
 	group: DS.attr('string'),
-	passed: DS.attr('boolean'),
+	passed: DS.attr('boolean', { allowNull: true }),
 	summary: DS.attr(),
 	sourcefile: DS.attr('string'),
 	sourceid: DS.attr('string')
