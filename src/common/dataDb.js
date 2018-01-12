@@ -364,10 +364,10 @@ class data {
                 extendWhere();
 
                 values.push( filenameWhere );
-                where += "inputfile ILIKE $" + values.length;
+                where += "{{runs}}.inputfile ILIKE $" + values.length;
 
                 countValues.push( filenameWhere );
-                countWhere += "inputfile ILIKE $" + countValues.length;
+                countWhere += "{{runs}}.inputfile ILIKE $" + countValues.length;
 
             }
 
@@ -375,10 +375,28 @@ class data {
                 extendWhere();
 
                 values.push( moment.utc(filters.dateFilter) );
-                where += "CAST(finishtime AS DATE) = CAST($" + values.length + " AS DATE)";
+                where += "CAST({{runs}}.finishtime AS DATE) = CAST($" + values.length + " AS DATE)";
 
                 countValues.push( filters.dateFilter );
-                countWhere += "CAST(finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
+                countWhere += "CAST({{runs}}.finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
+            }
+
+            if(filters.idFilter) {
+
+                extendWhere();
+
+                let idWhere = parseInt(filters.idFilter);
+
+                if(isNaN(idWhere)) {
+                    idWhere = -1;
+                }
+
+                values.push( idWhere );
+                where += "{{runs}}.id = $" + values.length;
+
+                countValues.push( idWhere );
+                countWhere += "{{runs}}.id = $" + countValues.length;
+
             }
 
             if(filters.groupFilter && filters.groupFilter.length) {

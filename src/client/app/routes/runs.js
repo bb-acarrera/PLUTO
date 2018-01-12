@@ -51,6 +51,9 @@ export default Ember.Route.extend(RouteMixin, {
 		},
 		sourceFilter: {
 			refreshModel: true
+		},
+		idFilter: {
+			refreshModel: true
 		}
 	},
 //  loadQueryParams(params){
@@ -82,6 +85,7 @@ export default Ember.Route.extend(RouteMixin, {
 				failedFilter: params.showFailed,
 				sourceFileFilter: params.sourceFileFilter,
 				sourceFilter: params.sourceFilter,
+				idFilter: params.idFilter,
 				showValidOnly: true
 			}).then(function (result) {
 				let meta = result.get('meta');

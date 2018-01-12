@@ -6,10 +6,10 @@
 </div>
 {{outlet}}
 <div>
-	<h2>File load status</h2>
+    <h2>File load status</h2>
     <table id="runsTable" class="runs-table">
-		<tr style="border-bottom: 1px solid grey;">
-			<td>
+        <tr style="border-bottom: 1px solid grey;">
+            <td>
             <td class="icon-cell">
 				{{#bs-dropdown tagName="span" as |dd|}}
 					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
@@ -23,8 +23,8 @@
 					{{/dd.menu}}
 				{{/bs-dropdown}}
             </td>
-			</td>
-			<td class="icon-cell">
+            </td>
+            <td class="icon-cell">
 				{{#bs-dropdown tagName="span" as |dd|}}
 					{{#dd.toggle}}<i class="glyphicon glyphicon-search"></i> <span class="caret" style="position: absolute;left: 7px;"></span>{{/dd.toggle}}
 					{{#dd.menu as |menu|}}
@@ -39,34 +39,36 @@
 						{{/menu.item}}
 					{{/dd.menu}}
 				{{/bs-dropdown}}
-			</td>
-			<td>{{input type="date" value=dateFilter}}</td>
-			<td>{{input placeholder="File" value=sourceFileFilter}}</td>
-			<td>{{input placeholder="Source" value=sourceFilter}}</td>
+            </td>
+            <td>{{input placeholder="ID" value=idFilter class="input-run-id"}}</td>
+            <td>{{input type="date" value=dateFilter}}</td>
+            <td>{{input placeholder="File" value=sourceFileFilter}}</td>
+            <td>{{input placeholder="Source" value=sourceFilter}}</td>
             <td>{{input placeholder="Owner" value=runGroupFilter}}</td>
-			<td></td>
-		</tr>
+            <td></td>
+        </tr>
 
-      {{#each runs as |runInstance index|}}
-          <tr id="{{concat 'runsTableRow' index}}" {{action "goToRun" runInstance.run.id }} class="rule-selectable">
-              <td class="icon-cell">
-				  {{#pass-fail-icon runcounts=runInstance.run}}{{/pass-fail-icon}}
-              </td>
-			  <td class="icon-cell">
-				  {{#error-icon runcounts=runInstance.run}}{{/error-icon}}
-			  </td>
-            <td>{{moment-format runInstance.run.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
-            <td>{{runInstance.run.sourcefile}}</td>
-            <td>{{runInstance.source.description}}</td>
-			<td>{{runInstance.run.group}}</td>
-            {{#if runInstance.run.isrunning}}
-              <td>running</td>
-            {{else}}
-              <td>{{#link-to "run" runInstance.run.id}}Details {{/link-to}}</td>
-            {{/if}}
+		{{#each runs as |runInstance index|}}
+            <tr id="{{concat 'runsTableRow' index}}" {{action "goToRun" runInstance.run.id }} class="rule-selectable">
+                <td class="icon-cell">
+					{{#pass-fail-icon runcounts=runInstance.run}}{{/pass-fail-icon}}
+                </td>
+                <td class="icon-cell">
+					{{#error-icon runcounts=runInstance.run}}{{/error-icon}}
+                </td>
+                <td>{{runInstance.run.id}}</td>
+                <td>{{moment-format runInstance.run.time 'MMMM Do YYYY, h:mm:ss a'}}</td>
+                <td>{{runInstance.run.sourcefile}}</td>
+                <td>{{runInstance.source.description}}</td>
+                <td>{{runInstance.run.group}}</td>
+				{{#if runInstance.run.isrunning}}
+                    <td>running</td>
+				{{else}}
+                    <td>{{#link-to "run" runInstance.run.id}}Details {{/link-to}}</td>
+				{{/if}}
 
-          </tr>
-      {{/each}}
+            </tr>
+		{{/each}}
     </table>
 	{{show-paginator pages=model.runs.meta.totalPages current=page inc=(action 'incPage') dec=(action 'decPage')}}
 </div>
