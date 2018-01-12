@@ -1,5 +1,12 @@
 # PLUTO Change Log
 
+## 0.9.2
+#### New Features
+
+#### Bug Fixes and Minor Improvements
+
+
+
 ## 0.9.1
 #### New Features
 ##### processfile api supports source file
