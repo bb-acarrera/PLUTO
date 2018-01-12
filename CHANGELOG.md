@@ -30,3 +30,4 @@ Validating files via the processfile API will now perform an md5 hash check. Aft
  * Fixed smtp reporter exception when no config
  * Fixed error with blank value in source overriding the value supplied in the ruleset
  * Fixed ruleset still appearing in the list after a delete
+ * Show the run id in the runs list and on the run details page
