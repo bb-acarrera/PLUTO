@@ -75,6 +75,34 @@ export default Ember.Controller.extend({
 
 	}),
 
+	typeTitle: Ember.computed('model.rules', function() {
+		const type = this.get('typeFilter');
+		let title = '';
+
+		if(type == 'source') {
+			title = 'Download Location';
+		} else if(type == 'target') {
+			title = 'Upload Location'
+		}
+
+		return title;
+
+	}),
+
+	bases: Ember.computed('model.rules', function() {
+		const type = this.get('typeFilter');
+		let bases;
+
+		if(type == 'source') {
+			bases = this.get('model.importers');
+		} else if(type == 'target') {
+			bases = this.get('model.exporters');
+		}
+
+		return bases;
+
+	}),
+
 	filterChanged: Ember.observer('ruleDescriptionFilter', 'typeFilter',
 		function() {
 			this.set('page', 1);
