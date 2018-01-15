@@ -35,7 +35,11 @@ export default Ember.Component.extend({
 				(ruleID === "global" && typeof report.get("ruleID") === "undefined") ||
 				typeof ruleID === "undefined"){
 
-				result.push({type: report.get('logType'), description: report.get('description')});
+				result.push({
+					type: report.get('logType'),
+					description: report.get('description'),
+					problemFile: report.get('problemFile')
+				});
 			}
 
 		});

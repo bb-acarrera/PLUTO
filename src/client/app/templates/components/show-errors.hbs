@@ -3,7 +3,11 @@
 {{else}}
 	<table class="error-table">
 		{{#each errors as |error|}}
-			<tr class="error-row"><td class="error-cell">{{error.type}}</td><td>{{error.description}}</td></tr>
+			<tr class="error-row">
+				<td class="error-cell">{{error.type}}</td>
+                <td>{{error.problemFile}}</td>
+				<td>{{error.description}}</td>
+			</tr>
 		{{/each}}
 	</table>
 	<p>{{yield}}</p>

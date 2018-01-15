@@ -1,4 +1,5 @@
 const TableRuleAPI = require("../api/TableRuleAPI");
+const moment = require("moment");
 
 class CheckColumnType extends TableRuleAPI {
 	constructor(config, parser) {
@@ -24,7 +25,7 @@ class CheckColumnType extends TableRuleAPI {
 				case 'number':
 					this.test = function (datum) {
 						return !isNaN(datum);
-					}
+					};
 					break;
 				case 'integer':
 					this.test = function (datum) {
@@ -33,7 +34,12 @@ class CheckColumnType extends TableRuleAPI {
 						let i = parseInt(datum);		// parseInt("1.2") returns 1 so we need to go further to confirm
 						let f = parseFloat(datum);		// the value is an int. So also parseFloat() and check they are
 						return i == f;					// the same.
-					}
+					};
+					break;
+				case 'iso_8061_datetime':
+					this.test = function (datum) {
+						return moment(datum, moment.ISO_8601, true).isValid();
+					};
 					break;
 				default:
 					this.error(`Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got '${config.type}'.`);
@@ -80,10 +86,12 @@ class CheckColumnType extends TableRuleAPI {
 				label: 'Column Type',
 				type: 'choice',
 				choices: [
-					'string',
-					'float',
-					'integer'
+					{value:'string', label:'String'},
+					{value:'float', label:'Float'},
+					{value:'integer', label:'Integer'},
+					{value:'iso_8061_datetime', label:'ISO 8601 Datetime'}
 				],
+
 				tooltip: 'The expected data type of the given column.'
 			}
 		]);
