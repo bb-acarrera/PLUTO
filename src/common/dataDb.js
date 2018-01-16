@@ -1326,6 +1326,19 @@ class data {
                 countWhere += `{{currentRule}}.type = 'source' AND {{currentRule}}.config->>'linkedtargetid' = $` + countValues.length;
             }
 
+            if(filters.notIdFilter && filters.notIdFilter.length) {
+                let subWhere = filters.notIdFilter.toString();
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRule}}.rule_id != $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRule}}.rule_id != $" + countValues.length;
+
+            }
+
             let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
                 "ORDER BY id DESC LIMIT $1 OFFSET $2", this.tables ), values );
 
@@ -1377,13 +1390,13 @@ class data {
             function update() {
 
                 const canChangeQuery = checkCanChangeRule(this.db, this.tables, rule, group, isAdmin);
-                const sameDescriptionQuery = this.getRules(1, 10, {descriptionExactFilter: rule.description, typeFilter: rule.type});
-
+                const sameDescriptionQuery = this.getRules(1, 10, {descriptionExactFilter: rule.description, typeFilter: rule.type, notIdFilter: rule.rule_id});
 
                 Promise.all([canChangeQuery, sameDescriptionQuery]).then((queries) => {
 
                     if(queries[1].rules.length > 0) {
                         reject(`${rule.description} is already in use.  Choose another name.`);
+                        return;
                     }
 
                     const result = queries[0];
