@@ -203,8 +203,9 @@ class data {
 
         return new Promise( ( resolve, reject ) => {
 
-            let where = "", countWhere = "", rulesetWhere = "", filenameWhere = "";
-            let join = "", joinedSource = false;
+            let where = "", countWhere = "", subWhere = "", filenameWhere = "";
+            let allJoin = "", joinedSource = false;
+            let join = '', countJoin = '';
 
             let values = [ size, offset ];
             let countValues = [];
@@ -294,18 +295,68 @@ class data {
                 countWhere += errorsWhere;
             }
 
+            if( filters.showValidOnly ) {
+                extendWhere();
+
+                subWhere = "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                    "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE)";
+
+                where += subWhere;
+                countWhere += subWhere;
+            }
+
             if ( filters.rulesetFilter && filters.rulesetFilter.length ) {
-                rulesetWhere = safeStringLike( filters.rulesetFilter );
+                subWhere = safeStringLike( filters.rulesetFilter );
 
                 extendWhere();
 
-                values.push( rulesetWhere );
+                values.push( subWhere );
                 where += "{{rulesets}}.ruleset_id ILIKE $" + values.length;
 
-                countValues.push( rulesetWhere );
+                countValues.push( subWhere );
                 countWhere += "{{rulesets}}.ruleset_id ILIKE $" + countValues.length;
 
             }
+
+            if ( filters.rulesetExactFilter && filters.rulesetExactFilter.length ) {
+                subWhere = filters.rulesetExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{rulesets}}.ruleset_id = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{rulesets}}.ruleset_id = $" + countValues.length;
+
+            }
+
+            if ( filters.rulesetVersionIdFilter != null ) {
+                subWhere = filters.rulesetVersionIdFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{runs}}.ruleset_id = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{runs}}.ruleset_id = $" + countValues.length;
+
+            }
+
+            if ( filters.inputMd5Filter && filters.inputMd5Filter.length ) {
+                subWhere = filters.inputMd5Filter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{runs}}.input_md5 = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{runs}}.input_md5 = $" + countValues.length;
+
+            }
+
 
             if ( filters.filenameFilter && filters.filenameFilter.length > 0 ) {
                 filenameWhere = safeStringLike( filters.filenameFilter );
@@ -313,10 +364,10 @@ class data {
                 extendWhere();
 
                 values.push( filenameWhere );
-                where += "inputfile ILIKE $" + values.length;
+                where += "{{runs}}.inputfile ILIKE $" + values.length;
 
                 countValues.push( filenameWhere );
-                countWhere += "inputfile ILIKE $" + countValues.length;
+                countWhere += "{{runs}}.inputfile ILIKE $" + countValues.length;
 
             }
 
@@ -324,10 +375,28 @@ class data {
                 extendWhere();
 
                 values.push( moment.utc(filters.dateFilter) );
-                where += "CAST(finishtime AS DATE) = CAST($" + values.length + " AS DATE)";
+                where += "CAST({{runs}}.finishtime AS DATE) = CAST($" + values.length + " AS DATE)";
 
                 countValues.push( filters.dateFilter );
-                countWhere += "CAST(finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
+                countWhere += "CAST({{runs}}.finishtime AS DATE) = CAST($" + countValues.length + "AS DATE)";
+            }
+
+            if(filters.idFilter) {
+
+                extendWhere();
+
+                let idWhere = parseInt(filters.idFilter);
+
+                if(isNaN(idWhere)) {
+                    idWhere = -1;
+                }
+
+                values.push( idWhere );
+                where += "{{runs}}.id = $" + values.length;
+
+                countValues.push( idWhere );
+                countWhere += "{{runs}}.id = $" + countValues.length;
+
             }
 
             if(filters.groupFilter && filters.groupFilter.length) {
@@ -380,7 +449,8 @@ class data {
                 "SELECT MAX({{runs}}.id) FROM {{runs}} " +
                 "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
                 "WHERE {{rulesets}}.ruleset_id IN (" + valuesList + ") AND " +
-                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE) " +
                 "GROUP BY {{rulesets}}.ruleset_id)";
 
 
@@ -388,7 +458,8 @@ class data {
                     "SELECT MAX({{runs}}.id) FROM {{runs}} " +
                     "INNER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id " +
                     "WHERE {{rulesets}}.ruleset_id IN (" + countValuesList + ") AND " +
-                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) " +
+                    "({{runs}}.summary->>'wasTest' IS NULL OR ({{runs}}.summary->>'wasTest')::boolean = FALSE) AND " +
+                    "({{runs}}.summary->>'wasSkipped' IS NULL OR ({{runs}}.summary->>'wasSkipped')::boolean = FALSE) " +
                     "GROUP BY {{rulesets}}.ruleset_id)";
             }
 
@@ -399,7 +470,7 @@ class data {
 
                 if(!joinedSource) {
                     joinedSource = true;
-                    join += " LEFT OUTER JOIN {{currentRule}} ON {{rulesets}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                    allJoin += " LEFT OUTER JOIN {{currentRule}} ON {{rulesets}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
                 }
 
                 values.push( subWhere );
@@ -409,10 +480,32 @@ class data {
                 countWhere += '({{currentRule}}."group" ILIKE $' + countValues.length + ' OR {{currentRule}}.description ILIKE $' + countValues.length + ')';
             }
 
+            if(filters.latestRulesetVersionWithMd5 === true) {
 
-            if(join && join.length > 0) {
-                where = join + ' ' + where;
-                countWhere = join + ' ' + countWhere;
+                function getLatestRulesetVersionWithMd5SQL(where) {
+                    return ' JOIN (SELECT {{runs}}.ruleset_id, ' +
+                        'max({{runs}}.finishtime) AS finishtime ' +
+                        'FROM {{runs}} ' +
+                        'WHERE {{runs}}.input_md5 IS NOT NULL ' + where +
+                        'GROUP BY {{runs}}.ruleset_id) c ON c.ruleset_id = {{runs}}.ruleset_id AND c.finishtime = {{runs}}.finishtime';
+                }
+
+                if(filters.latestRulesetVersionExcludeRunId != null) {
+                    values.push( filters.latestRulesetVersionExcludeRunId );
+                    join += getLatestRulesetVersionWithMd5SQL('AND {{runs}}.id <> $'+ values.length);
+
+                    countValues.push( filters.latestRulesetVersionExcludeRunId );
+                    countJoin += getLatestRulesetVersionWithMd5SQL('AND {{runs}}.id <> $'+ countValues.length);
+
+                } else {
+                    allJoin += getLatestRulesetVersionWithMd5SQL('');
+                }
+            }
+
+
+            if(allJoin.length > 0 || join.length > 0) {
+                where = allJoin + ' ' + join + ' ' + where;
+                countWhere = allJoin + ' ' + countJoin +  ' ' + countWhere;
             }
 
 
@@ -473,9 +566,9 @@ class data {
 
                 let date = new Date();
 
-                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime, passed) " +
-                        "VALUES($1, $2, $3, $4) RETURNING id", this.tables),
-                    [rulesetId, date, date, false])
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime) " +
+                        "VALUES($1, $2, $3) RETURNING id", this.tables),
+                    [rulesetId, date, date])
                     .then((result) => {
                         resolve(result.rows[0].id);
                     }, (error) => {
@@ -498,27 +591,101 @@ class data {
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary) {
+     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary, inputMd5, finished) {
 
         return new Promise((resolve, reject) => {
-            let numErrors = logCounts[ErrorHandlerAPI.ERROR] || 0;
-        	let numWarnings = logCounts[ErrorHandlerAPI.WARNING] || 0;
-            let numDropped = logCounts[ErrorHandlerAPI.DROPPED] || 0;
 
-        	this.db.query(updateTableNames("UPDATE {{runs}} SET " +
-        	    "inputfile = $2, outputfile = $3, finishtime = $4, log = $5, num_errors = $6, num_warnings = $7, " +
-                "num_dropped = $8, passed = $9, summary = $10 " +
-            	"WHERE id = $1", this.tables),
-            	[runId, inputFile, outputFile, new Date(), JSON.stringify(log), numErrors, numWarnings, numDropped,
-                    passed, JSON.stringify(summary)])
-            	.then(() => {
-            		resolve();
-            	}, (error) => {
-                	console.log(error);
-                	reject(error);
-            	});
+            let values = [];
+            let valueStr = '';
+
+            function extend() {
+                if ( valueStr.length !== 0 ) {
+                    valueStr += ', ';
+                }
+            }
+
+            values.push(runId);
+
+            if(logCounts) {
+                extend();
+
+                values.push(logCounts[ErrorHandlerAPI.ERROR] || 0);
+                valueStr += `num_errors = $${values.length},`;
+
+                values.push(logCounts[ErrorHandlerAPI.WARNING] || 0);
+                valueStr += `num_warnings = $${values.length},`;
+
+                values.push(logCounts[ErrorHandlerAPI.DROPPED] || 0);
+                valueStr += `num_dropped = $${values.length}`;
+            }
+
+            if(inputFile) {
+                extend();
+                values.push(inputFile);
+                valueStr += `inputfile = $${values.length}`;
+            }
+
+            if(outputFile) {
+                extend();
+                values.push(outputFile);
+                valueStr += `outputfile = $${values.length}`;
+            }
+
+            if(passed != null) {
+                extend();
+                values.push(passed);
+                valueStr += `passed = $${values.length}`;
+            }
+
+            if(log) {
+                extend();
+                values.push(JSON.stringify(log));
+                valueStr += `log = $${values.length}`;
+            }
+
+            if(summary) {
+                extend();
+                values.push(JSON.stringify(summary));
+                valueStr += `summary = $${values.length}`;
+            }
+
+            if(inputMd5) {
+                extend();
+                values.push(inputMd5);
+                valueStr += `input_md5 = $${values.length}`;
+            }
+
+            if(finished || passed != null) {
+                extend();
+                values.push(new Date());
+                valueStr += `finishtime = $${values.length}`;
+            }
+
+            this.db.query(updateTableNames("UPDATE {{runs}} SET " +
+                    valueStr +
+                    " WHERE id = $1", this.tables), values)
+                .then(() => {
+                    resolve();
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                });
+
         });
 
+    }
+
+    deleteRunRecord(runId) {
+        return new Promise((resolve, reject) => {
+
+            this.db.query(updateTableNames("DELETE FROM {{runs}} WHERE id = $1", this.tables), [runId])
+                .then((result) => {
+                    resolve();
+                }, (error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        });
     }
 
     /**
@@ -552,9 +719,22 @@ class data {
                reject(e)
            } );
         });
+    }
 
+    rulesetExists(ruleset_id) {
+        return new Promise((resolve, reject) => {
+            getRuleset( this.db, ruleset_id, null, null, this.tables).then( (result) => {
+                if ( result.rows.length > 0 ) {
 
+                    resolve( true );
 
+                } else {
+                    resolve( false );
+                }
+            }, (e) => {
+                reject(e)
+            } );
+        });
     }
 
     rulesetValid(ruleset, checkIdUnique, checkTargetFile) {
@@ -624,6 +804,7 @@ class data {
                 checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
                     let version = result.nextVersion;
                     let rowGroup = group;
+                    let targetFile = null;
 
                     if(result && result.rows.length > 0) {
                         rowGroup = result.rows[0].owner_group;
@@ -631,9 +812,13 @@ class data {
 
                     ruleset.version = version;
 
+                    if(this.config.forceUniqueTargetFile) {
+                        targetFile = ruleset.target_file;
+                    }
+
                     this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file) ' +
                             "VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", this.tables),
-                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, ruleset.target_file])
+                        [ruleset.filename, ruleset.name, version, JSON.stringify(ruleset), new Date(), user, rowGroup, targetFile])
                         .then(() => {
                             resolve(ruleset);
                         }, (error) => {
@@ -692,9 +877,14 @@ class data {
                     const row = result.rows[0];
                     ruleset.version = result.nextVersion;
 
+                    let targetFile = null;
+                    if(this.config.forceUniqueTargetFile) {
+                        targetFile = ruleset.target_file;
+                    }
+
                     this.db.query(updateTableNames('INSERT INTO {{rulesets}} (ruleset_id, name, version, rules, update_time, update_user, owner_group, target_file, deleted) ' +
                             "VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", this.tables),
-                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, ruleset.target_file, true])
+                        [ruleset.filename, row.name, ruleset.version, row.rules, new Date(), user, row.owner_group, targetFile, true])
                         .then((result) => {
 
                             this.db.query(
@@ -845,6 +1035,34 @@ class data {
                 countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' ILIKE $" + countValues.length;
             }
 
+            if(filters.fileExactFilter && filters.fileExactFilter.length) {
+                let subWhere = filters.fileExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{currentRuleset}}.rules->'source'->'config'->>'file' = $" + countValues.length;
+
+            }
+
+            if(filters.configuredRuleIdFilter && filters.configuredRuleIdFilter.length) {
+                extendWhere();
+
+                function getConfiguredRuleIdFilterSQL(attrIndex) {
+                    return "( ({{currentRuleset}}.rules->'source'->>'filename') = $" + attrIndex + " OR " +
+                        "({{currentRuleset}}.rules->'target'->>'filename') = $" + attrIndex + " )"
+                }
+
+                values.push( filters.configuredRuleIdFilter.toString() );
+                where += getConfiguredRuleIdFilterSQL(values.length);
+
+                countValues.push( filters.configuredRuleIdFilter.toString() );
+                countWhere += getConfiguredRuleIdFilterSQL(countValues.length);
+            }
+
             if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
                 let subWhere = safeStringLike( filters.sourceDescriptionFilter );
 
@@ -862,13 +1080,30 @@ class data {
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
             }
 
+            if(filters.sourceDescriptionExactFilter && filters.sourceDescriptionExactFilter.length) {
+                let subWhere = filters.sourceDescriptionExactFilter;
+
+                extendWhere();
+
+                if(!joinedSource) {
+                    joinedSource = true;
+                    join += " LEFT OUTER JOIN {{currentRule}} ON {{currentRuleset}}.rules->'source'->>'filename' = {{currentRule}}.rule_id";
+                }
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description = $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description = $' + countValues.length;
+            }
+
 
             if(join && join.length > 0) {
                 where = join + ' ' + where;
                 countWhere = join + ' ' + countWhere;
             }
 
-            let rulesetsQuery = this.db.query( updateTableNames( "SELECT {{currentRuleset}}.* FROM {{currentRuleset}} " + where + " " +
+            let rulesetsQuery = this.db.query(updateTableNames( "SELECT {{currentRuleset}}.* FROM {{currentRuleset}} " + where + " " +
                 "ORDER BY {{currentRuleset}}.id DESC LIMIT $1 OFFSET $2", this.tables ), values );
 
             let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{currentRuleset}} " + countWhere, this.tables ), countValues );
@@ -903,11 +1138,6 @@ class data {
 
     }
 
-
-
-
-
-
     ruleExists(rule_id) {
 
         return new Promise((resolve) => {
@@ -922,6 +1152,36 @@ class data {
                 resolve( false );
             });
         });
+    }
+
+    ruleInUse(rule_id) {
+
+        return new Promise((resolve) => {
+            const rulesetQuery = this.getRulesets(1, 10, { configuredRuleIdFilter: rule_id });
+            const linkQuery = this.getRules(1, 10, {linkFilter: rule_id});
+
+            Promise.all([rulesetQuery, linkQuery]).then((queries) => {
+
+                if(queries[0].rulesets.length > 0) {
+                    resolve(true);
+                    return;
+                }
+
+                if(queries[1].rules.length > 0) {
+                    resolve(true);
+                    return;
+                }
+
+                resolve(false);
+
+            }, (err) => {
+                console.log(err);
+                resolve(true);
+            })
+        });
+
+
+
     }
 
     /**
@@ -1034,6 +1294,18 @@ class data {
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
             }
 
+            if(filters.descriptionExactFilter && filters.descriptionExactFilter.length) {
+                let subWhere = filters.descriptionExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description = $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description = $' + countValues.length;
+            }
+
             if(filters.idListFilter && filters.idListFilter.length) {
                 extendWhere();
 
@@ -1042,6 +1314,16 @@ class data {
 
                 countValues.push( filters.idListFilter );
                 countWhere += '{{currentRule}}.rule_id IN ($' + countValues.length + ')';
+            }
+
+            if(filters.linkFilter && filters.linkFilter.length) {
+                extendWhere();
+
+                values.push( filters.linkFilter.toString() );
+                where += `{{currentRule}}.type = 'source' AND {{currentRule}}.config->>'linkedtargetid' = $` + values.length;
+
+                countValues.push( filters.linkFilter.toString() );
+                countWhere += `{{currentRule}}.type = 'source' AND {{currentRule}}.config->>'linkedtargetid' = $` + countValues.length;
             }
 
             let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
@@ -1093,7 +1375,19 @@ class data {
             }
 
             function update() {
-                checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+
+                const canChangeQuery = checkCanChangeRule(this.db, this.tables, rule, group, isAdmin);
+                const sameDescriptionQuery = this.getRules(1, 10, {descriptionExactFilter: rule.description, typeFilter: rule.type});
+
+
+                Promise.all([canChangeQuery, sameDescriptionQuery]).then((queries) => {
+
+                    if(queries[1].rules.length > 0) {
+                        reject(`${rule.description} is already in use.  Choose another name.`);
+                    }
+
+                    const result = queries[0];
+
                     let version = result.nextVersion;
                     let rowGroup = group;
 
@@ -1148,7 +1442,18 @@ class data {
 
             let rule_id = rule.rule_id;
 
-            checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+            const canChange = checkCanChangeRule(this.db, this.tables, rule, group, isAdmin);
+            const inUse = this.ruleInUse(rule_id);
+
+
+            Promise.all([canChange, inUse]).then((queries) => {
+
+                if(queries[1] === true) {
+                    reject('Cannot delete. This is in use.');
+                    return;
+                }
+
+                const result = queries[0];
 
                 if(result && result.rows.length > 0) {
                     const row = result.rows[0];
@@ -1244,9 +1549,9 @@ function generateId(tableName, idName) {
 }
 
 function getRunQuery(tableNames) {
-    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, run_id, inputfile, outputfile, finishtime, " +
-        "num_errors, num_warnings, starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
-        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed, " +
+    return updateTableNames("SELECT {{runs}}.id, {{rulesets}}.ruleset_id, {{runs}}.run_id, {{runs}}.inputfile, {{runs}}.outputfile, {{runs}}.finishtime, " +
+        "{{runs}}.num_errors, {{runs}}.num_warnings, {{runs}}.starttime, {{rulesets}}.version, {{rulesets}}.deleted, {{rulesets}}.owner_group, " +
+        "{{runs}}.num_dropped, {{runs}}.summary, {{runs}}.passed, {{runs}}.input_md5, " +
         "{{rulesets}}.rules->'source'->>'filename' as sourceid, {{rulesets}}.rules->'source'->'config'->>'file' as sourcefile " +
         "FROM {{runs}} " +
         "LEFT OUTER JOIN {{rulesets}} ON {{runs}}.ruleset_id = {{rulesets}}.id", tableNames );
@@ -1274,7 +1579,8 @@ function getRunResult(row) {
         deleted: row.deleted,
         group: row.owner_group,
         sourceid: row.sourceid,
-        sourcefile: row.sourcefile
+        sourcefile: row.sourcefile,
+        inputmd5: row.input_md5
     };
 }
 

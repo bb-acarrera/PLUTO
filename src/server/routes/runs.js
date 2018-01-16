@@ -12,17 +12,24 @@ class RunsRouter extends BaseRouter {
         // directory points to rulesets, rule plugins and such. It can be configured such
         // that these two root directories are the same.
 
-        if(req.params.id) {
-            this.config.data.getRun(req.params.id).then((runInfo) => {
+        if(req.params.id  || req.query.id) {
+            let id;
+            if(req.params.id) {
+                id = req.params.id;
+            } else if(req.query.id) {
+                id = req.query.id;
+            }
+
+            this.config.data.getRun(id).then((runInfo) => {
                 if (!runInfo)
                 {
-                    res.status(404).send(`Unable to retrieve the run '${req.params.id}'.`);
+                    res.status(404).send(`Unable to retrieve the run '${id}'.`);
                     return;
                 }
 
                 res.json({
                     data:  {
-                        id: req.params.id,
+                        id: id,
                         type: 'run',
                         attributes: runInfo
                     }
@@ -45,6 +52,7 @@ class RunsRouter extends BaseRouter {
             let showDropped = JSON.parse(req.query.droppedFilter || true);
             let showPassed = JSON.parse(req.query.passedFilter || true);
             let showFailed = JSON.parse(req.query.failedFilter || true);
+            let showValidOnly = JSON.parse(req.query.failedFilter || false);
 
             if(req.query.dateFilter && req.query.dateFilter.length > 0) {
                 let time = Date.parse(req.query.dateFilter);
@@ -76,7 +84,9 @@ class RunsRouter extends BaseRouter {
                 showFailed: showFailed,
                 sourceFileFilter: req.query.sourceFileFilter,
                 sourceFilter: req.query.sourceFilter,
-                rulesetIdListFilter: req.query.rulesetIdListFilter
+                rulesetIdListFilter: req.query.rulesetIdListFilter,
+                showValidOnly: showValidOnly,
+                idFilter: req.query.idFilter
             }).then((result) => {
                     var data = [];
 

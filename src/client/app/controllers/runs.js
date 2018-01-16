@@ -16,7 +16,8 @@ export default Ember.Controller.extend({
 		"dateFilter",
 		"runGroupFilter",
 		"sourceFilter",
-		"sourceFileFilter"
+		"sourceFileFilter",
+		"idFilter"
 
 	],
 	ptarget: "default",
@@ -45,12 +46,14 @@ export default Ember.Controller.extend({
 	runGroupFilter: '',
 	sourceFileFilter: '',
 	sourceFilter: '',
+	idFilter: '',
 
 	totalPages: Ember.computed.oneWay('model.runs.meta.totalPages'),
 	totalRulePages: Ember.computed.oneWay('model.rulesets.meta.totalPages'),
 
 	runFilterChanged: Ember.observer('showErrors', 'showDropped', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter', 'showPassed', 'showFailed',
+		'sourceFileFilter', 'idFilter', 'sourceFilter',
 		function() {
 			this.set('page', 1);
 		}),

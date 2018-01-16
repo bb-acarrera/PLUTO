@@ -12,10 +12,9 @@
 			{{model.run.inputfilename}}
 		{{/if}}
 
-		{{#if model.run.passed}}
+		{{#if passed}}
             <i class="fa fa-thumbs-up good-color"></i>
-
-		{{else}}
+		{{else if failed}}
             <i class="fa fa-thumbs-down error-color"></i>
 		{{/if}}
 	</h3>
@@ -23,6 +22,7 @@
 </div>
 <div>
 	<h4>{{model.ruleset.name}}</h4>
+	<h4>Run ID: {{model.run.id}}</h4>
 </div>
 <div>
 	{{run-details model=model type=type page=page ruleid=ruleid}}

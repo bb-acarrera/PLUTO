@@ -25,6 +25,9 @@ class RulesetRouter extends BaseRouter {
 				id = req.params.id;
 			} else if(req.query.id) {
 				id = req.query.id;
+			} else if(req.query.dbid) {
+				dbId = req.query.dbid;
+				id = null;
 			}
 
 			if(req.query.version) {
@@ -33,7 +36,7 @@ class RulesetRouter extends BaseRouter {
 
 			this.config.data.retrieveRuleset(id, null, this.config.rulesLoader, version, dbId, auth.group, auth.admin).then((ruleset) => {
 				if (!ruleset) {
-					res.statusMessage = `Unable to retrieve '${id}'.`;
+					res.statusMessage = 'Unable to retrieve ' + (id || dbId);
 					res.status(404).end();
 					return;
 				}
@@ -43,9 +46,9 @@ class RulesetRouter extends BaseRouter {
 				ruleset["ruleset-id"] = ruleset.ruleset_id;
 				delete ruleset.ruleset_id;
 
-				let id = ruleset.id;
+				dbId = ruleset.id;
 
-				ruleset["database-id"] = id;
+				ruleset["database-id"] = dbId;
 				delete ruleset.id;
 
 				if(ruleset.source || ruleset.target) {
@@ -60,7 +63,7 @@ class RulesetRouter extends BaseRouter {
 				let jsonResp = {
 					data: {
 						type: "ruleset",
-						id: id,
+						id: dbId,
 						attributes: ruleset
 					}
 				};

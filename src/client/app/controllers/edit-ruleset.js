@@ -8,13 +8,17 @@ function startPolling(id) {
 	let pollId = this.get('poll').addPoll({
 		interval: 1000, // one minute
 		callback: () => {
-			this.store.findRecord('run', id).then(
+			this.store.queryRecord('run', {id: id}).then(
 				run => {
 					if (!run.get('isrunning')) {
 						this.set("processing", false);
 						let rulesetid = this.model.ruleset.get("filename");
 						this.replaceRoute("editRuleset.run", rulesetid, id);
 					}
+				}).catch(() => {
+					this.set('processing', false);
+					let rulesetid = this.model.ruleset.get("filename");
+					this.replaceRoute("editRuleset", rulesetid);
 				});
 		}
 	});
@@ -121,7 +125,7 @@ export default Ember.Controller.extend( {
 			return encodeURI(apiBase + 'processfile/' + rulesetid);
 		}
 
-		return null;
+		return encodeURI(window.location.origin + '/api/v1/processfile/' + rulesetid);
 
 	}),
 	sourceChanged: Ember.observer('model.source', 'model.ruleset.source.filename', function() {
@@ -458,8 +462,9 @@ export default Ember.Controller.extend( {
 				xmlHttp.onreadystatechange = () => {
 					if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 						this.store.unloadRecord(ruleset);
+						this.transitionToRoute('rulesets');
 					}
-					else if (xmlHttp.readyState == 4) {
+					else if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
 						alert(`Failed to delete: ${xmlHttp.statusText}`);
 					}
 				};
@@ -473,7 +478,7 @@ export default Ember.Controller.extend( {
 				xmlHttp.send(JSON.stringify(theJSON));
 
 
-				this.transitionToRoute('rulesets');
+
 			}
 		}
 	}

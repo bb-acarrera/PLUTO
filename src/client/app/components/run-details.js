@@ -35,7 +35,11 @@ export default Ember.Component.extend({
 				(ruleID === "global" && typeof report.get("ruleID") === "undefined") ||
 				typeof ruleID === "undefined"){
 
-				result.push({type: report.get('logType'), description: report.get('description')});
+				result.push({
+					type: report.get('logType'),
+					description: report.get('description'),
+					problemFile: report.get('problemFile')
+				});
 			}
 
 		});
@@ -79,6 +83,14 @@ export default Ember.Component.extend({
 
 
 		return out;
+	}),
+
+	passed: Ember.computed('model.run.passed', function () {
+		return this.get('model.run.passed') === true;
+	}),
+
+	failed: Ember.computed('model.run.passed', function () {
+		return this.get('model.run.passed') === false;
 	}),
 
 	ruleData: Ember.computed('model.ruleset.rules','model.log', function() {

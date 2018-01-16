@@ -15,13 +15,11 @@
                 <td>{{ruleInstance.ownergroup}}</td>
                 <td align="right">
 					{{#bs-button onClick=(action "deleteRule" ruleInstance model.rules.result)}}
-                        <i class="fa fa-trash"></i>
-						{{#bs-tooltip placement="top"}}Delete ruleset{{/bs-tooltip}}
+                        Delete
 					{{/bs-button}}
 
 					{{#link-to 'editConfiguredRule' ruleInstance.rule_id tagName='button' class='btn btn-default'}}
-						{{#bs-tooltip placement="left"}}Edit Source{{/bs-tooltip}}
-                        <i class="fa fa-pencil"></i>
+						Edit
 					{{/link-to}}
 
                 </td>
@@ -34,34 +32,8 @@
         <i class="fa fa-plus"></i>
 		{{#bs-tooltip placement="top"}}Add Location{{/bs-tooltip}}
 	{{/bs-button}}
-
 </div>
 
-{{#bs-modal open=showdialog onHidden=(action (mut showdialog) false) as |modal|}}
-	{{#modal.header}}
-        <h4 class="modal-title">
-			{{ptarget}}{{dialogtarget}}
-        </h4>
-	{{/modal.header}}
-	{{#modal.body}}
-		<div>
-			Name
-		</div>
-		<div>
-			{{input name="Id" type="text"  class="form-control"  autofocus="autofocus" value=modaltext}}
-		</div>
-
-
-	{{/modal.body}}
-	{{#modal.footer}}
-		{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
-		{{#if isclone}}
-			{{#bs-button type="success" onClick=(action "cloneRule" dialogruleset)}}{{buttontext}}{{/bs-button}}
-		{{else}}
-			{{#bs-button type="success" onClick=(action  "addRule")}}{{buttontext}}{{/bs-button}}
-		{{/if}}
-
-	{{/modal.footer}}
-{{/bs-modal}}
+{{add-configured-rule showdialog=showdialog bases=bases type=typeFilter typeTitle=typeTitle}}
 
 {{outlet}}

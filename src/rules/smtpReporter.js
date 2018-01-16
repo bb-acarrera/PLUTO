@@ -34,7 +34,7 @@ class SmtpReporter extends ReporterAPI {
 
 		return new Promise((resolve) => {
 
-			if(!this.smtpConfig || !this.rulesetConfig.email || this.rulesetConfig.email.length == 0) {
+			if(!this.smtpConfig || !this.rulesetConfig || !this.rulesetConfig.email || this.rulesetConfig.email.length == 0) {
 				resolve();
 				return;
 			}
