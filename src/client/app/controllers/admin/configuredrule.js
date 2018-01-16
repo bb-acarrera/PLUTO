@@ -2,42 +2,6 @@ import Ember from 'ember';
 
 const apiBase = document.location.origin + '/api/v1';
 
-function addRule(controller, rule) {
-
-	var xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = () => {
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
-
-			let ruleId = '';
-
-			try {
-				let rule = JSON.parse(xmlHttp.response);
-				ruleId = rule.rule_id;
-			} catch (e) {
-				console.log(e);
-			}
-
-			controller.get('target.router').refresh();
-			if(ruleId) {
-				controller.transitionToRoute('editConfiguredRule', ruleId);
-			}
-
-		}
-		else if (xmlHttp.readyState == 4) {
-			alert(`Failed to create: ${xmlHttp.statusText}`);
-		}
-	};
-
-	let theUrl = apiBase + "/configuredrules/";
-	let theJSON = {
-		rule: rule
-	};
-
-	xmlHttp.open("POST", theUrl, true); // true for asynchronous
-	xmlHttp.setRequestHeader("Content-Type", "application/json");
-	xmlHttp.send(JSON.stringify(theJSON));
-}
-
 export default Ember.Controller.extend({
 	queryParams: ["page",
 		"perPage",
@@ -133,25 +97,6 @@ export default Ember.Controller.extend({
 			this.set("isclone", false);
 			this.set("dialogrule", null);
 			this.set("modaltext", "");
-		},
-		addRule() {
-
-			if(!this.modaltext || this.modaltext.length == 0) {
-				alert('A name must be specified');
-				return;
-			}
-
-			this.set("showdialog", false);
-			addRule(this,
-				{
-					type: this.get('typeFilter'),
-					description: this.modaltext,
-					config: {}
-				}
-			);
-		},
-		cloneRule() {
-
 		},
 
 		deleteRule(rule, rules) {
