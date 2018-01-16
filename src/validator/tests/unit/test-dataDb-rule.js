@@ -1,4 +1,5 @@
 const proxyquire = require('proxyquire');
+const stackTrace = require('stack-trace');
 
 const DataDb = proxyquire("../../../common/dataDb", {
 	"./db" : function(config) {
@@ -28,6 +29,94 @@ const ruleLoader = new RuleLoader();
 
 QUnit.module("DataDb - Rule");
 
+function stackTraceHas(functionName, trace) {
+	let fnCallSite = trace.find( (callSite) => {
+		return callSite.getFunctionName() == functionName;
+	});
+
+	return fnCallSite != null;
+}
+
+function saveResults(text, canEditGetRuleRows, nameMatch, saveFn ) {
+	const trace = stackTrace.get();
+
+	if(stackTraceHas('getRule', trace)) {
+		//the get current row test
+		return new Promise((resolve) => {
+			resolve({
+				rows: canEditGetRuleRows
+			})
+		});
+
+	}  else if(stackTraceHas('getRules', trace)) {
+
+		if(nameMatch) {
+
+			if(text.includes('count(*)')) {
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ { count: 1 } ]
+					});
+				});
+			}
+
+			return new Promise((resolve) => {
+				resolve({
+					rows: [{
+						id: 1,
+						version: 0,
+						rule_id: 'parent_rule',
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: null,
+						update_time: null,
+						name: null,
+						deleted: false
+					}]
+				});
+			});
+
+		} else {
+			if(text.includes('count(*)')) {
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ { count: 0 } ]
+					});
+				});
+			}
+
+			return new Promise((resolve) => {
+				resolve({
+					rows: []
+				});
+			});
+		}
+
+
+
+	} else if(text.startsWith('INSERT INTO') || text.startsWith('UPDATE')) {
+
+		if(saveFn) {
+			saveFn();
+		}
+
+		return new Promise((resolve) => {
+			resolve({
+				rows: [
+					{
+						id: 1
+					}
+				]
+			})
+		});
+	}
+}
+
+
 QUnit.test( "saveRule: Successful", function(assert){
 
 	const rule = {
@@ -37,43 +126,30 @@ QUnit.test( "saveRule: Successful", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: null,
-								update_time: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the update call
-				assert.equal(values[2], 1, "Version should be 1");
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 0,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: null,
+						update_time: null,
+						deleted: false
+					}
+				],
+				false,
+				() => {
+					assert.equal(values[2], 1, "Version should be 1");
+				}
+			);
 
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 1
-							}
-						]
-					})
-				});
-			}
 		}
 	};
 
@@ -102,44 +178,31 @@ QUnit.test( "saveRule: Successful same group", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the update call
-				assert.equal(values[2], 1, "Version should be 1");
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 0,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: 'some group',
+						update_time: null,
+						name: null,
+						deleted: false
+					}
+				],
+				false,
+				() => {
+					assert.equal(values[2], 1, "Version should be 1");
+				}
+			);
 
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 1
-							}
-						]
-					})
-				});
-			}
 		}
 	};
 
@@ -168,42 +231,27 @@ QUnit.test( "saveRule: Wrong group", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the update call
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 1
-							}
-						]
-					})
-				});
-			}
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 0,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: 'some group',
+						update_time: null,
+						name: null,
+						deleted: false
+					}
+				]
+			);
+
 		}
 	};
 
@@ -232,42 +280,27 @@ QUnit.test( "saveRule: admin and other group", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the update call
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 1
-							}
-						]
-					})
-				});
-			}
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 0,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: 'some group',
+						update_time: null,
+						name: null,
+						deleted: false
+					}
+				]
+			);
+
 		}
 	};
 
@@ -296,42 +329,27 @@ QUnit.test( "saveRule: Wrong version", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 1,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the update call
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 1
-							}
-						]
-					})
-				});
-			}
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 1,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: 'some group',
+						update_time: null,
+						name: null,
+						deleted: false
+					}
+				]
+			);
+
 		}
 	};
 
@@ -360,44 +378,31 @@ QUnit.test( "saveRule: Successful same name as deleted", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: true
-							}
-						]
-					})
-				});
 
-			} else {
-				//the update call
-				assert.equal(values[2], 1, "Version should be 1");
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 0,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: 'some group',
+						update_time: null,
+						name: null,
+						deleted: true
+					}
+				],
+				false,
+				() => {
+					assert.equal(values[2], 1, "Version should be 1");
+				}
+			);
 
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 1
-							}
-						]
-					})
-				});
-			}
 		}
 	};
 
@@ -417,6 +422,169 @@ QUnit.test( "saveRule: Successful same name as deleted", function(assert){
 
 });
 
+QUnit.test( "saveRule: description match", function(assert){
+
+	const rule = {
+		rule_id: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+
+			return saveResults(text,
+				[
+					{
+						id: 0,
+						version: 0,
+						rule_id: rule.rule_id,
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: null,
+						update_time: null,
+						deleted: false
+					}
+				],
+				true
+			);
+
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.saveRule(rule).then((filename) => {
+		assert.ok(false, "Expected save to fail");
+		done();
+	}, (e) => {
+		assert.ok(true, 'Expected rejection');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+
+function deleteResults(text, canEditGetRuleRows, inRuleset, inLinkedSource ) {
+	const trace = stackTrace.get();
+
+	if(stackTraceHas('getRule', trace)) {
+		//the get current row test
+		return new Promise((resolve) => {
+			resolve({
+				rows: canEditGetRuleRows
+			})
+		});
+
+	} else if(stackTraceHas('getRulesets', trace)) {
+
+		if(inRuleset) {
+			if(text.includes('count(*)')) {
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ { count: 1 } ]
+					});
+				});
+			}
+
+			return new Promise((resolve) => {
+				resolve({
+					rows: [{
+						id: 0,
+						version: 0,
+						ruleset_id: 'parent ruleset',
+						rules: {},
+						owner_user: null,
+						owner_group: null,
+						update_time: null,
+						name: null,
+						deleted: false
+					}]
+				});
+			});
+		} else {
+			if(text.includes('count(*)')) {
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ { count: 0 } ]
+					});
+				});
+			}
+
+			return new Promise((resolve) => {
+				resolve({
+					rows: []
+				});
+			});
+		}
+
+
+
+	} else if(stackTraceHas('getRules', trace)) {
+
+		if(inLinkedSource) {
+
+			if(text.includes('count(*)')) {
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ { count: 1 } ]
+					});
+				});
+			}
+
+			return new Promise((resolve) => {
+				resolve({
+					rows: [{
+						id: 1,
+						version: 0,
+						rule_id: 'parent_rule',
+						description: null,
+						group: null,
+						base: null,
+						type: null,
+						config: null,
+						owner_user: null,
+						owner_group: null,
+						update_time: null,
+						name: null,
+						deleted: false
+					}]
+				});
+			});
+
+		} else {
+			if(text.includes('count(*)')) {
+				return new Promise((resolve) => {
+					resolve({
+						rows: [ { count: 0 } ]
+					});
+				});
+			}
+
+			return new Promise((resolve) => {
+				resolve({
+					rows: []
+				});
+			});
+		}
+
+
+
+	} else if(text.startsWith('INSERT INTO') || text.startsWith('UPDATE')) {
+		//the delete call
+		return new Promise((resolve) => {
+			resolve();
+		});
+	}
+}
+
 QUnit.test( "deleteRule: Successful", function(assert){
 
 	const rule = {
@@ -426,36 +594,24 @@ QUnit.test( "deleteRule: Successful", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: null,
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the delete call
-				return new Promise((resolve) => {
-					resolve();
-				});
-			}
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 0,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: null,
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			]);
 		}
 	};
 
@@ -484,36 +640,24 @@ QUnit.test( "deleteRule: Successful same group", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the delete call
-				return new Promise((resolve) => {
-					resolve();
-				});
-			}
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 0,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: 'some group',
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			]);
 		}
 	};
 
@@ -542,36 +686,24 @@ QUnit.test( "deleteRule: Wrong version", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 1,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the delete call
-				return new Promise((resolve) => {
-					resolve();
-				});
-			}
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 1,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: 'some group',
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			]);
 		}
 	};
 
@@ -600,36 +732,24 @@ QUnit.test( "deleteRule: Wrong group", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 1,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the delete call
-				return new Promise((resolve) => {
-					resolve();
-				});
-			}
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 1,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: 'some group',
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			]);
 		}
 	};
 
@@ -658,36 +778,25 @@ QUnit.test( "deleteRule: admin override wrong group", function(assert){
 
 	const config = {
 		query: (text, values) => {
-			if(text.startsWith('SELECT')) {
-				//the get current row test
-				return new Promise((resolve) => {
-					resolve({
-						rows: [
-							{
-								id: 0,
-								version: 0,
-								rule_id: rule.rule_id,
-								description: null,
-								group: null,
-								base: null,
-								type: null,
-								config: null,
-								owner_user: null,
-								owner_group: 'some group',
-								update_time: null,
-								name: null,
-								deleted: false
-							}
-						]
-					})
-				});
 
-			} else {
-				//the delete call
-				return new Promise((resolve) => {
-					resolve();
-				});
-			}
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 0,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: 'some group',
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			]);
+
 		}
 	};
 
@@ -699,6 +808,144 @@ QUnit.test( "deleteRule: admin override wrong group", function(assert){
 		done();
 	}, (e) => {
 		assert.ok(false, 'Got reject');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+QUnit.test( "deleteRule: in use by ruleset", function(assert){
+
+	const rule = {
+		rule_id: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 0,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: null,
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			], true, false);
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.deleteRule(rule).then((filename) => {
+		assert.ok(false, "Expected delete to fail");
+		done();
+	}, (e) => {
+		assert.ok(true, 'Expected rejection');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+QUnit.test( "deleteRule: in use as linked target", function(assert){
+
+	const rule = {
+		rule_id: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 0,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: null,
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			], false, true);
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.deleteRule(rule).then((filename) => {
+		assert.ok(false, "Expected delete to fail");
+		done();
+	}, (e) => {
+		assert.ok(true, 'Expected rejection');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+QUnit.test( "deleteRule: in use as linked target and used by ruleset", function(assert){
+
+	const rule = {
+		rule_id: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+
+			return deleteResults(text, [
+				{
+					id: 0,
+					version: 0,
+					rule_id: rule.rule_id,
+					description: null,
+					group: null,
+					base: null,
+					type: null,
+					config: null,
+					owner_user: null,
+					owner_group: null,
+					update_time: null,
+					name: null,
+					deleted: false
+				}
+			], true, true);
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.deleteRule(rule).then((filename) => {
+		assert.ok(false, "Expected delete to fail");
+		done();
+	}, (e) => {
+		assert.ok(true, 'Expected rejection');
 		done();
 	}).catch((e) => {
 		assert.ok(false, 'Got exception');

@@ -1048,6 +1048,21 @@ class data {
 
             }
 
+            if(filters.configuredRuleIdFilter && filters.configuredRuleIdFilter.length) {
+                extendWhere();
+
+                function getConfiguredRuleIdFilterSQL(attrIndex) {
+                    return "( ({{currentRuleset}}.rules->'source'->>'filename') = $" + attrIndex + " OR " +
+                        "({{currentRuleset}}.rules->'target'->>'filename') = $" + attrIndex + " )"
+                }
+
+                values.push( filters.configuredRuleIdFilter.toString() );
+                where += getConfiguredRuleIdFilterSQL(values.length);
+
+                countValues.push( filters.configuredRuleIdFilter.toString() );
+                countWhere += getConfiguredRuleIdFilterSQL(countValues.length);
+            }
+
             if(filters.sourceDescriptionFilter && filters.sourceDescriptionFilter.length) {
                 let subWhere = safeStringLike( filters.sourceDescriptionFilter );
 
@@ -1088,7 +1103,7 @@ class data {
                 countWhere = join + ' ' + countWhere;
             }
 
-            let rulesetsQuery = this.db.query( updateTableNames( "SELECT {{currentRuleset}}.* FROM {{currentRuleset}} " + where + " " +
+            let rulesetsQuery = this.db.query(updateTableNames( "SELECT {{currentRuleset}}.* FROM {{currentRuleset}} " + where + " " +
                 "ORDER BY {{currentRuleset}}.id DESC LIMIT $1 OFFSET $2", this.tables ), values );
 
             let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{currentRuleset}} " + countWhere, this.tables ), countValues );
@@ -1137,6 +1152,36 @@ class data {
                 resolve( false );
             });
         });
+    }
+
+    ruleInUse(rule_id) {
+
+        return new Promise((resolve) => {
+            const rulesetQuery = this.getRulesets(1, 10, { configuredRuleIdFilter: rule_id });
+            const linkQuery = this.getRules(1, 10, {linkFilter: rule_id});
+
+            Promise.all([rulesetQuery, linkQuery]).then((queries) => {
+
+                if(queries[0].rulesets.length > 0) {
+                    resolve(true);
+                    return;
+                }
+
+                if(queries[1].rules.length > 0) {
+                    resolve(true);
+                    return;
+                }
+
+                resolve(false);
+
+            }, (err) => {
+                console.log(err);
+                resolve(true);
+            })
+        });
+
+
+
     }
 
     /**
@@ -1249,6 +1294,18 @@ class data {
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
             }
 
+            if(filters.descriptionExactFilter && filters.descriptionExactFilter.length) {
+                let subWhere = filters.descriptionExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description = $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description = $' + countValues.length;
+            }
+
             if(filters.idListFilter && filters.idListFilter.length) {
                 extendWhere();
 
@@ -1257,6 +1314,16 @@ class data {
 
                 countValues.push( filters.idListFilter );
                 countWhere += '{{currentRule}}.rule_id IN ($' + countValues.length + ')';
+            }
+
+            if(filters.linkFilter && filters.linkFilter.length) {
+                extendWhere();
+
+                values.push( filters.linkFilter.toString() );
+                where += `{{currentRule}}.type = 'source' AND {{currentRule}}.config->>'linkedtargetid' = $` + values.length;
+
+                countValues.push( filters.linkFilter.toString() );
+                countWhere += `{{currentRule}}.type = 'source' AND {{currentRule}}.config->>'linkedtargetid' = $` + countValues.length;
             }
 
             let ruleQuery = this.db.query( updateTableNames( "SELECT * FROM {{currentRule}} " + where + " " +
@@ -1308,7 +1375,19 @@ class data {
             }
 
             function update() {
-                checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+
+                const canChangeQuery = checkCanChangeRule(this.db, this.tables, rule, group, isAdmin);
+                const sameDescriptionQuery = this.getRules(1, 10, {descriptionExactFilter: rule.description, typeFilter: rule.type});
+
+
+                Promise.all([canChangeQuery, sameDescriptionQuery]).then((queries) => {
+
+                    if(queries[1].rules.length > 0) {
+                        reject(`${rule.description} is already in use.  Choose another name.`);
+                    }
+
+                    const result = queries[0];
+
                     let version = result.nextVersion;
                     let rowGroup = group;
 
@@ -1363,7 +1442,18 @@ class data {
 
             let rule_id = rule.rule_id;
 
-            checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+            const canChange = checkCanChangeRule(this.db, this.tables, rule, group, isAdmin);
+            const inUse = this.ruleInUse(rule_id);
+
+
+            Promise.all([canChange, inUse]).then((queries) => {
+
+                if(queries[1] === true) {
+                    reject('Cannot delete. This is in use.');
+                    return;
+                }
+
+                const result = queries[0];
 
                 if(result && result.rows.length > 0) {
                     const row = result.rows[0];

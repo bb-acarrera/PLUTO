@@ -357,3 +357,50 @@ QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( a
 		done();
 	});
 });
+
+
+
+
+QUnit.test( "CheckColumnType: Check For Valid Datetime Column Value", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger
+		},
+		"type" : "iso_8061_datetime",
+		"numHeaderRows" : 1,
+		"column" : 0
+	};
+
+	const rule = new CheckColumnType(config);
+	const parser = new CSVParser(config, rule);
+	const done = assert.async();
+	const data = "Column 0\n2011-10-10T14:48:00\n2016-10-13T08:35:47.510Z";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		done();
+	});
+});
+
+QUnit.test( "CheckColumnType: Check For invalid Datetime Column Value", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger
+		},
+		"type" : "iso_8061_datetime",
+		"numHeaderRows" : 1,
+		"column" : 0
+	};
+
+	const rule = new CheckColumnType(config);
+	const parser = new CSVParser(config, rule);
+	const done = assert.async();
+	const data = "Column 0\n\n \nfoo\n10\n2017-14-10T14:48:00\n2016-10-13T25:35:47.510Z";
+	parser._run( { data: data }).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 6, "Expect 6 errors.");
+		done();
+	});
+});
