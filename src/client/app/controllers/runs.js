@@ -53,6 +53,7 @@ export default Ember.Controller.extend({
 
 	runFilterChanged: Ember.observer('showErrors', 'showDropped', 'showWarnings', 'showNone', 'rulesetFilter',
 		'filenameFilter', 'dateFilter', 'runGroupFilter', 'showPassed', 'showFailed',
+		'sourceFileFilter', 'idFilter', 'sourceFilter',
 		function() {
 			this.set('page', 1);
 		}),

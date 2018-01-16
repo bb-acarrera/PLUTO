@@ -37,7 +37,9 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 				});
 
 				return { result: result, meta: meta};
-			})
+			}),
+			importers: this.store.findAll('importer'),
+			exporters: this.store.findAll('exporter')
 
 		})
 	},

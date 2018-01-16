@@ -4,7 +4,14 @@
 #### New Features
 
 #### Bug Fixes and Minor Improvements
-
+ * Changed upload/download list buttons to text
+ * Clicking outside of create pop-ups won't close the pop-up
+ * Added rule class to run details error list
+ * Added ISO 8601 DateTime type to check column type
+ * Prevent deletion of upload and download locations if they're in use
+ * Fixed some filters on lists not resetting back to the first page
+ * Added base selection to create upload/download pop-up
+ * Prevent an upload or download from being created if the description is the same
 
 
 ## 0.9.1

@@ -34,32 +34,6 @@
 	{{/bs-button}}
 </div>
 
-
-{{#bs-modal open=showdialog backdropClose=false onHidden=(action (mut showdialog) false) as |modal|}}
-	{{#modal.header}}
-        <h4 class="modal-title">
-			{{ptarget}}{{dialogtarget}}
-        </h4>
-	{{/modal.header}}
-	{{#modal.body}}
-		<div>
-			Name
-		</div>
-		<div>
-			{{input name="Id" type="text"  class="form-control"  autofocus="autofocus" value=modaltext}}
-		</div>
-
-
-	{{/modal.body}}
-	{{#modal.footer}}
-		{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
-		{{#if isclone}}
-			{{#bs-button type="success" onClick=(action "cloneRule" dialogruleset)}}{{buttontext}}{{/bs-button}}
-		{{else}}
-			{{#bs-button type="success" onClick=(action  "addRule")}}{{buttontext}}{{/bs-button}}
-		{{/if}}
-
-	{{/modal.footer}}
-{{/bs-modal}}
+{{add-configured-rule showdialog=showdialog bases=bases type=typeFilter typeTitle=typeTitle}}
 
 {{outlet}}

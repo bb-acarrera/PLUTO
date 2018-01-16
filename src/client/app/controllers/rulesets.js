@@ -151,7 +151,7 @@ export default Ember.Controller.extend({
 
 
 	rulesetFilterChanged: Ember.observer('rulesetNameFilter', 'rulesetGroupFilter',
-		"sourceDescriptionFilter",	"fileFilter",
+		"sourceDescriptionFilter",	"fileFilter", 'runGroupFilter', 'sourceDescriptionFilter',
 		function () {
 			this.set('rulePage', 1);
 		}),
