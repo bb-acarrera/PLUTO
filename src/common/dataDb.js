@@ -1294,6 +1294,18 @@ class data {
                 countWhere += '{{currentRule}}.description ILIKE $' + countValues.length;
             }
 
+            if(filters.descriptionExactFilter && filters.descriptionExactFilter.length) {
+                let subWhere = filters.descriptionExactFilter;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += '{{currentRule}}.description = $' + values.length;
+
+                countValues.push( subWhere );
+                countWhere += '{{currentRule}}.description = $' + countValues.length;
+            }
+
             if(filters.idListFilter && filters.idListFilter.length) {
                 extendWhere();
 
@@ -1363,7 +1375,19 @@ class data {
             }
 
             function update() {
-                checkCanChangeRule(this.db, this.tables, rule, group, isAdmin).then((result) => {
+
+                const canChangeQuery = checkCanChangeRule(this.db, this.tables, rule, group, isAdmin);
+                const sameDescriptionQuery = this.getRules(1, 10, {descriptionExactFilter: rule.description, typeFilter: rule.type});
+
+
+                Promise.all([canChangeQuery, sameDescriptionQuery]).then((queries) => {
+
+                    if(queries[1].rules.length > 0) {
+                        reject(`${rule.description} is already in use.  Choose another name.`);
+                    }
+
+                    const result = queries[0];
+
                     let version = result.nextVersion;
                     let rowGroup = group;
 
