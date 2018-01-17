@@ -49,9 +49,6 @@ To validate a file three things are required, a ruleset, a rule files, and an fi
 run the input file through, and how to export the resulting file and log results to a potentially different
 remote location.
 
-*In the near future setting all this up will be possible with a dedicated UI but
-for now this is a manual process.*
-
 ### 4.1 Validator Configuration
 
 Set up the validator configuration file as described above. The validator will use the values in this
@@ -74,6 +71,6 @@ workflow after each addition. This will make debugging your ruleset easier.
 
 Run the validator from the command line passing in at least the validator configuration file and ruleset.
 
-[ruleset]: docs/ruleset.md
-[rules]: docs/rules.md
-[validatorConfig]: docs/validatorConfig.md
+[ruleset]: ruleset.md
+[rules]: rules.md
+[validatorConfig]: validatorConfig.md
