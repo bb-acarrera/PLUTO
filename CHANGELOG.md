@@ -4,6 +4,7 @@
 #### New Features
 
 #### Bug Fixes and Minor Improvements
+ * Added "PLUTOCONFIG" environment variable to the pluto container, which maps to the pluto config folder for use by plugins
 
 ## 0.9.3
 #### New Features
