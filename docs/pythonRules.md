@@ -1,10 +1,10 @@
 # Python Rules
 
-Python rules are simply [Python](https://www.python.org) specialized applications that are invoked by the validator to validate or modify data files. 
+Python rules are simply [Python](https://www.python.org) specialized applications that are invoked by the validator to validate or modify data files. They are an example of the external process rules that are described in another document.
 
 ## 1.0. Overview
 
-Currently the validator uses only Python 2.7. Python 3.0+ cannot be used. (All the files used to implement the Python 2.7 API are available so it would not be too difficult to create new versions that support Python 3.0+.)
+Currently the validator uses only Python 2.7. Python 3.0+ cannot be used. (All the files used to implement the Python 2.7 API are available so it would not be too difficult to create new versions that support Python 3.0+. See the external process rules document for instructions on how to do this.)
 
 The validator does not detect rules which take an inordinate amount of time, or perhaps have fallen into an infinite loop. It is entirely the responsibility of the plug-in to terminate in a reasonable
 amount of time. (This may change in the future.)
@@ -60,12 +60,9 @@ where `ValidateFilename` is the name of the class. This allows the validator to 
 
 ## 3.0 Describing the UI
 
-In a JavaScript rule the description of the rule's UI is done within the `.js` file. That is not possible for Python rules. Instead Python rules require
-a separate JSON file that describes the UI. This file must be named the same as the Python file but with the addition of a `.json` suffix. For example if
-the rule file is called `MyPythonRule.py` then the JSON file must be named `MyPythonRule.py.json`. This file must be in the same directory as the Python file.
+In a JavaScript rule the description of the rule's UI is done within the `.js` file. That is not possible for Python rules. Instead Python rules require a separate JSON file that describes the UI. This file must be named the same as the Python file but with the addition of a `.json` suffix. For example if the rule file is called `MyPythonRule.py` then the JSON file must be named `MyPythonRule.py.json`. This file must be in the same directory as the Python file.
 
-The JSON file contains a JSON array of UI descriptors structured identically to the JavaScript UI descriptors (just in a JSON file rather than a JavaScript method).
-For example:
+The JSON file contains a JSON array of UI descriptors structured identically to the JavaScript UI descriptors (just in a JSON file rather than a JavaScript method). For example:
 ```json
 [
 	{
@@ -102,11 +99,7 @@ the following for each Python rule:
 }
 ```
 
-`filename` is a useful, brief description of the rule, generally the root name of the Python file, `script` should be the absolute path to the Python file within the
-Docker container, and
-`executable` should be `python` (or whatever the name of the Python 2.7 executable is called in the Docker container, which really should always just be `python`). As
-described elsewhere it's possible to have other types of external process rules than just Python, hence the need for the `executable` key/value pair. This executable
-should be in the execution path of the validator (which is true for `python` in the supplied Docker container).
+`filename` is a useful, brief description of the rule, generally the root name of the Python file, `script` should be the absolute path to the Python file within the Docker container, and `executable` should be `python` (or whatever the name of the Python 2.7 executable is called in the Docker container, which really should always just be `python`). As described elsewhere it's possible to have other types of external process rules than just Python, hence the need for the `executable` key/value pair. This executable should be in the execution path of the validator (which is true for `python` in the supplied Docker container).
 
 ## 5.0 The Implementation
 
@@ -187,5 +180,6 @@ class ValidateFilename(api.PythonAPIRule):
 		# Copy the file.	
 		api.PythonAPIRule.run(self, inputFile, outputFile, encoding)
 ```
+
 
 
