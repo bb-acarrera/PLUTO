@@ -40,8 +40,7 @@ QUnit.test( "CheckColumnType: Check Unknown Type Property Test", function( asser
 	const logResults = logger.getLog();
 	assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 	assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
-	assert.equal(logResults[0].description,
-		"Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got 'foo'.");
+
 });
 
 QUnit.test( "CheckColumnType: Check For Absent column Property", function( assert ) {
