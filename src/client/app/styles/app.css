@@ -93,6 +93,10 @@ td.error-cell {
   /* width:  auto; */
 }
 
+td.error-cell-log {
+	white-space: pre-line;
+}
+
 tr.error-row {
   border: 1px solid white;
   /* width:  auto; */
