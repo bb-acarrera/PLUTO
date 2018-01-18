@@ -32,7 +32,6 @@ export default Ember.Component.extend({
 				return;
 			}
 
-			this.set("showdialog", false);
 
 			let rule = {
 				type: this.get('type'),
@@ -44,6 +43,9 @@ export default Ember.Component.extend({
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
 				if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
+
+					this.set("showdialog", false);
+
 
 					let ruleId = '';
 
