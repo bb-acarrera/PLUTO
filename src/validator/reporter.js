@@ -164,7 +164,7 @@ function generateMessage(ruleset, runId, aborted) {
 	if(this.validatorConfig) {
 		let protocol = this.validatorConfig.configHostProtocol || 'http';
 
-		link = `${protocol}://${this.validatorConfig.configHost}/#/run/${runId}`;
+		link = `${protocol}://${this.validatorConfig.configHost}/run/${runId}`;
 	}
 
 

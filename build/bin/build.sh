@@ -46,10 +46,6 @@ cp $SRC/../package.json $SERVER_DST
 cp $SRC/runtime/configs/serverConfig.json $SERVER_DST/serverConfig.json
 cp $SRC/../Dockerfile $SERVER_DST
 
-echo "install npm dependencies"
-cd $SERVER_DST
-npm install --production
-
 # Build the client. NOTE: This is doing a development build not a production build.
 echo "Building client."
 cd $CLIENT

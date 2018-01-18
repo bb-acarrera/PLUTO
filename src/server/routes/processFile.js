@@ -56,9 +56,9 @@ class ProcessFileRouter extends BaseRouter {
             let finishHandler = null;
 
             if(!ruleset) {
-                res.json({
-                    processing: 'Failed to start: no rule specified'
-                });
+                res.statusMessage = 'Failed to start: no ruleset or source_file specified';
+                res.status(422).send('Failed to start: no ruleset or source_file specified');
+
                 return;
             }
 
@@ -82,11 +82,15 @@ class ProcessFileRouter extends BaseRouter {
             this.config.data.getRulesets(1, 5, {
                 fileExactFilter: sourceFile
             }).then((result) => {
-                if(result.rulesets.length > 0) {
+                if(result.rulesets.length == 1) {
                     ruleset = result.rulesets[0].ruleset_id;
 
                     prepProcessFile();
 
+                } else if(result.rulesets.length > 1) {
+                    let msg = `Too many ${sourceFile} matched. Got ${result.rulesets.length}, should only be 1.`;
+                    res.statusMessage = msg;
+                    res.status(422).send(msg);
                 } else {
                     res.statusMessage = `${sourceFile} not found.`;
                     res.status(404).send(`${sourceFile} not found.`);
