@@ -53,11 +53,24 @@ export default Ember.Route.extend(RulesetEmberizer, {
 						let sourceFilename = ruleset.get('source.filename');
 						let targetFilename = ruleset.get('target.filename');
 						if (sourceFilename) {
-							source = this.store.queryRecord('configuredrule', {id: sourceFilename})
+							source = this.store.queryRecord('configuredrule', {id: sourceFilename}).then((result) => {
+								return result;
+							}, () => {
+								return null;
+							}).catch(() => {
+								return null;
+							})
 						}
 
+
 						if (targetFilename) {
-							target = this.store.queryRecord('configuredrule', {id: targetFilename})
+							target = this.store.queryRecord('configuredrule', {id: targetFilename}).then((result) => {
+								return result;
+							}, () => {
+								return null;
+							}).catch(() => {
+								return null;
+							})
 						}
 
 						this.emberizeRuleset(ruleset);
