@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:8.9-alpine
 
 RUN apk --no-cache add \
   python \
@@ -9,6 +9,8 @@ RUN apk --no-cache add \
 RUN pip install --upgrade requests
 
 ADD . /opt/PLUTO
+
+RUN cd /opt/PLUTO && npm install --production
 
 VOLUME ["/opt/PLUTO/config"]
 ENV PLUTOAPI /opt/PLUTO/api
