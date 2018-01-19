@@ -61,6 +61,44 @@ class RunExternalProcess extends OperatorAPI {
 			return;
 		}
 
+		var config = Object.assign({}, this.config);
+		if (this.config.__state && this.config.__state.validator && this.config.__state.validator.currentRuleset) {
+			config.parserConfig = this.config.__state.validator.parserConfig || {};
+
+			if (this.config.__state.validator.currentRuleset.import)
+				config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
+			if (this.config.__state.validator.currentRuleset.export)
+				config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
+
+			if(config.__state && config.__state.sharedData && config.__state.sharedData.Parser) {
+				config.parserState = config.__state.sharedData.Parser ;
+			}
+
+			if(config.__state) {
+				config.validatorState = {};
+
+				Object.keys(config.__state).forEach((key => {
+					let value = config.__state[key];
+					let type = typeof value;
+
+					if(type !== 'object' && type !== 'function') {
+						config.validatorState[key] = value;
+					}
+
+				}));
+
+			}
+		}
+
+		var json = JSON.stringify(config, (key, value) => {
+			if (key.startsWith('_') || key == 'validator')
+				return undefined;   // Filter out anything that starts with an underscore that is on the parserConfig.
+			else {
+				return value;
+			}
+
+		});
+
         var server;
         if (this.socketName) {
             server = net.createServer((c) => {
@@ -69,22 +107,6 @@ class RunExternalProcess extends OperatorAPI {
                     server.unref();
                 });
 
-                var config = Object.assign({}, this.config);
-                if (this.config.__state && this.config.__state.validator && this.config.__state.validator.currentRuleset) {
-                    config.parserConfig = this.config.__state.validator.parserConfig || {};
-
-                    if (this.config.__state.validator.currentRuleset.import)
-                        config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
-                    if (this.config.__state.validator.currentRuleset.export)
-                        config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
-                }
-
-                var json = JSON.stringify(config, (key, value) => {
-                    if (key.startsWith('_'))
-                        return undefined;   // Filter out anything that starts with an underscore that is on the parserConfig.
-                    else
-                        return value;
-                });
                 c.write(json);
 
     //          c.pipe(c);  //Can't find documentation on what this does and the code works without it.
