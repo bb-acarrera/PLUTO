@@ -1,10 +1,10 @@
 # Python Rules
 
-Python rules are simply [Python](https://www.python.org) specialized applications that are invoked by the validator to validate or modify data files. They are an example of the external process rules that are described in another document.
+Python rules are simply [Python](https://www.python.org) specialized applications that are invoked by the validator to validate or modify data files. They are an example of the external process rules that are described [here][externalProcessRules].
 
 ## 1.0. Overview
 
-Currently the validator uses only Python 2.7. Python 3.0+ cannot be used. (All the files used to implement the Python 2.7 API are available so it would not be too difficult to create new versions that support Python 3.0+. See the external process rules document for instructions on how to do this.)
+Currently the `PythonAPI.py` helper only supports Python 2.7. (All the files used to implement the Python 2.7 API are available so it would not be too difficult to create new versions that support Python 3.0+. See the external process rules document for instructions on how to do this.)
 
 The validator does not detect rules which take an inordinate amount of time, or perhaps have fallen into an infinite loop. It is entirely the responsibility of the plug-in to terminate in a reasonable
 amount of time. (This may change in the future.)
@@ -17,7 +17,7 @@ There is an example Python rule called `src/rules/validateFilename.py` which can
 
 Python rule files should be saved to the `customRules` directory. They may have any name but for clarity should be suffixed with `.py`.
 
-Python rules derive from the `PythonAPI.py` base class. Unfortunately finding this class cannot be down automatically by the validator so instead a Python rule requires a few lines of template code to locate the base class. The template code is:
+Python 2.7 rules can derive from the `PythonAPI.py` base class. Unfortunately, finding this class cannot be down automatically by the validator so instead a Python rule requires a few lines of template code to locate the base class. The template code is:
 
 ```Python
 from __future__ import print_function
@@ -114,7 +114,7 @@ def __init__(self, config):
 	super(ValidateFilename, self).__init__(config)
 ```
 
-where `ValidateFilename` is replaced by the class name. The `config` object contains the same configuration information that a JavaScript rule would receive.
+where `ValidateFilename` is replaced by the class name. The `config` object contains the same configuration information that a JavaScript rule would receive and is described [here][ruleConfig].
 
 ### 5.2 Run()
 
@@ -148,7 +148,7 @@ where `msg` is a text string. Through the client UI it is possible to configure 
 
 #### 5.3.2 error()
 
-The `error()` method is used to report critical issues with the data. A rule can report as many errors as necessary when any are reported the validator will cease processing the input file after this rule completes. Like the `warning()` method the `error()` method is invoked as:
+The `error()` method is used to report critical issues with the data. A rule can report as many errors as necessary. When any are reported the validator will cease processing the input file after this rule completes. Like the `warning()` method the `error()` method is invoked as:
 
 ```python
 self.error(msg)
@@ -181,5 +181,5 @@ class ValidateFilename(api.PythonAPIRule):
 		api.PythonAPIRule.run(self, inputFile, outputFile, encoding)
 ```
 
-
-
+[externalProcessRules]: externalProcessRules.md
+[ruleConfig]: ruleConfig.md

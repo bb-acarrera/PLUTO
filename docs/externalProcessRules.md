@@ -123,6 +123,8 @@ def loadConfigFromFile(filename):
 	return None  # Should never get here.
 ```
 
+Details on the structure of the config are [here][ruleConfig].
+
 ### 5.2 Reading Configuration Data From a Socket
 
 This is much like reading the configuration data from a file but a socket is used instead. There is no indication whether the validator will use files or sockets for configuration information so an external process rule must implement both mechanisms.
@@ -150,6 +152,8 @@ def loadConfigFromSocket(socketAddr):
 ```
 
 This code simply reads the contents of the socket a chunk at a time building up a single large string and then sends this string to the JSON library for converting to Python objects. (In the PythonRuleAPI class the read configuration object is then passed to the constructor of the Python rule.)
+
+Details on the structure of the config are [here][ruleConfig].
 
 ### 5.3 Writing Status Messages
 
@@ -183,3 +187,4 @@ The most important method is the `log()` method which does the actual output to 
 `log()` has five parameters. The first, `self` is standard for Python classes and can be ignored in other languages. The second, `level`, should be either *Error* or *Warning*. Anything else will be ignored by the validator and therefore not shown to the user. Errors cause the validator to abort processing at the completion of the current rule while warnings are reported and do not stop processing. `problemFile` should be the name of the rule. `ruleID` should be the *id* value specified in the config. data. And finally `problemDescription` should be a message to the user that succinctly describes the problem the rule discovered in the input file.
 
 
+[ruleConfig]: ruleConfig.md
