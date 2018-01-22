@@ -114,13 +114,20 @@ class PythonCSVRule(PythonAPIRule):
 					
 	def getColumnIndex(self, columnName):
 		return self.columnNames.index(columnName)
-					
+	
+	#processRecord is called once for each record in the csv, and should be overridden
+	#returns the validated record, which can be modified, and return None to drop the record 
+	#  record is the array of column values
+	#  isHeaderRow is a boolean which is True if this row is in the csv header
+	#  rowNumber is the current line number of the csv, with 1 being the first row	
 	def processRecord(self, record, isHeaderRow, rowNumber):
 		return record
-		
+	
+	#start is called at the beginning of processing after the file is opened, and any property processing should happen here	
 	def start(self):
 		return
 	
+	#finish is called at the end of processing, but before the file is closed
 	def finish(self):
 		return
 	
