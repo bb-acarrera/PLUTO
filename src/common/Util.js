@@ -67,6 +67,11 @@ class Util {
 			currentdate.getSeconds();
 	}
 
+	static getTempFileName(tempDir) {
+		const filename = Util.createGUID();
+		return path.resolve(tempDir, filename);
+	}
+
 }
 
 module.exports = Util;

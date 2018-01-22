@@ -4,7 +4,7 @@ Rules are at the heart of the validator. They are used to validate and perform s
 files. Validation can include operations such as checking the number of columns in a [CSV](https://en.wikipedia.org/wiki/Comma-separated_values)
 (comma-separated values) file, checking a column
 against a regular expression, or checking that longitude and latitude values are correct, etc. Modification can
-include operations such as rearranging columns, changing header titles, etc.
+include operations such as modifying values in a column, changing header titles, etc.
 
 Rules write to a common log file any warnings or errors they encounter while operating on a file. At the completion
 of a ruleset run the final version of the input file and the error log are sent to the validator's [exporter].

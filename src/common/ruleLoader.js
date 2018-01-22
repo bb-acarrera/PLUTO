@@ -168,20 +168,22 @@ class RuleLoader {
 					if (moreProperties instanceof Array) {
 						var propsToDelete = [];
 						for (var i = 0; i < moreProperties.length; i++) {
-							if (moreProperties[i].shortdescription) {
+							if (moreProperties[i].shortdescription != null) {
 								shortDescription = moreProperties[i].shortdescription;
 								delete moreProperties[i].shortdescription;
 							}
-							if (moreProperties[i].longdescription) {
+							if (moreProperties[i].longdescription != null) {
 								longDescription = moreProperties[i].longdescription;
 								delete moreProperties[i].longdescription;
 							}
-							if (moreProperties[i].title) {
+							if (moreProperties[i].title != null) {
 								title = moreProperties[i].title;
 								delete moreProperties[i].title;
 							}
-							if (Object.keys(moreProperties[i]).length == 0)
+							if (Object.keys(moreProperties[i]).length == 0 ||
+								(!moreProperties[i].name || !moreProperties[i].type)) //not an actual config property
 								propsToDelete.push(i);	// Remember this element. It's empty so we'll need to delete it.
+
 						}
 
 						if (propsToDelete.length > 0) {

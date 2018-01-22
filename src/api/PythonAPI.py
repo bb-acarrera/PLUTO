@@ -8,7 +8,6 @@ import json
 import socket
 import sys
 
-
 class PythonAPIRule(object):
 	def __init__(self, config):
 		self.config = config
@@ -21,7 +20,7 @@ class PythonAPIRule(object):
 	# @param problemFileName the name of the file causing the log to be generated.
 	# @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	# @param problemDescription a description of the problem encountered.
-	def log(self, level, problemFileName, ruleID, problemDescription):
+	def log(self, level, problemFileName, ruleID, problemDescription, rowIndex):
 		level = "UNDEFINED" if level is None else level
 		problemFileName = "" if problemFileName is None else problemFileName
 		problemDescription = "" if problemDescription is None else problemDescription
@@ -46,22 +45,22 @@ class PythonAPIRule(object):
 	# Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
 	# <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
 	# @param problemDescription {string} a description of the problem encountered.
-	def error(self, problemDescription):
+	def error(self, problemDescription, rowIndex=None):
 		# FIXME: Support shouldAbort?
 		self.log("Error", self.__class__.__name__,
-				 self.config["id"], problemDescription)
+				 self.config["id"], problemDescription, rowIndex)
 
 	# Add a warning to the log.
 	# @param problemDescription {string} a description of the problem encountered.
-	def warning(self, problemDescription):
+	def warning(self, problemDescription, rowIndex=None):
 		self.log("Warning", self.__class__.__name__,
-				 self.config["id"], problemDescription)
+				 self.config["id"], problemDescription, rowIndex)
 
 	# Add an information report to the log.
 	# @param problemDescription {string} a description of the problem encountered.
-	def info(self, problemDescription):
+	def info(self, problemDescription, rowIndex=None):
 		self.log("Info", self.__class__.__name__,
-				 self.config["id"], problemDescription)
+				 self.config["id"], problemDescription, rowIndex)
 
 	def run(self, inputFile, outputFile, encoding):
 		copyfile(inputFile, outputFile)
@@ -69,25 +68,69 @@ class PythonAPIRule(object):
 
 class PythonCSVRule(PythonAPIRule):
 	def __init__(self, config):
-		super(ValidateFilename, self).__init__(config)
+		super(PythonCSVRule, self).__init__(config)
 
 	def run(self, inputFile, outputFile, encoding):
-		delimiter = self.config.delimiter if "delimiter" in self.config else ","
-		escapechar = self.config.escape if "escape" in self.config else '"'
-		quotechar = self.config.quote if "quote" in self.config else '"'
+	
+		if not "parserConfig" in self.config:
+			self.error("No parser configuration specified for PyhtpnCSVRule")
+			return			
+	
+		if not "parserState" in self.config:
+			self.error("No parser state supplied to PyhtpnCSVRule")
+			return
+	
+		delimiter = self.config["parserConfig"]["delimiter"].encode('ascii', 'replace') if "delimiter" in self.config["parserConfig"] else ","
+		escapechar = self.config["parserConfig"]["escape"].encode('ascii', 'replace') if "escape" in self.config["parserConfig"] else '"'
+		quotechar = self.config["parserConfig"]["quote"].encode('ascii', 'replace') if "quote" in self.config["parserConfig"] else '"'
+		numHeaderRows = int(self.config["parserConfig"]["numHeaderRows"]) if "numHeaderRows" in self.config["parserConfig"] else 1
+		
+		self.columnNames = self.config["parserState"]["columnNames"] if "columnNames" in self.config["parserState"] else []
+		
+		doublequote = False
+		if escapechar == quotechar:
+			doublequote = True
+			escapechar = None
+						
 		# FIXME: Python 2 doesn't support encoding here.
-		with open(inputFile, 'r') as src, open(outputFile, 'w') as dst:
+		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
 			csvreader = csv.reader(
-				src, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar)
+				src, delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote)
+				
 			csvwriter = csv.writer(
-				dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar)
+				dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote)
+				
+			rowHeaderOffset = numHeaderRows + 1;
+			self.start()
+			
 			for row in csvreader:
-				updatedRecord = self.processRecord(row)
+				isHeaderRow = csvreader.line_num < rowHeaderOffset
+				updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
 				if updatedRecord is not None:
 					csvwriter.writerow(updatedRecord)
-
-	def processRecord(self, record):
+			
+			self.finish()
+					
+					
+	def getColumnIndex(self, columnName):
+		return self.columnNames.index(columnName)
+	
+	#processRecord is called once for each record in the csv, and should be overridden
+	#returns the validated record, which can be modified, and return None to drop the record 
+	#  record is the array of column values
+	#  isHeaderRow is a boolean which is True if this row is in the csv header
+	#  rowNumber is the current line number of the csv, with 1 being the first row	
+	def processRecord(self, record, isHeaderRow, rowNumber):
 		return record
+	
+	#start is called at the beginning of processing after the file is opened, and any property processing should happen here	
+	def start(self):
+		return
+	
+	#finish is called at the end of processing, but before the file is closed
+	def finish(self):
+		return
+	
 
 
 def loadConfigFromFile(filename):

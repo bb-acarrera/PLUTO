@@ -3,6 +3,7 @@ import os.path
 import re
 import imp
 import sys
+from shutil import copyfile
 
 plutoAPI = os.environ.get('PLUTOAPI')
 if not plutoAPI:
@@ -34,7 +35,7 @@ class ValidateFilename(api.PythonAPIRule):
 			if prog.match(filename) is None:
 				self.error(filename + " does not match the regular expression " + self.config["regex"])
 		
-		# Copy the file.	
-		api.PythonAPIRule.run(self, inputFile, outputFile, encoding)
+		# Copy the file to the output for the next rule
+		copyfile(inputFile, outputFile)
 		
 api.process(ValidateFilename)
