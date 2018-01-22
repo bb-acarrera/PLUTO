@@ -101,7 +101,7 @@ class RunExternalProcess extends OperatorAPI {
 
 		});
 
-        var server, configFile;
+        var server;
         if (this.socketName) {
             server = net.createServer((c) => {
                 // 'connection' listener
@@ -132,8 +132,8 @@ class RunExternalProcess extends OperatorAPI {
 //            server.on('close', () => {
 //            });
         } else {
-	        configFile = Util.getTempFileName(config.__state.tempDirectory);
-	        fs.writeFileSync(configFile, json, 'utf-8');
+	        this.configFile = Util.getTempFileName(config.__state.tempDirectory);
+	        fs.writeFileSync(this.configFile, json, 'utf-8');
         }
 
         // Run the executable. This complains if the executable doesn't exist.
@@ -158,7 +158,7 @@ class RunExternalProcess extends OperatorAPI {
 			args.push(this.socketName);
 		} else {
 			args.push("-c");
-			args.push(configFile);
+			args.push(this.configFile);
 		}
 
 		child = spawn(attributes.executable, args, { env: process.env });
@@ -203,8 +203,8 @@ class RunExternalProcess extends OperatorAPI {
             if (server)
                 server.unref();
 
-			if(configFile) {
-				fs.unlink(configFile);
+			if(this.configFile) {
+				fs.unlink(this.configFile);
 			}
 
 			resolve(outputName);
@@ -217,8 +217,8 @@ class RunExternalProcess extends OperatorAPI {
 			if (server)
 			    server.unref();
 
-			if(configFile) {
-				fs.unlink(configFile);
+			if(this.configFile) {
+				fs.unlink(this.configFile);
 			}
 
 			resolve(outputName);
