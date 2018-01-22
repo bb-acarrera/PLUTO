@@ -28,8 +28,7 @@ QUnit.module("RunExternalProcess tests", {
 
 });
 
-// Skipping this test because every once in a while Circle CI is complaining that it is timing out waiting more than 5s for the test to complete.
-QUnit.skip( "RunExternalProcess: Successful run test", function(assert) {
+QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
     const logger = new ErrorLogger();
     const config = {
         __state : {
@@ -50,12 +49,14 @@ QUnit.skip( "RunExternalProcess: Successful run test", function(assert) {
     
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
-    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
-    
+
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
     
     const done = assert.async();
 
@@ -102,12 +103,14 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
 
-    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
-    
+
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -213,8 +216,11 @@ QUnit.test( "RunExternalProcess: Missing attributes test", function(assert) {
 
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
     
     const done = assert.async();
     
@@ -255,8 +261,11 @@ QUnit.test( "RunExternalProcess: Missing regex test", function(assert) {
 
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -296,8 +305,11 @@ QUnit.test( "RunExternalProcess: Missing importConfig test.", function(assert) {
 
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -337,8 +349,11 @@ QUnit.test( "RunExternalProcess: Missing importConfig.file test.", function(asse
 
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -370,6 +385,7 @@ QUnit.skip( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
         },
         "id" : 1,
         "importConfig" : {
+            "file" : "foo.csv"
         },
         "regex" : ".*\\.csv"
     };
@@ -382,8 +398,11 @@ QUnit.skip( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
 
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -393,7 +412,10 @@ QUnit.skip( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
         assert.ok(logResults.length == 1, "Expected one error result.");
         assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
         // assert.equal(logResults[1].type, "Error", "Expected an 'Error'.");
-        assert.ok(logResults[0].description.includes("Failed to load the PythonAPI."), "Expected the error to contain 'Failed to load the PythonAPI.'.")
+        assert.ok(logResults[0].description.includes("Failed to load the PythonAPI."), "Expected the error to contain 'Failed to load the PythonAPI.'.");
+
+        console.log(logResults[0].description);
+
         // assert.ok(logResults[1].description.includes("exited with status 1"), "Expected the error to contain 'exited with status 1'.")
         
         done();
@@ -424,12 +446,13 @@ QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
 
-    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
-    
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -469,12 +492,13 @@ QUnit.test( "RunExternalProcess: Can't find executable test", function(assert) {
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
 
-    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
-    
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -515,12 +539,14 @@ QUnit.test( "RunExternalProcess: Failing executable test", function(assert) {
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
 
-    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
     
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
@@ -560,13 +586,14 @@ QUnit.test( "RunExternalProcess: Executable writing to stdout test", function(as
 
     const data = "Hello World";
     const rule = new RunExternalProcess(config);
-
-    assert.ok(rule.socketName, "Rule did not allocate a socketName.");
     
     // Remove the socket if it exists. The rule shouldn't do this since it gets a fresh tempDir in real use and if the socket
     // exists it means a different rule created an identically named socket which is a problem.)
-    if (fs.existsSync(rule.socketName))
+    if (rule.socketName && fs.existsSync(rule.socketName))
         fs.unlinkSync(rule.socketName);
+
+    if (rule.configFile && fs.existsSync(rule.configFile))
+        fs.unlinkSync(rule.configFile);
 
     const done = assert.async();
 
