@@ -3,6 +3,11 @@
     
   ],
   "rules": [
+	{
+      "filename":"validateColumnRegExPython",
+      "script" : "validateColumnRegEx.py",
+      "executable" : "python"
+    },
     {
 		"filename":"ValidateZipFilenames",
 		"script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",

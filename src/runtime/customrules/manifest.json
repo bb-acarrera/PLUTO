@@ -2,7 +2,12 @@
   "parsers": [
   ],
   "rules": [
-	],
+    {
+      "filename":"validateColumnRegExPython",
+      "script" : "validateColumnRegEx.py",
+      "executable" : "python"
+    }
+  ],
   "importers" : [
     {
       "filename":"LocalCopyImport",
