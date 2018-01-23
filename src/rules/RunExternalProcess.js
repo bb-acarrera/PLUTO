@@ -28,7 +28,7 @@ class RunExternalProcess extends OperatorAPI {
 	constructor(config) {
 		super(config);
 
-		this.changeFileFormat = this.config.attributes.changeFileFormat === true;
+		this.changeFileFormat = this.config.attributes && this.config.attributes.changeFileFormat === true;
 		
 		// Create a unique socket.
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)

@@ -689,3 +689,5 @@ QUnit.test( "RunExternalProcess: Successful csv run test", function(assert) {
         done();
     });
 });
+
+QUnit.module("");
