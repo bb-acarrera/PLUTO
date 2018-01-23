@@ -81,10 +81,14 @@ The JSON file contains a JSON array of UI descriptors structured identically to 
 	{
 		"shortdescription": "Validate the name of the source file.",
 		"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-		"title": "Check Filename"
+		"title": "Check Filename",
+		"changeFileFormat": false
 	}
 ]
 ```
+
+More details on the properties are [here][ruleUiConfig].
+
 ## 4.0 The Manifest File
 
 The `customRules` directory should contain a `manifest.json` file that the validator reads to learn what rules are available. Elsewhere there is a description of
@@ -183,3 +187,4 @@ class ValidateFilename(api.PythonAPIRule):
 
 [externalProcessRules]: externalProcessRules.md
 [ruleConfig]: ruleConfig.md
+[ruleUiConfig]: ruleUiConfig.md
