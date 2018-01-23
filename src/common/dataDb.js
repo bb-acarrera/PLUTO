@@ -357,6 +357,20 @@ class data {
 
             }
 
+            //
+            if ( filters.targetId != null ) {
+                subWhere = filters.targetId;
+
+                extendWhere();
+
+                values.push( subWhere );
+                where += "{{runs}}.target_id = $" + values.length;
+
+                countValues.push( subWhere );
+                countWhere += "{{runs}}.target_id = $" + countValues.length;
+
+            }
+
 
             if ( filters.filenameFilter && filters.filenameFilter.length > 0 ) {
                 filenameWhere = safeStringLike( filters.filenameFilter );
@@ -587,11 +601,11 @@ class data {
      * This method saves record which is used by the client code to reference files for any particular run.
      * @param runId the unique ID of the run.
      * @param log the log
-     * @param ruleSetId the id of the ruleset
+     * @param ruleset the ruleset used for this run
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
      */
-     saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary, inputMd5, finished) {
+     saveRunRecord(runId, log, ruleset, inputFile, outputFile, logCounts, passed, summary, inputMd5, finished) {
 
         return new Promise((resolve, reject) => {
 
@@ -648,6 +662,23 @@ class data {
                 values.push(JSON.stringify(summary));
                 valueStr += `summary = $${values.length}`;
             }
+
+            if(ruleset) {
+
+                if(ruleset.sourceDetails && ruleset.sourceDetails.id != null) {
+                    extend();
+                    values.push(ruleset.sourceDetails.id);
+                    valueStr += `source_id = $${values.length}`;
+                }
+
+                if(ruleset.targetDetails && ruleset.targetDetails.id != null) {
+                    extend();
+                    values.push(ruleset.targetDetails.id);
+                    valueStr += `target_id = $${values.length}`;
+                }
+            }
+
+
 
             if(inputMd5) {
                 extend();
