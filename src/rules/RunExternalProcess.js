@@ -28,7 +28,7 @@ class RunExternalProcess extends OperatorAPI {
 	constructor(config) {
 		super(config);
 
-		this.changeFileFormat = this.config.changeFileFormat === true;
+		this.changeFileFormat = this.config.attributes.changeFileFormat === true;
 		
 		// Create a unique socket.
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
@@ -64,32 +64,34 @@ class RunExternalProcess extends OperatorAPI {
 		}
 
 		var config = Object.assign({}, this.config);
-		if (this.config.__state && this.config.__state.validator && this.config.__state.validator.currentRuleset) {
+		if (this.config.__state && this.config.__state.validator) {
 			config.parserConfig = this.config.__state.validator.parserConfig || {};
 
-			if (this.config.__state.validator.currentRuleset.import)
-				config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
-			if (this.config.__state.validator.currentRuleset.export)
-				config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
+			if(this.config.__state.validator.currentRuleset) {
+				if (this.config.__state.validator.currentRuleset.import)
+					config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
+				if (this.config.__state.validator.currentRuleset.export)
+					config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
+			}
 
-			if(config.__state && config.__state.sharedData && config.__state.sharedData.Parser) {
+
+			if(config.__state.sharedData && config.__state.sharedData.Parser) {
 				config.parserState = config.__state.sharedData.Parser ;
 			}
 
-			if(config.__state) {
-				config.validatorState = {};
+			config.validatorState = {};
 
-				Object.keys(config.__state).forEach((key => {
-					let value = config.__state[key];
-					let type = typeof value;
+			Object.keys(config.__state).forEach((key => {
+				let value = config.__state[key];
+				let type = typeof value;
 
-					if(type !== 'object' && type !== 'function') {
-						config.validatorState[key] = value;
-					}
+				if(type !== 'object' && type !== 'function') {
+					config.validatorState[key] = value;
+				}
 
-				}));
+			}));
 
-			}
+
 		}
 
 		var json = JSON.stringify(config, (key, value) => {
@@ -256,19 +258,12 @@ class RunExternalProcess extends OperatorAPI {
 	}
 
 	static get ConfigProperties() {
-		return this.appendConfigProperties([
-			{
-				name: 'changeFileFormat',
-				type: 'boolean',
-				label: 'Process will change file format',
-				tooltip: 'Set to true if this process will alter the format of the file (e.g. csv to geojson)'
-			}
-		]);
+		return this.appendConfigProperties([]);
 	}
 
 
 	static get ConfigDefaults() {
-		return this.appendDefaults({changeFileFormat: false});
+		return this.appendDefaults();
 	}
 }
 
