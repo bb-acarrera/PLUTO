@@ -7,6 +7,7 @@ import csv
 import json
 import socket
 import sys
+import os
 
 class PythonAPIRule(object):
 	def __init__(self, config):
@@ -73,11 +74,11 @@ class PythonCSVRule(PythonAPIRule):
 	def run(self, inputFile, outputFile, encoding):
 	
 		if not "parserConfig" in self.config:
-			self.error("No parser configuration specified for PyhtpnCSVRule")
+			self.error("No parser configuration specified for PythonCSVRule")
 			return			
 	
 		if not "parserState" in self.config:
-			self.error("No parser state supplied to PyhtpnCSVRule")
+			self.error("No parser state supplied to PythonCSVRule")
 			return
 	
 		delimiter = self.config["parserConfig"]["delimiter"].encode('ascii', 'replace') if "delimiter" in self.config["parserConfig"] else ","
@@ -94,11 +95,12 @@ class PythonCSVRule(PythonAPIRule):
 						
 		# FIXME: Python 2 doesn't support encoding here.
 		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
+		
 			csvreader = csv.reader(
 				src, delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote)
 				
 			csvwriter = csv.writer(
-				dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote)
+				dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, lineterminator="\n")
 				
 			rowHeaderOffset = numHeaderRows + 1;
 			self.start()
@@ -108,6 +110,10 @@ class PythonCSVRule(PythonAPIRule):
 				updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
 				if updatedRecord is not None:
 					csvwriter.writerow(updatedRecord)
+			
+			#remove the extra newline the writer adds
+			dst.seek(-1, os.SEEK_END) # <---- 1 : len('\n')
+			dst.truncate()           
 			
 			self.finish()
 					

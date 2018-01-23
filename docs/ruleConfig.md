@@ -34,7 +34,7 @@ For the CsvParser, the properties are:
 ```json
 {
     "name": "CSVParser",
-	"numHeaderRows": "1",
+	"numHeaderRows": 1,
 	"columnRow": 1,
 	"delimiter": ",",
 	"quote":"\"",

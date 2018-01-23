@@ -21,6 +21,7 @@
 	{
 		"shortdescription": "",
 		"longdescription": "",
-		"title": "Check Column Value w RegEx via Python"
+		"title": "Check Column Value w RegEx via Python",
+		"changeFileFormat": false
 	}
 ]

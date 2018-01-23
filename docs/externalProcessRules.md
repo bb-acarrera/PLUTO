@@ -37,10 +37,14 @@ For example:
 	{
 		"shortdescription": "Validate the name of the source file.",
 		"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-		"title": "Check Filename"
+		"title": "Check Filename",
+        "changeFileFormat": false
 	}
 ]
 ```
+
+More details on the properties are [here][ruleUiConfig].
+
 ## 4.0 The Manifest File
 
 The `customRules` directory should contain a `manifest.json` file that the validator reads to learn what rules are available. Elsewhere there is a description of
@@ -76,10 +80,7 @@ parser.add_argument('-o', dest='outputName',
 					help="The name of the output file to write.", required='True')
 parser.add_argument('-e', dest='encoding',
 					help="The file encoding of the input file. The output file will be written with the same encoding.", default='utf8')
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument('-s', dest='socketAddr',
-					help="The name of the socket file to read the configuration information from.")
-group.add_argument('-c', dest='configName',
+parser.add_argument('-c', dest='configName',
 					help="The name of a file to read the configuration information from.")
 
 try:
@@ -98,11 +99,10 @@ if not args:
 inputName = args.inputName
 outputName = args.outputName
 encoding = args.encoding
-socketAddr = args.socketAddr
 configName = args.configName
 ```
 
-This should be self-explanatory even without knowledge of Python, but in a nutshell the validator will call the external process rule with four arguements. `-i` is followed by the absolute path to the file the rule should read. `-o` is followed by the name of the file the rule should write. The file will not exist. `-e` specifies the encoding of the input file and if omitted the rule should default to 'utf8'. Finally the rule can be called with either a `-s` or `-c` argument indicating how to read the configuration information. `-s` is used to send the information via a socket and is followed by the socket address. `-c` is used when the configuration information is sent via a file and is followed by the fully qualified path to the configuration file. (The contents of the configuration data is described below.)
+The validator will call the external process rule with four arguements. `-i` is followed by the absolute path to the file the rule should read. `-o` is followed by the name of the file the rule should write. The file will not exist. `-e` specifies the encoding of the input file and if omitted the rule should default to 'utf8'. Finally the rule can be called with a `-c` argument indicating how to read the configuration information from a file and is followed by the fully qualified path to the configuration file. (The contents of the configuration data is described below.)
 
 Rules should process the command line arguments and if any errors are encountered (for example the input file cannot be read) then these errors should be reported to the `stderr` stream.
 
@@ -122,36 +122,6 @@ def loadConfigFromFile(filename):
 
 	return None  # Should never get here.
 ```
-
-Details on the structure of the config are [here][ruleConfig].
-
-### 5.2 Reading Configuration Data From a Socket
-
-This is much like reading the configuration data from a file but a socket is used instead. There is no indication whether the validator will use files or sockets for configuration information so an external process rule must implement both mechanisms.
-
-```python
-def loadConfigFromSocket(socketAddr):
-	# Create a UDS socket to receive the chunks info.
-	sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-	chunks = ''
-	try:
-		sock.connect(socketAddr)
-		while True:
-			chunk = sock.recv(1024)
-			if chunk == b'':
-				break
-			chunks += chunk.decode('utf-8')
-
-	except socket.error as err:
-		print("Failed to read from " + socketAddr, file=sys.stderr)
-		print(err, file=sys.stderr)
-		sys.exit(1)		# Inelegant but effective.
-
-	return json.loads(chunks)
-```
-
-This code simply reads the contents of the socket a chunk at a time building up a single large string and then sends this string to the JSON library for converting to Python objects. (In the PythonRuleAPI class the read configuration object is then passed to the constructor of the Python rule.)
 
 Details on the structure of the config are [here][ruleConfig].
 
@@ -188,3 +158,4 @@ The most important method is the `log()` method which does the actual output to 
 
 
 [ruleConfig]: ruleConfig.md
+[ruleUiConfig]: ruleUiConfig.md
