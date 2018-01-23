@@ -162,6 +162,7 @@ class RuleLoader {
 			if (script) {
 				// Scripts, not being JavaScript, need an external UI description file.
 				var moreProperties = RuleLoader.getJSONProperties(script);
+				var changeFileFormat;
 				if (moreProperties) {
 
 					properties = properties || [];
@@ -180,6 +181,11 @@ class RuleLoader {
 								title = moreProperties[i].title;
 								delete moreProperties[i].title;
 							}
+							if (moreProperties[i].changeFileFormat != null) {
+								changeFileFormat = moreProperties[i].changeFileFormat;
+								delete moreProperties[i].changeFileFormat;
+							}
+
 							if (Object.keys(moreProperties[i]).length == 0 ||
 								(!moreProperties[i].name || !moreProperties[i].type)) //not an actual config property
 								propsToDelete.push(i);	// Remember this element. It's empty so we'll need to delete it.
@@ -229,7 +235,8 @@ class RuleLoader {
 						},
 						shortdescription: shortDescription,
 						longdescription: longDescription,
-						title: title
+						title: title,
+						changeFileFormat: changeFileFormat
 					}
 				};
 
