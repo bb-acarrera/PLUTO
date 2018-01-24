@@ -32,6 +32,8 @@ class ValidateColumnRegEx(api.PythonCSVRule):
 		
 		self.columnIndex = self.getColumnIndex(self.config["column"])
 		
+		self.onError = self.config["onError"] if "onError" in self.config else 'warning'
+		
 	#processRecord is called once for each record in the csv
 	#returns the validated record, which can be modified, and return None to drop the record 
 	#  record is the array of column values
@@ -45,7 +47,13 @@ class ValidateColumnRegEx(api.PythonCSVRule):
 		value = record[self.columnIndex]
 		
 		if self.prog.match(value) is None:
-			self.error(value + " does not match the regular expression", rowNumber)
+			if self.onError == "error":
+				self.error(value + " does not match the regular expression", rowNumber)
+			elif self.onError == "dropped":
+				self.dropped(value + " does not match the regular expression", rowNumber)
+				return None
+			else:
+				self.warning(value + " does not match the regular expression", rowNumber)
 		
 		return record
 	

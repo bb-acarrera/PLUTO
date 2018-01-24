@@ -19,6 +19,16 @@
 		]
 	},
 	{
+		"name": "onError",
+		"label": "Action on RegEx failure: ",
+		"type": "choice",
+		"choices": [
+			{"value":"error", "label":"Error"},
+			{"value":"warning", "label":"Warning"},
+			{"value":"dropped", "label":"Drop Row"}],
+		"tooltip": "What to do if the regular expression fails."
+	},
+	{
 		"shortdescription": "",
 		"longdescription": "",
 		"title": "Check Column Value w RegEx via Python",
