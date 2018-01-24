@@ -7,50 +7,8 @@
 	"attributes": {
 		"name": "validateColumnRegExPython",
 		"filename": "validateColumnRegExPython",
-		"script": "c:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO\\src\\runtime\\customrules\\validateColumnRegEx.py",
+		"script": "validateColumnRegEx.py",
 		"executable": "python",
-		"ui": {
-			"properties": [{
-				"name": "changeFileFormat",
-				"type": "boolean",
-				"label": "Process will change file format",
-				"tooltip": "Set to true if this process will alter the format of the file (e.g. csv to geojson)",
-				"default": false
-			},
-			{
-				"name": "droppedToAbort",
-				"label": "How many dropped items before aborting on this rule?",
-				"type": "integer",
-				"tooltip": "Stop execution when these many errors occur."
-			},
-			{
-				"name": "warningsToAbort",
-				"label": "How many warnings before aborting on this rule?",
-				"type": "integer",
-				"tooltip": "Stop execution when these many warnings occur."
-			},
-			{
-				"name": "column",
-				"label": "Column",
-				"type": "column",
-				"tooltip": "The column to run the regular expression against."
-			},
-			{
-				"name": "regex",
-				"label": "Regular Expression",
-				"type": "string",
-				"tooltip": "The regular expression to use to validate the value.",
-				"validations": [{
-					"length": {
-						"min": 1
-					}
-				}]
-			},
-			{
-				"shortdescription": "",
-				"longdescription": ""
-			}]
-		},
 		"title": "Check Column Value w RegEx via Python"
 	},
 	"parserConfig": {
@@ -89,8 +47,6 @@
 		"file": "worldcities_out.csv"
 	},
 	"parserState": {
-		"CSVParserSetupAdded": true,
-		"CSVParserCleanupAdded": true,
 		"columnNames": ["city",
 		"city_ascii",
 		"lat",
@@ -99,13 +55,7 @@
 		"country",
 		"iso2",
 		"iso3",
-		"province",
-		"____trackingRowId___internal___"],
-		"columnChanges": [{
-			"add": "____trackingRowId___internal___",
-			"index": 9
-		}],
-		"rowIdColumnIndex": 9
+		"province"]
 	},
 	"validatorState": {
 		"rootDirectory": "c:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO\\src\\",
