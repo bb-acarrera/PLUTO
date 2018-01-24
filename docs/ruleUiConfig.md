@@ -16,7 +16,7 @@ For example:
 		"label": "Regular Expression",
 		"type": "string",
 		"tooltip": "The regular expression to use to validate the filename.",
-		"default": ""
+		"default": "",
 		"validations": [
 			{
 				"length": {
@@ -42,7 +42,7 @@ Each object in the list describes a single property that is exposed to the user 
 	"label": "Regular Expression",
 	"type": "string",
 	"tooltip": "The regular expression to use to validate the filename.",
-	"default": ""
+	"default": "",
 	"validations": []
 }
 ```
