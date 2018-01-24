@@ -190,7 +190,8 @@ class RunExternalProcess extends OperatorAPI {
 					    try {
                             const error = JSON.parse(strs[i]);
                             if (error)
-                                this.log(error.type, error.problemFile, error.ruleID, error.description);
+                                this.log(error.type, error.problemFile, error.ruleID, error.description,
+	                                error.dataItemId && error.dataItemId.length > 0 ? error.dataItemId : null);
 					    }
 					    catch (e) {
 							console.log(strs[i]);
