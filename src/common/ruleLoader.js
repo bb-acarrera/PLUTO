@@ -197,7 +197,7 @@ class RuleLoader {
 							for (var i = propsToDelete.length - 1; i >= 0; i--)
 								moreProperties.splice(propsToDelete[i], 1);
 						}
-						properties = properties.concat(moreProperties);
+						properties = moreProperties.concat(properties);
 					}
 					else {
 						if (moreProperties.shortdescription) {
