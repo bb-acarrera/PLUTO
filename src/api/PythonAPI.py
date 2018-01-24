@@ -138,8 +138,9 @@ class PythonCSVRule(PythonAPIRule):
 		
 		if hasattr(self, "rowIdColumnIndex") and hasattr(self, "currentRow"):
 			if self.rowIdColumnIndex is not None and self.currentRow is not None:
-				rowNumber = self.currentRow[self.rowIdColumnIndex]
-				problemDescription = problemDescription + " : Row " + str(rowNumber)
+				if len(self.currentRow) > self.rowIdColumnIndex:
+					rowNumber = self.currentRow[self.rowIdColumnIndex]
+					problemDescription = problemDescription + " : Row " + str(rowNumber)
 			
 		super(PythonCSVRule, self).log(level, problemFileName, ruleID, problemDescription, rowNumber)
 	
