@@ -12,6 +12,10 @@
  * Build improvements
  * Wait for response before closing create pop-ups
  * Return error on processFile if too many rulesets found
+ * Checks to see if the validation needs to run again now include changes to the target/upload
+ * Improved external process rules support
+ * Added Python 2.7 CSV parser base rule class
+ * More documentation
 
 ## 0.9.3
 #### New Features
