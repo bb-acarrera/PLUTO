@@ -21,20 +21,22 @@ class PythonAPIRule(object):
 	# @param problemFileName the name of the file causing the log to be generated.
 	# @param ruleID the ID of the rule raising the log report or undefined if raised by some file other than a rule.
 	# @param problemDescription a description of the problem encountered.
-	def log(self, level, problemFileName, ruleID, problemDescription, rowIndex):
+	def log(self, level, problemFileName, ruleID, problemDescription, dataItemId):
 		level = "UNDEFINED" if level is None else level
 		problemFileName = "" if problemFileName is None else problemFileName
 		problemDescription = "" if problemDescription is None else problemDescription
 #		 dateStr = datetime.now().isoformat(' ') # FIXME: match the node time output format.
+		dataItemId = "" if dataItemId is None else str(dataItemId)
 
 		# For now just write the report to stderr with one JSON object per line.
-		# report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription }
+		# report = { type : level, when : dateStr, problemFile : problemFileName, ruleID : ruleID, description : problemDescription, dateItemId : dataItemIdentifier }
 		response = {
 			"type": level,
 #			 "when" : dateStr,
 			"problemFile": problemFileName,
 			"ruleID": ruleID,
-			"description": problemDescription
+			"description": problemDescription,
+			"dataItemId": dataItemId
 		}
 		jsonStr = json.dumps(response)
 		jsonStr = jsonStr.replace("\n", " ")
@@ -46,22 +48,28 @@ class PythonAPIRule(object):
 	# Add an error to the log. If this is called and {@link RuleAPI#shouldRulesetFailOnError} returns
 	# <code>true</code> then at the completion of this rule the running of the ruleset will terminate.
 	# @param problemDescription {string} a description of the problem encountered.
-	def error(self, problemDescription, rowIndex=None):
+	def error(self, problemDescription, dataItemId=None):
 		# FIXME: Support shouldAbort?
 		self.log("Error", self.__class__.__name__,
-				 self.config["id"], problemDescription, rowIndex)
+				 self.config["id"], problemDescription, dataItemId)
 
 	# Add a warning to the log.
 	# @param problemDescription {string} a description of the problem encountered.
-	def warning(self, problemDescription, rowIndex=None):
+	def warning(self, problemDescription, dataItemId=None):
 		self.log("Warning", self.__class__.__name__,
-				 self.config["id"], problemDescription, rowIndex)
+				 self.config["id"], problemDescription, dataItemId)
 
 	# Add an information report to the log.
 	# @param problemDescription {string} a description of the problem encountered.
-	def info(self, problemDescription, rowIndex=None):
+	def info(self, problemDescription, dataItemId=None):
 		self.log("Info", self.__class__.__name__,
-				 self.config["id"], problemDescription, rowIndex)
+				 self.config["id"], problemDescription, dataItemId)
+				 
+	# Add an dropped item report to the log.
+	# @param problemDescription {string} a description of the problem encountered.
+	def dropped(self, problemDescription, dataItemId=None):
+		self.log("Dropped", self.__class__.__name__,
+				 self.config["id"], problemDescription, dataItemId)
 
 	def run(self, inputFile, outputFile, encoding):
 		copyfile(inputFile, outputFile)
@@ -87,12 +95,15 @@ class PythonCSVRule(PythonAPIRule):
 		numHeaderRows = int(self.config["parserConfig"]["numHeaderRows"]) if "numHeaderRows" in self.config["parserConfig"] else 1
 		
 		self.columnNames = self.config["parserState"]["columnNames"] if "columnNames" in self.config["parserState"] else []
+		self.rowIdColumnIndex = self.config["parserState"]["rowIdColumnIndex"] if "rowIdColumnIndex" in self.config["parserState"] else None
 		
 		doublequote = False
 		if escapechar == quotechar:
 			doublequote = True
 			escapechar = None
-						
+
+		self.currentRow = None		
+				
 		# FIXME: Python 2 doesn't support encoding here.
 		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
 		
@@ -107,16 +118,31 @@ class PythonCSVRule(PythonAPIRule):
 			
 			for row in csvreader:
 				isHeaderRow = csvreader.line_num < rowHeaderOffset
+				self.currentRow = row
 				updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
 				if updatedRecord is not None:
 					csvwriter.writerow(updatedRecord)
+							
+			self.currentRow = None
 			
 			#remove the extra newline the writer adds
 			dst.seek(-1, os.SEEK_END) # <---- 1 : len('\n')
 			dst.truncate()           
 			
 			self.finish()
-					
+	
+	# override of base log class to get the correct line number
+	def log(self, level, problemFileName, ruleID, problemDescription, dataItemId):
+		
+		rowNumber = dataItemId
+		
+		if hasattr(self, "rowIdColumnIndex") and hasattr(self, "currentRow"):
+			if self.rowIdColumnIndex is not None and self.currentRow is not None:
+				rowNumber = self.currentRow[self.rowIdColumnIndex]
+				problemDescription = problemDescription + " : Row " + str(rowNumber)
+			
+		super(PythonCSVRule, self).log(level, problemFileName, ruleID, problemDescription, rowNumber)
+	
 					
 	def getColumnIndex(self, columnName):
 		return self.columnNames.index(columnName)
