@@ -1,0 +1,65 @@
+{
+	"id": "1c0a5175-5eda-4c70-a31a-03738b462f47",
+	"column": "city",
+	"regex": "^\\D*$",
+	"onError": "abort",
+	"name": "validateColumnRegExPython",
+	"attributes": {
+		"name": "validateColumnRegExPython",
+		"filename": "validateColumnRegExPython",
+		"script": "validateColumnRegEx.py",
+		"executable": "python",
+		"title": "Check Column Value w RegEx via Python"
+	},
+	"parserConfig": {
+		"quote": "\"","escape":"\"",
+		"comment": "",
+		"columnRow": 1,
+		"delimiter": ",",
+		"columnNames": ["city",
+		"city_ascii",
+		"lat",
+		"lng",
+		"pop",
+		"country",
+		"iso2",
+		"iso3",
+		"province"],
+		"numHeaderRows": "1",
+		"name": "CSVParser"
+	},
+	"importConfig": {
+		"bucket": "test",
+		"endpoint": "localhost:8000",
+		"forcePathStyle": true,
+		"sslEnabled": false,
+		"region": "  ",
+		"accessId": "accessKey1",
+		"accessKey": "verySecretKey1",
+		"file": "worldcities.csv"
+	},
+	"exportConfig": {
+		"endpoint": "localhost:8000",
+		"forcePathStyle": true,
+		"accessId": "accessKey1",
+		"accessKey": "verySecretKey1",
+		"bucket": "testoutput",
+		"file": "worldcities_out.csv"
+	},
+	"parserState": {
+		"columnNames": ["city",
+		"city_ascii",
+		"lat",
+		"lng",
+		"pop",
+		"country",
+		"iso2",
+		"iso3",
+		"province"]
+	},
+	"validatorState": {
+		"rootDirectory": "c:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO\\src\\",
+		"tempDirectory": "c:\\tmp\\4716bfec-ba65-4bb5-9dc1-40b81593ae59",
+		"encoding": "utf8"
+	}
+}

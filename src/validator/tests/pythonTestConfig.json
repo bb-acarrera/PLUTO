@@ -53,5 +53,21 @@
 	},
 	"exportConfig": {
 		"file": "./tmp/simplemaps-worldcities-basic.csv"
+	},
+	"parserState": {
+		"columnNames": ["city",
+			"city_ascii",
+			"lat",
+			"lng",
+			"pop",
+			"country",
+			"iso2",
+			"iso3",
+			"province"]
+	},
+	"validatorState": {
+		"rootDirectory": "c:\\Users\\lcorrigall\\Documents\\Work\\code\\PLUTO\\src\\",
+		"tempDirectory": "c:\\tmp\\4716bfec-ba65-4bb5-9dc1-40b81593ae59",
+		"encoding": "utf8"
 	}
 }

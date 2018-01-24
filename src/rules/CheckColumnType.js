@@ -42,7 +42,7 @@ class CheckColumnType extends TableRuleAPI {
 					};
 					break;
 				default:
-					this.error(`Configured with an unrecognized data type. Expected 'string', 'float', 'integer', or 'number' but got '${config.type}'.`);
+					this.error(`Configured with an unrecognized data type. Expected 'string', 'float', 'integer', 'number', or 'iso_8061_datetime' but got '${config.type}'.`);
 					break;
 			}
 		}

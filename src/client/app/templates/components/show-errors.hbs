@@ -5,8 +5,8 @@
 		{{#each errors as |error|}}
 			<tr class="error-row">
 				<td class="error-cell">{{error.type}}</td>
-                <td>{{error.problemFile}}</td>
-				<td>{{error.description}}</td>
+                <td class="error-cell">{{error.problemFile}}</td>
+				<td class="error-cell-log">{{error.description}}</td>
 			</tr>
 		{{/each}}
 	</table>

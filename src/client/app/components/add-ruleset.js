@@ -88,8 +88,6 @@ export default Ember.Component.extend({
 				}
 			}
 
-			this.set("showdialog", false);
-
 			let ruleset = this.get('ruleset');
 			if(!ruleset) {
 				ruleset = {
@@ -138,6 +136,9 @@ export default Ember.Component.extend({
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
 				if (xmlHttp.readyState == 4 && xmlHttp.status == 201) {
+
+					this.set("showdialog", false);
+
 
 					let rulesetId = '';
 

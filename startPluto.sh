@@ -25,6 +25,4 @@ docker rm pluto_nginx
 
 docker run -v $PWD/test_nginx.conf:/etc/nginx/nginx.conf:ro -p 8001:8001 -p 8002:8002 -p 8003:8003 -p 8004:8004 --net=plutonet --name pluto_nginx -d nginx:stable-alpine
 
-docker stop pluto_s3server
-
 docker run -p 8000:8000 --net=plutonet --name pluto_s3server -d scality/s3server

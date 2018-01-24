@@ -162,26 +162,34 @@ class RuleLoader {
 			if (script) {
 				// Scripts, not being JavaScript, need an external UI description file.
 				var moreProperties = RuleLoader.getJSONProperties(script);
+				var changeFileFormat;
 				if (moreProperties) {
 
 					properties = properties || [];
 					if (moreProperties instanceof Array) {
 						var propsToDelete = [];
 						for (var i = 0; i < moreProperties.length; i++) {
-							if (moreProperties[i].shortdescription) {
+							if (moreProperties[i].shortdescription != null) {
 								shortDescription = moreProperties[i].shortdescription;
 								delete moreProperties[i].shortdescription;
 							}
-							if (moreProperties[i].longdescription) {
+							if (moreProperties[i].longdescription != null) {
 								longDescription = moreProperties[i].longdescription;
 								delete moreProperties[i].longdescription;
 							}
-							if (moreProperties[i].title) {
+							if (moreProperties[i].title != null) {
 								title = moreProperties[i].title;
 								delete moreProperties[i].title;
 							}
-							if (Object.keys(moreProperties[i]).length == 0)
+							if (moreProperties[i].changeFileFormat != null) {
+								changeFileFormat = moreProperties[i].changeFileFormat;
+								delete moreProperties[i].changeFileFormat;
+							}
+
+							if (Object.keys(moreProperties[i]).length == 0 ||
+								(!moreProperties[i].name || !moreProperties[i].type)) //not an actual config property
 								propsToDelete.push(i);	// Remember this element. It's empty so we'll need to delete it.
+
 						}
 
 						if (propsToDelete.length > 0) {
@@ -189,7 +197,7 @@ class RuleLoader {
 							for (var i = propsToDelete.length - 1; i >= 0; i--)
 								moreProperties.splice(propsToDelete[i], 1);
 						}
-						properties = properties.concat(moreProperties);
+						properties = moreProperties.concat(properties);
 					}
 					else {
 						if (moreProperties.shortdescription) {
@@ -227,7 +235,8 @@ class RuleLoader {
 						},
 						shortdescription: shortDescription,
 						longdescription: longDescription,
-						title: title
+						title: title,
+						changeFileFormat: changeFileFormat
 					}
 				};
 

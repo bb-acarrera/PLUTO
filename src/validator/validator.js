@@ -250,12 +250,14 @@ class Validator {
 				return;
 			}
 
-			//TODO: only look at the last run
+			let targetId = this.currentRuleset.targetDetails ? this.currentRuleset.targetDetails.id : null;
+
 			this.data.getRuns(1,1, {
 				rulesetVersionIdFilter: ruleset.id,
 				inputMd5Filter: hash,
 				latestRulesetVersionWithMd5: true,
 				latestRulesetVersionExcludeRunId: this.runId,
+				targetId: targetId,
 				showErrors: true,
 				showWarnings: true,
 				showNone: true,
@@ -635,7 +637,7 @@ class Validator {
 				}
 
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
-					this.config.ruleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
+					this.currentRuleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
 					passed, this.summary, null, true)
 					.then(() => { //no-op
 					}, (error) => console.log('error saving run: ' + error))

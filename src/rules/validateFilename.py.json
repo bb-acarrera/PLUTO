@@ -15,6 +15,7 @@
 	{
 		"shortdescription": "Validate the name of the source file.",
 		"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-		"title": "Check Filename"
+		"title": "Check Filename",
+		"changeFileFormat": false
 	}
 ]

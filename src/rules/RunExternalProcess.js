@@ -4,12 +4,21 @@ const path = require("path");
 const spawn = require('child_process').spawn;
 
 const OperatorAPI = require("../api/RuleAPI");
+const Util = require("../common/Util");
+
+const useSockets = false;
 
 cleanPipeName = function(str) {
+
+	if(!useSockets) {
+		return null;
+	}
+
 	if (process.platform === 'win32') {
-		str = str.replace(/^\//, '');
+		/*str = str.replace(/^\//, '');
 		str = str.replace(/\//g, '-');
-		return '\\\\.\\pipe\\'+str;
+		return '\\\\.\\pipe\\'+str;*/
+		return null;
 	} else {
 		return str;
 	}
@@ -19,7 +28,7 @@ class RunExternalProcess extends OperatorAPI {
 	constructor(config) {
 		super(config);
 
-		this.changeFileFormat = this.config.changeFileFormat === true;
+		this.changeFileFormat = this.config.attributes && this.config.attributes.changeFileFormat === true;
 		
 		// Create a unique socket.
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
@@ -42,14 +51,7 @@ class RunExternalProcess extends OperatorAPI {
             resolve(null);
             return;
         }
-        
-	    if (!this.socketName) {
-	        // Not likely to occur. Would need config.__state.tempDirectory to be absent.
-            this.error("Internal Error: Failed to initialize RunExternalProcess properly.");
-            resolve(null);
-            return;
-	    }
-	        
+
 		if (!attributes.script)
 			this.warning('No script in the configuration.');
 
@@ -61,6 +63,46 @@ class RunExternalProcess extends OperatorAPI {
 			return;
 		}
 
+		var config = Object.assign({}, this.config);
+		if (this.config.__state && this.config.__state.validator) {
+			config.parserConfig = this.config.__state.validator.parserConfig || {};
+
+			if(this.config.__state.validator.currentRuleset) {
+				if (this.config.__state.validator.currentRuleset.import)
+					config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
+				if (this.config.__state.validator.currentRuleset.export)
+					config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
+			}
+
+
+			if(config.__state.sharedData && config.__state.sharedData.Parser) {
+				config.parserState = config.__state.sharedData.Parser ;
+			}
+
+			config.validatorState = {};
+
+			Object.keys(config.__state).forEach((key => {
+				let value = config.__state[key];
+				let type = typeof value;
+
+				if(type !== 'object' && type !== 'function') {
+					config.validatorState[key] = value;
+				}
+
+			}));
+
+
+		}
+
+		var json = JSON.stringify(config, (key, value) => {
+			if (key.startsWith('_') || key == 'validator')
+				return undefined;   // Filter out anything that starts with an underscore that is on the parserConfig.
+			else {
+				return value;
+			}
+
+		});
+
         var server;
         if (this.socketName) {
             server = net.createServer((c) => {
@@ -69,22 +111,6 @@ class RunExternalProcess extends OperatorAPI {
                     server.unref();
                 });
 
-                var config = Object.assign({}, this.config);
-                if (this.config.__state && this.config.__state.validator && this.config.__state.validator.currentRuleset) {
-                    config.parserConfig = this.config.__state.validator.parserConfig || {};
-
-                    if (this.config.__state.validator.currentRuleset.import)
-                        config.importConfig = this.config.__state.validator.currentRuleset.import.config || {};
-                    if (this.config.__state.validator.currentRuleset.export)
-                        config.exportConfig = this.config.__state.validator.currentRuleset.export.config || {};
-                }
-
-                var json = JSON.stringify(config, (key, value) => {
-                    if (key.startsWith('_'))
-                        return undefined;   // Filter out anything that starts with an underscore that is on the parserConfig.
-                    else
-                        return value;
-                });
                 c.write(json);
 
     //          c.pipe(c);  //Can't find documentation on what this does and the code works without it.
@@ -107,15 +133,37 @@ class RunExternalProcess extends OperatorAPI {
 
 //            server.on('close', () => {
 //            });
+        } else {
+	        this.configFile = Util.getTempFileName(config.__state.tempDirectory);
+	        fs.writeFileSync(this.configFile, json, 'utf-8');
         }
 
         // Run the executable. This complains if the executable doesn't exist.
         var encoding = (this.config && this.config.__state && this.config.__state.encoding) ? this.config.__state.encoding : 'utf8';
 		var child;
-		if (attributes.script)
-			child = spawn(attributes.executable, [attributes.script, "-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName], { env: process.env });
-		else
-			child = spawn(attributes.executable, ["-i", inputName, "-o", outputName, "-e", encoding, "-s", this.socketName], { env: process.env });
+
+		var args = [];
+
+		if(attributes.script) {
+			args.push(attributes.script);
+		}
+
+		args.push("-i");
+		args.push(inputName);
+		args.push("-o");
+		args.push(outputName);
+		args.push("-e");
+		args.push(encoding);
+
+		if(this.socketName) {
+			args.push("-s");
+			args.push(this.socketName);
+		} else {
+			args.push("-c");
+			args.push(this.configFile);
+		}
+
+		child = spawn(attributes.executable, args, { env: process.env });
 
 		child.stdout.on('data', (data) => {
 			if (typeof data === 'string')
@@ -124,6 +172,7 @@ class RunExternalProcess extends OperatorAPI {
 				let str = data.toString();
 				let strs = str.split("\n");
 				for (var i = 0; i < strs.length; i++) {
+					console.log(strs[i]);
 					if (strs[i].length > 0)
 						this.warning(`${attributes.executable} wrote to stdout: ${strs[i]}.`);
 				}
@@ -141,10 +190,11 @@ class RunExternalProcess extends OperatorAPI {
 					    try {
                             const error = JSON.parse(strs[i]);
                             if (error)
-                                this.log(error.type, error.problemFile, error.ruleID, error.description);
+                                this.log(error.type, error.problemFile, error.ruleID, error.description,
+	                                error.dataItemId && error.dataItemId.length > 0 ? error.dataItemId : null);
 					    }
 					    catch (e) {
-							console.log(e);
+							console.log(strs[i]);
 					        this.error(strs[i]);//`${attributes.executable} wrote to stderr: ${strs[i]}.`);
 					    }
 					}
@@ -156,6 +206,10 @@ class RunExternalProcess extends OperatorAPI {
             if (server)
                 server.unref();
 
+			if(this.configFile) {
+				fs.unlink(this.configFile);
+			}
+
 			resolve(outputName);
 		});
 
@@ -165,6 +219,11 @@ class RunExternalProcess extends OperatorAPI {
 
 			if (server)
 			    server.unref();
+
+			if(this.configFile) {
+				fs.unlink(this.configFile);
+			}
+
 			resolve(outputName);
 		});
 
@@ -200,19 +259,12 @@ class RunExternalProcess extends OperatorAPI {
 	}
 
 	static get ConfigProperties() {
-		return this.appendConfigProperties([
-			{
-				name: 'changeFileFormat',
-				type: 'boolean',
-				label: 'Process will change file format',
-				tooltip: 'Set to true if this process will alter the format of the file (e.g. csv to geojson)'
-			}
-		]);
+		return this.appendConfigProperties([]);
 	}
 
 
 	static get ConfigDefaults() {
-		return this.appendDefaults({changeFileFormat: false});
+		return this.appendDefaults();
 	}
 }
 

@@ -1,6 +1,23 @@
 # PLUTO Change Log
 
-## 0.9.2
+## 0.9.4
+#### New Features
+
+#### Bug Fixes and Minor Improvements
+ * Added "PLUTOCONFIG" environment variable to the pluto container, which maps to the pluto config folder for use by plugins
+ * Removed # from reporter url link to run details
+ * show newlines in errors
+ * Fixed error message
+ * Handle missing source or target when loading run details
+ * Build improvements
+ * Wait for response before closing create pop-ups
+ * Return error on processFile if too many rulesets found
+ * Checks to see if the validation needs to run again now include changes to the target/upload
+ * Improved external process rules support
+ * Added Python 2.7 CSV parser base rule class
+ * More documentation
+
+## 0.9.3
 #### New Features
 
 #### Bug Fixes and Minor Improvements

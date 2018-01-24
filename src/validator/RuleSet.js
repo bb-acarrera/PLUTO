@@ -78,8 +78,8 @@ class RuleSet {
             if (parserClass && parserClass.ConfigDefaults) {
                 var defaults = parserClass.ConfigDefaults;
                 for (var key in defaults) {
-                    if (defaults.hasOwnProperty(key) && !this.parser.hasOwnProperty(key)) {
-                        this.parser[key] = defaults[key];
+                    if (defaults.hasOwnProperty(key) && !this.parser.config.hasOwnProperty(key)) {
+                        this.parser.config[key] = defaults[key];
                     }
                 }
             }
