@@ -43,7 +43,7 @@ Each object in the list describes a single property that is exposed to the user 
 	"type": "string",
 	"tooltip": "The regular expression to use to validate the filename.",
 	"default": ""
-	"validations": [...]
+	"validations": []
 }
 ```
 
@@ -72,7 +72,7 @@ Displays a check-box, if the value doesn't exists will be unchecked.
 
 #### choice
 Displays a dropdown, and an array of choice objects under the property `choices` must be supplied. For example:
-```json
+```javascript
 {
 	name: 'type',
 	label: 'Column Type',
