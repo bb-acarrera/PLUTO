@@ -311,6 +311,28 @@ class Validator {
 
 			let rules = [];
 			let cleanupRules = [];
+
+			if(this.parserClass) {
+
+				this.updateConfig(this.parserConfig);
+
+				if(this.parserClass.getParserSetupRule) {
+					const setup = this.parserClass.getParserSetupRule(this.parserConfig);
+					if(setup) {
+						rules.push(setup);
+					}
+
+				}
+
+				if(this.parserClass.getParserCleanupRule) {
+					const cleanup = this.parserClass.getParserCleanupRule(this.parserConfig);
+					if(cleanup) {
+						cleanupRules.push(cleanup);
+					}
+
+				}
+			}
+
 			ruleset.rules.forEach((ruleConfig) => {
 				let rule = this.getRule(ruleConfig);
 
@@ -436,7 +458,7 @@ class Validator {
 				throw(`Rule/Parser mistmatch. Rule ${ruleDescriptor} needs ${ruleClass.Parser} parser but ${this.parserConfig.name} is ${this.parserClass.Type}`);
 			}
 
-			this.updateConfig(this.parserConfig);
+
 
 			rule = new this.parserClass(this.parserConfig, ruleClass, config);
 		} else {
