@@ -1,5 +1,11 @@
 # PLUTO Change Log
 
+## 0.9.5
+#### New Features
+
+#### Bug Fixes and Minor Improvements
+ * Fixed rulesets using a parser that start with (or only have) external process rules not getting the pre-work (e.g. original row id column was not added by the CSV parser)
+
 ## 0.9.4
 #### New Features
 
