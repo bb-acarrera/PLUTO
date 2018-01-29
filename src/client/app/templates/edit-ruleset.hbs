@@ -367,7 +367,7 @@ Process URL: {{processURL}}
 
             <div style="display: inline-block;margin-right: 5px;flex: 1" onclick={{action "stopPropagation"}}>
 				{{#power-select
-				options=model.rules
+				options=rules
 				matcher=ruleMatcher
 				onchange=(action "addRule" bubbles=false)
 				renderInPlace=true
