@@ -99,7 +99,8 @@ class RuleLoader {
 
 	loadFromManifest(dir, item, type) {
 
-		let file, suffixedFile, executable, shortDescription, longDescription, title;
+		let file, suffixedFile, executable, shortDescription, longDescription, title, requiredParser;
+		let types = [];
 
 		try {
 			executable = item.executable;
@@ -126,6 +127,8 @@ class RuleLoader {
 			var ruleClass = require(ruleFile);
 			this.classMap[file] = ruleClass;
 
+			types.push(file);
+
 			var descriptions = RuleLoader.getClassDescriptions(ruleClass);
 			if (descriptions && descriptions.shortDescription)
 				shortDescription = descriptions.shortDescription;
@@ -133,6 +136,14 @@ class RuleLoader {
 				longDescription = descriptions.longDescription;
 			if (descriptions && descriptions.title)
 				title = descriptions.title;
+
+			if(ruleClass.Parser) {
+				requiredParser = ruleClass.Parser;
+			}
+
+			if(ruleClass.Type) {
+				types.push(ruleClass.Type);
+			}
 
 			// A description in the manifest takes precedence over one in the file (allows for localization/internationalization).
 			// ??? Might want this after the script descriptions are loaded to allow replacing them with local descriptions too.
@@ -186,6 +197,11 @@ class RuleLoader {
 								delete moreProperties[i].changeFileFormat;
 							}
 
+							if (moreProperties[i].parser != null) {
+								requiredParser = moreProperties[i].parser;
+								delete moreProperties[i].parser;
+							}
+
 							if (Object.keys(moreProperties[i]).length == 0 ||
 								(!moreProperties[i].name || !moreProperties[i].type)) //not an actual config property
 								propsToDelete.push(i);	// Remember this element. It's empty so we'll need to delete it.
@@ -212,6 +228,14 @@ class RuleLoader {
 							title = moreProperties.title;
 							delete moreProperties.title;
 						}
+						if (moreProperties.changeFileFormat != null) {
+							changeFileFormat =moreProperties.changeFileFormat;
+							delete moreProperties.changeFileFormat;
+						}
+						if (moreProperties.parser != null) {
+							requiredParser = moreProperties.parser;
+							delete moreProperties.parser;
+						}
 
 						if (Object.keys(moreProperties).length > 0)
 							properties.push(moreProperties);
@@ -236,7 +260,9 @@ class RuleLoader {
 						shortdescription: shortDescription,
 						longdescription: longDescription,
 						title: title,
-						changeFileFormat: changeFileFormat
+						changeFileFormat: changeFileFormat,
+						requiredParser: requiredParser,
+						types: types
 					}
 				};
 

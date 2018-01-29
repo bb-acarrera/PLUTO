@@ -5,6 +5,7 @@
 
 #### Bug Fixes and Minor Improvements
  * Fixed rulesets using a parser that start with (or only have) external process rules not getting the pre-work (e.g. original row id column was not added by the CSV parser)
+ * Rules that require a specific parser no longer appear in the list of available parsers if that parser is not part of the validation
 
 ## 0.9.4
 #### New Features
