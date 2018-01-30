@@ -520,8 +520,6 @@ class Validator {
 
 		return new Promise((resolve) => {
 
-			const startTime = new Date();
-
 			const done = () => {
 				this.finishRunImpl(results).then(() => {
 					return resolve();
@@ -544,8 +542,9 @@ class Validator {
 				}, "runId").then((result) => {
 					if(result.rowCount > 0) {
 
+						const currTime = new Date();
 						const taskTime = result.runs[0].starttime;
-						const diff = Math.abs((taskTime.getTime() - startTime.getTime())/1000);
+						const diff = Math.abs((taskTime.getTime() - currTime.getTime())/1000);
 
 						//give it another 30 seconds so the server has a chance to clean it up first
 						if(diff > this.runPollingTimeout + 30) {

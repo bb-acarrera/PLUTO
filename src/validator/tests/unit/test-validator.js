@@ -656,7 +656,8 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
             "inputDirectory" : "",
             "outputDirectory" : "results",
             "ruleset" : "Test Data Ruleset",
-            runPollingInterval: 0.5
+            runPollingInterval: 0.5,
+            runMaximumDuration: 1
         };
 
         const done = assert.async();
@@ -680,14 +681,17 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
             }
         };
 
+        //create time 27 seconds before now
+        const time = new Date(new Date().getTime() - 27*1000);
+
         const waitingRun = {
             id: 1001,
             log: 1001,
             ruleset: "",
             inputfilename: "",
             outputfilename: "",
-            time: new Date(2016, 0, 1, 0, 0, 0), //super old
-            starttime: new Date(2016, 0, 1, 0, 0, 0),
+            time: time,
+            starttime: time,
             errorcount: 0,
             warningcount: 0,
             droppedcount: 0,
@@ -707,7 +711,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
         const dbProxy = new DataProxy(ruleset,
             (runId, log, ruleSetID, inputFile, outputFile) => {
-                assert.equal(checkCount, 1, "Expected 1 check for the other run");
+                assert.ok(checkCount > 1, "Expected at least 1 check for the other run");
                 assert.ok(updatedOldRun, "Expected validator to update the bad run");
                 assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
             },
