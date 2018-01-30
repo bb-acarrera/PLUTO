@@ -1,9 +1,14 @@
 # PLUTO Change Log
 
 ## 0.9.5
-#### New Features
+### New Features
 
-#### Bug Fixes and Minor Improvements
+#### Validation order enforcement and handling bad validations
+For a specific ruleset, order of execution is now enforced across the system -- the first request to process will be the first file uploaded. This is to prevent newer files getting overwritten by older files in a heterogeneous environment where some servers running the validator server are much slower than others. Before the validator uploads the validated file, it will check to see if there are any other validations for the same file already running that were started earlier and will wait (by polling the database on a regular interval -- controlled by the validatorConfig property runPollingInterval which defaults to 10 seconds) until those other validations complete.
+
+To prevent validations from waiting indefinitely, a maximum run duration has been introduced (controlled by the validatorConfig property runMaximumDuration which defaults to 600 seconds). The PLUTO server that starts a validation will terminate the process (and update the run record) after the maximum duration is exceeded. In cases where the server terminated unexpectedly, the waiting run will compare the start time of the run it's waiting for against the maximum duration plus 30 seconds and marked it as finished and continue if exceeded.
+
+### Bug Fixes and Minor Improvements
  * Fixed rulesets using a parser that start with (or only have) external process rules not getting the pre-work (e.g. original row id column was not added by the CSV parser)
  * Rules that require a specific parser no longer appear in the list of available parsers if that parser is not part of the validation
 

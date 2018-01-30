@@ -186,7 +186,7 @@ class data {
      * the plugin.
      * @returns {Promise} resolves {array} list of the runs.
      */
-    getRuns ( page, size, filters = {} ) {
+    getRuns ( page, size, filters = {}, orderBy ) {
 
         let offset;
 
@@ -293,6 +293,19 @@ class data {
 
                 where += errorsWhere;
                 countWhere += errorsWhere;
+            }
+
+            if(filters.isRunning != null) {
+                extendWhere();
+
+                if(filters.isRunning) {
+                    subWhere = "({{runs}}.num_warnings IS NULL AND {{runs}}.num_errors IS NULL)";
+                } else {
+                    subWhere = "({{runs}}.num_warnings IS NOT NULL AND {{runs}}.num_errors IS NOT NULL)";
+                }
+
+                where += subWhere;
+                countWhere += subWhere;
             }
 
             if( filters.showValidOnly ) {
@@ -413,6 +426,24 @@ class data {
 
             }
 
+            if(filters.idLessThanFilter) {
+
+                extendWhere();
+
+                let idWhere = parseInt(filters.idLessThanFilter);
+
+                if(isNaN(idWhere)) {
+                    idWhere = -1;
+                }
+
+                values.push( idWhere );
+                where += "{{runs}}.id < $" + values.length;
+
+                countValues.push( idWhere );
+                countWhere += "{{runs}}.id < $" + countValues.length;
+
+            }
+
             if(filters.groupFilter && filters.groupFilter.length) {
                 let groupWhere = safeStringLike( filters.groupFilter );
 
@@ -522,9 +553,16 @@ class data {
                 countWhere = allJoin + ' ' + countJoin +  ' ' + countWhere;
             }
 
+            let orderBySql = "finishtime DESC NULLS LAST";
+
+            if(orderBy === "runId") {
+                orderBySql = "id DESC";
+            }
 
             let runSQL = getRunQuery( this.tables ) + " " + updateTableNames( where, this.tables ) +
-                " ORDER BY finishtime DESC NULLS LAST LIMIT $1 OFFSET $2";
+                " ORDER BY " + orderBySql + " LIMIT $1 OFFSET $2";
+
+            //console.log(runSQL);
 
             let runsQuery = this.db.query( runSQL, values );
 

@@ -44,7 +44,8 @@
     "pg": "^7.0",
     "request": "^2.83.0",
     "rimraf": "^2.6.1",
-    "stream-to-promise": "^2.2.0"
+    "stream-to-promise": "^2.2.0",
+    "tree-kill": "^1.2.0"
   },
   "devDependencies": {
     "jsdoc": "^3.4.3",

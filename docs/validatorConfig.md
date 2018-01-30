@@ -25,9 +25,12 @@ some other information.  The sample config looks like:
 		}
 	],
 	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
-	"rootDirectory" : "/opt/PLUTO/config"
+	"rootDirectory" : "/opt/PLUTO/config",
+	"runPollingInterval": 10,
+	"runMaximumDuration": 600
 }
 ```
+
 
 ## rulesDirectory
 The folder where the manifest for the custom rules is located. It's expected that the custom rules are located in this folder, but not required. For more details on custom rules see TBD.
@@ -109,3 +112,9 @@ Folder where sample validations, upload configurations, and download configurati
 
 ## rootDirectory
 A base folder that can be used as the root for other folders like rulesDirectory, rulesetDirectory and tempDirectory. If they're specified as relative, they'll be relative to the rootDirectory. For production, it's recommended to use absolute paths for these folders.
+
+## runPollingInterval
+The frequency (in seconds) that a run will check if older runs processing the same file are finished. Default is 10 seconds.
+
+## runMaximumDuration
+The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
