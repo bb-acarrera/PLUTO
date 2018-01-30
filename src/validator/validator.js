@@ -64,6 +64,9 @@ class Validator {
 		this.rulesetName = undefined;
 		this.ruleName = undefined;
 
+		this.runPollingInterval = this.config.runPollingInterval || 10;
+		this.runPollingTimeout = this.config.runMaximumDuration || 600;
+
 		this.updateConfig(this.config);
 
 		if(!Data) {
@@ -96,6 +99,7 @@ class Validator {
 
 			this.runId = runId;
 			console.log("runId:" + runId);
+			console.log("tempFolder:" + this.tempDir);
 
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride,
 				this.ruleLoader, undefined, undefined, undefined, true)
@@ -510,6 +514,88 @@ class Validator {
 	 */
 	finishRun(results) {
 
+		if(!results) {
+			return this.finishRunImpl(results);
+		}
+
+		return new Promise((resolve) => {
+
+			const startTime = new Date();
+
+			const done = () => {
+				this.finishRunImpl(results).then(() => {
+					return resolve();
+				}, () => {
+					return resolve();
+				});
+			};
+
+			const waitForRunsCheck = () => {
+				this.data.getRuns(1, 1, {
+					isRunning: true,
+					rulesetExactFilter: this.currentRuleset.ruleset_id,
+					idLessThanFilter: this.runId,
+					showErrors: true,
+					showWarnings: true,
+					showNone: true,
+					showDropped: true,
+					showPassed: true,
+					showFailed: true
+				}, "runId").then((result) => {
+					if(result.rowCount > 0) {
+
+						const taskTime = result.runs[0].starttime;
+						const diff = Math.abs((taskTime.getTime() - startTime.getTime())/1000);
+
+						//give it another 30 seconds so the server has a chance to clean it up first
+						if(diff > this.runPollingTimeout + 30) {
+							this.cleanupOldRun(result.runs[0].id).then(() => {
+								//give it a couple of seconds in case an upstream one is actually running
+								setTimeout(waitForRunsCheck, this.runPollingInterval * 1000);
+							});
+						} else {
+							setTimeout(waitForRunsCheck, this.runPollingInterval * 1000);
+						}
+
+					} else {
+						done();
+					}
+
+				});
+			};
+
+			//check to see if there are any other instances of this rule running
+			waitForRunsCheck();
+
+		});
+
+	}
+
+	cleanupOldRun(runId) {
+		return new Promise((resolve) => {
+
+			const logger = new ErrorLogger();
+
+			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+				`Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`);
+
+			this.data.saveRunRecord(runId, logger.getLog(),
+				null, null, null, logger.getCounts(),
+				false, null, null, true)
+				.then(() => { //no-op
+				}, (error) => console.log('error cleaning up bad run: ' + error))
+				.catch((e) => console.log('Exception cleaning up bad run: ' + e))
+				.then(() => {
+					resolve();
+				});
+
+
+		});
+	}
+
+
+	finishRunImpl(results) {
+
 		return new Promise((resolve) => {
 			if (!this.running) {
 				resolve();
@@ -645,7 +731,7 @@ class Validator {
 		return new Promise((resolve) => {
 
 			function postSave() {
-				if (this.reporter && !this.config.testOnly &&!this.config.skipped)
+				if (this.reporter && !this.config.testOnly && !this.skipped)
 					this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
 				this.cleanup();
 				resolve();

@@ -41,6 +41,8 @@ class Server {
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
 
 
+		this.config.runMaximumDuration = this.config.runMaximumDuration || 600;
+
 
 		app.use(fileUpload());
 
