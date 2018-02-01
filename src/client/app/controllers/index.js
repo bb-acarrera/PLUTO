@@ -5,6 +5,13 @@ export default Ember.Controller.extend({
 	actions: {
 		setShowAddRuleset() {
 			this.set('showAddRuleset', true);
-		}
+		},
+        transitionTo(location, filter, value) {
+			if(value) {
+                this.transitionToRoute( location, { queryParams: { "filter": value } } );
+            } else {
+                this.transitionToRoute( location );
+			}
+        }
 	}
 });
