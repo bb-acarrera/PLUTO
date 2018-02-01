@@ -8,7 +8,9 @@ export default Ember.Controller.extend({
 		},
         transitionTo(location, filter, value) {
 			if(value) {
-                this.transitionToRoute( location, { queryParams: { "filter": value } } );
+				var qp = {};
+				qp[filter] = value;
+                this.transitionToRoute( location, { queryParams: qp } );
             } else {
                 this.transitionToRoute( location );
 			}
