@@ -9,6 +9,8 @@ import socket
 import sys
 import os
 
+import pandas as pd
+
 class PythonAPIRule(object):
 	def __init__(self, config):
 		self.config = config
@@ -80,7 +82,7 @@ class PythonCSVRule(PythonAPIRule):
 		super(PythonCSVRule, self).__init__(config)
 
 	def run(self, inputFile, outputFile, encoding):
-	
+			
 		if not "parserConfig" in self.config:
 			self.error("No parser configuration specified for PythonCSVRule")
 			return			
@@ -107,22 +109,37 @@ class PythonCSVRule(PythonAPIRule):
 		# FIXME: Python 2 doesn't support encoding here.
 		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
 		
-			csvreader = csv.reader(
-				src, delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote)
+			#csvreader = csv.reader(
+			#	src, delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote)
 				
-			csvwriter = csv.writer(
-				dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, lineterminator="\n")
+			#csvwriter = csv.writer(
+			#	dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, lineterminator="\n")
 				
 			rowHeaderOffset = numHeaderRows + 1;
 			self.start()
 			
-			for row in csvreader:
-				isHeaderRow = csvreader.line_num < rowHeaderOffset
-				self.currentRow = row
-				updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
-				if updatedRecord is not None:
-					csvwriter.writerow(updatedRecord)
-							
+			#for row in csvreader:
+			#	isHeaderRow = csvreader.line_num < rowHeaderOffset
+			#	self.currentRow = row
+			#	updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
+			#	if updatedRecord is not None:
+			#		csvwriter.writerow(updatedRecord)
+
+			for chunk in pd.read_csv(src, chunksize = 10 ** 6, 
+				delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote, encoding=encoding, header=None):
+				
+				rows = []
+				for index, row in enumerate(chunk.values.tolist()):
+					isHeaderRow = (index + 1) < rowHeaderOffset
+					self.currentRow = row
+					updatedRecord = self.processRecord(row, isHeaderRow, (index + 1))
+					if updatedRecord is not None:
+						rows.append(updatedRecord)
+				
+				outDf = pd.DataFrame(rows)
+				outDf.to_csv(dst, mode='a', index=False, header=False, 
+					sep=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, encoding=encoding)				
+			
 			self.currentRow = None
 			
 			#remove the extra newline the writer adds
@@ -163,8 +180,6 @@ class PythonCSVRule(PythonAPIRule):
 	#finish is called at the end of processing, but before the file is closed
 	def finish(self):
 		return
-	
-
 
 def loadConfigFromFile(filename):
 	try:
