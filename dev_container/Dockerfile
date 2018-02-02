@@ -2,11 +2,11 @@ FROM pluto_base
 
 
 
-VOLUME ["/opt/PLUTO"]
+VOLUME ["/code"]
 ENV PLUTOAPI /opt/PLUTO/src/api
 ENV PLUTOCONFIG /opt/PLUTO/src/runtime/configs
 EXPOSE 3000
 EXPOSE 9222
 EXPOSE 9229
-WORKDIR /opt/PLUTO
+WORKDIR /code
 CMD ["/bin/sh"]
