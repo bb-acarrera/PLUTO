@@ -279,3 +279,7 @@ div.expand-controls {
 .input-run-id {
 	width: 60px;
 }
+
+.text-input {
+    width: 100%;
+}
