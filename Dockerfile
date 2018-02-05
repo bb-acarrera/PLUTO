@@ -1,12 +1,4 @@
-FROM node:8.9-alpine
-
-RUN apk --no-cache add \
-  python \
-  python-dev \
-  py-pip \
-  build-base
-
-RUN pip install --upgrade requests
+FROM pluto_base
 
 ADD . /opt/PLUTO
 
