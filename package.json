@@ -6,6 +6,7 @@
   "scripts": {
     "start": "cd src && node server/server.js -s server/debugServerConfig.json -v runtime/configs/validatorConfig.json",
     "test": "sh build/bin/runUnitTests.sh",
+    "test_ci": "sh build/bin/runUnitTestsCI.sh",
     "docker_build": "docker build -t pluto:develop ./Release/server",
     "docker_run_bash": "sh startPlutoInteractive.sh",
     "docker_save": "docker save --output pluto.image.tar pluto:develop",
