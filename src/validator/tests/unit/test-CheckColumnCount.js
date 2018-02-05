@@ -4,6 +4,7 @@
 const ErrorLogger = require("../../ErrorLogger");
 const CSVParser = require("../../../rules/CSVParser");
 const CheckColumnCount = require("../../../rules/CheckColumnCount");
+const MemoryWriterStream = require("../MemoryWriterStream");
 
 QUnit.test( "CheckColumnCount: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
@@ -121,7 +122,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
@@ -148,7 +149,7 @@ QUnit.test( "CheckColumnCount: Check Valid Count Test 2", function( assert ) {
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no results.");
 		done();
@@ -173,7 +174,7 @@ QUnit.test( "CheckColumnCount: Check Insufficient Columns.", function( assert ) 
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 2, "Expect two results.");
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -200,7 +201,7 @@ QUnit.test( "CheckColumnCount: Check Too Many Columns.", function( assert ) {
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	const data = "Column1\n1234,5678";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");

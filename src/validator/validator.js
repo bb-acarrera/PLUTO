@@ -501,8 +501,6 @@ class Validator {
 				this.putFile(results.file, this.outputFileName);
 			else if (results.stream)
 				this.putFile(results.stream, this.outputFileName);
-			else if (results.data)
-				this.saveFile(results.data, this.outputFileName, this.encoding);
 		}
 	}
 
@@ -637,11 +635,7 @@ class Validator {
 					resultsFile = results.file;
 				else if (results && results.stream) {
 					resultsFile = this.getTempName();
-					this.putFile(results.stream, resultsFile, this.encoding);
-				}
-				else if (results && results.data) {
-					resultsFile = this.getTempName();
-					this.saveFile(results.data, resultsFile, this.encoding);
+					this.putFile(results.stream, resultsFile);
 				}
 				else if(results)
 					this.error("Unrecognized results structure.");
@@ -803,57 +797,6 @@ class Validator {
 	getTempName() {
 		const filename = Util.createGUID();
 		return path.resolve(this.tempDir, filename);
-	}
-
-	/**
-	 * This method is used by the application to load the given file synchronously. Derived classes should implement
-	 * everything to load the file into local storage. An error should be thrown if the file cannot be loaded.
-	 * @param filename {string} the name of the file to load.
-	 * @param encoding {string} the character encoding for the file. The default is 'utf8'.
-	 * @returns {object|string} Returns an object (generally a string) containing the loaded file.
-	 * @throws Throws an error if the file cannot be found or loaded.
-	 * @private
-	 */
-	loadFile(filename, encoding) {
-		return fs.readFileSync(path.resolve(this.inputDirectory, filename), encoding || 'utf8');
-	}
-
-
-
-	/**
-	 * This method is used by the application to save the given file synchronously.
-	 * @param fileContents {object | string} the contents of the file.
-	 * @param filename {string} the name of the file to save.
-	 * @param encoding {string} the character encoding for the file. The default is 'utf8'.
-	 * @throws Throws an error if the directory cannot be found or the file saved.
-	 * @private
-	 */
-	saveFile(fileContents, filename, encoding) {
-		try {
-			if (!fs.existsSync(this.outputDirectory))
-				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
-		}
-		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to.
-			throw e;
-		}
-
-		fs.writeFileSync(path.resolve(this.outputDirectory, filename), fileContents, encoding || 'utf8');
-	}
-
-	/**
-	 * This method is used by the application to save the given data to a temporary file synchronously.
-	 * @param filename {string} the name of the file to save.
-	 * @param fileContents {object | string} the contents of the file.
-	 * @param encoding {string} the character encoding for the file. The default is 'utf8'.
-	 * @return {string} the name of the temporary file.
-	 * @throws Throws an error if the directory cannot be found or the file saved.
-	 * @private
-	 */
-	saveLocalTempFile(fileContents, encoding) {
-		const fullname = this.getTempName();
-		fs.writeFileSync(fullname, fileContents, encoding);
-		return fullname;
 	}
 
 	/**

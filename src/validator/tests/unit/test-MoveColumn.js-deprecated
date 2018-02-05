@@ -43,7 +43,7 @@ QUnit.test( "MoveColumn: Move Column Test", function(assert){
     const data = "Column 0,Column 1\na,b";
     const rule = new MoveColumn(config);
     const done = assert.async();
-    rule._run( { data: data }).then((result) => {
+    rule._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -71,7 +71,7 @@ QUnit.test( "MoveColumn: Negative Column Test", function(assert){
     const data = "Column 0,Column 1\na,b";
     const rule = new MoveColumn(config);
     const done = assert.async();
-    rule._run( { data: data }).then((result) => {
+    rule._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -117,7 +117,7 @@ QUnit.test( "MoveColumns: Moving Column Relative to Itself test", function(asser
     const data = "Column 0,Column 1\na,b";
     const rule = new MoveColumn(config);
     const done = assert.async();
-    rule._run( { data: data }).then((result) => {
+    rule._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();

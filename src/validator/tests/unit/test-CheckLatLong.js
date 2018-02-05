@@ -4,6 +4,7 @@
 const ErrorLogger = require("../../ErrorLogger");
 const CheckLatLong = require("../../../rules/CheckLatLong");
 const CSVParser = require("../../../rules/CSVParser");
+const MemoryWriterStream = require("../MemoryWriterStream");
 
 QUnit.test( "CheckLatLong: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
@@ -35,7 +36,7 @@ QUnit.test( "CheckLatLong: Check For Absent LatitudeColumn Property", function( 
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -63,7 +64,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number LatitudeColumn Property", functi
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -91,7 +92,7 @@ QUnit.test( "CheckLatLong: Check For Negative LatitudeColumn Property", function
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -119,7 +120,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LatitudeColumn Property", funct
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
@@ -147,7 +148,7 @@ QUnit.test( "CheckLatLong: Check For Absent LongitudeColumn Property", function(
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -175,7 +176,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number LongitudeColumn Property", funct
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -203,7 +204,7 @@ QUnit.test( "CheckLatLong: Check For Negative LongitudeColumn Property", functio
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -231,7 +232,7 @@ QUnit.test( "CheckLatLong: Check For Non-Integer LongitudeColumn Property", func
 
 	const done = assert.async();
 	const data = "Lat,Long\n1,1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
@@ -259,7 +260,7 @@ QUnit.test( "CheckLatLong: Check For Identical Latitude and LongitudeColumn Prop
 
 	const done = assert.async();
 	const data = "Lat,Long\n1,1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -286,7 +287,7 @@ QUnit.test( "CheckLatLong: Check For Absent NullIslandEpsilon Property", functio
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
@@ -314,7 +315,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number NullIslandEpsilon Property", fun
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -342,7 +343,7 @@ QUnit.test( "CheckLatLong: Check For Negative NullIslandEpsilon Property", funct
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Warning", "Expected a 'Warning'.");
@@ -370,7 +371,7 @@ QUnit.test( "CheckLatLong: Check For Bad Column Index", function( assert ) {
 
 	const done = assert.async();
 	const data = "Lat,Long\n1";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -395,7 +396,7 @@ QUnit.test( "CheckLatLong: Check For Non-Number Lat/Long Values", function( asse
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Lat,Long\nfoo,bar";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 2, `Expected two errors but got ${logResults.length}.`);
 		if (logResults.length >= 1) {
@@ -427,7 +428,7 @@ QUnit.test( "CheckLatLong: Check For Out of Range Lat/Long Values", function( as
 
 	const done = assert.async();
 	const data = "Lat,Long\n-91,-200\n91,200";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 4, `Expected four errors but got ${logResults.length}.`);
 		if (logResults.length >= 1) {
@@ -467,7 +468,7 @@ QUnit.test( "CheckLatLong: Check Valid Lat/Long Values", function( assert ) {
 
 	const done = assert.async();
 	const data = "Lat,Long\n43.6532,79.3832\n41.2865,174.7762";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, `Expected no errors but got ${logResults.length}.`);
 		done();

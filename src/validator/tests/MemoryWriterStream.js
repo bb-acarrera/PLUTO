@@ -26,6 +26,21 @@ class MemoryWriterStream extends stream.Writable {
 	getData(encoding) {
 		return this.buffer.toString(encoding);
 	}
+
+	static getStream(string, encoding = 'utf8') {
+		const s = new stream.Readable;
+
+		s.push(string, encoding);
+		s.push(null);
+
+		return s;
+	}
+
+	static getRuleStreamObject(string, encoding) {
+		return {
+			stream: MemoryWriterStream.getStream(string, encoding)
+		};
+	}
 }
 
 module.exports = MemoryWriterStream;

@@ -164,7 +164,7 @@ QUnit.test( "CheckRowCount: Check Valid Count Test", function( assert ) {
 	
 	const done = assert.async();
 	const data = "Column1\nfoo\nfoo\nfoo";	// 3 data rows. Shouldn't generate an error.
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 	
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expected no errors. Got " + logResults.length + ".");
@@ -196,7 +196,7 @@ QUnit.test( "CheckRowCount: Check Low Count Warning Test", function( assert ) {
 	
 	const done = assert.async();
 	const data = "Column1\nfoo";	// 1 data row. Should generate a low count warning.
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 	
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expected single result.");
@@ -228,7 +228,7 @@ QUnit.test( "CheckRowCount: Check Low Count Warning Test 2", function( assert ) 
 	
 	const done = assert.async();
 	const data = "Column1\nfoo";	// 1 data row. Should generate a low count warning.
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 	
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expected single result.");
@@ -262,7 +262,7 @@ QUnit.test( "CheckRowCount: Check Low Count Error Test", function( assert ) {
 	
 	const done = assert.async();
 	const data = "Column1";	// 0 data rows. Should generate a low count error.
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 	
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
@@ -296,7 +296,7 @@ QUnit.test( "CheckRowCount: Check High Count Warning Test", function( assert ) {
 	
 	const done = assert.async();
 	const data = "Column1\nfoo\nfoo\nfoo\nfoo\nfoo";	// 5 data rows. Should generate a high count warning.
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 	
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
@@ -330,7 +330,7 @@ QUnit.test( "CheckRowCount: Check High Count Warning Test", function( assert ) {
 	
 	const done = assert.async();
 	const data = "Column1\nfoo\nfoo\nfoo\nfoo\nfoo\nfoo";	// 6 data rows. Should generate a high count error.
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 	
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
@@ -364,7 +364,7 @@ QUnit.test( "CheckRowCount: Check Valid Output Test", function( assert ) {
 	
 	const done = assert.async();
 	const data = "Column1\nfoo\nfoo\nfoo";	// 3 data rows. Shouldn't generate an error.
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
         writer.on('finish', () => {

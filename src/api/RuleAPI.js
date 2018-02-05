@@ -125,17 +125,6 @@ class RuleAPI extends BaseRuleAPI {
 	}
 
 	/**
-	 * Checks whether the rule was initiated with a data object (unspecified but likely a string). <code>run()</code>
-	 * methods would call this so they can
-	 * choose to use the object as opposed to converting it into another form such as a file or stream.
-	 * @returns {boolean} <code>true</code> if the rule was initialized with a data object and <code>false</code>
-	 * otherwise.
-	 */
-	hasObject() {
-		return this._data && this._data.data;
-	}
-
-	/**
 	 * <code>run()</code> methods call this when they are returning a filename. Generally it would be used as
 	 * <pre><code>return asFile(...);</code></pre>.
 	 * @param filename the name of the file to return.
@@ -143,16 +132,6 @@ class RuleAPI extends BaseRuleAPI {
 	 */
 	asFile(filename) {
 		return { file : filename };
-	}
-
-	/**
-	 * <code>run()</code> methods call this when they are returning a data object. Generally it would be used as
-	 * <code>return asObject(...);</code>
-	 * @param data the data object to return.
-	 * @returns an object used by the validator to encapsulate the object return.
-	 */
-	asObject(data) {
-		return { data : data };
 	}
 
 	/**
@@ -174,56 +153,6 @@ class RuleAPI extends BaseRuleAPI {
 	 */
 	asError(message) {
 		return new Error(message);
-	}
-
-	/**
-	 * A <code>run()</code> implementation calls this when it wants to get the data as an object (usually a String).
-	 * If the rule was initialized with a data object that object is returned. If it was initialized with a filename
-	 * then the file is first loaded and then the retrieved data is returned. If however the rule was initialized with
-	 * a stream a little more work is required. In this case the stream must be read and this is done asynchronously
-	 * so a Promise is returned. When the promise is resolved the data will be available. Rules that require an
-	 * object should have a <code>run()</code> method that is something like this.
-	 * <pre><code>
-run() {
-	let input = this.object;
-
-	if (input instanceof Promise)
-		return input.then((data) => {
-			return this._runImpl(data);
-		});
-	else
-		return this._runImpl(input);
-}
-	 </code></pre>
-	 * (where this._runImpl(data) is the actual implementation of the rule taking a data object as an argument.)<br/>
-	 * Rules may return Promises. However that promise must resolve() to an actual result. It cannot resolve to another
-	 * Promise.
-	 * @returns {*}
-	 */
-	get object() {
-		if (this._object)
-			return this._object;
-		else if (this._objectPromise)
-			return this._objectPromise;	// User really shouldn't query this more than once but we also don't want to create multiple Promises.
-
-		if (this.hasFilename())
-			this._object = this.config.__state.validator.loadFile(this._data.file, this.config.__state.encoding);
-		else if (this.hasStream()) {
-			const writer = new _MemoryWriterStream();
-			this._data.stream.pipe(writer);	// I'm presuming this is blocking. (The docs don't mention either way.)
-			this._object = writer.getData(this.config.__state.encoding);
-
-			this._objectPromise = streamToPromise(writer).then(() => {
-				this._objectPromise = undefined;
-				this._object = writer.getData(this.config.__state.encoding);
-				return this._object;
-			});
-			return this._objectPromise;
-		}
-		else
-			this._object = this._data.data;
-
-		return this._object;
 	}
 
 	/**
@@ -273,7 +202,7 @@ run() {
 			return this._inputPromise;
 		}
 		else
-			this._inputFile = this.saveLocalTempFile(this._data.data, this.config.__state.encoding);
+			this._inputFile = null;
 
 		return this._inputFile;
 	}
@@ -327,7 +256,7 @@ run() {
 		else if (this.hasFilename())
 			this._inputStream = fs.createReadStream(this._data.file);
 		else
-			this._inputStream = new _MemoryReaderStream(this._data.data);
+			this._inputStream = null;
 
 		return this._inputStream;
 	}

@@ -4,6 +4,7 @@
 const ErrorLogger = require("../../ErrorLogger");
 const CSVParser = require("../../../rules/CSVParser");
 const TableRuleAPI = require("../../../api/TableRuleAPI");
+const MemoryWriterStream = require("../MemoryWriterStream");
 
 class TestTableRule extends TableRuleAPI {
 	constructor(config) {
@@ -152,7 +153,7 @@ QUnit.test( "CSVParser: Check Valid Rows processed Exluding Header", function( a
 
 	const done = assert.async();
 	const data = "Column1\n1234";
-	parser._run( { data: data } ).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		assert.equal(rule.finished, true, "Rule finished.");

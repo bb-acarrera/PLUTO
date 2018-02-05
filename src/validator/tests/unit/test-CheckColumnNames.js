@@ -5,6 +5,7 @@ const ErrorLogger = require("../../ErrorLogger");
 const CSVParser = require("../../../rules/CSVParser");
 const CheckColumnNames = require("../../../rules/CheckColumnNames");
 const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
+const MemoryWriterStream = require("../MemoryWriterStream");
 
 QUnit.module("CheckColumnNames");
 
@@ -47,7 +48,7 @@ QUnit.test( "Check Valid Test", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors or warnings.");
@@ -77,7 +78,7 @@ QUnit.test( "Check Valid 2 column Test", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column2\n1234,1234";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors or warnings.");
@@ -106,7 +107,7 @@ QUnit.test( "Missing column error", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect one error.");
@@ -138,7 +139,7 @@ QUnit.test( "Missing column warning", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect one warning.");
@@ -170,7 +171,7 @@ QUnit.test( "Missing column ignore", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors or warnings");
@@ -199,7 +200,7 @@ QUnit.test( "Extra column error", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column2";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect one error.");
@@ -231,7 +232,7 @@ QUnit.test( "Extra column warning", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column2";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect one warning.");
@@ -263,7 +264,7 @@ QUnit.test( "Extra column ignore", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column2";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors or warnings");
@@ -292,7 +293,7 @@ QUnit.test( "order match error", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column3,Column2";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect one error.");
@@ -324,7 +325,7 @@ QUnit.test( "order match warning", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column3,Column2";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect one warning.");
@@ -356,7 +357,7 @@ QUnit.test( "order match ignore", function( assert ) {
 
 	const done = assert.async();
 	const data = "Column1,Column3,Column2";
-	parser._run( { data: data } ).then((result) => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
 
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors or warnings.");

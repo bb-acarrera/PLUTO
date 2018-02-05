@@ -34,7 +34,7 @@ QUnit.test( "AddRegExColumn: Add column Test", function(assert){
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -70,7 +70,7 @@ QUnit.test( "AddRegExColumn: Select add column Test", function(assert){
     const data = "Column 0,Column 1\na,b";
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data) ).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -112,7 +112,7 @@ QUnit.test( "AddRegExColumn: Add column no match Test", function(assert){
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -158,7 +158,7 @@ QUnit.test( "AddRegExColumn: Add column no match warning Test", function(assert)
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -208,7 +208,7 @@ QUnit.test( "AddRegExColumn: Add column no match error Test", function(assert){
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -252,7 +252,7 @@ QUnit.test( "AddRegExColumn: Negative Column Test", function(assert){
     const rule = new AddRegExColumn(config);
     const parser = new CSVParser(parserConfig, rule);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(rule, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -288,7 +288,7 @@ QUnit.test( "AddRegExColumn: No Column Property test", function(assert){
     const rule = new AddRegExColumn(config);
     const parser = new CSVParser(parserConfig, rule);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(rule, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -326,7 +326,7 @@ QUnit.test( "AddRegExColumn: No new Column Property test", function(assert){
     const data = "Column 0,Column 1\na,b";
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
         writer.on('finish', () => {
@@ -362,7 +362,7 @@ QUnit.test( "AddRegExColumn: No regex Property test", function(assert){
     const data = "Column 0,Column 1\na,b";
     const parser = new CSVParser(parserConfig, AddRegExColumn, config);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
         writer.on('finish', () => {

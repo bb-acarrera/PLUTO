@@ -31,7 +31,7 @@ QUnit.test( "DeleteColumn: Deletion Test", function(assert){
     const parser = new CSVParser(parserConfig, DeleteColumn, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -64,7 +64,7 @@ QUnit.test( "DeleteColumn: Select Deletion Test", function(assert){
     const data = "Column 0,Column 1\na,b";
     const parser = new CSVParser(parserConfig, DeleteColumn, config);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -98,7 +98,7 @@ QUnit.test( "DeleteColumn: Negative Column Delete Test", function(assert){
     const rule = new DeleteColumn(config);
     const parser = new CSVParser(parserConfig, rule);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(rule, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -131,7 +131,7 @@ QUnit.test( "DeleteColumn: No Column Property test", function(assert){
     const rule = new DeleteColumn(config);
     const parser = new CSVParser(parserConfig, rule);
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(rule, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();

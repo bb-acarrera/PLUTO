@@ -5,6 +5,7 @@ const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnRegEx = require("../../../rules/CheckColumnRegEx");
 const CSVParser = require("../../../rules/CSVParser");
 const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
+const MemoryWriterStream = require("../MemoryWriterStream");
 
 QUnit.test( "CheckColumnRegEx: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
@@ -55,7 +56,7 @@ QUnit.test( "CheckColumnRegEx: Check For Non-Number column Property", function( 
 
 	const data = "Column 0\nfoo";
 	const done = assert.async();
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -82,7 +83,7 @@ QUnit.test( "CheckColumnRegEx: Check For Negative column Property", function( as
 
 	const data = "Column 0\nfoo";
 	const done = assert.async();
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -109,7 +110,7 @@ QUnit.test( "CheckColumnRegEx: Check For Non-Integer column Property", function(
 
 	const data = "Column 0\nfoo";
 	const done = assert.async();
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Warning", "Expected an 'Warning'.");
@@ -136,7 +137,7 @@ QUnit.test( "CheckColumnRegEx: Check For Bad Column Index", function( assert ) {
 
 	const data = "Column 0\nfoo";
 	const done = assert.async();
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
@@ -163,7 +164,7 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value", function( 
 	const parser = new CSVParser(config, rule);
 	const data = "Column 0\nbbbb";
 	const done = assert.async();
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -190,7 +191,7 @@ QUnit.test( "CheckColumnRegEx: Check For Passing RegEx Column Value", function( 
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\naaaa";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -213,7 +214,7 @@ QUnit.test( "CheckColumnRegEx: Check For Failing RegEx Column Value With Warning
 	const parser = new CSVParser(config, rule);
 	const data = "Column 0\nbbbb";
 	const done = assert.async();
-	parser._run( { data: data }).then(() => {
+	parser._run(MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {

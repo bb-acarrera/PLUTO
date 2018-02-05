@@ -62,7 +62,7 @@ QUnit.test( "RunExternalProcess: Successful run test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 0, "Expected no error results, got " + logResults.length + "."); // \n\t" + logResults[0].type + ": " + logResults[0].description + "\n...");
@@ -116,7 +116,7 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
@@ -146,7 +146,7 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
 //
 //    assert.ok(rule, "Rule was created.");
 //
-//    rule._run({data: data}).then((result) => {
+//    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
 //        console.log(result);
 //        assert.ok(typeof(result) == "string", "Expected a string result.");
 //        done();
@@ -186,7 +186,7 @@ QUnit.test( "RunExternalProcess: Error test", function(assert) {
 //
 // assert.ok(rule, "Rule was created.");
 //
-// rule._run({data: data}).then((result) => {
+// rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
 //     const logResults = logger.getLog();
 //     assert.ok(logResults.length == 1, "Expected one error result.");
 //     assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -226,7 +226,7 @@ QUnit.test( "RunExternalProcess: Missing attributes test", function(assert) {
     
     assert.ok(rule, "Rule was created.");
     
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
         assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -271,7 +271,7 @@ QUnit.test( "RunExternalProcess: Missing regex test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
         assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -313,7 +313,7 @@ QUnit.test( "RunExternalProcess: Missing importConfig test.", function(assert) {
 
     const done = assert.async();
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
         assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -357,7 +357,7 @@ QUnit.test( "RunExternalProcess: Missing importConfig.file test.", function(asse
 
     const done = assert.async();
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
         assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -406,7 +406,7 @@ QUnit.skip( "RunExternalProcess: Can't find PythonAPI test.", function(assert) {
 
     const done = assert.async();
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         process.chdir(cwd); // NOTE: If this isn't run then other tests in the entire test suite will fail.
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
@@ -458,7 +458,7 @@ QUnit.test( "RunExternalProcess: Can't find script test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 1, "Expected one error result.");
@@ -504,7 +504,7 @@ QUnit.test( "RunExternalProcess: Can't find executable test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 2, "Expected two errors in result.");
@@ -552,7 +552,7 @@ QUnit.test( "RunExternalProcess: Failing executable test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 2, "Expected two errors in result.");
@@ -599,7 +599,7 @@ QUnit.test( "RunExternalProcess: Executable writing to stdout test", function(as
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 2, "Expected two errors in result.");
@@ -663,7 +663,7 @@ QUnit.test( "RunExternalProcess: Successful csv run test", function(assert) {
 
     assert.ok(rule, "Rule was created.");
 
-    rule._run({data: data}).then((result) => {
+    rule._run(MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         assert.ok(logResults.length == 2, "Expected 2 warnings, got " + logResults.length + "."); // \n\t" + logResults[0].type + ": " + logResults[0].description + "\n...");

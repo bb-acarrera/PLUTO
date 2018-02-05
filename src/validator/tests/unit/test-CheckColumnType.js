@@ -4,6 +4,8 @@
 const ErrorLogger = require("../../ErrorLogger");
 const CheckColumnType = require("../../../rules/CheckColumnType");
 const CSVParser = require("../../../rules/CSVParser");
+const MemoryWriterStream = require("../MemoryWriterStream");
+
 
 QUnit.test( "CheckColumnType: Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
@@ -75,7 +77,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number column Property", function( a
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -100,7 +102,7 @@ QUnit.test( "CheckColumnType: Check For Negative column Property", function( ass
 	const rule = new CheckColumnType(config);const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		assert.equal(logResults[0].type, "Error", "Expected an 'Error'.");
@@ -125,7 +127,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer column Property", function( 
 	const rule = new CheckColumnType(config);const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.ok(logResults.length >= 1, "Expect at least one result.");	// Only care about the first one for now.
 		if(logResults.length >= 1) {
@@ -154,7 +156,7 @@ QUnit.test( "CheckColumnType: Check For Bad Column Count", function( assert ) {
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, "Expect single result.");
 		if (logResults.length == 1) {
@@ -180,7 +182,7 @@ QUnit.test( "CheckColumnType: Check For Non-Number Column Value", function( asse
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -206,7 +208,7 @@ QUnit.test( "CheckColumnType: Check For Valid Number Column Value", function( as
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3.14";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -228,7 +230,7 @@ QUnit.test( "CheckColumnType: Check For Non-Float Column Value", function( asser
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -254,7 +256,7 @@ QUnit.test( "CheckColumnType: Check For Valid Float Column Value", function( ass
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3.14";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -276,7 +278,7 @@ QUnit.test( "CheckColumnType: Check For Valid Float (int) Column Value", functio
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -298,7 +300,7 @@ QUnit.test( "CheckColumnType: Check For Non-Integer Column Value", function( ass
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\nfoo";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -324,7 +326,7 @@ QUnit.test( "CheckColumnType: Check For Invalid Integer Column Value", function(
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3.14";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 1, `Expect single result, got ${logResults.length}.`);
 		if (logResults.length == 1) {
@@ -350,7 +352,7 @@ QUnit.test( "CheckColumnType: Check For Valid Integer Column Value", function( a
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n3";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -375,7 +377,7 @@ QUnit.test( "CheckColumnType: Check For Valid Datetime Column Value", function( 
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n2011-10-10T14:48:00\n2016-10-13T08:35:47.510Z";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		done();
@@ -397,7 +399,7 @@ QUnit.test( "CheckColumnType: Check For invalid Datetime Column Value", function
 	const parser = new CSVParser(config, rule);
 	const done = assert.async();
 	const data = "Column 0\n\n \nfoo\n10\n2017-14-10T14:48:00\n2016-10-13T25:35:47.510Z";
-	parser._run( { data: data }).then(() => {
+	parser._run( MemoryWriterStream.getRuleStreamObject(data)).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 6, "Expect 6 errors.");
 		done();

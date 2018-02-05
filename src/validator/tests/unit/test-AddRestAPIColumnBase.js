@@ -140,7 +140,7 @@ QUnit.test( "Check added column", function(assert){
     const parser = new CSVParser(parserConfig, TestRestAPI, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
@@ -185,7 +185,7 @@ QUnit.test( "maxConcurrent exceeded", function(assert){
     const parser = new CSVParser(parserConfig, TestRestAPI, config);
 
     const done = assert.async();
-    parser._run( { data: data }).then((result) => {
+    parser._run( MemoryWriterStream.getRuleStreamObject(data)).then((result) => {
         assert.ok(result, "Created");
         const logResults = logger.getLog();
         const writer = new MemoryWriterStream();
