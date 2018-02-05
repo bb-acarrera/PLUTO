@@ -1,0 +1,34 @@
+{
+	"rootDirectory" : "/code/src",
+	"rulesetDirectory" : "/code/src/runtime/rulesets",
+	"rulesDirectory" : "/code/src/runtime/customrules",
+	"tempDirectory" : "/tmp",
+	"dbUser" : "pluto",
+	"dbPassword" : "password",
+	"dbDatabase" : "pluto",
+	"dbHost" : "192.168.0.1",
+	"dbPort" : "6543",
+	"dbSchema": "pluto",
+	"configHost": "localhost:3000",
+	"configHostProtocol": "http",
+
+	"reporters": [
+		{
+			"filename": "smtpReporter",
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {
+					"host": "smtp.ethereal.email",
+					"port": 587,
+					"auth": {
+						"user": "lxavjnuaeqcs7cax@ethereal.email",
+						"pass": "rYrqKvj6VKpyAdafaD"
+					}
+				}
+			}
+		}
+	],
+
+	"forceUniqueTargetFile": true,
+	"hideTestButtons": false
+}

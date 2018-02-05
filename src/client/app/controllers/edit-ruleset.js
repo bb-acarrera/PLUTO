@@ -116,6 +116,46 @@ export default Ember.Controller.extend( {
 		return columnNames;
 
 	}),
+
+	rules:  Ember.computed('model.ruleset.parser.filename', function() {
+
+		const parserId = this.get('model.ruleset.parser.filename');
+
+		const allRules = this.get('model.rules');
+		const parsers = this.get('model.parsers');
+
+		let curParserTypes = null;
+		parsers.forEach((parser)=>{
+			if(parserId == parser.get('filename')) {
+				curParserTypes = parser.get('types');
+			}
+		});
+
+		if(!allRules) {
+			return [];
+		}
+
+		let rules = [];
+
+		allRules.forEach((rule) => {
+			let parser = rule.get('requiredParser');
+			if(!parser || parser.length == 0) {
+				rules.push(rule);
+				return;
+			}
+
+			if(curParserTypes && curParserTypes.length > 0 &&
+				curParserTypes.contains(parser)) {
+
+				rules.push(rule);
+
+			}
+		});
+
+		return rules;
+
+	}),
+
 	processURL: Ember.computed('applicationController.currentUser.apiurl', 'model.ruleset.filename', function() {
 
 		const apiBase = this.get('applicationController.currentUser.apiurl');

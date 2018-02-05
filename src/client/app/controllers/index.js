@@ -5,6 +5,15 @@ export default Ember.Controller.extend({
 	actions: {
 		setShowAddRuleset() {
 			this.set('showAddRuleset', true);
-		}
+		},
+        transitionTo(location, filter, value) {
+			if(value) {
+				var qp = {};
+				qp[filter] = value;
+                this.transitionToRoute( location, { queryParams: qp } );
+            } else {
+                this.transitionToRoute( location );
+			}
+        }
 	}
 });

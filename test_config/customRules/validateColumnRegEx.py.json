@@ -32,6 +32,7 @@
 		"shortdescription": "",
 		"longdescription": "",
 		"title": "Check Column Value w RegEx via Python",
-		"changeFileFormat": false
+		"changeFileFormat": false,
+		"parser": "CSVParser"
 	}
 ]

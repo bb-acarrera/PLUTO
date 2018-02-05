@@ -5,7 +5,14 @@ const child_process = require('child_process');
 const fs = require('fs-extra');
 const path = require("path");
 
+const TreeKill = require('tree-kill');
+const rimraf = require('rimraf');
 
+const ErrorHandlerAPI = require("../../api/errorHandlerAPI");
+const ErrorLogger = require("../../validator/ErrorLogger");
+
+//get the root PLUTO folder from this file
+const rootFolder = path.resolve(__dirname, '../../');
 
 /*
 example request
@@ -194,9 +201,11 @@ class ProcessFileRouter extends BaseRouter {
     processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn) {
         return new Promise((resolve, reject) => {
 
-            var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
+            let scriptPath = path.resolve(rootFolder, 'validator');
+
+            var execCmd = 'node ' + scriptPath + '/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
             var spawnCmd = 'node';
-            var spawnArgs = ['validator/startValidator.js', '-r', ruleset, '-c', this.config.validatorConfigPath];
+            var spawnArgs = [scriptPath + '/startValidator.js', '-r', ruleset, '-c', this.config.validatorConfigPath];
             let overrideFile = null;
 
             if (importConfig) {
@@ -241,8 +250,23 @@ class ProcessFileRouter extends BaseRouter {
 
             let proc = child_process.spawn(spawnCmd, spawnArgs, options);
 
-            proc.on('error', (err) => {
-                console.log("spawn error: " + err);
+            let terminated = false;
+
+            function runTimeout() {
+                console.log(`Child process for took too long. Terminating.`);
+                terminated = true;
+                TreeKill(proc.pid);
+            }
+
+            const timeoutId = setTimeout(runTimeout, this.config.runMaximumDuration * 1000);
+            let runId = null;
+            let tempFolder = null;
+
+            const finished = () => {
+
+                clearTimeout(timeoutId);
+
+                this.cleanupRun(runId, tempFolder, terminated);
 
                 if(overrideFile) {
                     fs.unlink(overrideFile);
@@ -251,6 +275,12 @@ class ProcessFileRouter extends BaseRouter {
                 if(finishedFn) {
                     finishedFn();
                 }
+            };
+
+            proc.on('error', (err) => {
+                console.log("spawn error: " + err);
+
+                finished();
 
                 reject(err);
             });
@@ -263,7 +293,10 @@ class ProcessFileRouter extends BaseRouter {
                 for (var i = 0; i < strs.length; i++) {
                     let s = strs[i];
                     if(s.startsWith('runId:')) {
-                        resolve(s.substr(6).trim());
+                        runId = s.substr(6).trim();
+                        resolve(runId);
+                    } else if(s.startsWith('tempFolder:')) {
+                        tempFolder = s.substr('tempFolder:'.length).trim();
                     }
                 }
             });
@@ -275,18 +308,62 @@ class ProcessFileRouter extends BaseRouter {
             proc.on('exit', (code) => {
                 console.log('child process exited with code ' + code.toString());
 
-                if(overrideFile) {
-                    fs.unlink(overrideFile);
-                }
-
-                if(finishedFn) {
-                    finishedFn();
-                }
+                finished();
 
                 resolve();
             });
 
+
+
         })
+    }
+
+    cleanupRun(runId, tempFolder, wasTerminated) {
+
+        if(runId) {
+            this.config.data.getRun(runId).then((runInfo) => {
+
+                if (!runInfo || !runInfo.isrunning)
+                {
+                    return;
+                }
+
+                //this shouldn't exist, but since it does let's clean it up
+                const logger = new ErrorLogger();
+
+                if(wasTerminated) {
+                    logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                        `Run took too long and was terminated by the server.`);
+                } else {
+                    logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                        `Run stopped without cleaning up. Server has marked this as finished.`);
+                }
+
+
+
+                this.config.data.saveRunRecord(runId, logger.getLog(),
+                    null, null, null, logger.getCounts(),
+                    false, null, null, true)
+                    .then(() => { //no-op
+                    }, (error) => console.log('error cleaning up bad run: ' + error))
+                    .catch((e) => console.log('Exception cleaning up bad run: ' + e))
+
+            }, (error) => {
+                console.log(error);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        }
+
+        if(tempFolder && fs.existsSync(tempFolder)) {
+            rimraf.sync(tempFolder, null, (e) => {
+                console.log('Unable to delete folder: ' + tempFolder + '.  Reason: ' + e);
+            });
+        }
+
+
+
     }
 
     // Create a unique temporary filename in the temp directory.

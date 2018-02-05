@@ -79,6 +79,7 @@ QUnit.test( " End to End Test", function(assert) {
     const dbProxy = new DataProxy(ruleset,
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
+
         },
         done);
 
@@ -130,6 +131,7 @@ QUnit.test( " End to End with ruleset Test", function(assert){
     const dbProxy = new DataProxy(ruleset,
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
+            assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
         },
         done);
 
@@ -162,6 +164,7 @@ QUnit.test( " End to End no ruleset Test", function(assert){
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Warning", "Expected a warning");
+            assert.ok(vldtr.abort, "Expected validator to abort");
         },
         done);
 
@@ -211,6 +214,7 @@ QUnit.test( " End to End CheckColumnCount Rule Test", function(assert){
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Warning", "Expected a warning");
             assert.equal(log[0].description, "Row 1 has too many columns. Got 9.", 'Expected "Row 1 has too many columns. Got 9."');
+            assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
         },
         done);
 
@@ -263,6 +267,7 @@ QUnit.test( " End to End CheckLatLong Warning Test", function(assert){
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Warning", "Expected a warning");
             assert.equal(log[0].description, "Found null island in row 3.", 'Expected "Found null island in row 3"');
+            assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
         },
         done);
 
@@ -296,6 +301,7 @@ QUnit.test( " End to End Null Promise Test", function(assert){
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Error", "Expected an error");
             assert.equal(log[0].description, "No Ruleset found for: Test Data Ruleset", 'Expected "No Ruleset found for: Test Data Ruleset"');
+            assert.ok(vldtr.abort, "Expected validator to abort");
         },
         done);
 
@@ -329,6 +335,7 @@ QUnit.test( " End to End Throw Error Test", function(assert){
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Error", "Expected an error");
             assert.equal(log[0].description, "Thrown Error", 'Expected "Thrown Error"');
+            assert.ok(vldtr.abort, "Expected validator to abort");
         },
         done);
 
@@ -364,6 +371,7 @@ QUnit.test( " End to End Promise Rejection Test", function(assert){
             assert.ok(log, "Expected log to be created");
             assert.equal(log[0].type, "Error", "Expected an error");
             assert.equal(log[0].description, "Rejected Promise", 'Expected "Rejected Promise"');
+            assert.ok(vldtr.abort, "Expected validator to abort");
         },
         done);
 
@@ -444,6 +452,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
         (runId, log, ruleSetID, inputFile, outputFile) => {
             assert.ok(log, "Expected log to be created");
             assert.equal(log.length, 0, "Expected no log entries, had some");
+            assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
         },
         done);
 
@@ -453,5 +462,293 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
     vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
 });
+
+    QUnit.test( " Skip same file test", function(assert){
+        const logger = new ErrorLogger();
+        const config = {
+            __state : {
+                "_debugLogger" : logger,
+                "rootDirectory" : "./src",
+                "tempDirectory" : "./tmp"
+            },
+            "rulesDirectory" : "rules",
+            "inputDirectory" : "",
+            "outputDirectory" : "results",
+            "ruleset" : "Test Data Ruleset",
+            doMd5HashCheck: true
+        };
+
+        const done = assert.async();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "CheckColumnCount",
+                    config : {
+                        id : 1,
+                        columns : 9
+                    }
+                }
+            ],
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.ok(vldtr.skipped, "Expected validator to skip.");
+            },
+            done, {
+                getRuns: (page, size, filters) => {
+                    if(!filters.inputMd5Filter) {
+                        return null;
+                    }
+
+                    return {
+                        rowCount: 1,
+                        pageCount: 1,
+                        runs: [
+                            {
+                                id: 0,
+                                log: 0,
+                                ruleset: "",
+                                inputfilename: "",
+                                outputfilename: "",
+                                time: new Date(),
+                                starttime: new Date(),
+                                errorcount: 0,
+                                warningcount: 0,
+                                droppedcount: 0,
+                                isrunning: false,
+                                passed: true,
+                                summary: {},
+                                version: 0,
+                                deleted: false,
+                                group: null,
+                                sourceid: 0,
+                                sourcefile: "",
+                                inputmd5: filters.inputMd5Filter
+                            }
+                        ]
+                    }
+                }
+            });
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+
+    QUnit.test( " Wait for other run", function(assert){
+        const logger = new ErrorLogger();
+        const config = {
+            __state : {
+                "_debugLogger" : logger,
+                "rootDirectory" : "./src",
+                "tempDirectory" : "./tmp"
+            },
+            "rulesDirectory" : "rules",
+            "inputDirectory" : "",
+            "outputDirectory" : "results",
+            "ruleset" : "Test Data Ruleset",
+            runPollingInterval: 0.5
+        };
+
+        const done = assert.async();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "CheckColumnCount",
+                    config : {
+                        id : 1,
+                        columns : 9
+                    }
+                }
+            ],
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const waitingRun = {
+            id: 1001,
+            log: 1001,
+            ruleset: "",
+            inputfilename: "",
+            outputfilename: "",
+            time: new Date(),
+            starttime: new Date(),
+            errorcount: 0,
+            warningcount: 0,
+            droppedcount: 0,
+            isrunning: false,
+            passed: true,
+            summary: {},
+            version: 0,
+            deleted: false,
+            group: null,
+            sourceid: 0,
+            sourcefile: "",
+            inputmd5: ""
+        };
+
+        let checkCount = 0;
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.equal(checkCount, 2, "Expected 2 checks for the other run");
+                assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+            },
+            done, {
+                getRuns: (page, size, filters) => {
+                    if(filters.idLessThanFilter == null) {
+                        return null;
+                    }
+
+                    checkCount += 1;
+
+                    if(checkCount < 2) {
+                        return {
+                            rowCount: 1,
+                            pageCount: 1,
+                            runs: [
+                                waitingRun
+                            ]
+                        }
+                    } else {
+                        return null;
+                    }
+
+
+
+                }
+            });
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+    QUnit.test( " Clean up old run first", function(assert){
+        const logger = new ErrorLogger();
+        const config = {
+            __state : {
+                "_debugLogger" : logger,
+                "rootDirectory" : "./src",
+                "tempDirectory" : "./tmp"
+            },
+            "rulesDirectory" : "rules",
+            "inputDirectory" : "",
+            "outputDirectory" : "results",
+            "ruleset" : "Test Data Ruleset",
+            runPollingInterval: 0.5,
+            runMaximumDuration: 1
+        };
+
+        const done = assert.async();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            rules : [
+                {
+                    filename : "CheckColumnCount",
+                    config : {
+                        id : 1,
+                        columns : 9
+                    }
+                }
+            ],
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        //create time 27 seconds before now
+        const time = new Date(new Date().getTime() - 27*1000);
+
+        const waitingRun = {
+            id: 1001,
+            log: 1001,
+            ruleset: "",
+            inputfilename: "",
+            outputfilename: "",
+            time: time,
+            starttime: time,
+            errorcount: 0,
+            warningcount: 0,
+            droppedcount: 0,
+            isrunning: true,
+            passed: true,
+            summary: {},
+            version: 0,
+            deleted: false,
+            group: null,
+            sourceid: 0,
+            sourcefile: "",
+            inputmd5: ""
+        };
+
+        let checkCount = 0;
+        let updatedOldRun = false;
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.ok(checkCount > 1, "Expected at least 1 check for the other run");
+                assert.ok(updatedOldRun, "Expected validator to update the bad run");
+                assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+            },
+            done, {
+                getRuns: (page, size, filters) => {
+                    if(updatedOldRun || filters.idLessThanFilter == null) {
+                        return null;
+                    }
+
+                    checkCount += 1;
+
+                    return {
+                        rowCount: 1,
+                        pageCount: 1,
+                        runs: [
+                            waitingRun
+                        ]
+                    }
+
+
+                },
+                saveRunRecord: (runId) => {
+                    if(runId != waitingRun.id) {
+                        return false;
+                    }
+
+                    updatedOldRun = true;
+
+                    return true;
+                }
+            });
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
 
 });
