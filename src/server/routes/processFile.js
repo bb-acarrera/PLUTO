@@ -11,7 +11,8 @@ const rimraf = require('rimraf');
 const ErrorHandlerAPI = require("../../api/errorHandlerAPI");
 const ErrorLogger = require("../../validator/ErrorLogger");
 
-
+//get the root PLUTO folder from this file
+const rootFolder = path.resolve(__dirname, '../../');
 
 /*
 example request
@@ -200,9 +201,11 @@ class ProcessFileRouter extends BaseRouter {
     processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn) {
         return new Promise((resolve, reject) => {
 
-            var execCmd = 'node validator/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
+            let scriptPath = path.resolve(rootFolder, 'validator');
+
+            var execCmd = 'node ' + scriptPath + '/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
             var spawnCmd = 'node';
-            var spawnArgs = ['validator/startValidator.js', '-r', ruleset, '-c', this.config.validatorConfigPath];
+            var spawnArgs = [scriptPath + '/startValidator.js', '-r', ruleset, '-c', this.config.validatorConfigPath];
             let overrideFile = null;
 
             if (importConfig) {

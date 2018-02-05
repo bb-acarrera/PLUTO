@@ -29,6 +29,9 @@ if [ ! -d $DST ]; then
 
 fi
 
+echo "build the pluto base docker image"
+docker build -t pluto_base -f $ROOT/dev_container/plutoBase.Dockerfile $ROOT/dev_container
+
 # Make sure current packages are up to date
 npm install
 cd $CLIENT

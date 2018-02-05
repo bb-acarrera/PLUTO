@@ -5,7 +5,7 @@
   "rules": [
 	{
       "filename":"validateColumnRegExPython",
-      "script" : "validateColumnRegEx.py",
+      "script" : "/opt/PLUTO/config/customRules/validateColumnRegEx.py",
       "executable" : "python"
     },
     {
