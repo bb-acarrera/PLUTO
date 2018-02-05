@@ -106,25 +106,11 @@ class PythonCSVRule(PythonAPIRule):
 
 		self.currentRow = None		
 				
-		# FIXME: Python 2 doesn't support encoding here.
 		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
 		
-			#csvreader = csv.reader(
-			#	src, delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote)
-				
-			#csvwriter = csv.writer(
-			#	dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, lineterminator="\n")
-				
 			rowHeaderOffset = numHeaderRows + 1;
 			self.start()
 			
-			#for row in csvreader:
-			#	isHeaderRow = csvreader.line_num < rowHeaderOffset
-			#	self.currentRow = row
-			#	updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
-			#	if updatedRecord is not None:
-			#		csvwriter.writerow(updatedRecord)
-
 			for chunk in pd.read_csv(src, chunksize = 10 ** 6, 
 				delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote, encoding=encoding, header=None):
 				
