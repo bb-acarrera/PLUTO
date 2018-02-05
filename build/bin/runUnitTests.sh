@@ -9,4 +9,4 @@ docker build -t pluto_dev -f $ROOT/dev_container/dev.Dockerfile $ROOT
 
 docker build -t pluto_test -f $ROOT/build/test.Dockerfile $ROOT
 
-docker run -v $ROOT:/code --net=plutonet --rm -a stdout -a stderr pluto_test
+docker run -v $ROOT:/code --rm -a stdout -a stderr pluto_test
