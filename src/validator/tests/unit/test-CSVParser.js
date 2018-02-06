@@ -161,3 +161,29 @@ QUnit.test( "CSVParser: Check Valid Rows processed Exluding Header", function( a
 	});
 });
 
+QUnit.test( "CSVParser: Check weird quoting", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger
+		},
+		"numHeaderRows" : 1
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new CSVParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	const data = `a,b,c,d,e,lat,long\naf,dekh"iykh'ya,Dekh"iykh'ya,13,,34.60345,69.2405`;
+	parser._run( { data: data } ).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.equal(rule.finished, true, "Rule finished.");
+		assert.equal(rule.rowCount, 2, "2 rows processed.");
+		done();
+	});
+});
+
