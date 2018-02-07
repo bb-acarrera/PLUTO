@@ -250,13 +250,30 @@ class ProcessFileRouter extends BaseRouter {
 
             let proc = child_process.spawn(spawnCmd, spawnArgs, options);
 
-            let terminated = false;
+            let terminationMessage = null;
 
             function runTimeout() {
                 console.log(`Child process for took too long. Terminating.`);
-                terminated = true;
+                terminationMessage = `Run took too long and was terminated by the server.`;
                 TreeKill(proc.pid);
             }
+
+            const terminate = (finishedFn) => {
+
+                let run = this.config.runningJobs.find((element) => {
+                    return element.terminate === terminate;
+                });
+
+                if(run) {
+                    run.finishedFn = finishedFn;
+                }
+
+                terminationMessage = `Server is shutting down. Terminating run.`;
+                TreeKill(proc.pid);
+
+            };
+
+            this.config.runningJobs.push({terminate:terminate});
 
             const timeoutId = setTimeout(runTimeout, this.config.runMaximumDuration * 1000);
             let runId = null;
@@ -266,7 +283,19 @@ class ProcessFileRouter extends BaseRouter {
 
                 clearTimeout(timeoutId);
 
-                this.cleanupRun(runId, tempFolder, terminated);
+                let index = this.config.runningJobs.findIndex((element) => {
+                    return element.terminate === terminate;
+                });
+                let run = null;
+
+                if(index >= 0) {
+                    run = this.config.runningJobs[index];
+                    this.config.runningJobs.splice(index, 1);
+
+                } else {
+                    //this was removed somewhere else, so just return
+                    return Promise.resolve();
+                }
 
                 if(overrideFile) {
                     fs.unlink(overrideFile);
@@ -275,7 +304,21 @@ class ProcessFileRouter extends BaseRouter {
                 if(finishedFn) {
                     finishedFn();
                 }
+
+                this.cleanupRun(runId, tempFolder, terminationMessage)
+                    .then(() => {}, () => {}).catch(() => {}).then(() => {
+
+                    if(run && run.finishedFn) {
+                        run.finishedFn();
+                    }
+                })
+
+
             };
+
+
+
+
 
             proc.on('error', (err) => {
                 console.log("spawn error: " + err);
@@ -306,7 +349,13 @@ class ProcessFileRouter extends BaseRouter {
             });
 
             proc.on('exit', (code) => {
-                console.log('child process exited with code ' + code.toString());
+
+                if(code == null) {
+                    console.log('child process exited with out supplying a code.');
+                } else {
+                    console.log('child process exited with code ' + code.toString());
+                }
+
 
                 finished();
 
@@ -318,43 +367,7 @@ class ProcessFileRouter extends BaseRouter {
         })
     }
 
-    cleanupRun(runId, tempFolder, wasTerminated) {
-
-        if(runId) {
-            this.config.data.getRun(runId).then((runInfo) => {
-
-                if (!runInfo || !runInfo.isrunning)
-                {
-                    return;
-                }
-
-                //this shouldn't exist, but since it does let's clean it up
-                const logger = new ErrorLogger();
-
-                if(wasTerminated) {
-                    logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                        `Run took too long and was terminated by the server.`);
-                } else {
-                    logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                        `Run stopped without cleaning up. Server has marked this as finished.`);
-                }
-
-
-
-                this.config.data.saveRunRecord(runId, logger.getLog(),
-                    null, null, null, logger.getCounts(),
-                    false, null, null, true)
-                    .then(() => { //no-op
-                    }, (error) => console.log('error cleaning up bad run: ' + error))
-                    .catch((e) => console.log('Exception cleaning up bad run: ' + e))
-
-            }, (error) => {
-                console.log(error);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-        }
+    cleanupRun(runId, tempFolder, terminationMsg) {
 
         if(tempFolder && fs.existsSync(tempFolder)) {
             rimraf.sync(tempFolder, null, (e) => {
@@ -362,7 +375,49 @@ class ProcessFileRouter extends BaseRouter {
             });
         }
 
+        return new Promise((resolve) => {
+            if(runId) {
+                this.config.data.getRun(runId).then((runInfo) => {
 
+                        if (!runInfo || !runInfo.isrunning)
+                        {
+                            resolve();
+                            return;
+                        }
+
+                        //this shouldn't exist, but since it does let's clean it up
+                        const logger = new ErrorLogger();
+
+                        if(terminationMsg) {
+                            logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                                terminationMsg);
+                        } else {
+                            logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                                `Run stopped without cleaning up. Server has marked this as finished.`);
+                        }
+
+                        this.config.data.saveRunRecord(runId, logger.getLog(),
+                            null, null, null, logger.getCounts(),
+                            false, null, null, true)
+                            .then(() => { //no-op
+                            }, (error) => console.log('error cleaning up bad run: ' + error))
+                            .catch((e) => console.log('Exception cleaning up bad run: ' + e))
+                            .then(()=> {
+                                resolve();
+                            })
+
+                    }, (error) => {
+                        console.log(error);
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        resolve();
+                    });
+            } else {
+                resolve();
+            }
+        });
 
     }
 

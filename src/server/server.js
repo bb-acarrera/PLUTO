@@ -37,12 +37,14 @@ class Server {
 		this.port = this.config.Port || 3000;
 		this.rootDir = path.resolve(this.config.rootDirectory || this.config.validator.rootDirectory || ".");
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
-		this.router = new Router(config);
-		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
 
-
+		this.config.runningJobs = [];
 		this.config.runMaximumDuration = this.config.runMaximumDuration || 600;
 
+		this.router = new Router(config);
+
+		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
+		this.shuttingDown = false;
 
 		app.use(fileUpload());
 
@@ -53,7 +55,16 @@ class Server {
 		}));
 
 		// Set up the routing.
-		app.use(this.router.router);
+		app.use((req, res, next) => {
+
+			if(this.shuttingDown) {
+				res.statusMessage = 'Server is shutting down';
+				res.status(500).end();
+				return;
+			}
+
+			this.router.router(req, res, next)
+		});
 		app.use(express.static(this.assetsDirectory));
 
 		app.use(fallback('index.html', { root: this.assetsDirectory }));
@@ -85,6 +96,33 @@ class Server {
 		var that = this;
 		app.listen(this.port, function () {
 			console.log(`Pluto server listening on port ${that.port}!`);
+		});
+	}
+
+	shutdown() {
+
+		console.log('Got shutdown request -- cleaning up running jobs...');
+		this.shuttingDown = true;
+
+
+		//since the array is modified on cleanup
+		const jobs = [];
+
+		this.config.runningJobs.forEach((job) => {
+			jobs.push(job);
+		});
+
+		const promises = [];
+
+		jobs.forEach((job) => {
+			promises.push(new Promise((resolve) => {
+				job.terminate(resolve);
+			}));
+		});
+
+		Promise.all(promises).then(() => {}, () =>{}).catch(() => {}).then(() => {
+			console.log('All jobs cleaned up -- shutting down');
+			process.exit(0);
 		});
 	}
 }
@@ -131,6 +169,16 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 
 	const server = new Server(serverConfig, validatorConfig, validatorConfigPath);
 	server.start();
+
+	process.on('SIGTERM', (signal) => {
+		console.log('Got SIGTERM: ' + signal);
+		server.shutdown();
+	});
+
+	process.on('SIGINT', (signal) => {
+		console.log('Got SIGINT: ' + signal);
+		server.shutdown();
+	});
 }
 
 module.exports = Server;
