@@ -174,6 +174,11 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 		console.log('Got SIGTERM: ' + signal);
 		server.shutdown();
 	});
+
+	process.on('SIGINT', (signal) => {
+		console.log('Got SIGINT: ' + signal);
+		server.shutdown();
+	});
 }
 
 module.exports = Server;
