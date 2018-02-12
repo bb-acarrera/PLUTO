@@ -32,6 +32,7 @@ class Server {
 		this.config.validatorConfig = validatorConfig;
 
 		this.config.data = Data(this.config.validatorConfig);
+		this.config.statusLog = [];
 		this.config.rulesLoader = new RuleLoader(this.config.validator.config.rulesDirectory);
 
 		this.port = this.config.Port || 3000;
@@ -72,21 +73,42 @@ class Server {
 		// TODO: Basic error handling. Make it a little less basic?
 		if (app.get('env') === 'development') {
 
-			app.use(function(err, req, res, next) {
+			app.use((err, req, res, next) => {
 				console.log(req.url + ': ' + err);
 				res.statusMessage = err.message || err;
 				res.status(err.status || 500).end();
 
+				var type = "error";
+				var text = err.address +  " " + err.message + " on DEBUG";
+				var time =  new Date();
+                this.config.data.saveError(type, text, time).then(() => {
+                    req.body.version = rule.version;
+                    res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+                }, (error) => {
+                    this.config.statusLog.push({type: type,time: time,message: text});
+                }).catch(next);
+
 			});
 
-		}
+		} else {
 
-		// production error handler
-		// no stacktraces leaked to user
-		app.use(function(err, req, res, next) {
-			res.statusMessage = err.message || err;
-			res.status(err.status || 500).end();
-		});
+            // production error handler
+            // no stacktraces leaked to user
+            app.use( ( err, req, res, next ) => {
+                res.statusMessage = err.message || err;
+                res.status( err.status || 500 ).end();
+
+                var type = "error";
+                var text = err.address + " " + err.message + "";
+                var time = new Date();
+                this.config.data.saveError( type, text, time ).then( () => {
+                    req.body.version = rule.version;
+                    res.json( req.body );	// Need to reply with what we received to indicate a successful PATCH.
+                }, ( error ) => {
+                    this.config.statusLog.push( { type: type, time: time, message: text } );
+                } ).catch( next );
+            } );
+        }
 	}
 
 	/*

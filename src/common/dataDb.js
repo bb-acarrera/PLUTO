@@ -31,6 +31,7 @@ class data {
             currentRuleset: schemaName + '"currentRuleset"',
             rules: schemaName + 'rules',
             currentRule: schemaName + '"currentRule"',
+            errors: schemaName + '"errors"'
         }
     }
 
@@ -1515,6 +1516,36 @@ class data {
         });
 
     }
+
+    saveError ( type, text, time) {
+        return new Promise( ( resolve, reject ) => {
+            var qr = updateTableNames('INSERT INTO {{errors}} (message, type, time) ' +
+                "VALUES($1, $2, $3)", this.tables);
+            this.db.query(updateTableNames('INSERT INTO {{errors}} (message, type, time) ' +
+                "VALUES($1, $2, $3)", this.tables),
+                [text,type,time])
+                .then((result) => {
+                    resolve();
+                    }, (error) => {
+                    reject(error)
+                });
+        });
+    }
+    getErrors (limit, offset, orderBy = "time") {
+        return new Promise( ( resolve, reject ) => {
+
+            let query = this.db.query(updateTableNames("SELECT * FROM {{errors}} ORDER BY " + orderBy + " DESC LIMIT $1 OFFSET $2", this.tables), [limit, offset]);
+
+            let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{errors}} ", this.tables ));
+
+            Promise.all( [ query, countQuery ] ).then( ( values ) => {
+                resolve({result: values[0], count: values[1].rows[0].count});
+            }, (error) => {
+                    reject(error)
+             });
+        });
+    }
+
 
     deleteRule ( rule, user, group, admin ) {
 
