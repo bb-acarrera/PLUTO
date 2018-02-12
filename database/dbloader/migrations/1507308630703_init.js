@@ -30,6 +30,18 @@ exports.up = (pgm) => {
             ifNotExists: true
         }
     );
+
+    pgm.createTable('errors',
+        {
+            id: { type: 'serial', primaryKey : true },
+            message: { type : 'varchar(512)' },
+            message: { type : 'integer', default: '0' },
+            time: { type : 'timestamp' }
+        },
+        {
+            ifNotExists: true
+        }
+    );
 };
 
 exports.down = false;

@@ -1534,7 +1534,7 @@ class data {
     getErrors (limit, offset, orderBy = "time") {
         return new Promise( ( resolve, reject ) => {
 
-            let query = this.db.query(updateTableNames("SELECT * FROM {{errors}} ORDER BY " + orderBy + " LIMIT $1 OFFSET $2", this.tables), [limit, offset]);
+            let query = this.db.query(updateTableNames("SELECT * FROM {{errors}} ORDER BY " + orderBy + " DESC LIMIT $1 OFFSET $2", this.tables), [limit, offset]);
 
             let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{errors}} ", this.tables ));
 
