@@ -22,6 +22,9 @@ Router.map(function() {
   this.route('edit-basic-ruleset', {path: '/editBasicRuleset/:ruleset_id'}, function() {
     this.route('run', {path: '/run/:run_id'});
   });
+
+  //this.route('status');
+  this.route('errorlog');
 });
 
 export default Router;
