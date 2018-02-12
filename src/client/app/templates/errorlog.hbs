@@ -21,4 +21,5 @@
 		</tr>
 	{{/each}}
 	</table>
+	{{show-paginator pages=model.meta.totalPages current=page inc=(action 'incPage') dec=(action 'decPage')}}
 </div>

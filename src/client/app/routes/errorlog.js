@@ -18,13 +18,5 @@ export default Ember.Route.extend(RouteMixin, {
             let meta = result.get('meta');
             return {result: result, meta: meta};
         });
-    },
-    actions: {
-        decPage() {
-            this.transitionToRoute({queryParams: {page: Math.max(this.page - 1, 1)}});
-        },
-        incPage() {
-            this.transitionToRoute({queryParams: {page: Math.min(this.page + 1, this.get('totalPages'))}});
-        }
     }
 });
