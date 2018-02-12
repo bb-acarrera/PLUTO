@@ -52,7 +52,7 @@
     "karma": "^1.7.0",
     "karma-qunit": "^1.2.1",
     "markdown-to-html": "0.0.13",
-    "node-pg-migrate": "^2.19.0",
+    "node-pg-migrate": "^2.11.1",
     "proxyquire": "^1.8.0",
     "qunitjs": "2.4.1",
     "stack-trace": "0.0.10",
