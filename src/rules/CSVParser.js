@@ -112,8 +112,9 @@ class CSVParser extends TableParserAPI {
                 comment: this.comment,
                 escape: this.escape,
                 quote: this.quote,
-                relax_column_count: true		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
+                relax_column_count: true,		// Need "relax_column_count" otherwise the parser throws an exception when rows have different number so columns.
                 // I'd rather detect it.
+                relax: true
             });
 
         let processHeaderRows = false;
