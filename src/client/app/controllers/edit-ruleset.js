@@ -63,7 +63,7 @@ export default Ember.Controller.extend( {
 		return invalid;
 	}),
 
-	changed:  Ember.computed('propStates.@each.changed', function() {
+	changed:  Ember.computed('propStates.@each.changed','buttonStateChanged', function() {
 
 		let changed = false;
 
@@ -73,9 +73,15 @@ export default Ember.Controller.extend( {
 			}
 		});
 
+		if (this.get('buttonStateChanged')) {
+          changed = true;
+          this.set('buttonStateChanged', false);
+        }
+
 		return changed;
 	}),
 
+	buttonStateChanged: false,
 
 	rulesetChanged: Ember.observer('ruleset', function() {
 		this.set('propStates', [])
@@ -281,6 +287,7 @@ export default Ember.Controller.extend( {
 
 				ruleset.get( "rules" ).push( newRule );
 				ruleset.notifyPropertyChange( "rules" );
+                this.set('buttonStateChanged',true);
 			}
 
 
@@ -326,6 +333,7 @@ export default Ember.Controller.extend( {
 			if ( confirm( `Delete rule "${label}"?` ) ) {
 				rules.splice( ruleToDelete, 1 ); // Remove the rule.
 				this.get('model.ruleset').notifyPropertyChange( "rules" );
+                this.set('buttonStateChanged',true);
 			}
 		},
 
