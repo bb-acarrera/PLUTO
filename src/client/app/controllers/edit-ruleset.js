@@ -63,7 +63,7 @@ export default Ember.Controller.extend( {
 		return invalid;
 	}),
 
-	changed:  Ember.computed('propStates.@each.changed','buttonStateChanged', function() {
+	changed:  Ember.computed('propStates.@each.changed','buttonStateChanged', 'model.ruleset.dovalidate', function() {
 
 		let changed = false;
 
@@ -78,6 +78,10 @@ export default Ember.Controller.extend( {
           this.set('buttonStateChanged', false);
         }
 
+        let validate = this.get('model.ruleset.dovalidate');
+        if ( !validate && !(typeof validate == "undefined" || validate == null)) {
+			changed = true; //Always have this off if we are not validating
+		}
 		return changed;
 	}),
 

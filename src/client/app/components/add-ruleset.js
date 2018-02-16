@@ -57,10 +57,11 @@ export default Ember.Component.extend({
 			this.set('sourceConfig', {});
 			this.set('targetConfig', {});
 		},
-		addRuleset() {
+		addRuleset(validate = true) {
 
 
 			let source = this.get('source');
+			let doValidate =  (typeof validate === 'string')?(validate != "false"):true;
 
 			if(!source) {
 				alert('A source must be specified');
@@ -131,6 +132,8 @@ export default Ember.Component.extend({
 			if(!ruleset.name) {
 				ruleset.name = sourceConfig.file + ' from ' + (source.get('description') || source.get('rule_id'));
 			}
+
+			ruleset.dovalidate = doValidate;
 
 
 			var xmlHttp = new XMLHttpRequest();

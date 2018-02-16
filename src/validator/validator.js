@@ -337,41 +337,43 @@ class Validator {
 				}
 			}
 
-			ruleset.rules.forEach((ruleConfig) => {
-				let rule = this.getRule(ruleConfig);
+			if (ruleset.dovalidate == true || typeof ruleset.dovalidate == "undefined" || ruleset.dovalidate == null) {
+                ruleset.rules.forEach( ( ruleConfig ) => {
+                    let rule = this.getRule( ruleConfig );
 
-				if(rule.getSetupRule) {
-					const setup = rule.getSetupRule();
-					if(setup) {
-						rules.push(setup);
-					}
+                    if ( rule.getSetupRule ) {
+                        const setup = rule.getSetupRule();
+                        if ( setup ) {
+                            rules.push( setup );
+                        }
 
-				}
+                    }
 
-				if(rule.getCleanupRule) {
-					const cleanup = rule.getCleanupRule();
-					if(cleanup) {
-						cleanupRules.push(cleanup);
-					}
+                    if ( rule.getCleanupRule ) {
+                        const cleanup = rule.getCleanupRule();
+                        if ( cleanup ) {
+                            cleanupRules.push( cleanup );
+                        }
 
-				}
+                    }
 
-				if(rule.structureChange) {
-					cleanupRules.forEach((cleanupRule) => {
-						rules.push(cleanupRule);
-					});
-					cleanupRules = [];
-				}
+                    if ( rule.structureChange ) {
+                        cleanupRules.forEach( ( cleanupRule ) => {
+                            rules.push( cleanupRule );
+                        } );
+                        cleanupRules = [];
+                    }
 
-				rules.push(rule);
+                    rules.push( rule );
 
-			});
+                } );
 
-			cleanupRules.forEach((cleanupRule) => {
-				rules.push(cleanupRule);
-			});
+                cleanupRules.forEach( ( cleanupRule ) => {
+                    rules.push( cleanupRule );
+                } );
 
-			this.executedRules = rules;
+                this.executedRules = rules;
+            }
 
 			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
 				this.abort = true;
