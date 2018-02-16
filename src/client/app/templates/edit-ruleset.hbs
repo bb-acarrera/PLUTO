@@ -253,6 +253,7 @@ Process URL: {{processURL}}
 
 	{{/if}}
 
+{{#if (not-eq model.ruleset.dovalidate false)}}
     <!-- parser -->
 	{{#edit-ruleset/collapse  as |c|}}
 
@@ -395,6 +396,9 @@ Process URL: {{processURL}}
 
 
 	{{/if}}
+{{else}}
+	File not validated!
+{{/if}}
 </div>
 
 {{#unless processing}}
@@ -415,14 +419,12 @@ Process URL: {{processURL}}
         Upload
 	{{/bs-button}}
 
-	{{#if (eq model.ruleset.dovalidate false)}}
-		File not validated!
-	{{else}}
-		{{#if changed}}
-			You must save your changes to use
-		{{/if}}
 
+	{{#if changed}}
+		You must save your changes to use
 	{{/if}}
+
+
 
 {{/unless}}
 

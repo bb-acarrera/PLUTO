@@ -78,9 +78,6 @@ export default Ember.Controller.extend( {
           this.set('buttonStateChanged', false);
         }
 
-        if ( this.get('model.ruleset.dovalidate') == false) {
-			changed = true; //Always have this off if we are not validating
-		}
 		return changed;
 	}),
 

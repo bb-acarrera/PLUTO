@@ -307,7 +307,7 @@ class Validator {
 
 		try {
 
-			if (!ruleset.rules || ruleset.rules.length == 0) {
+			if ((!ruleset.rules || ruleset.rules.length == 0) && ruleset.dovalidate !== false) {
 				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
 				this.finishRun();
 				return;
@@ -388,7 +388,7 @@ class Validator {
 
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
-				if (lastResult.index < rules.length && !validator.abort)
+				if (lastResult.index < rules.length && !validator.abort && rules.length > 0)
 					return rules[lastResult.index]._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
@@ -425,8 +425,8 @@ class Validator {
 					this.finishRun(lastResult ? lastResult.result : undefined);
 			});
 
-			if (!ruleset.rules || ruleset.rules.length == 0)
-				this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
+			// if (!ruleset.rules || ruleset.rules.length == 0 )
+			// 	this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
 
 		} catch(e) {
 			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
