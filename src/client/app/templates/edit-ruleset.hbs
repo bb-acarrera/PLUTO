@@ -415,8 +415,13 @@ Process URL: {{processURL}}
         Upload
 	{{/bs-button}}
 
-	{{#if changed}}
-		You must save your changes to use
+	{{#if (eq model.ruleset.dovalidate false)}}
+		File not validated!
+	{{else}}
+		{{#if changed}}
+			You must save your changes to use
+		{{/if}}
+
 	{{/if}}
 
 {{/unless}}

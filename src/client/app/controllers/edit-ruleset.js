@@ -78,8 +78,7 @@ export default Ember.Controller.extend( {
           this.set('buttonStateChanged', false);
         }
 
-        let validate = this.get('model.ruleset.dovalidate');
-        if ( !validate && !(typeof validate == "undefined" || validate == null)) {
+        if ( this.get('model.ruleset.dovalidate') == false) {
 			changed = true; //Always have this off if we are not validating
 		}
 		return changed;

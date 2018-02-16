@@ -337,7 +337,7 @@ class Validator {
 				}
 			}
 
-			if (ruleset.dovalidate == true || typeof ruleset.dovalidate == "undefined" || ruleset.dovalidate == null) {
+			if (ruleset.dovalidate !== false) {
                 ruleset.rules.forEach( ( ruleConfig ) => {
                     let rule = this.getRule( ruleConfig );
 
