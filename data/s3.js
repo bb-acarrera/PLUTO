@@ -25,6 +25,7 @@ program
 	.option('-u, --upload', 'Upload the local file to the remote file in the bucket. Mutually exclusive with (d,c).')
 	.option('-d, --download', 'Download the remote file in the bucket to the local file. Mutually exclusive with (u,c).')
 	.option('-n, --createNewBucket', 'Create the bucket. Mutually exclusive with (u,d).')
+	.option('-s, --list', 'List all the files in the remote folder, root of bucket if remote not set.')
 	.parse(process.argv);
 
 let defaultConfig = {
@@ -65,6 +66,8 @@ if(program.createNewBucket) {
 	resp = uploadFile(program.bucket, program.remote, program.local, config);
 } else if(program.download) {
 	resp = downloadFile(program.bucket, program.remote, program.local, config);
+} else if(program.list) {
+	resp = listFolder(program.bucket, program.remote, config);
 } else {
 	console.log('Nothing to do.')
 }
@@ -201,4 +204,113 @@ function uploadFile(bucket, remote, local, config) {
 
 	return true;
 
+}
+
+function listFolder(bucket, remote, config) {
+
+	if(!bucket) {
+		console.log('No bucket');
+		return false;
+	}
+
+	const s3 = new AWS.S3({
+		accessKeyId: config.accessKey,
+		secretAccessKey: config.accessSecretKey,
+		endpoint: config.endpoint,
+		sslEnabled: config.sslEnabled || false,
+		s3ForcePathStyle: config.forcePathStyle
+	});
+
+
+	ls(s3, bucket, remote, function(err, data) {
+		if (err) {
+			console.log(err, err.stack); // an error occurred
+			process.exit(1);
+		}
+
+		data.files.forEach((file) => {
+			if(file) {
+				console.log(file);
+			}
+
+		});
+
+		data.folders.forEach((folder) => {
+			if(folder) {
+				console.log(folder);
+			}
+
+		});           // successful response
+
+	});
+
+	return true;
+}
+
+function ls(s3, bucket, path, callback) {
+
+	if(!path) {
+		path = '';
+	}
+
+	var prefix = trimStart(trimEnd(path, '/') + '/', '/');
+	var result = {files: [], folders: []};
+
+	function s3ListCallback(error, data) {
+		if (error) return callback(error);
+
+		result.files = result.files.concat(data.Contents.map( x => x.Key !== prefix ? x.Key : null ));
+		result.folders = result.folders.concat(data.CommonPrefixes.map(x => x.Prefix));
+
+		if (data.IsTruncated) {
+			s3.listObjects({
+				Bucket: bucket,
+				MaxKeys: 2147483647, // Maximum allowed by S3 API
+				Delimiter: '/',
+				Prefix: prefix,
+				ContinuationToken: data.NextContinuationToken
+			}, s3ListCallback)
+		} else {
+			callback(null, result);
+		}
+	}
+
+	s3.listObjects({
+		Bucket: bucket,
+		MaxKeys: 2147483647, // Maximum allowed by S3 API
+		Delimiter: '/',
+		Prefix: prefix,
+		//StartAfter: prefix // removes the folder name from the file listing
+	}, s3ListCallback);
+}
+
+
+function trimStart(string, character) {
+
+	if(!string || !string.length) {
+		return string;
+	}
+
+	var startIndex = 0;
+
+	while (string[startIndex] === character && startIndex < string.length) {
+		startIndex++;
+	}
+
+	return string.substr(startIndex);
+}
+
+function  trimEnd(string, character) {
+
+	if(!string || !string.length) {
+		return string;
+	}
+
+	var endIndex = string.length - 1;
+
+	while (string[endIndex] === character && endIndex > 0) {
+		endIndex--;
+	}
+
+	return string.substr(0, endIndex+1);
 }
