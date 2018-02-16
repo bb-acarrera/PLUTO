@@ -12,6 +12,10 @@ cd ..
 
 docker network create -d bridge --subnet 192.168.0.0/24 --gateway 192.168.0.1 plutonet
 docker volume create pgdata
+
+docker stop pluto_db
+docker rm pluto_db
+
 docker run -v pgdata:/var/lib/postgresql/data -p $POSTGRES_PORT:5432 -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_DB=$POSTGRES_DATABASE --net=plutonet --name pluto_db -d postgres:9.6-alpine
 docker run -v $PWD/test_config:/opt/PLUTO/config --net=plutonet --rm -a stdout -a stderr pluto_dbloader:develop
 

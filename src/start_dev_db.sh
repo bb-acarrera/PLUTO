@@ -12,6 +12,10 @@ POSTGRES_DATABASE=$(node -pe "require('./validatorConfig.json').dbDatabase")
 cd ../../..
 
 docker volume create devpgdata
+
+docker stop dev_database
+docker rm dev_database
+
 docker run -v devpgdata:/var/lib/postgresql/data -p $POSTGRES_PORT:5432 -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_DB=$POSTGRES_DATABASE --name dev_database -d postgres:9.6-alpine
 
 cd database/dbloader
