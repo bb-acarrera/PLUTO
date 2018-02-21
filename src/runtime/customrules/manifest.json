@@ -6,6 +6,11 @@
       "filename":"validateColumnRegExPython",
       "script" : "../../../test_config/customRules/validateColumnRegEx.py",
       "executable" : "python"
+    },
+    {
+      "filename":"validateColumnRegExPythonDF",
+      "script" : "../../../test_config/customRules/validateColumnRegExDF.py",
+      "executable" : "python"
     }
   ],
   "importers" : [
