@@ -12,7 +12,12 @@
 		"filename":"ValidateZipFilenames",
 		"script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",
 		"executable" : "python"
-	  }
+	},
+	{
+      "filename":"validateColumnRegExPythonDF",
+      "script" : "/opt/PLUTO/config/customRules/validateColumnRegExDF.py",
+      "executable" : "python"
+    }
   ],
   "importers" : [
     {

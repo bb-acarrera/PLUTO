@@ -16,7 +16,7 @@ except IOError:
 	print("Failed to load the PythonAPI from \"" + plutoAPI + "\".", file=sys.stderr)
 	sys.exit(1)
 
-class ValidateColumnRegEx(api.PythonCSVRule):
+class ValidateColumnRegEx(api.PythonCSVDataframeRule):
 	def __init__(self, config):
 		super(ValidateColumnRegEx, self).__init__(config)
 	
@@ -30,32 +30,30 @@ class ValidateColumnRegEx(api.PythonCSVRule):
 		else:
 			self.prog = re.compile(self.config["regex"], re.UNICODE)
 		
-		self.columnIndex = self.getColumnIndex(self.config["column"])
+		self.columnName = self.config["column"]
 		
 		self.onError = self.config["onError"] if "onError" in self.config else 'warning'
-		
-	#processRecord is called once for each record in the csv
-	#returns the validated record, which can be modified, and return None to drop the record 
-	#  record is the array of column values
-	#  isHeaderRow is a boolean which is True if this row is in the csv header
-	#  rowNumber is the current line number of the csv, with 1 being the first row
-	def processRecord(self, record, isHeaderRow, rowNumber):
-		
-		if isHeaderRow:
-			return record
-		
-		value = record[self.columnIndex]
+
+	#processChunk is called once for each dataframe chunk, and should be overridden
+	#returns the validated dataframe chunk, which can be modified
+	#  dataframe is the dataframe
+	def processChunk(self, dataframe):
+	
+		dataframe.apply(lambda row: self.checkRegEx(row), axis=1)
+	
+		return dataframe
+	
+	def checkRegEx(self, row):
+		value = row[self.columnName]
 		
 		if (isinstance(value, unicode) or isinstance(value, str)) and self.prog.match(value) is None:
 			if self.onError == "error":
-				self.error(value + " does not match the regular expression", rowNumber)
+				self.error(value + " does not match the regular expression", row)
 			elif self.onError == "dropped":
-				self.dropped(value + " does not match the regular expression", rowNumber)
+				self.dropped(value + " does not match the regular expression", row)
 				return None
 			else:
-				self.warning(value + " does not match the regular expression", rowNumber)
-		
-		return record
+				self.warning(value + " does not match the regular expression", row)
 	
 	#finish is called at the end of processing, but before the file is closed
 	def finish(self):
