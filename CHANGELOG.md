@@ -14,7 +14,8 @@ To prevent validations from waiting indefinitely, a maximum run duration has bee
  * Switched Python CSV API to use Pandas to parse csv
  * Added a new Python base class which gives Pandas Dataframes instead of rows
  * Shutting down server will now clean-up running jobs gracefully
- * Fixed some instances where changing the validation won't force the user to save before testing or uploading 
+ * Fixed some instances where changing the validation won't force the user to save before testing or uploading
+ * Improved memory performance of Python CSV rules 
 
 ## 0.9.4
 #### New Features
