@@ -111,7 +111,7 @@ class PythonCSVRule(PythonAPIRule):
 			rowHeaderOffset = numHeaderRows + 1;
 			self.start()
 			
-			for chunk in pd.read_csv(src, chunksize = 10 ** 6, 
+			for chunk in pd.read_csv(src, chunksize = 10 ** 4, dtype='unicode',
 				delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote, encoding=encoding, header=None):
 				
 				rows = []
@@ -168,7 +168,7 @@ class PythonCSVRule(PythonAPIRule):
 		return
 
 class PythonCSVDataframeRule(PythonAPIRule):
-	def __init__(self, config, chunksize = 10 ** 6, header = 'infer'):
+	def __init__(self, config, chunksize = 10 ** 4, header = 'infer'):
 		super(PythonCSVDataframeRule, self).__init__(config)
 		self.header = header
 		self.chunksize = chunksize
@@ -203,7 +203,7 @@ class PythonCSVDataframeRule(PythonAPIRule):
 			self.start()
 			first = True
 			
-			for chunk in pd.read_csv(src, chunksize = self.chunksize, 
+			for chunk in pd.read_csv(src, chunksize = self.chunksize, dtype='unicode',
 				delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote, encoding=encoding, header=self.header):
 								
 				outDf = self.processChunk(chunk)
