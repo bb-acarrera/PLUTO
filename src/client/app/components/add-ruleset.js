@@ -83,7 +83,7 @@ export default Ember.Component.extend({
 
 			let parser = this.get('parser');
 
-			if(!parser) {
+			if(doValidate && !parser) {
 				if ( !confirm( 'Create without a parser? This cannot be changed once created.' ) ) {
 					return;
 				}
