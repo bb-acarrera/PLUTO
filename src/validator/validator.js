@@ -307,7 +307,7 @@ class Validator {
 
 		try {
 
-			if (!ruleset.rules || ruleset.rules.length == 0) {
+			if ((!ruleset.rules || ruleset.rules.length == 0) && ruleset.dovalidate !== false) {
 				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
 				this.finishRun();
 				return;
@@ -337,41 +337,43 @@ class Validator {
 				}
 			}
 
-			ruleset.rules.forEach((ruleConfig) => {
-				let rule = this.getRule(ruleConfig);
+			if (ruleset.dovalidate !== false) {
+                ruleset.rules.forEach( ( ruleConfig ) => {
+                    let rule = this.getRule( ruleConfig );
 
-				if(rule.getSetupRule) {
-					const setup = rule.getSetupRule();
-					if(setup) {
-						rules.push(setup);
-					}
+                    if ( rule.getSetupRule ) {
+                        const setup = rule.getSetupRule();
+                        if ( setup ) {
+                            rules.push( setup );
+                        }
 
-				}
+                    }
 
-				if(rule.getCleanupRule) {
-					const cleanup = rule.getCleanupRule();
-					if(cleanup) {
-						cleanupRules.push(cleanup);
-					}
+                    if ( rule.getCleanupRule ) {
+                        const cleanup = rule.getCleanupRule();
+                        if ( cleanup ) {
+                            cleanupRules.push( cleanup );
+                        }
 
-				}
+                    }
 
-				if(rule.structureChange) {
-					cleanupRules.forEach((cleanupRule) => {
-						rules.push(cleanupRule);
-					});
-					cleanupRules = [];
-				}
+                    if ( rule.structureChange ) {
+                        cleanupRules.forEach( ( cleanupRule ) => {
+                            rules.push( cleanupRule );
+                        } );
+                        cleanupRules = [];
+                    }
 
-				rules.push(rule);
+                    rules.push( rule );
 
-			});
+                } );
 
-			cleanupRules.forEach((cleanupRule) => {
-				rules.push(cleanupRule);
-			});
+                cleanupRules.forEach( ( cleanupRule ) => {
+                    rules.push( cleanupRule );
+                } );
 
-			this.executedRules = rules;
+                this.executedRules = rules;
+            }
 
 			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
 				this.abort = true;
@@ -386,7 +388,7 @@ class Validator {
 
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
-				if (lastResult.index < rules.length && !validator.abort)
+				if (lastResult.index < rules.length && !validator.abort && rules.length > 0)
 					return rules[lastResult.index]._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
@@ -423,8 +425,8 @@ class Validator {
 					this.finishRun(lastResult ? lastResult.result : undefined);
 			});
 
-			if (!ruleset.rules || ruleset.rules.length == 0)
-				this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
+			// if (!ruleset.rules || ruleset.rules.length == 0 )
+			// 	this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
 
 		} catch(e) {
 			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);

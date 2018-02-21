@@ -23,6 +23,7 @@ class RuleSet {
 		this.general = ruleset.general;
 		this.source = ruleset.source;
 		this.target = ruleset.target;
+		this.dovalidate = ruleset.dovalidate;
 
 		this.config = ruleset.config;
 

@@ -267,3 +267,15 @@ QUnit.test( "RuleSet: Creation Test rule error config", function(assert){
     assert.equal(ruleset.rules[0].config.warningsToAbort, 1, "Expected default warningsToAbort to be 1");
 
 });
+
+QUnit.test( "RuleSet: Creation Test dovalidate", function(assert){
+    const config = {
+        "name" : "testRuleSet",
+        "dovalidate" : true
+    };
+
+    const ruleset = new RuleSet(config);
+
+    assert.ok(ruleset.dovalidate, "RuleSet maintained dovalidate property");
+
+});

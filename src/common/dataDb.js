@@ -1796,6 +1796,8 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
     dbRuleset.update_user = row.update_user;
     dbRuleset.update_time = row.update_time;
 
+    dbRuleset.dovalidate = row.rules.dovalidate;
+
     if (dbRuleset.owner_group && !isAdmin && dbRuleset.owner_group !== group) {
         dbRuleset.canedit = false;
     } else {

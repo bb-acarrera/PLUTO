@@ -19,5 +19,6 @@ export default DS.Model.extend({
 	deleted: DS.attr('boolean'),
 	source: DS.attr(),
 	target: DS.attr(),
-	reporters: DS.attr()
+	reporters: DS.attr(),
+    dovalidate: DS.attr('boolean')
 });

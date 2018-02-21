@@ -751,4 +751,91 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
     });
 
+    QUnit.test( " End to End Validation skip Test", function(assert){
+        const logger = new ErrorLogger();
+        const config = {
+            __state : {
+                "_debugLogger" : logger,
+                "rootDirectory" : "./src",
+                "tempDirectory" : "./tmp"
+            },
+            "rulesDirectory" : "rules",
+            "inputDirectory" : "",
+            "outputDirectory" : "results",
+            "ruleset" : "Test Data Ruleset"
+        };
+
+        const done = assert.async();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            dovalidate: false, //This will skip test part of the validation.
+            rules : [
+                {
+                    filename : "CheckColumnCount",
+                    config : {
+                        id : 1,
+                        columns : 4
+                    }
+                }
+            ],
+            parser: {
+                filename: "CSVParser",
+                config: {
+                    numHeaderRows : 1
+                }
+            }
+        };
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.ok(log, "Expected log to be created");
+                assert.equal(log.length, 0, "Expected no warnings or errors");
+                assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+            },
+            done);
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
+    QUnit.test( " End to End Validation skip Test No Parser", function(assert){
+        const logger = new ErrorLogger();
+        const config = {
+            __state : {
+                "_debugLogger" : logger,
+                "rootDirectory" : "./src",
+                "tempDirectory" : "./tmp"
+            },
+            "rulesDirectory" : "rules",
+            "inputDirectory" : "",
+            "outputDirectory" : "results",
+            "ruleset" : "Test Data Ruleset"
+        };
+
+        const done = assert.async();
+
+        const ruleset = {
+            name : "Test Data Ruleset",
+            dovalidate: false, //This will skip test part of the validation.
+        };
+
+        const dbProxy = new DataProxy(ruleset,
+            (runId, log, ruleSetID, inputFile, outputFile) => {
+                assert.ok(log, "Expected log to be created");
+                assert.equal(log.length, 0, "Expected no warnings or errors");
+                assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+            },
+            done);
+
+        const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+        vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+    });
+
 });
