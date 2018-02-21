@@ -31,10 +31,10 @@
         </tr>
 		{{#each rulesets as |rulesetInstance index|}}
             <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
-                <td>{{rulesetInstance.ruleset.source.config.file}}</td>
-                <td>{{rulesetInstance.source.description}}</td>
-                <td>{{rulesetInstance.ownergroup}}</td>
-                <td>{{rulesetInstance.ruleset.name}}</td>
+                <td class="ellipsis">{{rulesetInstance.ruleset.source.config.file}}{{#bs-tooltip placement="left"}}{{rulesetInstance.ruleset.source.config.file}}{{/bs-tooltip}}</td>
+                <td class="ellipsis">{{rulesetInstance.source.description}}{{#bs-tooltip placement="left"}}{{rulesetInstance.source.description}}{{/bs-tooltip}}</td>
+                <td class="ellipsis">{{rulesetInstance.ownergroup}}{{#bs-tooltip placement="left"}}{{rulesetInstance.ownergroup}}{{/bs-tooltip}}</td>
+                <td class="ellipsis">{{rulesetInstance.ruleset.name}}{{#bs-tooltip placement="left"}}{{rulesetInstance.ruleset.name}}{{/bs-tooltip}}</td>
 
 				<td align="center">
 
