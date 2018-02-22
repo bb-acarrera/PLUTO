@@ -46,7 +46,7 @@ class ValidateColumnRegEx(api.PythonCSVRule):
 		
 		value = record[self.columnIndex]
 		
-		if self.prog.match(value) is None:
+		if (isinstance(value, unicode) or isinstance(value, str)) and self.prog.match(value) is None:
 			if self.onError == "error":
 				self.error(value + " does not match the regular expression", rowNumber)
 			elif self.onError == "dropped":

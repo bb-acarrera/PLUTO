@@ -5,14 +5,19 @@
   "rules": [
 	{
       "filename":"validateColumnRegExPython",
-      "script" : "validateColumnRegEx.py",
+      "script" : "/opt/PLUTO/config/customRules/validateColumnRegEx.py",
       "executable" : "python"
     },
     {
 		"filename":"ValidateZipFilenames",
 		"script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",
 		"executable" : "python"
-	  }
+	},
+	{
+      "filename":"validateColumnRegExPythonDF",
+      "script" : "/opt/PLUTO/config/customRules/validateColumnRegExDF.py",
+      "executable" : "python"
+    }
   ],
   "importers" : [
     {

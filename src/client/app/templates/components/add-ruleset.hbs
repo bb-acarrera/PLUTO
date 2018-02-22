@@ -76,7 +76,15 @@
 	{{#modal.footer}}
 		{{#bs-button onClick=(action modal.close)}}Cancel{{/bs-button}}
 
-		{{#bs-button type="success" onClick=(action  "addRuleset") disabled=invalid}}Continue{{/bs-button}}
+		{{#bs-dropdown as |dd|}}
+			{{#bs-button type="success" onClick=(action  "addRuleset" "true") disabled=invalid}}Continue{{/bs-button}}
+			{{#dd.button type="success"}}<span class="caret"></span>{{/dd.button}}
+			{{#dd.menu as |menudrops|}}
+				{{#menudrops.item}}
+					{{#bs-button type="danger" onClick=(action  "addRuleset" "false") disabled=invalid}}Continue without validation{{/bs-button}}
+				{{/menudrops.item}}
+			{{/dd.menu}}
+		{{/bs-dropdown}}
 
 
 	{{/modal.footer}}

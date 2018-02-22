@@ -9,6 +9,8 @@ import socket
 import sys
 import os
 
+import pandas as pd
+
 class PythonAPIRule(object):
 	def __init__(self, config):
 		self.config = config
@@ -80,7 +82,7 @@ class PythonCSVRule(PythonAPIRule):
 		super(PythonCSVRule, self).__init__(config)
 
 	def run(self, inputFile, outputFile, encoding):
-	
+			
 		if not "parserConfig" in self.config:
 			self.error("No parser configuration specified for PythonCSVRule")
 			return			
@@ -104,25 +106,26 @@ class PythonCSVRule(PythonAPIRule):
 
 		self.currentRow = None		
 				
-		# FIXME: Python 2 doesn't support encoding here.
 		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
 		
-			csvreader = csv.reader(
-				src, delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote)
-				
-			csvwriter = csv.writer(
-				dst, delimiter=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, lineterminator="\n")
-				
 			rowHeaderOffset = numHeaderRows + 1;
 			self.start()
 			
-			for row in csvreader:
-				isHeaderRow = csvreader.line_num < rowHeaderOffset
-				self.currentRow = row
-				updatedRecord = self.processRecord(row, isHeaderRow, csvreader.line_num)
-				if updatedRecord is not None:
-					csvwriter.writerow(updatedRecord)
-							
+			for chunk in pd.read_csv(src, chunksize = 10 ** 4, dtype='unicode',
+				delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote, encoding=encoding, header=None):
+				
+				rows = []
+				for index, row in enumerate(chunk.values.tolist()):
+					isHeaderRow = (index + 1) < rowHeaderOffset
+					self.currentRow = row
+					updatedRecord = self.processRecord(row, isHeaderRow, (index + 1))
+					if updatedRecord is not None:
+						rows.append(updatedRecord)
+				
+				outDf = pd.DataFrame(rows)
+				outDf.to_csv(dst, mode='a', index=False, header=False, 
+					sep=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, encoding=encoding)				
+			
 			self.currentRow = None
 			
 			#remove the extra newline the writer adds
@@ -163,9 +166,86 @@ class PythonCSVRule(PythonAPIRule):
 	#finish is called at the end of processing, but before the file is closed
 	def finish(self):
 		return
+
+class PythonCSVDataframeRule(PythonAPIRule):
+	def __init__(self, config, chunksize = 10 ** 4, header = 'infer'):
+		super(PythonCSVDataframeRule, self).__init__(config)
+		self.header = header
+		self.chunksize = chunksize
+
+	def run(self, inputFile, outputFile, encoding):
+			
+		if not "parserConfig" in self.config:
+			self.error("No parser configuration specified for PythonCSVRule")
+			return			
 	
+		if not "parserState" in self.config:
+			self.error("No parser state supplied to PythonCSVRule")
+			return
+	
+		delimiter = self.config["parserConfig"]["delimiter"].encode('ascii', 'replace') if "delimiter" in self.config["parserConfig"] else ","
+		escapechar = self.config["parserConfig"]["escape"].encode('ascii', 'replace') if "escape" in self.config["parserConfig"] else '"'
+		quotechar = self.config["parserConfig"]["quote"].encode('ascii', 'replace') if "quote" in self.config["parserConfig"] else '"'
+		numHeaderRows = int(self.config["parserConfig"]["numHeaderRows"]) if "numHeaderRows" in self.config["parserConfig"] else 1
+		
+		self.columnNames = self.config["parserState"]["columnNames"] if "columnNames" in self.config["parserState"] else []
+		self.rowIdColumnIndex = self.config["parserState"]["rowIdColumnIndex"] if "rowIdColumnIndex" in self.config["parserState"] else None
+		
+		doublequote = False
+		if escapechar == quotechar:
+			doublequote = True
+			escapechar = None
 
+		self.currentRow = None		
+				
+		with open(inputFile, 'rb') as src, open(outputFile, 'wb') as dst:
+		
+			self.start()
+			first = True
+			
+			for chunk in pd.read_csv(src, chunksize = self.chunksize, dtype='unicode',
+				delimiter=delimiter, quotechar=quotechar, escapechar=escapechar, doublequote=doublequote, encoding=encoding, header=self.header):
+								
+				outDf = self.processChunk(chunk)
+				outDf.to_csv(dst, mode='a', index=False, header=first, 
+					sep=delimiter, escapechar=escapechar, quotechar=quotechar, doublequote=doublequote, encoding=encoding)		
 
+				first = False
+			
+			#remove the extra newline the writer adds
+			dst.seek(-1, os.SEEK_END) # <---- 1 : len('\n')
+			dst.truncate()           
+			
+			self.finish()
+	
+	# override of base log class to get the correct line number
+	def log(self, level, problemFileName, ruleID, problemDescription, dataItemId):
+		
+		rowNumber = dataItemId.name
+		
+		if type(dataItemId).__name__ == "Series":
+			if hasattr(self, "rowIdColumnIndex") and self.rowIdColumnIndex is not None:
+				currentRow = dataItemId.values
+				if len(currentRow) > self.rowIdColumnIndex:
+					rowNumber = currentRow[self.rowIdColumnIndex]
+					problemDescription = problemDescription + " : Row " + str(rowNumber)
+			
+		super(PythonCSVDataframeRule, self).log(level, problemFileName, ruleID, problemDescription, rowNumber)
+	
+	#processChunk is called once for each dataframe chunk, and should be overridden
+	#returns the validated dataframe chunk, which can be modified
+	#  dataframe is the dataframe
+	def processChunk(self, dataframe):
+		return dataframe
+	
+	#start is called at the beginning of processing after the file is opened, and any property processing should happen here	
+	def start(self):
+		return
+	
+	#finish is called at the end of processing, but before the file is closed
+	def finish(self):
+		return
+		
 def loadConfigFromFile(filename):
 	try:
 		f = open(filename, 'r')

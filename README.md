@@ -75,11 +75,40 @@ If a custom importer is used as part of the [ruleset][ruleset], import configura
 ## Using the simulated S3
 
 Part of the test suite is a simulated S3 using Scality Zenko Cloudserver (scality/s3server on Docker hub), and the 
-S3Importer and S3Exporter can be configured to use it. The default access keys are:
+S3Importer and S3Exporter can be configured to use it. The default access keys and connection info are:
 
-user: accessKey1
+accessKey: accessKey1
+secretAccessKey: verySecretKey1
+host: localhost or http://localhost <-- ! no ssl/tls
+port: 8000
 
-password: verySecretKey1
+To upload the default data that's used by the sample validations, from a shell in the PLUTO folder:
+```bash
+# cd data
+# ./uploadDevData.sh
+```
+
+This script will create the `test` and `testoutput` buckets, and upload the sample data to the s3server container.
+
+The script uses the `s3.js` helper node script to perform these actions.  It can create buckets, upload files to and download files from the s3server container. Run:
+```bash
+# node s3.js -help
+```
+
+To get a list of the available actions.
+
+#### Uploading files via cloudExplorer
+Download the latest release from https://github.com/rusher81572/cloudExplorer, unzip and execute CloudExplorer.jar with Java.
+
+Create an account with:
+Access Key: accessKey1
+Secret Key: verySecretKey1
+Host URL: http://localhost
+Port: 8000
+Name: localhost s3
+
+Save this, then create 2 buckets (from Bucket->Create Bucket): `test` and `testoutput`
+Finally, put the data files in `src/examples/data` into the `test` bucket
 
 #### Uploading files via Cyberduck 
 

@@ -23,6 +23,8 @@ if(fs.existsSync("../../package.json")) {
 	version = require("../../package.json").version;
 }
 
+const doSaveErrors = false;
+
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {
 	constructor(config, validatorConfig, validatorConfigPath) {
@@ -32,15 +34,20 @@ class Server {
 		this.config.validatorConfig = validatorConfig;
 
 		this.config.data = Data(this.config.validatorConfig);
+		this.config.statusLog = [];
 		this.config.rulesLoader = new RuleLoader(this.config.validator.config.rulesDirectory);
 
 		this.port = this.config.Port || 3000;
 		this.rootDir = path.resolve(this.config.rootDirectory || this.config.validator.rootDirectory || ".");
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
+
+		this.config.runningJobs = [];
+		this.config.runMaximumDuration = this.config.runMaximumDuration || 600;
+
 		this.router = new Router(config);
+
 		this.assetsDirectory = path.resolve(this.rootDir, this.config.assetsDirectory || "public");
-
-
+		this.shuttingDown = false;
 
 		app.use(fileUpload());
 
@@ -51,7 +58,16 @@ class Server {
 		}));
 
 		// Set up the routing.
-		app.use(this.router.router);
+		app.use((req, res, next) => {
+
+			if(this.shuttingDown) {
+				res.statusMessage = 'Server is shutting down';
+				res.status(500).end();
+				return;
+			}
+
+			this.router.router(req, res, next)
+		});
 		app.use(express.static(this.assetsDirectory));
 
 		app.use(fallback('index.html', { root: this.assetsDirectory }));
@@ -59,20 +75,43 @@ class Server {
 		// TODO: Basic error handling. Make it a little less basic?
 		if (app.get('env') === 'development') {
 
-			app.use(function(err, req, res, next) {
+			app.use((err, req, res, next) => {
 				console.log(req.url + ': ' + err);
 				res.statusMessage = err.message || err;
 				res.status(err.status || 500).end();
 
+				var text = err.address +  " " + err.message + " on DEBUG";
+				this.saveError("error", text);
+
 			});
 
+		} else {
+
+            // production error handler
+            // no stacktraces leaked to user
+            app.use( ( err, req, res, next ) => {
+                res.statusMessage = err.message || err;
+                res.status( err.status || 500 ).end();
+
+                var text = err.address + " " + err.message + "";
+	            this.saveError("error", text);
+
+            } );
+        }
+	}
+
+	saveError(type, text) {
+
+		if(!doSaveErrors) {
+			return;
 		}
 
-		// production error handler
-		// no stacktraces leaked to user
-		app.use(function(err, req, res, next) {
-			res.statusMessage = err.message || err;
-			res.status(err.status || 500).end();
+		this.config.data.saveError(type, text, new Date()).then(() => {
+
+		}, () => {
+			this.config.statusLog.push({type: type, time: time, message: text});
+		}).catch(() => {
+			this.config.statusLog.push({type: type, time: time, message: text});
 		});
 	}
 
@@ -83,6 +122,33 @@ class Server {
 		var that = this;
 		app.listen(this.port, function () {
 			console.log(`Pluto server listening on port ${that.port}!`);
+		});
+	}
+
+	shutdown() {
+
+		console.log('Got shutdown request -- cleaning up running jobs...');
+		this.shuttingDown = true;
+
+
+		//since the array is modified on cleanup
+		const jobs = [];
+
+		this.config.runningJobs.forEach((job) => {
+			jobs.push(job);
+		});
+
+		const promises = [];
+
+		jobs.forEach((job) => {
+			promises.push(new Promise((resolve) => {
+				job.terminate(resolve);
+			}));
+		});
+
+		Promise.all(promises).then(() => {}, () =>{}).catch(() => {}).then(() => {
+			console.log('All jobs cleaned up -- shutting down');
+			process.exit(0);
 		});
 	}
 }
@@ -129,6 +195,16 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 
 	const server = new Server(serverConfig, validatorConfig, validatorConfigPath);
 	server.start();
+
+	process.on('SIGTERM', (signal) => {
+		console.log('Got SIGTERM: ' + signal);
+		server.shutdown();
+	});
+
+	process.on('SIGINT', (signal) => {
+		console.log('Got SIGINT: ' + signal);
+		server.shutdown();
+	});
 }
 
 module.exports = Server;

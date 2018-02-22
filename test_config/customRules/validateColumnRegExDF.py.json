@@ -1,0 +1,38 @@
+[
+	{
+		"name": "column",
+		"label": "Column",
+		"type": "column",
+		"tooltip": "The column to run the regular expression against."
+	},
+	{
+		"name": "regex",
+		"label": "Regular Expression",
+		"type": "string",
+		"tooltip": "The regular expression to use to validate the value.",
+		"validations": [
+			{
+				"length": {
+					"min": 1
+				}
+			}
+		]
+	},
+	{
+		"name": "onError",
+		"label": "Action on RegEx failure: ",
+		"type": "choice",
+		"choices": [
+			{"value":"error", "label":"Error"},
+			{"value":"warning", "label":"Warning"},
+			{"value":"dropped", "label":"Drop Row"}],
+		"tooltip": "What to do if the regular expression fails."
+	},
+	{
+		"shortdescription": "",
+		"longdescription": "",
+		"title": "Check Column Value w RegEx via Python Dataframe",
+		"changeFileFormat": false,
+		"parser": "CSVParser"
+	}
+]

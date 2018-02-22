@@ -9,6 +9,7 @@ const RunsRouter = require('./routes/runs');
 const ProcessFileRouter = require('./routes/processFile');
 const UserRouter = require('./routes/user');
 const ConfiguredRulesRouter = require('./routes/configuredRules');
+const StatusRouter = require('./routes/status');
 
 const base = '/api/v1';
 
@@ -23,6 +24,7 @@ class Router {
 		this.processFileRouter = new ProcessFileRouter(config);
 		this.userRouter = new UserRouter(config);
 		this.configuredRulesRouter = new ConfiguredRulesRouter(config);
+		this.statusRouter = new StatusRouter(config);
 
 
 
@@ -57,6 +59,8 @@ class Router {
         this._router.post(base+'/processfile', (req, res, next) => this.processFileRouter.post(req, res, next));
 		this._router.post(base+'/processfile/:id', (req, res, next) => this.processFileRouter.post(req, res, next));
 		this._router.post(base+'/processupload', (req, res, next) => this.processFileRouter.processUpload(req, res, next));
+
+        this._router.get(base+'/statuses', (req, res, next) => this.statusRouter.get(req, res, next) );
 	}
 
 	get router() {

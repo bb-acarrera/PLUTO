@@ -63,7 +63,7 @@ export default Ember.Controller.extend( {
 		return invalid;
 	}),
 
-	changed:  Ember.computed('propStates.@each.changed', function() {
+	changed:  Ember.computed('propStates.@each.changed','buttonStateChanged', 'model.ruleset.dovalidate', function() {
 
 		let changed = false;
 
@@ -73,9 +73,15 @@ export default Ember.Controller.extend( {
 			}
 		});
 
+		if (this.get('buttonStateChanged')) {
+          changed = true;
+          this.set('buttonStateChanged', false);
+        }
+
 		return changed;
 	}),
 
+	buttonStateChanged: false,
 
 	rulesetChanged: Ember.observer('ruleset', function() {
 		this.set('propStates', [])
@@ -116,6 +122,46 @@ export default Ember.Controller.extend( {
 		return columnNames;
 
 	}),
+
+	rules:  Ember.computed('model.ruleset.parser.filename', function() {
+
+		const parserId = this.get('model.ruleset.parser.filename');
+
+		const allRules = this.get('model.rules');
+		const parsers = this.get('model.parsers');
+
+		let curParserTypes = null;
+		parsers.forEach((parser)=>{
+			if(parserId == parser.get('filename')) {
+				curParserTypes = parser.get('types');
+			}
+		});
+
+		if(!allRules) {
+			return [];
+		}
+
+		let rules = [];
+
+		allRules.forEach((rule) => {
+			let parser = rule.get('requiredParser');
+			if(!parser || parser.length == 0) {
+				rules.push(rule);
+				return;
+			}
+
+			if(curParserTypes && curParserTypes.length > 0 &&
+				curParserTypes.contains(parser)) {
+
+				rules.push(rule);
+
+			}
+		});
+
+		return rules;
+
+	}),
+
 	processURL: Ember.computed('applicationController.currentUser.apiurl', 'model.ruleset.filename', function() {
 
 		const apiBase = this.get('applicationController.currentUser.apiurl');
@@ -241,6 +287,7 @@ export default Ember.Controller.extend( {
 
 				ruleset.get( "rules" ).push( newRule );
 				ruleset.notifyPropertyChange( "rules" );
+                this.set('buttonStateChanged',true);
 			}
 
 
@@ -286,6 +333,7 @@ export default Ember.Controller.extend( {
 			if ( confirm( `Delete rule "${label}"?` ) ) {
 				rules.splice( ruleToDelete, 1 ); // Remove the rule.
 				this.get('model.ruleset').notifyPropertyChange( "rules" );
+                this.set('buttonStateChanged',true);
 			}
 		},
 

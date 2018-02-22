@@ -29,7 +29,8 @@ For example:
 		"title": "Check Filename",
         "shortdescription": "Validate the name of the source file.",
 		"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-		"changeFileFormat": false
+		"changeFileFormat": false,
+		"parser": "CSVParser"
 	}
 ]
 ```
@@ -131,7 +132,8 @@ The descriptions object is used for describing the rule. It's expected propertie
 	"title": "Check Filename",
     "shortdescription": "Validate the name of the source file.",
 	"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-	"changeFileFormat": false
+	"changeFileFormat": false,
+    "parser": "CSVParser"
 }
 ```
 
@@ -146,6 +148,9 @@ A detailed description of the rule that will appear as an info icon.
 
 ### changeFileFormat
 Currently only used by external rules, setting this value to true will indicate that this rule will convert the file from one format to another (e.g. geojson to csv).  This is necessary so any parser-specific added data (e.g. original line numbers from the source csv) will be removed before this rule executes.
+
+### parser
+This property is used to restrict the list of rules available in a validation based on the parser the user has chosen (e.g. rules that require a csv file and no parser is set). The value should either be left out (if no parser is needed) or the name of a valid parser from the list of available parsers in the manifests.
 
 [externalProcessRules]: externalProcessRules.md
 [javascriptRules]: javascriptRules.md

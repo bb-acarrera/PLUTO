@@ -64,6 +64,9 @@ class Validator {
 		this.rulesetName = undefined;
 		this.ruleName = undefined;
 
+		this.runPollingInterval = this.config.runPollingInterval || 10;
+		this.runPollingTimeout = this.config.runMaximumDuration || 600;
+
 		this.updateConfig(this.config);
 
 		if(!Data) {
@@ -96,6 +99,7 @@ class Validator {
 
 			this.runId = runId;
 			console.log("runId:" + runId);
+			console.log("tempFolder:" + this.tempDir);
 
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride,
 				this.ruleLoader, undefined, undefined, undefined, true)
@@ -303,7 +307,7 @@ class Validator {
 
 		try {
 
-			if (!ruleset.rules || ruleset.rules.length == 0) {
+			if ((!ruleset.rules || ruleset.rules.length == 0) && ruleset.dovalidate !== false) {
 				this.warning("Ruleset \"" + this.rulesetName + "\" contains no rules.");
 				this.finishRun();
 				return;
@@ -311,41 +315,65 @@ class Validator {
 
 			let rules = [];
 			let cleanupRules = [];
-			ruleset.rules.forEach((ruleConfig) => {
-				let rule = this.getRule(ruleConfig);
 
-				if(rule.getSetupRule) {
-					const setup = rule.getSetupRule();
+			if(this.parserClass) {
+
+				this.updateConfig(this.parserConfig);
+
+				if(this.parserClass.getParserSetupRule) {
+					const setup = this.parserClass.getParserSetupRule(this.parserConfig);
 					if(setup) {
 						rules.push(setup);
 					}
 
 				}
 
-				if(rule.getCleanupRule) {
-					const cleanup = rule.getCleanupRule();
+				if(this.parserClass.getParserCleanupRule) {
+					const cleanup = this.parserClass.getParserCleanupRule(this.parserConfig);
 					if(cleanup) {
 						cleanupRules.push(cleanup);
 					}
 
 				}
+			}
 
-				if(rule.structureChange) {
-					cleanupRules.forEach((cleanupRule) => {
-						rules.push(cleanupRule);
-					});
-					cleanupRules = [];
-				}
+			if (ruleset.dovalidate !== false) {
+                ruleset.rules.forEach( ( ruleConfig ) => {
+                    let rule = this.getRule( ruleConfig );
 
-				rules.push(rule);
+                    if ( rule.getSetupRule ) {
+                        const setup = rule.getSetupRule();
+                        if ( setup ) {
+                            rules.push( setup );
+                        }
 
-			});
+                    }
 
-			cleanupRules.forEach((cleanupRule) => {
-				rules.push(cleanupRule);
-			});
+                    if ( rule.getCleanupRule ) {
+                        const cleanup = rule.getCleanupRule();
+                        if ( cleanup ) {
+                            cleanupRules.push( cleanup );
+                        }
 
-			this.executedRules = rules;
+                    }
+
+                    if ( rule.structureChange ) {
+                        cleanupRules.forEach( ( cleanupRule ) => {
+                            rules.push( cleanupRule );
+                        } );
+                        cleanupRules = [];
+                    }
+
+                    rules.push( rule );
+
+                } );
+
+                cleanupRules.forEach( ( cleanupRule ) => {
+                    rules.push( cleanupRule );
+                } );
+
+                this.executedRules = rules;
+            }
 
 			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
 				this.abort = true;
@@ -360,7 +388,7 @@ class Validator {
 
 			let validator = this;
 			Promise.resolve({result: {file: localFileName}, index: 0}).then(function loop(lastResult) {
-				if (lastResult.index < rules.length && !validator.abort)
+				if (lastResult.index < rules.length && !validator.abort && rules.length > 0)
 					return rules[lastResult.index]._run(lastResult.result).thenReturn(lastResult.index + 1).then(loop);
 				else
 					return lastResult;
@@ -397,8 +425,8 @@ class Validator {
 					this.finishRun(lastResult ? lastResult.result : undefined);
 			});
 
-			if (!ruleset.rules || ruleset.rules.length == 0)
-				this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
+			// if (!ruleset.rules || ruleset.rules.length == 0 )
+			// 	this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
 
 		} catch(e) {
 			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
@@ -436,7 +464,7 @@ class Validator {
 				throw(`Rule/Parser mistmatch. Rule ${ruleDescriptor} needs ${ruleClass.Parser} parser but ${this.parserConfig.name} is ${this.parserClass.Type}`);
 			}
 
-			this.updateConfig(this.parserConfig);
+
 
 			rule = new this.parserClass(this.parserConfig, ruleClass, config);
 		} else {
@@ -487,6 +515,87 @@ class Validator {
 	 * @private
 	 */
 	finishRun(results) {
+
+		if(!results) {
+			return this.finishRunImpl(results);
+		}
+
+		return new Promise((resolve) => {
+
+			const done = () => {
+				this.finishRunImpl(results).then(() => {
+					return resolve();
+				}, () => {
+					return resolve();
+				});
+			};
+
+			const waitForRunsCheck = () => {
+				this.data.getRuns(1, 1, {
+					isRunning: true,
+					rulesetExactFilter: this.currentRuleset.ruleset_id,
+					idLessThanFilter: this.runId,
+					showErrors: true,
+					showWarnings: true,
+					showNone: true,
+					showDropped: true,
+					showPassed: true,
+					showFailed: true
+				}, "runId").then((result) => {
+					if(result.rowCount > 0) {
+
+						const currTime = new Date();
+						const taskTime = result.runs[0].starttime;
+						const diff = Math.abs((taskTime.getTime() - currTime.getTime())/1000);
+
+						//give it another 30 seconds so the server has a chance to clean it up first
+						if(diff > this.runPollingTimeout + 30) {
+							this.cleanupOldRun(result.runs[0].id).then(() => {
+								//give it a couple of seconds in case an upstream one is actually running
+								setTimeout(waitForRunsCheck, this.runPollingInterval * 1000);
+							});
+						} else {
+							setTimeout(waitForRunsCheck, this.runPollingInterval * 1000);
+						}
+
+					} else {
+						done();
+					}
+
+				});
+			};
+
+			//check to see if there are any other instances of this rule running
+			waitForRunsCheck();
+
+		});
+
+	}
+
+	cleanupOldRun(runId) {
+		return new Promise((resolve) => {
+
+			const logger = new ErrorLogger();
+
+			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+				`Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`);
+
+			this.data.saveRunRecord(runId, logger.getLog(),
+				null, null, null, logger.getCounts(),
+				false, null, null, true)
+				.then(() => { //no-op
+				}, (error) => console.log('error cleaning up bad run: ' + error))
+				.catch((e) => console.log('Exception cleaning up bad run: ' + e))
+				.then(() => {
+					resolve();
+				});
+
+
+		});
+	}
+
+
+	finishRunImpl(results) {
 
 		return new Promise((resolve) => {
 			if (!this.running) {
@@ -623,7 +732,7 @@ class Validator {
 		return new Promise((resolve) => {
 
 			function postSave() {
-				if (this.reporter && !this.config.testOnly &&!this.config.skipped)
+				if (this.reporter && !this.config.testOnly && !this.skipped)
 					this.reporter.sendReport(this.currentRuleset, this.runId, this.abort);
 				this.cleanup();
 				resolve();
