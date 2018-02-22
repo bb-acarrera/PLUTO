@@ -23,6 +23,8 @@ if(fs.existsSync("../../package.json")) {
 	version = require("../../package.json").version;
 }
 
+const doSaveErrors = false;
+
 // The class which uses ExpressJS to serve the Ember client and handle data requests.
 class Server {
 	constructor(config, validatorConfig, validatorConfigPath) {
@@ -78,15 +80,8 @@ class Server {
 				res.statusMessage = err.message || err;
 				res.status(err.status || 500).end();
 
-				var type = "error";
 				var text = err.address +  " " + err.message + " on DEBUG";
-				var time =  new Date();
-                this.config.data.saveError(type, text, time).then(() => {
-                    req.body.version = rule.version;
-                    res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
-                }, (error) => {
-                    this.config.statusLog.push({type: type,time: time,message: text});
-                }).catch(next);
+				this.saveError("error", text);
 
 			});
 
@@ -98,17 +93,26 @@ class Server {
                 res.statusMessage = err.message || err;
                 res.status( err.status || 500 ).end();
 
-                var type = "error";
                 var text = err.address + " " + err.message + "";
-                var time = new Date();
-                this.config.data.saveError( type, text, time ).then( () => {
-                    req.body.version = rule.version;
-                    res.json( req.body );	// Need to reply with what we received to indicate a successful PATCH.
-                }, ( error ) => {
-                    this.config.statusLog.push( { type: type, time: time, message: text } );
-                } ).catch( next );
+	            this.saveError("error", text);
+
             } );
         }
+	}
+
+	saveError(type, text) {
+
+		if(!doSaveErrors) {
+			return;
+		}
+
+		this.config.data.saveError(type, text, new Date()).then(() => {
+
+		}, () => {
+			this.config.statusLog.push({type: type, time: time, message: text});
+		}).catch(() => {
+			this.config.statusLog.push({type: type, time: time, message: text});
+		});
 	}
 
 	/*
