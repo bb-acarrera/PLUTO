@@ -71,6 +71,13 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getCustomFields(req, res) {
+        // Send reporters.
+
+        res.json({
+            data: this.config.validatorConfig.customValidationFields
+        });
+    }
 
 }
 
