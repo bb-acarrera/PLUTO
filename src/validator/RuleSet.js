@@ -24,6 +24,7 @@ class RuleSet {
 		this.source = ruleset.source;
 		this.target = ruleset.target;
 		this.dovalidate = ruleset.dovalidate;
+		this.custom = ruleset.custom;
 
 		this.config = ruleset.config;
 
@@ -216,7 +217,13 @@ class RuleSet {
 		if(validatorConfig) {
 			addMissingReporters.call(this, validatorConfig.reporters);
 		}
+		if (!this.custom) {
+			this.custom = {};
+		}
 
+		if (!this.custom.config) {
+			this.custom.config = {};
+		}
 	}
 
 	// toJSON() {

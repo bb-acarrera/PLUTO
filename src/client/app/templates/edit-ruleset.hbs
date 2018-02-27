@@ -311,7 +311,7 @@ Process URL: {{processURL}}
 		{{#c.collapsable}}
 			{{component 'custom-property.property-list'
 						uiList=(compute (action "getUiProperties") model.custom model.ruleset.custom.filenam)
-						config=model.ruleset.general.config
+						config=model.ruleset.custom.config
 						disabled=disableEdit
 						validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.custom.filename)
 						state=propStates
