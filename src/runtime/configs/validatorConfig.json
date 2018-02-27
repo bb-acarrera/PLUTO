@@ -31,18 +31,10 @@
 
 	"customValidationFields": [
 		{
-			"id": 0,
-			"type": "customfield",
-			"attributes": {
-				"ui": {
-					"properties": [{
-						"name": "custom",
-						"label": "Column names",
-						"tooltip": "The names of the columns",
-						"type": "string"
-					}]
-				}
-			}
+		"name": "custom",
+		"label": "Custom Field",
+		"tooltip": "Custom Field",
+		"type": "string"
 		}
 	],
 
