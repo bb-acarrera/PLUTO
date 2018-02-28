@@ -120,11 +120,6 @@ The frequency (in seconds) that a run will check if older runs processing the sa
 The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
 
 ## Custom Fields
-Uses [Config Properties] to define a list of custom fields to add to the data.
+Additional fields that appear in the validation setup that can be used as meta-data or other information, but is ignored by the validation engine. Fields are specified as a list the same way fields are used by custom rules.  See the [Config Properties] page for details on the fields specification
 
-[Config Properties]: ruleUiConfig.md 
-
-## Custom Fields
-Uses [Config Properties] to define a list of custom fields to add to the data.
-
-[Config Properties]: ruleUiConfig.md 
+[Config Properties]: ruleUiConfig.md  

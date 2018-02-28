@@ -300,7 +300,7 @@ Process URL: {{processURL}}
 		{{/c.collapsable}}
 
 	{{/edit-ruleset/collapse}}
-
+{{/if}}
 	<!-- custom fields -->
 	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
@@ -321,6 +321,7 @@ Process URL: {{processURL}}
 
 	{{/edit-ruleset/collapse}}
 
+	{{#if (not-eq model.ruleset.dovalidate false)}}
 	<div class="section-header">Rules</div>
 
 	{{#each model.ruleset.rules as |ruleInstance index|}}
