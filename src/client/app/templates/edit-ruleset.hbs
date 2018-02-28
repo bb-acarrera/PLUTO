@@ -300,8 +300,28 @@ Process URL: {{processURL}}
 		{{/c.collapsable}}
 
 	{{/edit-ruleset/collapse}}
+{{/if}}
+	<!-- custom fields -->
+	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
+		{{#c.title}}
+			Additional Information
+		{{/c.title}}
 
+		{{#c.collapsable}}
+			{{component 'custom-property.property-list'
+						uiList=(compute (action "getUiProperties") model.custom model.ruleset.custom.filenam)
+						config=model.ruleset.custom.config
+						disabled=disableEdit
+						validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.custom.filename)
+						state=propStates
+						instanceName="custom"
+						columns=columns}}
+		{{/c.collapsable}}
+
+	{{/edit-ruleset/collapse}}
+
+	{{#if (not-eq model.ruleset.dovalidate false)}}
 	<div class="section-header">Rules</div>
 
 	{{#each model.ruleset.rules as |ruleInstance index|}}

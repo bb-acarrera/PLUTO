@@ -71,6 +71,21 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getCustomFields(req, res) {
+        // Send reporters.
+        var fields = {
+            "id": 0,
+            "type": "customfield",
+            "attributes": {
+                "ui": {
+                    "properties": this.config.validatorConfig.customValidationFields
+                }
+            }
+        };
+        res.json({
+            data: fields
+        });
+    }
 
 }
 
