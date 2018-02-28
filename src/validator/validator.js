@@ -95,7 +95,7 @@ class Validator {
 			throw e;
 		}
 
-		this.data.createRunRecord(this.config.ruleset).then((runId) => {
+		this.data.createRunRecord(this.config.ruleset, this.config.user, this.config.group).then((runId) => {
 
 			this.runId = runId;
 			console.log("runId:" + runId);
@@ -246,7 +246,7 @@ class Validator {
 				return;
 			} else if(!this.config.doMd5HashCheck) {
 				//update the hash
-				this.data.saveRunRecord(this.runId, null, null, null, null, null, null, null, hash)
+				this.data.saveRunRecord(this.runId, null, null, null, null, null, null, null, hash, this.config.user, this.config.group)
 					.then(()=>{},()=>{}).catch(()=>{}).then(() => {
 						resolve(true);
 					});
@@ -273,7 +273,7 @@ class Validator {
 				if(results.runs.length == 0) {
 					//no match, so we can proceed
 					//update the hash
-					this.data.saveRunRecord(this.runId, null, null, null, null, null, null, null, hash)
+					this.data.saveRunRecord(this.runId, null, null, null, null, null, null, null, hash, this.config.user, this.config.group)
 						.then(()=>{},()=>{}).catch(()=>{}).then(() => {
 							resolve(true);
 						});
@@ -582,7 +582,7 @@ class Validator {
 
 			this.data.saveRunRecord(runId, logger.getLog(),
 				null, null, null, logger.getCounts(),
-				false, null, null, true)
+				false, null, null, true, this.config.user, this.config.group)
 				.then(() => { //no-op
 				}, (error) => console.log('error cleaning up bad run: ' + error))
 				.catch((e) => console.log('Exception cleaning up bad run: ' + e))
@@ -747,7 +747,7 @@ class Validator {
 
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
 					this.currentRuleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
-					passed, this.summary, null, true)
+					passed, this.summary, null, true, this.config.user, this.config.group)
 					.then(() => { //no-op
 					}, (error) => console.log('error saving run: ' + error))
 					.catch((e) => console.log('Exception saving run: ' + e))

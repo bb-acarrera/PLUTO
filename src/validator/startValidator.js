@@ -33,6 +33,8 @@ program
     .option('-n, --inputname <string>', 'Filename to use in run record for reporting')
     .option('-t, --testOnly', 'Test the input. Do not upload or report results. Default false')
     .option('-h, --checkhash', 'Perform an md5 hash check of the last run of this ruleset. Default false')
+    .option('-u, --user <string>', 'User ID generating the request')
+    .option('-g, --group <string>', 'Group generating the request')
     .parse(process.argv);
 
 if (!program.config)
@@ -63,6 +65,9 @@ if (!config.ruleset)
 if(program.rulesetoverride) {
     config.rulesetOverride = program.rulesetoverride;
 }
+
+config.user = program.user;
+config.group = program.group;
 
 // Test the input file, ruleset, and config. Do not report the results. (But do save to the local file if given.)
 config.testOnly = program.testOnly;
