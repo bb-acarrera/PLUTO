@@ -42,7 +42,7 @@ class Server {
 		this.config.tempDir = Util.getRootTempDirectory(validatorConfig, this.rootDir);
 
 		this.config.runningJobs = [];
-		this.config.runMaximumDuration = this.config.runMaximumDuration || 600;
+		this.config.runMaximumDuration = this.config.validatorConfig.runMaximumDuration || 600;
 
 		this.router = new Router(config);
 

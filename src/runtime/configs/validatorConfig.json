@@ -39,5 +39,6 @@
 	],
 
 	"forceUniqueTargetFile": true,
-	"hideTestButtons": false
+	"hideTestButtons": false,
+	"runMaximumDuration": 600
 }
