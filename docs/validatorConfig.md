@@ -118,3 +118,13 @@ The frequency (in seconds) that a run will check if older runs processing the sa
 
 ## runMaximumDuration
 The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
+
+## Custom Fields
+Uses [Config Properties] to define a list of custom fields to add to the data.
+
+[Config Properties]: ruleUiConfig.md 
+
+## Custom Fields
+Uses [Config Properties] to define a list of custom fields to add to the data.
+
+[Config Properties]: ruleUiConfig.md 
