@@ -23,11 +23,15 @@ class RuleSet {
 		this.general = ruleset.general;
 		this.source = ruleset.source;
 		this.target = ruleset.target;
+
 		if(ruleset.dovalidate === false) {
 			this.dovalidate = false;
         } else {
 			this.dovalidate = true;
 		}
+    
+		this.custom = ruleset.custom;
+
 
 		this.config = ruleset.config;
 
@@ -220,7 +224,13 @@ class RuleSet {
 		if(validatorConfig) {
 			addMissingReporters.call(this, validatorConfig.reporters);
 		}
+		if (!this.custom) {
+			this.custom = {};
+		}
 
+		if (!this.custom.config) {
+			this.custom.config = {};
+		}
 	}
 
 	// toJSON() {
