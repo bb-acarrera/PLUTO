@@ -23,7 +23,11 @@ class RuleSet {
 		this.general = ruleset.general;
 		this.source = ruleset.source;
 		this.target = ruleset.target;
-		this.dovalidate = ruleset.dovalidate;
+		if(ruleset.dovalidate === false) {
+			this.dovalidate = false;
+        } else {
+			this.dovalidate = true;
+		}
 
 		this.config = ruleset.config;
 
