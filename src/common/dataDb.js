@@ -605,7 +605,7 @@ class data {
         } );
     }
 
-    createRunRecord ( ruleSetID ) {
+    createRunRecord ( ruleSetID, user, group ) {
 
         return new Promise((resolve, reject) => {
 
@@ -619,9 +619,9 @@ class data {
 
                 let date = new Date();
 
-                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime) " +
-                        "VALUES($1, $2, $3) RETURNING id", this.tables),
-                    [rulesetId, date, date])
+                this.db.query(updateTableNames("INSERT INTO {{runs}} (ruleset_id, starttime, finishtime, request_user, request_group) " +
+                        "VALUES($1, $2, $3, $4, $5) RETURNING id", this.tables),
+                    [rulesetId, date, date, user, group])
                     .then((result) => {
                         resolve(result.rows[0].id);
                     }, (error) => {
@@ -643,8 +643,10 @@ class data {
      * @param ruleset the ruleset used for this run
      * @param inputFile the name of the input file
      * @param outputFile the name of the output file
+     * @param user requesting this run
+     * @param group requesting this run
      */
-     saveRunRecord(runId, log, ruleset, inputFile, outputFile, logCounts, passed, summary, inputMd5, finished) {
+     saveRunRecord(runId, log, ruleset, inputFile, outputFile, logCounts, passed, summary, inputMd5, finished, user, group) {
 
         return new Promise((resolve, reject) => {
 
@@ -724,6 +726,19 @@ class data {
                 values.push(inputMd5);
                 valueStr += `input_md5 = $${values.length}`;
             }
+
+            if(user) {
+                extend();
+                values.push(user);
+                valueStr += `request_user = $${values.length}`;
+            }
+
+            if(group) {
+                extend();
+                values.push(group);
+                valueStr += `request_group = $${values.length}`;
+            }
+
 
             if(finished || passed != null) {
                 extend();
