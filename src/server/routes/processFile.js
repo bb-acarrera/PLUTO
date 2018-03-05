@@ -273,7 +273,11 @@ class ProcessFileRouter extends BaseRouter {
             });
 
             proc.on('exit', (code) => {
-                console.log('child process exited with code ' + code.toString());
+                if(code == null) {
+                    console.log('child process exited with out supplying a code.');
+                } else {
+                    console.log('child process exited with code ' + code.toString());
+                }
 
                 if(overrideFile) {
                     fs.unlink(overrideFile);
