@@ -1,0 +1,126 @@
+version: '3'
+services:
+  pluto_db:
+    image: postgres:9.6-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=pluto
+      - POSTGRES_DB=pluto
+
+  pluto_dbloader:
+    image: pluto_dbloader:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+
+  pluto_nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8001:8001
+      - 8002:8002
+      - 8003:8003
+      - 8004:8004
+
+  pluto_s3server:
+    image: scality/s3server
+    ports:
+      - 8000:8000
+
+  pluto_ws:
+    image: pluto:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+    ports:
+      - 3000:3000
+
+  # Ships all logs on a given node to elasticsearch
+  filebeat:
+    image: filebeat:1.0.0
+    environment:
+       - ELASTIC_HOST="http://elasticsearch:9200"
+       - KIBANA_HOST="http://kibana:5601"
+    volumes:
+       - /var/lib/docker/containers/:/var/lib/docker/containers:ro
+       - /var/run/docker.sock:/var/run/docker.sock:ro
+       # TODO Registry
+    depends_on:
+      - elasticsearch
+      - kibana
+    deploy:
+      mode: global  # Deploy one of these containers to each node in the swarm
+    networks:
+      - ebk
+
+  # Ships system and container metrics to elasticsearch
+  # Remove from stack if metrics are not needed
+  metricbeat:
+    image: metricbeat:1.0.0
+    environment:
+       - ELASTIC_HOST="http://elasticsearch:9200"
+       - KIBANA_HOST="http://kibana:5601"
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      #not supported on windows- /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: "-system.hostfs=/hostfs"
+    depends_on:
+      - elasticsearch
+      - kibana
+    deploy:
+      mode: global  # Deploy one of these containers to each node in the swarm
+    networks:
+      - ebk
+
+  # Stores all logs
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.1.1
+    environment:
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
+      - discovery.type=single-node
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - ebk
+
+  # Visualize the logs
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.1.1
+    ports:
+      - '5601:5601'
+    depends_on:
+      - elasticsearch
+    networks:
+      - ebk
+      - public
+
+  # Short-lived container configures ES by posting settings to it once started
+  configure-es:
+    image: configure-es:1.0.0
+    environment:
+       - ELASTIC_HOST=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - ebk
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+volumes:
+  pgdata:
+  es-data:
+
+networks:
+  ebk:
+    external: false
+  public:
+    external: true
+
