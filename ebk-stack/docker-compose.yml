@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  # Build and tag our custom filebeat container
+  filebeat:
+    build: filebeat
+    image: filebeat:1.0.0
+  
+  # Same with metricbeat
+  metricbeat:
+    build: metricbeat
+    image: metricbeat:1.0.0
+
+  # Same with metricbeat
+  configure-es:
+    build: configure
+    image: configure-es:1.0.0
