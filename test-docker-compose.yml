@@ -30,6 +30,9 @@ services:
     image: scality/s3server
     ports:
       - 8000:8000
+    volumes:
+      - s3-data:/usr/src/app/localData
+      - s3-meta:/usr/src/app/localMetadata
 
   pluto_ws:
     image: pluto:develop
@@ -55,6 +58,7 @@ services:
       mode: global  # Deploy one of these containers to each node in the swarm
     networks:
       - ebk
+    user: root
 
   # Ships system and container metrics to elasticsearch
   # Remove from stack if metrics are not needed
@@ -76,6 +80,7 @@ services:
       mode: global  # Deploy one of these containers to each node in the swarm
     networks:
       - ebk
+    user: root
 
   # Stores all logs
   elasticsearch:
@@ -117,6 +122,8 @@ services:
 volumes:
   pgdata:
   es-data:
+  s3-data:
+  s3-meta:
 
 networks:
   ebk:
