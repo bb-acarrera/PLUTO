@@ -1,9 +1,10 @@
 import Ember from 'ember';
+import moment from 'moment';
 
 function getIconClass() {
     let classes = "fa fa-calendar-o na-color";
     let good = "fa fa-calendar-check-o good-color";
-    let bad = "fa fa-calendar-times-o error-color";;
+    let bad = "fa fa-calendar-times-o error-color";
     let now = moment();
     //let lastupdate = moment(this.get('ruleset.ruleset.updatetime'));
 

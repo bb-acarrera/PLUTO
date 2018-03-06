@@ -39,6 +39,8 @@ class RuleSet {
 		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
+		this.lastuploadtime = ruleset.last_upload_time;
+		this.lastsuccesstime = ruleset.last_success_time;
 
 		if(ruleset.canedit != null) {
 			this.canedit = ruleset.canedit;
