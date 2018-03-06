@@ -22,4 +22,5 @@ export default DS.Model.extend({
 	reporters: DS.attr(),
     dovalidate: DS.attr('boolean'),
     custom: DS.attr(),
+    periodicity: DS.attr(),
 });

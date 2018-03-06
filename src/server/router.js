@@ -38,6 +38,7 @@ class Router {
 		this._router.get(base+'/rulesetconfiguis', (req, res, next) => this.rulesRouter.getRulesetConfigUI(req, res, next));
 		this._router.get(base+'/reporters', (req, res, next) => this.rulesRouter.getReporters(req, res, next));
         this._router.get(base+'/customfields', (req, res, next) => this.rulesRouter.getCustomFields(req, res, next));
+        this._router.get(base+'/periodicities', (req, res, next) => this.rulesRouter.getPeriodicity(req, res, next));
 
 		this._router.get(base+'/runs/:id', (req, res, next) => this.runsRouter.get(req, res, next));
 		this._router.get(base+'/runs', (req, res, next) => this.runsRouter.get(req, res, next));

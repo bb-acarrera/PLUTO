@@ -35,6 +35,7 @@ export default Ember.Route.extend(RulesetEmberizer, {
 					reporters: this.store.findAll('reporter'),
 					rulesetconfiguis: this.store.findAll('rulesetconfigui'),
                     custom: this.store.findAll('customfield'),
+                    periodicity: this.store.findAll('periodicity'),
 					source: source,
 					target: target,
 					defaultSources: this.store.query('configuredrule', {

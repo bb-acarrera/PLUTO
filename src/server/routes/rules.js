@@ -87,6 +87,39 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getPeriodicity(req, res) {
+        // Send reporters.
+        var fields = {
+            "id": 0,
+            "type": "periodicity",
+            "attributes": {
+                "ui": {
+                    "properties": [
+                        {
+                            name: 'frequency',
+                            label: 'Expected validation frequency: ',
+                            type: 'choice',
+                            choices: [
+                                'Daily',
+                                'Weekly',
+                                'Quarterly',
+                                'Annually'
+                            ]
+                        },
+                        {
+                            name: 'mustchange',
+                            label: 'File is expected to change: ',
+                            type: 'boolean'
+                        }
+                    ]
+                }
+            }
+        };
+        res.json({
+            data: fields
+        });
+    }
+
 }
 
 module.exports = RulesRouter;

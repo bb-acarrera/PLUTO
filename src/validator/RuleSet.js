@@ -31,6 +31,7 @@ class RuleSet {
 		}
     
 		this.custom = ruleset.custom;
+		this.periodicity = ruleset.periodicity;
 
 
 		this.config = ruleset.config;
@@ -231,6 +232,14 @@ class RuleSet {
 		if (!this.custom.config) {
 			this.custom.config = {};
 		}
+
+        if (!this.periodicity) {
+            this.periodicity = {};
+        }
+
+        if (!this.periodicity.config) {
+            this.periodicity.config = {};
+        }
 	}
 
 	// toJSON() {

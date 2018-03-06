@@ -151,6 +151,10 @@ tr.error-row {
 	color: #37a7ed;
 }
 
+.na-color {
+    color: lightgrey;
+}
+
 .no-icon {
   display: none;
 }
@@ -291,4 +295,9 @@ div.expand-controls {
     overflow: hidden;
     white-space: nowrap;
     text-align: left;
+}
+
+.input-cell
+{
+    width: 100%;
 }

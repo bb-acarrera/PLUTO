@@ -18,23 +18,43 @@
 
     <table id="rulesetTable" class="ruleset-table">
         <tr style="border-bottom: 1px solid grey;">
-            <td>{{input placeholder="File" value=fileFilter}}</td>
-            <td>{{input placeholder="Source" value=sourceDescriptionFilter}}</td>
-            <td>{{input placeholder="Owner" value=rulesetGroupFilter}}</td>
-            <td>{{input placeholder="Name" value=rulesetNameFilter}}</td>
+            <td>{{input placeholder="File" value=fileFilter class="input-cell"}}</td>
+            <td>{{input placeholder="Source" value=sourceDescriptionFilter class="input-cell"}}</td>
+            <td>{{input placeholder="Owner" value=rulesetGroupFilter class="input-cell"}}</td>
+            <td>{{input placeholder="Name" value=rulesetNameFilter class="input-cell"}}</td>
 
 			<td align="center">
-				Latest Run Results
+				<span class="input-cell">Latest Run Results</span>
 			</td>
-
+			<td class="icon-cell"><i class="fa fa-calendar"></i></td>
             <td/>
         </tr>
 		{{#each rulesets as |rulesetInstance index|}}
             <tr id="{{concat 'rulesetTableRow' index}}" class="rule-selectable">
-                <td class="ellipsis">{{rulesetInstance.ruleset.source.config.file}}{{#bs-tooltip placement="left"}}{{rulesetInstance.ruleset.source.config.file}}{{/bs-tooltip}}</td>
-                <td class="ellipsis">{{rulesetInstance.source.description}}{{#bs-tooltip placement="left"}}{{rulesetInstance.source.description}}{{/bs-tooltip}}</td>
-                <td class="ellipsis">{{rulesetInstance.ownergroup}}{{#bs-tooltip placement="left"}}{{rulesetInstance.ownergroup}}{{/bs-tooltip}}</td>
-                <td class="ellipsis">{{rulesetInstance.ruleset.name}}{{#bs-tooltip placement="left"}}{{rulesetInstance.ruleset.name}}{{/bs-tooltip}}</td>
+                <td class="ellipsis">
+					{{rulesetInstance.ruleset.source.config.file}}
+					{{#if rulesetInstance.ruleset.source.config.file}}
+						{{#bs-tooltip placement="right"}}{{rulesetInstance.ruleset.source.config.file}}{{/bs-tooltip}}
+					{{/if}}
+				</td>
+                <td class="ellipsis">
+					{{rulesetInstance.source.description}}
+					{{#if rulesetInstance.source.description}}
+						{{#bs-tooltip placement="left"}}{{rulesetInstance.source.description}}{{/bs-tooltip}}
+					{{/if}}
+				</td>
+                <td class="ellipsis">
+					{{rulesetInstance.ownergroup}}
+					{{#if rulesetInstance.ownergroup}}
+						{{#bs-tooltip placement="left"}}{{rulesetInstance.ownergroup}}{{/bs-tooltip}}
+					{{/if}}
+				</td>
+                <td class="ellipsis">
+					{{rulesetInstance.ruleset.name}}
+					{{#if rulesetInstance.ruleset.name}}
+						{{#bs-tooltip placement="left"}}{{rulesetInstance.ruleset.name}}{{/bs-tooltip}}
+					{{/if}}
+				</td>
 
 				<td align="center">
 
@@ -57,22 +77,32 @@
 					{{/if}}
 				</td>
 
+				<td class="icon-cell">
+
+				{{#periodicity-icon ruleset=rulesetInstance runcounts=rulesetInstance.run.details}}
+					{{#if rulesetInstance.timestatus}}
+						{{#bs-tooltip placement="left"}}{{rulesetInstance.timestatus}}{{/bs-tooltip}}
+					{{/if}}
+				{{/periodicity-icon}}
+
+				</td>
                 <td align="right">
+					<div class="btn-group">
+						{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
+							Upload
+							{{#bs-tooltip placement="top"}}Run validation and upload file{{/bs-tooltip}}
+						{{/bs-button}}
 
-					{{#bs-button onClick=(action "runRuleset" rulesetInstance.ruleset) disabled=rulesetInstance.run.processing }}
-						Upload
-						{{#bs-tooltip placement="top"}}Run validation and upload file{{/bs-tooltip}}
-					{{/bs-button}}
+						{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
+							Clone
+							{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
+						{{/bs-button}}
 
-					{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
-						Clone
-						{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
-					{{/bs-button}}
-
-					{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
-						{{#bs-tooltip placement="left"}}Edit Validation Setup{{/bs-tooltip}}
-						Edit
-					{{/link-to}}
+						{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
+							{{#bs-tooltip placement="left"}}Edit Validation Setup{{/bs-tooltip}}
+							Edit
+						{{/link-to}}
+					</div>
 
                 </td>
             </tr>
