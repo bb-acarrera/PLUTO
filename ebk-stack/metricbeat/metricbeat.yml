@@ -16,8 +16,8 @@ metricbeat.modules:
 setup.kibana:
    host: "http://kibana:5601"
 
-setup.dashboards:
-  enabled: true
+#setup.dashboards:
+#  enabled: true
 
 # Debugging purposes - log to stdout
 # output.console:
