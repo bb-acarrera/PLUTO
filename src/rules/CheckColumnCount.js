@@ -70,7 +70,6 @@ class CheckColumnCount extends TableRuleAPI {
 
 	static get ConfigDefaults() {
 		return this.appendDefaults({
-			columns: 9
 		});
 	}
 
