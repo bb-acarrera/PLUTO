@@ -292,3 +292,19 @@ div.expand-controls {
     white-space: nowrap;
     text-align: left;
 }
+
+.ruleset-reporter-title
+{
+	font-weight: bold;
+}
+
+.ruleset-reporter-config
+{
+	position: relative;
+	right: -15px;
+}
+
+.ruleset-reporter
+{
+	margin-bottom: 10px;
+}

@@ -333,7 +333,9 @@ function addReporters(reporters) {
 			const dstReporter = {};
 			dstReporter.config = srcReporter.config;
 			dstReporter.filename = srcReporter.filename;
-
+			dstReporter.title = srcReporter.title;
+			dstReporter.sendOn = srcReporter.sendOn;
+			dstReporter.configId = srcReporter.configId;
 
 			this.reporters.push(dstReporter);
 		}
@@ -348,15 +350,29 @@ function  addMissingReporters(validatorConfigReporters) {
 
 		validatorConfigReporters.forEach((reporter) => {
 
-			let hasReporter = this.reporters.filter((rulesetReporter) => {
-					return rulesetReporter.filename === reporter.filename;
-				}).length > 0;
+			let reporterConfig = this.reporters.find((rulesetReporter) => {
+					return rulesetReporter.configId === reporter.id;
+				});
 
-			if(!hasReporter) {
+			if(!reporterConfig) {
+				reporterConfig = this.reporters.find((rulesetReporter) => {
+					return rulesetReporter.filename === reporter.filename && (rulesetReporter.configId == null || reporter.id == null);
+				});
+			}
+
+
+			if(!reporterConfig) {
 				this.reporters.push({
 					filename: reporter.filename,
+					title: reporter.title,
+					sendOn: reporter.sendOn,
+					configId: reporter.id,
 					config: {}
 				})
+			} else {
+				reporterConfig.title = reporter.title;
+				reporterConfig.sendOn = reporter.sendOn;
+				reporterConfig.configId = reporter.id;
 			}
 		});
 	}

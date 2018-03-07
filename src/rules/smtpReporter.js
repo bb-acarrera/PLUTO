@@ -74,7 +74,12 @@ class SmtpReporter extends ReporterAPI {
 				name: 'email',
 				label: 'Email',
 				type: 'string',
-				tooltip: 'The email to send validator results to for this file.'
+				tooltip: 'The email to send validator results to for this file.',
+				validations: [
+					{
+						presence: true
+					}
+				]
 			}
 		];
 	}
