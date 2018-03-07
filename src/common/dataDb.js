@@ -1188,7 +1188,12 @@ class data {
                 countWhere = join + ' ' + countWhere;
             }
 
-            let rulesetsQuery = this.db.query(updateTableNames( "SELECT {{currentRuleset}}.* FROM {{currentRuleset}} " + where + " " +
+            let rulesetsQuery = this.db.query(updateTableNames( "SELECT {{currentRuleset}}.*, " +
+                "(SELECT MAX({{runs}}.finishtime) FROM {{runs}} INNER JOIN {{rulesets}} as b ON {{runs}}.ruleset_id = b.id " +
+                    "WHERE b.ruleset_id = {{currentRuleset}}.ruleset_id AND {{runs}}.passed = true AND ({{runs}}.summary->>'exported')::boolean = true) as last_upload_time, " +
+                "(SELECT MAX({{runs}}.finishtime) FROM {{runs}} INNER JOIN {{rulesets}} as b ON {{runs}}.ruleset_id = b.id " +
+                    "WHERE b.ruleset_id = {{currentRuleset}}.ruleset_id AND {{runs}}.passed = true) as last_success_time " +
+                "FROM {{currentRuleset}} " + where + " " +
                 "ORDER BY {{currentRuleset}}.id DESC LIMIT $1 OFFSET $2", this.tables ), values );
 
             let countQuery = this.db.query( updateTableNames( "SELECT count(*) FROM {{currentRuleset}} " + countWhere, this.tables ), countValues );
@@ -1725,13 +1730,27 @@ function getRuleset(db, ruleset_id, version, dbId, tables, getDeleted) {
 
     return new Promise( ( resolve, reject ) => {
 
-        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted FROM ';
+        let query = 'SELECT rules, id, ruleset_id, version, owner_group, update_user, update_time, deleted, ';
         let values = [];
 
         if(dbId != null || version != null || getDeleted) {
-            query += '{{rulesets}} ';
+
+            query +=
+                "(SELECT MAX({{runs}}.finishtime) FROM {{runs}} " +
+                    "WHERE {{runs}}.ruleset_id = {{rulesets}}.id AND {{runs}}.passed = true AND ({{runs}}.summary->>'exported')::boolean = true) as last_upload_time, " +
+                "(SELECT MAX({{runs}}.finishtime) FROM {{runs}} " +
+                    "WHERE {{runs}}.ruleset_id = {{rulesets}}.id AND {{runs}}.passed = true) as last_success_time ";
+
+            query += 'FROM {{rulesets}} ';
         } else {
-            query += '{{currentRuleset}}';
+
+            query +=
+                "(SELECT MAX({{runs}}.finishtime) FROM {{runs}} INNER JOIN {{rulesets}} as b ON {{runs}}.ruleset_id = b.id " +
+                    "WHERE b.ruleset_id = {{currentRuleset}}.ruleset_id AND {{runs}}.passed = true AND ({{runs}}.summary->>'exported')::boolean = true) as last_upload_time, " +
+                "(SELECT MAX({{runs}}.finishtime) FROM {{runs}} INNER JOIN {{rulesets}} as b ON {{runs}}.ruleset_id = b.id " +
+                    "WHERE b.ruleset_id = {{currentRuleset}}.ruleset_id AND {{runs}}.passed = true) as last_success_time ";
+
+            query += 'FROM {{currentRuleset}}';
         }
 
         if(dbId) {
@@ -1820,6 +1839,10 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
     }
 
     dbRuleset.deleted = row.deleted;
+
+    dbRuleset.last_upload_time = row.last_upload_time;
+    dbRuleset.last_success_time = row.last_success_time;
+
 
     return new RuleSet(dbRuleset, ruleLoader);
 }

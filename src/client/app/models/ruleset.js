@@ -23,4 +23,7 @@ export default DS.Model.extend({
     dovalidate: DS.attr('boolean'),
     custom: DS.attr(),
     periodicity: DS.attr(),
+	lastuploadtime: DS.attr('date'),
+	lastsuccesstime: DS.attr('date')
+
 });
