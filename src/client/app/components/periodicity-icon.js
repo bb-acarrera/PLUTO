@@ -14,9 +14,10 @@ function getIconClass() {
 
     let frequency = this.get('ruleset.ruleset.periodicity.config.frequency');
     if(!frequency) {
-        this.set('ruleset.timestatus', "This ruleset has no timed validation requirements.");
+        this.set('ruleset.timestatus', "This validation does not have an expected update frequency.");
         return classes;
     }
+
 
     if(mustchange) {
         lastsuccess = lastupload;
@@ -28,34 +29,40 @@ function getIconClass() {
     // }
 
     if(!lastsuccess) {
-        this.set('ruleset.timestatus', "No run was performed on a file with " + frequency + " validation requirement!");
+        this.set('ruleset.timestatus', "This validation has an expected update of " + frequency.toLowerCase() + " but has never been uploaded.");
         return bad;
     }
+
+	let dateStr = lastsuccess.format('MMMM Do YYYY, h:mm:ss a');
 
     let days = now.diff(lastsuccess, "days");
     let months = now.diff(lastsuccess, "months");
 
+	let badMsg = "This validation is out of date. It is expected to update " + frequency.toLowerCase() + " but was last successfully processed on " + dateStr;
+	let badMsgMustChange = "This validation is out of date. It is expected to update and be changed " + frequency.toLowerCase() + " but was last uploaded on " + dateStr;
+	let goodMsg = "This validation was successfully processed within the expected updated frequency (" + frequency.toLowerCase() + ").";
+
     let setDayTooltip = ()=> {
         if(classes === bad) {
-            if(mustchange) {
-                this.set( 'ruleset.timestatus', "Latest successful unique run with " + frequency + " validation requirement was last ran " + (days + 1) + " days ago." );
+			if(mustchange) {
+                this.set( 'ruleset.timestatus', badMsgMustChange + " (" + (days + 1) + " days ago)." );
             } else {
-                this.set( 'ruleset.timestatus', "Latest successful run with " + frequency + " validation requirement was last ran " + (days + 1) + " days ago." );
+                this.set( 'ruleset.timestatus', badMsg + " (" + (days + 1) + " days ago)." );
             }
         } else {
-            this.set('ruleset.timestatus', "All validations passed.");
+            this.set('ruleset.timestatus', goodMsg);
         }
     };
 
     let setMonthTooltip = () => {
         if(classes === bad) {
             if (mustchange) {
-                this.set( 'ruleset.timestatus', "Latest successful  unique run with " + frequency + " validation requirement was last ran " + (months + 1) + " months ago." );
+                this.set( 'ruleset.timestatus', badMsgMustChange + " (" + (months + 1) + " months ago)." );
             } else {
-                this.set( 'ruleset.timestatus', "Latest successful run with " + frequency + " validation requirement was last ran " + (months + 1) + " months ago." );
+                this.set( 'ruleset.timestatus', badMsg + " (" + (months + 1) + " months ago)." );
             }
         } else {
-            this.set('ruleset.timestatus', "All validations passed.");
+            this.set('ruleset.timestatus', goodMsg);
         }
     };
 

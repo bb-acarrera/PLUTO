@@ -97,7 +97,7 @@ class RulesRouter extends BaseRouter {
                     "properties": [
                         {
                             name: 'frequency',
-                            label: 'Expected validation frequency: ',
+                            label: 'Expected update frequency: ',
                             type: 'choice',
                             choices: [
                                 'Daily',
