@@ -75,7 +75,7 @@ class CheckRowCount extends TableRuleAPI {
 	}
 
 	static get ConfigProperties() {
-		return this.appendConfigProperties([
+		return [
 			{
 				name: 'minWarningThreshold',
 				type: 'integer',
@@ -136,7 +136,7 @@ class CheckRowCount extends TableRuleAPI {
 					}
 				]
 			}
-		]);
+		];
 	}
 
 	static get ConfigDefaults() {
