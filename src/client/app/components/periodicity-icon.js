@@ -6,7 +6,11 @@ function getIconClass() {
     let good = "fa fa-calendar-check-o good-color";
     let bad = "fa fa-calendar-times-o error-color";
     let now = moment();
-    //let lastupdate = moment(this.get('ruleset.ruleset.updatetime'));
+
+    let lastsuccess = moment(this.get('ruleset.ruleset.lastsuccesstime'));//last time a file was successfully processed (either skipped or uploaded)
+    let lastupload = moment(this.get('ruleset.ruleset.lastuploadtime'));//last time a file was uploaded (not skipped)
+
+    let mustchange = this.get('ruleset.ruleset.periodicity.config.mustchange');
 
     let frequency = this.get('ruleset.ruleset.periodicity.config.frequency');
     if(!frequency) {
@@ -14,33 +18,30 @@ function getIconClass() {
         return classes;
     }
 
-    if (!this.get('runcounts.passed')) {
-        this.set('ruleset.timestatus', "Last run failed.");
-        return bad;
+    if(mustchange) {
+        lastsuccess = lastupload;
     }
 
-    let lastrun_det = this.get('runcounts.time');
+    // if (!this.get('runcounts.passed')) {
+    //     this.set('ruleset.timestatus', "Last run failed.");
+    //     return bad;
+    // }
 
-    if(!lastrun_det) {
+    if(!lastsuccess) {
         this.set('ruleset.timestatus', "No run was performed on a file with " + frequency + " validation requirement!");
         return bad;
     }
 
-    let days = now.diff(lastrun_det, "days");
-    let months = now.diff(lastrun_det, "months");
-
-
-    let mustchange = this.get('ruleset.ruleset.periodicity.config.mustchange');
-    let didnotchange = this.get('runcounts.summary.wasskipped');
-
-    if (mustchange && didnotchange) {
-        this.set('ruleset.timestatus', "The file did not change during last run as was required!");
-        return bad;
-    }
+    let days = now.diff(lastsuccess, "days");
+    let months = now.diff(lastsuccess, "months");
 
     let setDayTooltip = ()=> {
         if(classes === bad) {
-            this.set('ruleset.timestatus', "Latest run with " + frequency + " validation requirement was last ran " + (days + 1) + " days ago");
+            if(mustchange) {
+                this.set( 'ruleset.timestatus', "Latest successful unique run with " + frequency + " validation requirement was last ran " + (days + 1) + " days ago." );
+            } else {
+                this.set( 'ruleset.timestatus', "Latest successful run with " + frequency + " validation requirement was last ran " + (days + 1) + " days ago." );
+            }
         } else {
             this.set('ruleset.timestatus', "All validations passed.");
         }
@@ -48,7 +49,11 @@ function getIconClass() {
 
     let setMonthTooltip = () => {
         if(classes === bad) {
-            this.set('ruleset.timestatus', "Latest run with " + frequency + " validation requirement was last ran " + (months + 1) + " days ago");
+            if (mustchange) {
+                this.set( 'ruleset.timestatus', "Latest successful  unique run with " + frequency + " validation requirement was last ran " + (months + 1) + " months ago." );
+            } else {
+                this.set( 'ruleset.timestatus', "Latest successful run with " + frequency + " validation requirement was last ran " + (months + 1) + " months ago." );
+            }
         } else {
             this.set('ruleset.timestatus', "All validations passed.");
         }
