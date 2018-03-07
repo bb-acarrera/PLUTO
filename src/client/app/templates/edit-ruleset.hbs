@@ -31,7 +31,7 @@ Process URL: {{processURL}}
 	</div>
 
     <!-- Reporting -->
-	{{#edit-ruleset/collapse as |c| }}
+	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
 		{{#c.title}}
             Notification
@@ -45,8 +45,9 @@ Process URL: {{processURL}}
 				disabled=disableEdit
 				columns=columns
 				validators=(compute (action "getUiValidators") model.reporters reporterInstance.filename)
-				state=ruleValidationStates
+				state=propStates
 				instanceName=reporterInstance.filename
+				validateOnInit=true
 				}}
 			{{/each}}
 
@@ -255,7 +256,7 @@ Process URL: {{processURL}}
 
 {{#if (not-eq model.ruleset.dovalidate false)}}
     <!-- parser -->
-	{{#edit-ruleset/collapse  as |c|}}
+	{{#edit-ruleset/collapse collapsed=false as |c|}}
 
 		{{#c.title}}
             Parser:
@@ -276,6 +277,7 @@ Process URL: {{processURL}}
 			disabled=disableEdit
 			validators=(compute (action "getUiValidators") model.parsers model.ruleset.parser.filename)
 			state=propStates
+			validateOnInit=true
 			instanceName="import"
 			columns=columns}}
 		{{/c.collapsable}}
@@ -296,6 +298,7 @@ Process URL: {{processURL}}
 			validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.general.filename)
 			state=propStates
 			instanceName="generalConfig"
+			validateOnInit=true
 			columns=columns}}
 		{{/c.collapsable}}
 
@@ -315,6 +318,7 @@ Process URL: {{processURL}}
 						disabled=disableEdit
 						validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.custom.filename)
 						state=propStates
+						validateOnInit=true
 						instanceName="custom"
 						columns=columns}}
 		{{/c.collapsable}}
