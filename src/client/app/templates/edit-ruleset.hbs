@@ -39,16 +39,35 @@ Process URL: {{processURL}}
 
 		{{#c.collapsable}}
 			{{#each model.ruleset.reporters as |reporterInstance|}}
-				{{component 'custom-property.property-list'
-				uiList=(compute (action "getUiProperties") model.reporters reporterInstance.filename)
-				config=(get reporterInstance "config")
-				disabled=disableEdit
-				columns=columns
-				validators=(compute (action "getUiValidators") model.reporters reporterInstance.filename)
-				state=propStates
-				instanceName=reporterInstance.filename
-				validateOnInit=true
-				}}
+				<div class="ruleset-reporter">
+					<div>
+						<span class="ruleset-reporter-title">{{reporterInstance.title}}</span>
+						<span>
+							-
+							{{#if (eq reporterInstance.sendOn "failed")}}
+								Sent on Error only
+							{{else if (eq reporterInstance.sendOn "warned")}}
+                                Sent on Error, Warning, or Dropped
+							{{else}}
+								Sent always
+							{{/if}}
+						</span>
+
+					</div>
+					<div class="ruleset-reporter-config">
+						{{component 'custom-property.property-list'
+						uiList=(compute (action "getUiProperties") model.reporters reporterInstance.filename)
+						config=(get reporterInstance "config")
+						disabled=disableEdit
+						columns=columns
+						validators=(compute (action "getUiValidators") model.reporters reporterInstance.filename)
+						state=propStates
+						instanceName=reporterInstance.filename
+						validateOnInit=true
+						}}
+                    </div>
+				</div>
+
 			{{/each}}
 
 		{{/c.collapsable}}

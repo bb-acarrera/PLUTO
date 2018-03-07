@@ -9,7 +9,6 @@ class Reporter {
 		this.rulesetConfig = rulesetConfig;
 		this.errorLogger = errorLogger;
 
-		this.reporters = [];
 		this.reporterInitPromises = [];
 
 		if(validatorConfig && validatorConfig.reporters) {
@@ -29,8 +28,11 @@ class Reporter {
 
 				if(reporterClass) {
 					let reporter = new reporterClass(reporterConfig.config, rulesetReporterConfig ? rulesetReporterConfig.config : null);
-					this.reporters.push(reporter);
-					this.reporterInitPromises.push(reporter.initialize());
+					this.reporterInitPromises.push({
+						promise: reporter.initialize(),
+						reporterConfig: reporterConfig,
+						reporter: reporter
+					});
 				}
 
 
@@ -46,8 +48,8 @@ class Reporter {
 				return;
 			}
 
-			this.reporterInitPromises.forEach((promise) => {
-				promise.then((reporter) => {
+			this.reporterInitPromises.forEach((reporterWrapper) => {
+				reporterWrapper.promise.then(() => {
 
 				}, (e) => {
 					errorLogger.log(ErrorHandlerAPI.WARNING, this.constructor.name, undefined, e);
@@ -92,10 +94,10 @@ class Reporter {
 				}
 			}
 
-			this.reporterInitPromises.forEach((promise) => {
-				promise.then((reporter) => {
-
-					if(reporter) {
+			this.reporterInitPromises.forEach((reporterWrapper) => {
+				reporterWrapper.promise.then(() => {
+					let reporter = reporterWrapper.reporter;
+					if(reporter && doSendReport.call(this, reporterWrapper.reporterConfig, aborted)) {
 						reporter.sendReport(message.subject, message.body).then(() => {
 
 						}, (e) => {
@@ -126,6 +128,22 @@ class Reporter {
 
 }
 
+function doSendReport(reporterConfig, aborted) {
+
+	if(!reporterConfig || !reporterConfig.sendOn || reporterConfig.sendOn.length == 0 ||
+		reporterConfig.sendOn.toLowerCase() === 'always') {
+		return true;
+	} else if(reporterConfig.sendOn.toLowerCase() === 'failed') {
+		return aborted;
+	} else if(reporterConfig.sendOn.toLowerCase() === 'warned') {
+		const warnings = this.errorLogger.getCount(ErrorHandlerAPI.WARNING);
+		const dropped = this.errorLogger.getCount(ErrorHandlerAPI.DROPPED);
+
+		return warnings > 0 || dropped > 0;
+	}
+
+	return true;
+}
 
 function generateMessage(ruleset, runId, aborted) {
 
