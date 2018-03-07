@@ -292,3 +292,7 @@ div.expand-controls {
     white-space: nowrap;
     text-align: left;
 }
+
+.md5button {
+    width:100%;
+}

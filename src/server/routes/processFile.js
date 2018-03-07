@@ -51,6 +51,7 @@ class ProcessFileRouter extends BaseRouter {
         let outputFile;
         let importConfig;
         let test;
+        let skipMd5Check;
         let sourceFile;
 
         if(req.body) {
@@ -59,6 +60,7 @@ class ProcessFileRouter extends BaseRouter {
             importConfig = req.body.import;
             test = req.body.test;
             sourceFile = req.body.source_file;
+            skipMd5Check = req.body.skipMd5Check;
         }
 
         let prepProcessFile = () => {
@@ -84,7 +86,7 @@ class ProcessFileRouter extends BaseRouter {
 
             this.generateResponse(res, ruleset,
                 this.processFile(ruleset, importConfig, inputFile, outputFile, null,
-                    next, res, test, finishHandler, auth.user, auth.group));
+                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check));
         };
 
         if(sourceFile && !ruleset) {
@@ -200,7 +202,7 @@ class ProcessFileRouter extends BaseRouter {
         });
     }
 
-    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group) {
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
         return new Promise((resolve, reject) => {
 
             let scriptPath = path.resolve(rootFolder, 'validator');
@@ -253,6 +255,11 @@ class ProcessFileRouter extends BaseRouter {
             }  else {
                 execCmd += ' -h';
                 spawnArgs.push('-h');
+            }
+
+            if (skipMd5Check) {
+                execCmd += ' -s"';
+                spawnArgs.push('-s');
             }
 
             const options = {

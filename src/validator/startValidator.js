@@ -35,6 +35,7 @@ program
     .option('-h, --checkhash', 'Perform an md5 hash check of the last run of this ruleset. Default false')
     .option('-u, --user <string>', 'User ID generating the request')
     .option('-g, --group <string>', 'Group generating the request')
+    .option('-s, --skipmd5check', 'Skip MD5 checking')
     .parse(process.argv);
 
 if (!program.config)
@@ -68,6 +69,7 @@ if(program.rulesetoverride) {
 
 config.user = program.user;
 config.group = program.group;
+config.skipMd5Check = program.skipmd5check;
 
 // Test the input file, ruleset, and config. Do not report the results. (But do save to the local file if given.)
 config.testOnly = program.testOnly;
@@ -76,6 +78,10 @@ if(!config.testOnly && program.checkhash) {
 
     config.doMd5HashCheck = true;
 
+}
+
+if(config.skipMd5Check) {
+    config.doMd5HashCheck = false;
 }
 
 let dataAccess = Data;
