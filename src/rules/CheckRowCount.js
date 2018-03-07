@@ -141,10 +141,6 @@ class CheckRowCount extends TableRuleAPI {
 
 	static get ConfigDefaults() {
 		return this.appendDefaults({
-			minWarningThreshold: 5,
-			maxWarningThreshold: 25,
-			minErrorThreshold: 10,
-			maxErrorThreshold: 20
 		});
 	}
 
