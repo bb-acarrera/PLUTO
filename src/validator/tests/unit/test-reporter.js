@@ -4,6 +4,8 @@ const ErrorLogger = require("../../ErrorLogger");
 const Reporter = require("../../reporter");
 const ReporterAPI = require("../../../api/reporterAPI");
 
+const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
+
 class TestReporter extends ReporterAPI {
 	constructor(validatorConfig, rulesetConfig) {
 		super(validatorConfig, rulesetConfig);
@@ -489,6 +491,393 @@ QUnit.test( "sendReport: One initialize reject, one Successful", function(assert
 		})
 	});
 
+
+});
+
+
+QUnit.test( "sendReport: send on abort w/ abort", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'failed',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", true).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: send on abort wo/ abort", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'failed',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(!messageSent, "Expected message not to be sent");
+
+			done();
+
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: send on warned wo/ warning or dropped", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'warned',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(!messageSent, "Expected message not to be sent");
+
+			done();
+
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: send on warned w/ warning", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'warned',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+
+	logger.log(ErrorHandlerAPI.WARNING, "", 0, "Warning Description");
+
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: send on warned w/ dropped", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'warned',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+
+	logger.log(ErrorHandlerAPI.DROPPED, "", 0, "Dropped Description");
+
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
+
+
+});
+
+QUnit.test( "sendReport: send on warned w/ warning & dropped", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'warned',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+
+	logger.log(ErrorHandlerAPI.WARNING, "", 0, "Warning Description");
+	logger.log(ErrorHandlerAPI.DROPPED, "", 0, "Dropped Description");
+
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
+
+});
+
+QUnit.test( "sendReport: send on always", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'always',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", false).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
 
 });
 
