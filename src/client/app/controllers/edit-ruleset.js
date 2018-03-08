@@ -455,7 +455,7 @@ export default Ember.Controller.extend( {
 			return title;
 		},
 
-		runRuleset(test) {
+		runRuleset(test, skipMd5Check = false) {
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
 				if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -481,7 +481,8 @@ export default Ember.Controller.extend( {
 			let theUrl = apiBase + "/processFile/";
 			let theJSON = {
 				ruleset: this.get('model.ruleset.filename'),
-				test: test
+				test: test,
+				skipMd5Check: skipMd5Check
 			};
 
 
