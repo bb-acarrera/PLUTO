@@ -302,6 +302,10 @@ div.expand-controls {
     width: 100%;
 }
 
+.md5button {
+    width:100%;
+}
+
 .ruleset-reporter-title
 {
 	font-weight: bold;
@@ -317,3 +321,4 @@ div.expand-controls {
 {
 	margin-bottom: 10px;
 }
+
