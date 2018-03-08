@@ -122,4 +122,7 @@ The maximum amount of time (in seconds) a run can take to process a file. When e
 ## Custom Fields
 Additional fields that appear in the validation setup that can be used as meta-data or other information, but is ignored by the validation engine. Fields are specified as a list the same way fields are used by custom rules.  See the [Config Properties] page for details on the fields specification
 
+## maxConcurrentTasks
+Maximum number of allowed concurrent jobs. Cancels the incoming task and returns http error if exceeded. 
+
 [Config Properties]: ruleUiConfig.md  

@@ -40,5 +40,6 @@
 
 	"forceUniqueTargetFile": true,
 	"hideTestButtons": false,
-	"runMaximumDuration": 600
+	"runMaximumDuration": 600,
+	"maxConcurrentTasks": 10
 }
