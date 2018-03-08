@@ -3,6 +3,11 @@
 ## 0.9.6
 ### New Features
 
+####Better Reporters support
+ * added titles to each reporter
+ * added config option to limit when to send reports per reporter (only on fail, on fail or warning, always)
+ * added support for multiple reporters of the same type (e.g. multiple emails)
+
 ### Bug Fixes and Minor Improvements
 
 ## 0.9.5
