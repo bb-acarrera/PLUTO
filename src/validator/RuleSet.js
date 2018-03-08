@@ -23,17 +23,24 @@ class RuleSet {
 		this.general = ruleset.general;
 		this.source = ruleset.source;
 		this.target = ruleset.target;
+
 		if(ruleset.dovalidate === false) {
 			this.dovalidate = false;
         } else {
 			this.dovalidate = true;
 		}
+    
+		this.custom = ruleset.custom;
+		this.periodicity = ruleset.periodicity;
+
 
 		this.config = ruleset.config;
 
 		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
+		this.lastuploadtime = ruleset.last_upload_time;
+		this.lastsuccesstime = ruleset.last_success_time;
 
 		if(ruleset.canedit != null) {
 			this.canedit = ruleset.canedit;
@@ -220,7 +227,21 @@ class RuleSet {
 		if(validatorConfig) {
 			addMissingReporters.call(this, validatorConfig.reporters);
 		}
+		if (!this.custom) {
+			this.custom = {};
+		}
 
+		if (!this.custom.config) {
+			this.custom.config = {};
+		}
+
+        if (!this.periodicity) {
+            this.periodicity = {};
+        }
+
+        if (!this.periodicity.config) {
+            this.periodicity.config = {};
+        }
 	}
 
 	// toJSON() {
@@ -323,7 +344,9 @@ function addReporters(reporters) {
 			const dstReporter = {};
 			dstReporter.config = srcReporter.config;
 			dstReporter.filename = srcReporter.filename;
-
+			dstReporter.title = srcReporter.title;
+			dstReporter.sendOn = srcReporter.sendOn;
+			dstReporter.configId = srcReporter.configId;
 
 			this.reporters.push(dstReporter);
 		}
@@ -338,15 +361,29 @@ function  addMissingReporters(validatorConfigReporters) {
 
 		validatorConfigReporters.forEach((reporter) => {
 
-			let hasReporter = this.reporters.filter((rulesetReporter) => {
-					return rulesetReporter.filename === reporter.filename;
-				}).length > 0;
+			let reporterConfig = this.reporters.find((rulesetReporter) => {
+					return rulesetReporter.configId === reporter.id;
+				});
 
-			if(!hasReporter) {
+			if(!reporterConfig) {
+				reporterConfig = this.reporters.find((rulesetReporter) => {
+					return rulesetReporter.filename === reporter.filename && (rulesetReporter.configId == null || reporter.id == null);
+				});
+			}
+
+
+			if(!reporterConfig) {
 				this.reporters.push({
 					filename: reporter.filename,
+					title: reporter.title,
+					sendOn: reporter.sendOn,
+					configId: reporter.id,
 					config: {}
 				})
+			} else {
+				reporterConfig.title = reporter.title;
+				reporterConfig.sendOn = reporter.sendOn;
+				reporterConfig.configId = reporter.id;
 			}
 		});
 	}

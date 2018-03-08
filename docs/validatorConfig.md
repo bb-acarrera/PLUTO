@@ -73,11 +73,32 @@ more about building custom reporters (or other plugins) in the Plugins documenta
 { ...
     "reporters" : [
         {
-            "filename": "a reporter", //the name of the reporter as specified in the manifest
-            "config": {} //all the configuration specific to this reporter
+            "filename": "a reporter", 
+            "title": "Summary Email", 
+            "sendOn": "always", 
+            "id": 0,
+            "config": {} 
         }
     ]
 ```
+The properties are:
+#### filename
+The name of the reporter plugin to use, as specified in the manifest.  Pluto include "smtpReporter" to send emails to a SMTP server.
+
+#### config
+The custom configuration for the reporter plugin. See smtpReporter below for configurtion of the smtpReporter plugin.
+
+#### title
+The title to display in the UI for this reporter.
+
+#### sendOn
+By default, Pluto will always send a report.  This property specifies when to send reports:
+ * "always": Always send a report (default)
+ * "failed": Only send reports if the processing job failed
+ * "warned": Send reports if the processing job failed, or if there were warnings or dropped rows
+ 
+## id
+A unique value to use for the reporters, so Pluto can properly hook up the UI properties to this config. Only needed if there are multiple reporters of the same plugin.
 
 ### smtpReporter
 The smtpReporter is a reporter plugin included with the default PLUTO that can be used to send email summaries of processed
@@ -88,6 +109,9 @@ files. The configuration in validatorConfig.json should look like:
     "reporters": [
 		{
 			"filename": "smtpReporter",
+			"title": "Summary Email",
+			"sendOn": "always",
+			"id": 0,
 			"config": {
 				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
 				"smtpConfig": {}
@@ -118,3 +142,8 @@ The frequency (in seconds) that a run will check if older runs processing the sa
 
 ## runMaximumDuration
 The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
+
+## Custom Fields
+Additional fields that appear in the validation setup that can be used as meta-data or other information, but is ignored by the validation engine. Fields are specified as a list the same way fields are used by custom rules.  See the [Config Properties] page for details on the fields specification
+
+[Config Properties]: ruleUiConfig.md  

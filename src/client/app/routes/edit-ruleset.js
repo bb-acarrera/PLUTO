@@ -29,11 +29,15 @@ export default Ember.Route.extend(RulesetEmberizer, {
 				return RSVP.hash({
 					ruleset: ruleset,
 					parsers: this.store.findAll('parser'),
-					rules: this.store.findAll('rule'),
+					rules: this.store.findAll('rule').then((data)=>{
+						return data.sortBy('title');
+					}),
 					importers: this.store.findAll('importer'),
 					exporters: this.store.findAll('exporter'),
 					reporters: this.store.findAll('reporter'),
 					rulesetconfiguis: this.store.findAll('rulesetconfigui'),
+                    custom: this.store.findAll('customfield'),
+                    periodicity: this.store.findAll('periodicity'),
 					source: source,
 					target: target,
 					defaultSources: this.store.query('configuredrule', {

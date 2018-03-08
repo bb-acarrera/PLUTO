@@ -42,7 +42,7 @@ function convertModel(model, propertiesToConvert, arraysToConvert) {
 export default Ember.Mixin.create({
 	emberizeRuleset(ruleset) {
 		//Emberize the ruleset
-		const propertiesToConvert = ["import","export","config","parser","general", "source", "target"];
+		const propertiesToConvert = ["import","export","config","parser","general", "source", "target","custom","periodicity"];
 		const arraysToConvert = ["rules", "reporters"];
 
 		convertModel(ruleset, propertiesToConvert, arraysToConvert);

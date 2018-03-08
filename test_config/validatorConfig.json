@@ -18,5 +18,6 @@
 				"smtpConfig": {}
 			}
 		}
-	]
+	],
+	"runMaximumDuration": 600
 }

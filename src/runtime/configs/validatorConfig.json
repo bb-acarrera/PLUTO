@@ -29,6 +29,16 @@
 		}
 	],
 
+	"customValidationFields": [
+		{
+		"name": "custom",
+		"label": "Custom Field",
+		"tooltip": "Custom Field",
+		"type": "string"
+		}
+	],
+
 	"forceUniqueTargetFile": true,
-	"hideTestButtons": false
+	"hideTestButtons": false,
+	"runMaximumDuration": 600
 }

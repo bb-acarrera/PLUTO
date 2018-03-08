@@ -151,6 +151,10 @@ tr.error-row {
 	color: #37a7ed;
 }
 
+.na-color {
+    color: lightgrey;
+}
+
 .no-icon {
   display: none;
 }
@@ -283,3 +287,38 @@ div.expand-controls {
 .text-input {
     width: 100%;
 }
+
+.ellipsis
+{
+    direction: rtl;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.input-cell
+{
+    width: 100%;
+}
+
+.md5button {
+    width:100%;
+}
+
+.ruleset-reporter-title
+{
+	font-weight: bold;
+}
+
+.ruleset-reporter-config
+{
+	position: relative;
+	right: -15px;
+}
+
+.ruleset-reporter
+{
+	margin-bottom: 10px;
+}
+

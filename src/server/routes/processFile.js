@@ -38,6 +38,8 @@ class ProcessFileRouter extends BaseRouter {
 
         console.log('got processFile request');
 
+        const auth = this.getAuth(req);
+
         let ruleset = null;
         if(req.params.id) {
             ruleset = req.params.id;
@@ -49,6 +51,7 @@ class ProcessFileRouter extends BaseRouter {
         let outputFile;
         let importConfig;
         let test;
+        let skipMd5Check;
         let sourceFile;
 
         if(req.body) {
@@ -57,6 +60,7 @@ class ProcessFileRouter extends BaseRouter {
             importConfig = req.body.import;
             test = req.body.test;
             sourceFile = req.body.source_file;
+            skipMd5Check = req.body.skipMd5Check;
         }
 
         let prepProcessFile = () => {
@@ -82,7 +86,7 @@ class ProcessFileRouter extends BaseRouter {
 
             this.generateResponse(res, ruleset,
                 this.processFile(ruleset, importConfig, inputFile, outputFile, null,
-                    next, res, test, finishHandler));
+                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check));
         };
 
         if(sourceFile && !ruleset) {
@@ -198,7 +202,7 @@ class ProcessFileRouter extends BaseRouter {
         });
     }
 
-    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn) {
+    processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
         return new Promise((resolve, reject) => {
 
             let scriptPath = path.resolve(rootFolder, 'validator');
@@ -231,15 +235,29 @@ class ProcessFileRouter extends BaseRouter {
                     spawnArgs.push('-n');
                     spawnArgs.push(inputDisplayName);
                 }
+                if (user) {
+                    execCmd += ' -u "' + user + '"';
+
+                    spawnArgs.push('-u');
+                    spawnArgs.push(user);
+                }
+                if (group) {
+                    execCmd += ' -g "' + group + '"';
+
+                    spawnArgs.push('-g');
+                    spawnArgs.push(group);
+                }
             }
 
             if (test) {
                 execCmd += ' -t';
                 spawnArgs.push('-t');
-            }  else {
+            } else if (!skipMd5Check) {
                 execCmd += ' -h';
                 spawnArgs.push('-h');
             }
+
+
 
             const options = {
                 cwd: path.resolve('.')

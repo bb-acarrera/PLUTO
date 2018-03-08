@@ -1,5 +1,27 @@
 # PLUTO Change Log
 
+## 0.9.6
+### New Features
+
+#### Custom Validation Fields
+Added the ability to specify custom properties in the validator config that will appear as fields on the validations under a "Additional Information" section.
+
+#### Better Reporters support
+ * added titles to each reporter
+ * added config option to limit when to send reports per reporter (only on fail, on fail or warning, always)
+ * added support for multiple reporters of the same type (e.g. multiple emails)
+ 
+#### Basic Expected File Change Frequency
+Added two fields to the validation to allow users to specify how often the file is expected to update, and a new icon in the validation list showing if a file is out of date.
+
+### Bug Fixes and Minor Improvements
+ * Cleaned up some rule defaults
+ * Added user and group ids to runs for person who executed job
+ * Shorten text that is too long on lists
+ * Sorted the rules list alphabetically
+ * Fixed client validations not executing against new rules
+ * Some cleanup of the Validations page layout when the window is narrow
+
 ## 0.9.5
 ### New Features
 

@@ -20,5 +20,10 @@ export default DS.Model.extend({
 	source: DS.attr(),
 	target: DS.attr(),
 	reporters: DS.attr(),
-    dovalidate: DS.attr('boolean')
+    dovalidate: DS.attr('boolean'),
+    custom: DS.attr(),
+    periodicity: DS.attr(),
+	lastuploadtime: DS.attr('date'),
+	lastsuccesstime: DS.attr('date')
+
 });

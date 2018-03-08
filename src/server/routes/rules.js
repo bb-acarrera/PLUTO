@@ -71,6 +71,54 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getCustomFields(req, res) {
+        // Send reporters.
+        var fields = {
+            "id": 0,
+            "type": "customfield",
+            "attributes": {
+                "ui": {
+                    "properties": this.config.validatorConfig.customValidationFields
+                }
+            }
+        };
+        res.json({
+            data: fields
+        });
+    }
+
+    getPeriodicity(req, res) {
+        // Send reporters.
+        var fields = {
+            "id": 0,
+            "type": "periodicity",
+            "attributes": {
+                "ui": {
+                    "properties": [
+                        {
+                            name: 'frequency',
+                            label: 'Expected update frequency: ',
+                            type: 'choice',
+                            choices: [
+                                'Daily',
+                                'Weekly',
+                                'Quarterly',
+                                'Annually'
+                            ]
+                        },
+                        {
+                            name: 'mustchange',
+                            label: 'File is expected to change: ',
+                            type: 'boolean'
+                        }
+                    ]
+                }
+            }
+        };
+        res.json({
+            data: fields
+        });
+    }
 
 }
 
