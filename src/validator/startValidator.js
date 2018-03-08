@@ -68,7 +68,6 @@ if(program.rulesetoverride) {
 
 config.user = program.user;
 config.group = program.group;
-config.skipMd5Check = program.skipmd5check;
 
 // Test the input file, ruleset, and config. Do not report the results. (But do save to the local file if given.)
 config.testOnly = program.testOnly;
