@@ -31,6 +31,7 @@ class RuleSet {
 		}
     
 		this.custom = ruleset.custom;
+		this.periodicity = ruleset.periodicity;
 
 
 		this.config = ruleset.config;
@@ -38,6 +39,8 @@ class RuleSet {
 		this.ownergroup = ruleset.owner_group;
 		this.updateuser = ruleset.update_user;
 		this.updatetime = ruleset.update_time;
+		this.lastuploadtime = ruleset.last_upload_time;
+		this.lastsuccesstime = ruleset.last_success_time;
 
 		if(ruleset.canedit != null) {
 			this.canedit = ruleset.canedit;
@@ -231,6 +234,14 @@ class RuleSet {
 		if (!this.custom.config) {
 			this.custom.config = {};
 		}
+
+        if (!this.periodicity) {
+            this.periodicity = {};
+        }
+
+        if (!this.periodicity.config) {
+            this.periodicity.config = {};
+        }
 	}
 
 	// toJSON() {
