@@ -10,6 +10,9 @@ Added the ability to specify custom properties in the validator config that will
  * added titles to each reporter
  * added config option to limit when to send reports per reporter (only on fail, on fail or warning, always)
  * added support for multiple reporters of the same type (e.g. multiple emails)
+ 
+#### Basic Expected File Change Frequency
+Added two fields to the validation to allow users to specify how often the file is expected to update, and a new icon in the validation list showing if a file is out of date.
 
 ### Bug Fixes and Minor Improvements
  * Cleaned up some rule defaults
