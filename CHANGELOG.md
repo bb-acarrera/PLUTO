@@ -20,6 +20,7 @@ Added two fields to the validation to allow users to specify how often the file 
  * Shorten text that is too long on lists
  * Sorted the rules list alphabetically
  * Fixed client validations not executing against new rules
+ * Some cleanup of the Validations page layout when the window is narrow
 
 ## 0.9.5
 ### New Features
