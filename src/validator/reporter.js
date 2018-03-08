@@ -139,7 +139,7 @@ function doSendReport(reporterConfig, aborted) {
 		const warnings = this.errorLogger.getCount(ErrorHandlerAPI.WARNING);
 		const dropped = this.errorLogger.getCount(ErrorHandlerAPI.DROPPED);
 
-		return warnings > 0 || dropped > 0;
+		return aborted || warnings > 0 || dropped > 0;
 	}
 
 	return true;
