@@ -252,15 +252,12 @@ class ProcessFileRouter extends BaseRouter {
             if (test) {
                 execCmd += ' -t';
                 spawnArgs.push('-t');
-            }  else {
+            } else if (!skipMd5Check) {
                 execCmd += ' -h';
                 spawnArgs.push('-h');
             }
 
-            if (skipMd5Check) {
-                execCmd += ' -s"';
-                spawnArgs.push('-s');
-            }
+
 
             const options = {
                 cwd: path.resolve('.')
