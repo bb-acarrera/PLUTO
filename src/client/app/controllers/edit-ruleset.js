@@ -273,6 +273,7 @@ export default Ember.Controller.extend( {
 			if ( rule ) {
 				newRule = {};
 				newRule.filename = rule.get( "filename" );
+				newRule.newrule = true;
 
 				var uiConfig = rule.get( 'ui' ).properties;
 				var startingConfig = {};

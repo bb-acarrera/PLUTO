@@ -399,6 +399,7 @@ Process URL: {{processURL}}
 				columns=columns
 				validators=(compute (action "getUiValidators") model.rules ruleInstance.filename)
 				state=propStates
+				validateOnInit=ruleInstance.newrule
 				instanceName=(concat "rule" ruleInstance.filename)
 				}}
 			{{/c.collapsable}}
