@@ -1,0 +1,7 @@
+{
+"endpoint": "localhost:8000",
+"sslEnabled": false,
+"forcePathStyle": true,
+"accessKey": "accessKey1",
+"accessSecretKey": "verySecretKey1"
+}
