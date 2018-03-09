@@ -828,6 +828,60 @@ QUnit.test( "sendReport: send on warned w/ warning & dropped", function(assert){
 
 });
 
+QUnit.test( "sendReport: send on warned w/ abort", function(assert){
+
+	const done = assert.async();
+
+	const ruleset = {
+		filename: 'test',
+		ruleset_id: 'test',
+		reporters: [
+			{
+				filename: 'TestReporter',
+				config: {
+					test: 'test'
+				}
+			}
+		]
+	};
+
+	let messageSent = false;
+
+
+
+	const validatorCfg = {
+		configHost: "test",
+		reporters: [
+			{
+				filename: 'TestReporter',
+				sendOn: 'warned',
+				config: {
+					test: 'test',
+					sendReport: function(subject, body, resolve, reject) {
+
+						messageSent = true;
+						resolve();
+					}
+				}
+			}
+		]
+	};
+
+	const logger = new ErrorLogger();
+
+	const reporter = new Reporter(validatorCfg, ruleset, logger, RulesLoader);
+
+	reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+		reporter.sendReport(ruleset, "0", true).then(() => {
+			assert.ok(messageSent, "Expected message to be sent");
+
+			done();
+
+		})
+	});
+
+});
+
 QUnit.test( "sendReport: send on always", function(assert){
 
 	const done = assert.async();
