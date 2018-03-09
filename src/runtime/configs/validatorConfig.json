@@ -15,6 +15,8 @@
 	"reporters": [
 		{
 			"filename": "smtpReporter",
+			"title": "Test Email",
+			"id": 0,
 			"config": {
 				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
 				"smtpConfig": {
@@ -31,10 +33,52 @@
 
 	"customValidationFields": [
 		{
-		"name": "custom",
-		"label": "Custom Field",
-		"tooltip": "Custom Field",
-		"type": "string"
+			"name": "summary",
+			"label": "Data Summary",
+			"tooltip": "Brief description of this data",
+			"type": "string"
+		},
+		{
+			"name": "source",
+			"label": "Source",
+			"tooltip": "Where did this data come from?",
+			"type": "string"
+		},
+		{
+			"name": "contact",
+			"label": "Contact details",
+			"tooltip": "Who to contact if there are problems?",
+			"type": "string"
+		},
+		{
+			"name": "type",
+			"label": "Data Type",
+			"tooltip": "Who to contact if there are problems?",
+			"type": "choice",
+			"choices": [
+				{"value":"csv", "label":"CSV"},
+				{"value":"excel", "label":"Excel Spreadsheet"},
+				{"value":"shapefile", "label":"Shapefile"},
+				{"value":"geojson", "label":"GeoJSON"}
+			]
+		},
+		{
+			"name": "code",
+			"label": "Code",
+			"tooltip": "Code",
+			"type": "integer"
+		},
+		{
+			"name": "public",
+			"label": "Public",
+			"tooltip": "Public",
+			"type": "boolean"
+		},
+		{
+			"name": "reviewed",
+			"label": "Last Reviewed",
+			"tooltip": "Last Reviewed",
+			"type": "date"
 		}
 	],
 

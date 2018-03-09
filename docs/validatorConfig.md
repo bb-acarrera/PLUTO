@@ -27,7 +27,16 @@ some other information.  The sample config looks like:
 	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
 	"rootDirectory" : "/opt/PLUTO/config",
 	"runPollingInterval": 10,
-	"runMaximumDuration": 600
+	"runMaximumDuration": 600,
+	"customValidationFields": [
+        {
+            "name": "custom",
+            "label": "Custom Field",
+            "tooltip": "Custom Field",
+            "type": "string"
+        }
+    ],
+    "forceUniqueTargetFile": true
 }
 ```
 
@@ -143,7 +152,31 @@ The frequency (in seconds) that a run will check if older runs processing the sa
 ## runMaximumDuration
 The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
 
-## Custom Fields
-Additional fields that appear in the validation setup that can be used as meta-data or other information, but is ignored by the validation engine. Fields are specified as a list the same way fields are used by custom rules.  See the [Config Properties] page for details on the fields specification
+## customValidationFields
+Additional fields that appear in the validation setup (under Additional Information) that can be used as meta-data or other information, but is ignored by the validation engine.   
+
+```
+{ ...
+    "customValidationFields": [
+        {
+            "name": "custom",
+            "label": "Custom Field",
+            "tooltip": "Custom Field",
+            "type": "string"
+        },
+        {
+            "name": "custom2",
+            "label": "Custom Field 2",
+            "tooltip": "Custom Field 2",
+            "type": "integer"
+        }
+    ],
+}
+```
+Each field is an object in the customValidationFields array, with the properties describing the field. See the Config Properties section of the [Config Properties] page for details on the fields specification.
+
+
+## forceUniqueTargetFile
+If set to true, each validation must have a unique target file name across all uploads, and users will get an error if they attempt to create a duplicate.
 
 [Config Properties]: ruleUiConfig.md  

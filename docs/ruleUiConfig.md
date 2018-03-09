@@ -3,9 +3,9 @@
 In order for users to be able to configure rules in a validation/ruleset basic information (e.g. title, description, etc.) as well as per-property information. There are differences in how this is down for JavaScript rules and external rules, but most of the structure is the same.
 
 ## JavaScript Rules
-The differenct aspects of the configuration (descriptions, config properties, and config defaults) are exposed through three static functions on the class. Details on building JavaScript rules can be found [here][javascriptRules].
+The different aspects of the configuration (descriptions, config properties, and config defaults) are exposed through three static functions on the class. Details on building JavaScript rules can be found [here][javascriptRules].
 
-## External Rules
+## External Rules 
 For an external process rule the description of the rule's UI is done within a separate JSON file. Details on how to map an external rule to the configuration file can be found [here][externalProcessRules]. The json should be an array of objects, with one object for each config property, plus a final object containing the descriptions.
 
 For example:
