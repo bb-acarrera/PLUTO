@@ -28,6 +28,7 @@ example request
 class ProcessFileRouter extends BaseRouter {
     constructor(config) {
         super(config);
+        this.processCount = 0;
     }
 
     post(req, res, next) {
@@ -188,11 +189,15 @@ class ProcessFileRouter extends BaseRouter {
                 runId: runId
             })
         }, (err) => {
-            res.json({
-                status: 'Failed to start: ' + err,
-                ruleset: ruleset,
-                runId: null
-            });
+            if (err ==="too many tasks") {
+                res.status(429).send("Too many tasks are currently in progress");
+            } else {
+                res.json({
+                    status: 'Failed to start: ' + err,
+                    ruleset: ruleset,
+                    runId: null
+                });
+            }
         }).catch((e) => {
             res.json({
                 status: 'Failed to start: ' + e,
@@ -291,7 +296,12 @@ class ProcessFileRouter extends BaseRouter {
 
             };
 
-            this.config.runningJobs.push({terminate:terminate});
+            if(!this.config.validatorConfig.maxConcurrentTasks || this.config.runningJobs.length < this.config.validatorConfig.maxConcurrentTasks) {
+                this.config.runningJobs.push({terminate:terminate});
+            } else {
+                reject("too many tasks");
+            }
+
 
             const timeoutId = setTimeout(runTimeout, this.config.runMaximumDuration * 1000);
             let runId = null;
@@ -333,10 +343,6 @@ class ProcessFileRouter extends BaseRouter {
 
 
             };
-
-
-
-
 
             proc.on('error', (err) => {
                 console.log("spawn error: " + err);
