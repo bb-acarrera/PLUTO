@@ -296,7 +296,7 @@ class ProcessFileRouter extends BaseRouter {
 
             };
 
-            if(this.config.runningJobs.length < this.config.validatorConfig.maxConcurrentTasks) {
+            if(!this.config.validatorConfig.maxConcurrentTasks || this.config.runningJobs.length < this.config.validatorConfig.maxConcurrentTasks) {
                 this.config.runningJobs.push({terminate:terminate});
             } else {
                 reject("too many tasks");
