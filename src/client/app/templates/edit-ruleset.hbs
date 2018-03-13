@@ -487,7 +487,7 @@ Process URL: {{processURL}}
 
 	{{#bs-dropdown as |dd|}}
 		{{#bs-button onClick=(action "runRuleset") disabled=changed}}Upload{{/bs-button}}
-		{{#dd.button}}<span class="caret"></span>{{/dd.button}}
+		{{#dd.button  disabled=changed}}<span class="caret"></span>{{/dd.button}}
 		{{#dd.menu as |menudrops|}}
 			{{#menudrops.item}}
 				{{#bs-button onClick=(action "runRuleset" false true) disabled=changed class="md5button"}}Skip MD5 check{{/bs-button}}
