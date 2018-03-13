@@ -83,7 +83,7 @@ class RulesRouter extends BaseRouter {
             }
         };
         res.json({
-            data: fields
+            data: this.config.validatorConfig.customValidationFields ? fields : null
         });
     }
 
