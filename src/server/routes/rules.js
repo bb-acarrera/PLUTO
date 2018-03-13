@@ -100,8 +100,10 @@ class RulesRouter extends BaseRouter {
                             label: 'Expected update frequency: ',
                             type: 'choice',
                             choices: [
+                                'Hourly',
                                 'Daily',
                                 'Weekly',
+                                'Monthly',
                                 'Quarterly',
                                 'Annually'
                             ]
