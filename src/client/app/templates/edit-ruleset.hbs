@@ -324,6 +324,7 @@ Process URL: {{processURL}}
 	{{/edit-ruleset/collapse}}
 {{/if}}
 	<!-- custom fields -->
+{{#if (gt model.custom.length 0)}}
 	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
 		{{#c.title}}
@@ -343,7 +344,7 @@ Process URL: {{processURL}}
 		{{/c.collapsable}}
 
 	{{/edit-ruleset/collapse}}
-
+{{/if}}
 	{{#if (not-eq model.ruleset.dovalidate false)}}
 
 		<!-- periodicity -->
