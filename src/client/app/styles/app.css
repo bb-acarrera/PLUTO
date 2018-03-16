@@ -322,3 +322,7 @@ div.expand-controls {
 	margin-bottom: 10px;
 }
 
+.edit-label-input {
+    display: flex;
+}
+
