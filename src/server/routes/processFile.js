@@ -381,6 +381,8 @@ class ProcessFileRouter extends BaseRouter {
                         console.log({
                             type: "plutorun",
                             runId: runId,
+                            state: "running",
+                            messageType: "log",
                             message: str
                         });
                     });
@@ -442,13 +444,20 @@ class ProcessFileRouter extends BaseRouter {
                         //this shouldn't exist, but since it does let's clean it up
                         const logger = new ErrorLogger();
 
-                        if(terminationMsg) {
-                            logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                                terminationMsg);
-                        } else {
-                            logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                                `Run stopped without cleaning up. Server has marked this as finished.`);
+                        if(!terminationMsg) {
+                            terminationMsg = `Run stopped without cleaning up. Server has marked this as finished.`;
                         }
+
+                        logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                            terminationMsg);
+
+                        console.log({
+                            type: "plutorun",
+                            runId: runId,
+                            state: "post exit",
+                            messageType: "error",
+                            message: terminationMsg
+                        });
 
                         this.config.data.saveRunRecord(runId, logger.getLog(),
                             null, null, null, logger.getCounts(),
