@@ -42,7 +42,7 @@ class Validator {
 		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
-			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
+			throw "Failed to find RootDirectory \"" + this.rootDir + "\".";
 
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
@@ -50,7 +50,7 @@ class Validator {
 			this.config.rulesDirectory = path.resolve(this.rootDir, 'rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
-			console.log("Failed to find custom RulesDirectory \"" + this.config.rulesDirectory + "\".\n");
+			console.log("Failed to find custom RulesDirectory \"" + this.config.rulesDirectory + "\".");
 
 		this.inputDirectory  = path.resolve(this.rootDir, this.config.inputDirectory || "");
 		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory || "");
@@ -98,8 +98,8 @@ class Validator {
 		this.data.createRunRecord(this.config.ruleset, this.config.user, this.config.group).then((runId) => {
 
 			this.runId = runId;
-			console.log("runId:" + runId);
-			console.log("tempFolder:" + this.tempDir);
+
+			console.log(JSON.stringify({state: "start", runId: runId, tempFolder: this.tempDir}));
 
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride,
 				this.ruleLoader, undefined, undefined, undefined, true)
@@ -202,7 +202,7 @@ class Validator {
 				throw "Input file \"" + file + "\" does not exist.";
 
 		} catch(e) {
-			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			this.error("Ruleset \"" + this.rulesetName + "\" failed. " + e);
 			throw e;
 		}
 
@@ -211,7 +211,7 @@ class Validator {
 			try
 			{
 				if(err) {
-					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+					this.error("Ruleset \"" + this.rulesetName + "\" failed md5 check. " + err);
 					throw err;
 				}
 
@@ -224,7 +224,7 @@ class Validator {
 					}
 
 				}, (err) => {
-					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+					this.error("Ruleset \"" + this.rulesetName + "\" failed to check hash. " + err);
 					throw err;
 				}).catch(() => {
 					this.finishRun();
@@ -288,7 +288,7 @@ class Validator {
 
 			}, (err) => {
 				//some unknown problem getting the list
-				this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+				this.error("Ruleset \"" + this.rulesetName + "\" failed. " + err);
 				throw err;
 			});
 
@@ -393,7 +393,7 @@ class Validator {
 				else
 					return lastResult;
 			}).catch((e) => {
-				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
+				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed. ${e.message ? e.message : e}`;
 				this.error(errorMsg);
 			}).then((lastResult) => {
 				if(validator.abort) {
@@ -429,7 +429,7 @@ class Validator {
 			// 	this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
 
 		} catch(e) {
-			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			this.error("Ruleset \"" + this.rulesetName + "\" failed. " + e);
 			throw e;
 		}
 	}
@@ -836,7 +836,7 @@ class Validator {
 				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 		}
 		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to.
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\". " + e);	// Can't create the outputDirectory to write to.
 			throw e;
 		}
 
@@ -874,7 +874,7 @@ class Validator {
 				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 		}
 		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to, so can't use this logger.
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\". " + e);	// Can't create the outputDirectory to write to, so can't use this logger.
 			throw e;
 		}
 
@@ -1078,7 +1078,7 @@ class Validator {
 			pluginClass = require(filename);
 		}
 		catch (e) {
-			throw("Failed to load plugin " + filename + ".\n\tCause: " + e);
+			throw("Failed to load plugin " + filename + ". Cause: " + e);
 		}
 		return pluginClass;
 	}

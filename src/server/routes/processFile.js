@@ -345,7 +345,7 @@ class ProcessFileRouter extends BaseRouter {
             };
 
             proc.on('error', (err) => {
-                console.log("spawn error: " + err);
+                console.error("unable to start validator: " + err);
 
                 finished();
 
@@ -354,31 +354,61 @@ class ProcessFileRouter extends BaseRouter {
 
             proc.stdout.on('data', (data) => {
                 let str = data.toString();
-                console.log('stdout: ' + str);
+                let log = null;
 
-                let strs = str.split('\n');
-                for (var i = 0; i < strs.length; i++) {
-                    let s = strs[i];
-                    if(s.startsWith('runId:')) {
-                        runId = s.substr(6).trim();
+                try {
+                    log = JSON.parse(str);
+                } catch(e) {
+
+                }
+
+                if(log) {
+                    if(log.state && log.state === "start") {
+                        runId = log.runId;
+                        tempFolder = log.tempFolder;
                         resolve(runId);
-                    } else if(s.startsWith('tempFolder:')) {
-                        tempFolder = s.substr('tempFolder:'.length).trim();
                     }
+
+                    log.type = "plutrun";
+                    log.runId = runId;
+
+                    console.log(log);
+
+                } else {
+
+                    splitConsoleOutput(str).forEach((str) => {
+
+                        console.log({
+                            type: "plutorun",
+                            runId: runId,
+                            message: str
+                        });
+                    });
                 }
             });
 
             proc.stderr.on('data', (data) => {
-                console.log('stderr: ' + data.toString());
+
+                splitConsoleOutput(data.toString()).forEach((str) => {
+                    console.log({
+                        type: "plutorun",
+                        runId: runId,
+                        state: "running",
+                        messageType: "error",
+                        message: str
+                    });
+                });
+
             });
 
             proc.on('exit', (code) => {
 
-                if(code == null) {
-                    console.log('child process exited with out supplying a code.');
-                } else {
-                    console.log('child process exited with code ' + code.toString());
-                }
+                console.log({
+                    type: "plutorun",
+                    runId: runId,
+                    state: "exit",
+                    code: code
+                });
 
 
                 finished();
@@ -451,6 +481,37 @@ class ProcessFileRouter extends BaseRouter {
         const filename = Util.createGUID();
         return path.resolve(dirname, filename);
     }
+}
+
+function splitConsoleOutput(str) {
+
+    let arr = str.split(/[\r\n]+/);
+
+    //now, join the strings back up if there are a couple of spaces or a tab in the front, which likely indicates an
+    // exception or other joining
+
+    let outArr = [];
+    let joinedStr = "";
+
+    arr.forEach((str) => {
+
+        if(str.trim().length > 0) {
+            if(str.startsWith('  ') || str.startsWith('\t')) {
+                joinedStr += str + '\n';
+            } else {
+                if(joinedStr.length > 0) {
+                    outArr.push(joinedStr);
+                }
+
+                outArr.push(str);
+
+                joinedStr = "";
+
+            }
+        }
+    });
+
+    return outArr;
 }
 
 module.exports = ProcessFileRouter;
