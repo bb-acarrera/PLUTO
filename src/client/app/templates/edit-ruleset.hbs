@@ -26,8 +26,11 @@ Process URL: {{processURL}}
 
 <div class="ruleset-content" >
 
-	<div class="section-content ruleset-section-content">Name: {{input id="rulesetName" type="text"
-		value=model.ruleset.name class="text-input" disabled=disableEdit}}
+	<div class="section-content ruleset-section-content">
+		<div class="property-list-div">
+			<span class="property-list-title">Name: </span>
+			{{input id="rulesetName" type="text" value=model.ruleset.name class="text-input" disabled=disableEdit}}
+		</div>
 	</div>
 
     <!-- Reporting -->
