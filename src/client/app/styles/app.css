@@ -311,14 +311,31 @@ div.expand-controls {
 	font-weight: bold;
 }
 
-.ruleset-reporter-config
-{
-	position: relative;
-	right: -15px;
-}
+/*.ruleset-reporter-config*/
+/*{*/
+	/*position: relative;*/
+	/*right: -15px;*/
+/*}*/
 
 .ruleset-reporter
 {
 	margin-bottom: 10px;
 }
 
+.edit-label-input {
+    display: flex;
+}
+
+.axis--x g text {
+    transform: translateY(15px) translateX(-25px) rotate(-45deg);
+}
+
+.property-list-title {
+     white-space: nowrap;
+     padding-top: 2px;
+     margin-right: 10px;
+ }
+
+.property-list-div {
+    display: flex;
+}
