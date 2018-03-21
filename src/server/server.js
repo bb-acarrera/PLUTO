@@ -176,8 +176,8 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 			}
 
 			obj.time = new Date();
-			if(!obj.type) {
-				obj.type = "plutoserver";
+			if(!obj.log) {
+				obj.log = "plutoserver";
 			}
 
 			oldMethod.apply(

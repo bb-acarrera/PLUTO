@@ -369,7 +369,7 @@ class ProcessFileRouter extends BaseRouter {
                         resolve(runId);
                     }
 
-                    log.type = "plutrun";
+                    log.log = "plutrun";
                     log.runId = runId;
 
                     console.log(log);
@@ -379,7 +379,7 @@ class ProcessFileRouter extends BaseRouter {
                     splitConsoleOutput(str).forEach((str) => {
 
                         console.log({
-                            type: "plutorun",
+                            log: "plutorun",
                             runId: runId,
                             state: "running",
                             messageType: "log",
@@ -393,7 +393,7 @@ class ProcessFileRouter extends BaseRouter {
 
                 splitConsoleOutput(data.toString()).forEach((str) => {
                     console.log({
-                        type: "plutorun",
+                        log: "plutorun",
                         runId: runId,
                         state: "running",
                         messageType: "error",
@@ -406,10 +406,10 @@ class ProcessFileRouter extends BaseRouter {
             proc.on('exit', (code) => {
 
                 console.log({
-                    type: "plutorun",
+                    log: "plutorun",
                     runId: runId,
                     state: "exit",
-                    code: code
+                    exitCode: code
                 });
 
 
@@ -452,7 +452,7 @@ class ProcessFileRouter extends BaseRouter {
                             terminationMsg);
 
                         console.log({
-                            type: "plutorun",
+                            log: "plutorun",
                             runId: runId,
                             state: "post exit",
                             messageType: "error",
