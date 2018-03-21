@@ -327,6 +327,7 @@ Process URL: {{processURL}}
 	{{/edit-ruleset/collapse}}
 {{/if}}
 	<!-- custom fields -->
+{{#if (gt model.custom.length 0)}}
 	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
 		{{#c.title}}
@@ -346,7 +347,7 @@ Process URL: {{processURL}}
 		{{/c.collapsable}}
 
 	{{/edit-ruleset/collapse}}
-
+{{/if}}
 	{{#if (not-eq model.ruleset.dovalidate false)}}
 
 		<!-- periodicity -->
@@ -490,7 +491,7 @@ Process URL: {{processURL}}
 
 	{{#bs-dropdown as |dd|}}
 		{{#bs-button onClick=(action "runRuleset") disabled=changed}}Upload{{/bs-button}}
-		{{#dd.button}}<span class="caret"></span>{{/dd.button}}
+		{{#dd.button  disabled=changed}}<span class="caret"></span>{{/dd.button}}
 		{{#dd.menu as |menudrops|}}
 			{{#menudrops.item}}
 				{{#bs-button onClick=(action "runRuleset" false true) disabled=changed class="md5button"}}Skip MD5 check{{/bs-button}}
