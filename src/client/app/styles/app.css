@@ -314,15 +314,23 @@ div.expand-controls {
 	font-weight: bold;
 }
 
-.ruleset-reporter-config
-{
-	position: relative;
-	right: -15px;
-}
-
 .ruleset-reporter
 {
 	margin-bottom: 10px;
+}
+
+.edit-label-input {
+    display: flex;
+}
+
+.property-list-title {
+     white-space: nowrap;
+     padding-top: 2px;
+     margin-right: 10px;
+ }
+
+.property-list-div {
+    display: flex;
 }
 
 html, body {
