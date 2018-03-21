@@ -353,30 +353,29 @@ class ProcessFileRouter extends BaseRouter {
             });
 
             proc.stdout.on('data', (data) => {
-                let str = data.toString();
-                let log = null;
+                splitConsoleOutput(data.toString()).forEach((str) => {
+                    let log = null;
 
-                try {
-                    log = JSON.parse(str);
-                } catch(e) {
+                    try {
+                        log = JSON.parse(str);
+                    } catch (e) {
 
-                }
-
-                if(log) {
-                    if(log.state && log.state === "start") {
-                        runId = log.runId;
-                        tempFolder = log.tempFolder;
-                        resolve(runId);
                     }
 
-                    log.log = "plutrun";
-                    log.runId = runId;
+                    if (log) {
+                        if (log.state && log.state === "start") {
+                            runId = log.runId;
+                            tempFolder = log.tempFolder;
+                            resolve(runId);
+                        }
 
-                    console.log(log);
+                        log.log = "plutrun";
+                        log.runId = runId;
+                        log.state = "running";
 
-                } else {
+                        console.log(log);
 
-                    splitConsoleOutput(str).forEach((str) => {
+                    } else {
 
                         console.log({
                             log: "plutorun",
@@ -385,8 +384,9 @@ class ProcessFileRouter extends BaseRouter {
                             messageType: "log",
                             message: str
                         });
-                    });
-                }
+
+                    }
+                });
             });
 
             proc.stderr.on('data', (data) => {
