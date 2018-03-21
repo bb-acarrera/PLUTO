@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import D3 from 'd3';
 
+
 export default Ember.Component.extend({
     tagName: 'svg',
     attributeBindings: 'width height'.w(),
@@ -14,7 +15,7 @@ export default Ember.Component.extend({
           let stackData = stack(data);
 
 
-          let margin = {top: 20, right: 20, bottom: 30, left: 40};
+          let margin = {top: 20, right: 20, bottom: 50, left: 40};
           let width = this.get('width') - margin.left - margin.right;
           let height = this.get('height') - margin.top - margin.bottom;
 
@@ -42,11 +43,12 @@ export default Ember.Component.extend({
               .enter().append("g")
               .attr("fill", function(d, i) { return color(i); });
 
+
           var rect = series.selectAll("rect")
               .data(function(d) { return d; })
               .enter().append("rect")
               .attr("x", function(d) { return x(d.data.date); })
-              .attr("y", height)
+              .attr("y", function (d) {return y(d[1]);})
               .attr("width", x.bandwidth())
               .attr("height", 0);
 
@@ -54,6 +56,11 @@ export default Ember.Component.extend({
               .delay(function(d, i) { return i * 10; })
               .attr("y", function(d) { return y(d[1]); })
               .attr("height", function(d) { return y(d[0]) - y(d[1]); });
+
+          rect.append("title")
+              .text(function(d){
+                  return "For " + d.data.date + " " + (d.data.passed>0? d.data.passed + " successes ": "") + (d.data.failed>0? d.data.failed + " failures ": "");
+              });
 
           g.append("g")
               .attr("class", "axis axis--x")
@@ -68,12 +75,12 @@ export default Ember.Component.extend({
 
           y.domain([0, ymax]);
 
-          rect.transition()
-              .duration(500)
-              .delay(function(d, i) { return i * 10; })
-              .attr("y", function(d) { return y(d[1]); })
-              .attr("height", function(d) { return y(d[0]) - y(d[1]); })
-              .transition();
+          // rect.transition()
+          //     .duration(500)
+          //     .delay(function(d, i) { return i * 10; })
+          //     .attr("y", function(d) { return y(d[1]); })
+          //     .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+          //     .transition();
 
       }.on('didInsertElement'),
 
