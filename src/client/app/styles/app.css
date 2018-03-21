@@ -323,6 +323,10 @@ div.expand-controls {
     display: flex;
 }
 
+.axis--x g text {
+    transform: translateY(15px) translateX(-25px) rotate(-45deg);
+}
+
 .property-list-title {
      white-space: nowrap;
      padding-top: 2px;

@@ -98,6 +98,11 @@
 							{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
 						{{/bs-button}}
 
+						{{#link-to 'summary' rulesetInstance.filename tagName='button' class='btn btn-default'}}
+							{{#bs-tooltip placement="left"}}Run history{{/bs-tooltip}}
+							Summary
+						{{/link-to}}
+
 						{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
 							{{#bs-tooltip placement="left"}}Edit Validation Setup{{/bs-tooltip}}
 							Edit
