@@ -179,4 +179,7 @@ Each field is an object in the customValidationFields array, with the properties
 ## forceUniqueTargetFile
 If set to true, each validation must have a unique target file name across all uploads, and users will get an error if they attempt to create a duplicate.
 
+## maxConcurrentTasks
+Maximum number of allowed concurrent jobs. Cancels the incoming task and returns http error if exceeded. 
+
 [Config Properties]: ruleUiConfig.md  
