@@ -105,7 +105,7 @@ class RuleSet {
 				contents = require(rulesetOverrideFile);
 			}
 			catch (e) {
-				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
+				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\". " + e);
 			}
 
 			if (contents.import) {

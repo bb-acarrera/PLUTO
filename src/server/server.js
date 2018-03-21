@@ -4,6 +4,7 @@ const path = require("path");
 const express = require('express');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
+const util = require('util');
 
 const app = express();
 
@@ -155,6 +156,38 @@ class Server {
 
 let scriptName = process.argv[1];
 if (__filename == scriptName) {	// Are we running this as the server or unit test? Only do the following if running as a server.
+
+	//override the console messages to be filebeat/ES compliant (JSON)
+	["log", "warn", "error", "info"].forEach(function(method) {
+		var oldMethod = console[method].bind(console);
+		console[method] = function(data,...args) {
+
+			let obj = null;
+
+			if(data !== null && typeof data === 'object') {
+				obj = data;
+
+			} else {
+
+				obj = {
+					message: util.format(data,...args),
+					messageType: method
+				}
+			}
+
+			obj.time = new Date();
+			if(!obj.log) {
+				obj.log = "plutoserver";
+			}
+
+			oldMethod.apply(
+				console,
+				[JSON.stringify(obj)]
+			);
+		};
+	});
+
+
 	program
 		.version(version)
 		.usage('[options]')
