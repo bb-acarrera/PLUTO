@@ -371,7 +371,7 @@ class ProcessFileRouter extends BaseRouter {
 
                         log.log = "plutrun";
                         log.runId = runId;
-                        log.state = "running";
+                        log.state = log.state || "running";
 
                         console.log(log);
 

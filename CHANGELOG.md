@@ -3,8 +3,16 @@
 ## 0.9.7
 ### New Features
 
-### Bug Fixes and Minor Improvements
+#### Validation Summary
+Added a new page off of the validations list from the "Summary" button, which shows a summary of the validation.
 
+### Bug Fixes and Minor Improvements
+ * added a docker reference stack (with logging, performance metrics, ElasticSearch, and Kibana)
+ * Cleaned up logging from the web service to allow easier ingestion by Filebeat
+ * Added run summary details to web service output log
+ * Fix bug on disabled create validation continue button
+ * Cleaned up layout of config fields in UI
+ * Hide the Additional Information if there are none configured
 
 ## 0.9.6
 ### New Features
