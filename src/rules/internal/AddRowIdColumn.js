@@ -20,7 +20,7 @@ class AddRowIdColumn extends TableRuleAPI {
 		}
 	}
 
-	processRecord(record, rowId, isHeaderRow) {
+	processRecord(record, rowId, isHeaderRow, rowNumber) {
 
 		if(this.newColumnIndex == null) {
 			this.newColumnIndex = record.length;
@@ -31,7 +31,7 @@ class AddRowIdColumn extends TableRuleAPI {
 			record.push(null);
 		}
 
-		record[this.newColumnIndex] = rowId;
+		record[this.newColumnIndex] = rowNumber;
 
 		return record;
 	}

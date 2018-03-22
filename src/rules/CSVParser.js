@@ -145,7 +145,7 @@ class CSVParser extends TableParserAPI {
                     rowId = record[this.parserSharedData.rowIdColumnIndex];
                 }
 
-                response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow);
+                response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow, rowNumber);
 
             }
 
