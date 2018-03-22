@@ -11,7 +11,7 @@
 	</h2>
 
 </div>
-{{#if (gt chartData.length 0)}}
+
 <div style="display:flex">
 	<span style="padding: 10px;">Days: </span>
 	<div style="padding:4px;">
@@ -26,7 +26,7 @@
 {{/bs-button-group}}
 	</div>
 </div>
-
+{{#if (gt chartData.length 0)}}
 	<div style="background: #E8E8E8" >
 	<div>
 		<span style="padding: 10px;"> Total successes: <span class="good-color">{{model.result.totals.passed}}</span></span>
