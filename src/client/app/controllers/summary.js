@@ -32,8 +32,8 @@ export default Ember.Controller.extend({
             let day = time.format("L");
             let delta = now.diff(time, width);
 
-            let bucket_start = moment(new Date()).subtract(delta - 1,width).format("L");
-            let bucket_end = moment(new Date()).subtract(delta,width).format("L");
+            let bucket_start = moment(new Date()).subtract(delta,width).format("L");
+            let bucket_end = moment(new Date()).subtract(delta - 1,width).format("L");
 
             let title = width == 'd'? day: bucket_start + "+";
 
@@ -51,6 +51,6 @@ export default Ember.Controller.extend({
         for (const key of Object.keys(dates)) {
             data.push({date: key, start: dates[key].start, end: dates[key].end,  passed : dates[key].passed, failed : dates[key].failed, buckets: dates[key].buckets});
         }
-        return data;
+        return data.reverse();
     })
 });
