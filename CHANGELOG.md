@@ -13,6 +13,7 @@ Added a new page off of the validations list from the "Summary" button, which sh
  * Fix bug on disabled create validation continue button
  * Cleaned up layout of config fields in UI
  * Hide the Additional Information if there are none configured
+ * Added limit on number of concurrent running validations in a service
 
 ## 0.9.6
 ### New Features

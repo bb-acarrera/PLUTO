@@ -210,6 +210,11 @@ class ProcessFileRouter extends BaseRouter {
     processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
         return new Promise((resolve, reject) => {
 
+            if(this.config.validatorConfig.maxConcurrentTasks && (this.config.runningJobs.length - 1) >= this.config.validatorConfig.maxConcurrentTasks) {
+                reject("too many tasks");
+                return;
+            }
+
             let scriptPath = path.resolve(rootFolder, 'validator');
 
             var execCmd = 'node ' + scriptPath + '/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
@@ -296,12 +301,7 @@ class ProcessFileRouter extends BaseRouter {
 
             };
 
-            if(!this.config.validatorConfig.maxConcurrentTasks || this.config.runningJobs.length < this.config.validatorConfig.maxConcurrentTasks) {
-                this.config.runningJobs.push({terminate:terminate});
-            } else {
-                reject("too many tasks");
-            }
-
+            this.config.runningJobs.push({terminate:terminate});
 
             const timeoutId = setTimeout(runTimeout, this.config.runMaximumDuration * 1000);
             let runId = null;
