@@ -58,8 +58,8 @@ export default Ember.Component.extend({
               .attr("height", function(d) { return y(d[0]) - y(d[1]); });
 
           rect.append("title")
-              .text(function(d){
-                  return "For " + d.data.date + " " + (d.data.passed>0? d.data.passed + " successes ": "") + (d.data.failed>0? d.data.failed + " failures ": "");
+              .html(function(d){
+                  return "For " + (d.data.buckets?(d.data.start + " to " + d.data.end ): d.data.date) + "<br> " + (d.data.passed>0?"Successes: " + d.data.passed + " ": "") + (d.data.failed>0? "Failures: " + d.data.failed: "");
               });
 
           g.append("g")
