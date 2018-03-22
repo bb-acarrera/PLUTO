@@ -369,7 +369,7 @@ class ProcessFileRouter extends BaseRouter {
                             resolve(runId);
                         }
 
-                        log.log = "plutrun";
+                        log.log = "plutorun";
                         log.runId = runId;
                         log.state = log.state || "running";
 
