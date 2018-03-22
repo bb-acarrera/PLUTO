@@ -94,6 +94,9 @@ The properties are:
 #### filename
 The name of the reporter plugin to use, as specified in the manifest.  Pluto include "smtpReporter" to send emails to a SMTP server.
 
+#### id
+Required if there is more than one reporter. A unique number to use for the reporters, so Pluto can properly hook up the UI properties to the saved values in a validation. 
+
 #### config
 The custom configuration for the reporter plugin. See smtpReporter below for configurtion of the smtpReporter plugin.
 
@@ -105,9 +108,6 @@ By default, Pluto will always send a report.  This property specifies when to se
  * "always": Always send a report (default)
  * "failed": Only send reports if the processing job failed
  * "warned": Send reports if the processing job failed, or if there were warnings or dropped rows
- 
-## id
-A unique value to use for the reporters, so Pluto can properly hook up the UI properties to this config. Only needed if there are multiple reporters of the same plugin.
 
 ### smtpReporter
 The smtpReporter is a reporter plugin included with the default PLUTO that can be used to send email summaries of processed
