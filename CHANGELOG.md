@@ -14,6 +14,7 @@ Added a new page off of the validations list from the "Summary" button, which sh
  * Cleaned up layout of config fields in UI
  * Hide the Additional Information if there are none configured
  * Added limit on number of concurrent running validations in a service
+ * Added environment variable replacement support to all strings inside validatorConfig.json
 
 ## 0.9.6
 ### New Features

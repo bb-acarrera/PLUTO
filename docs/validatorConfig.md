@@ -40,6 +40,21 @@ some other information.  The sample config looks like:
 }
 ```
 
+Environment variables can be inserted into any string via "${MY_ENV_VAR}". E.g.:
+
+```
+{
+    "dbPassword" : "${PLTUO_DB_PASSWORD}"
+}
+```
+
+with the environment variable `PLUTO_DB_PASSWORD` set to `superSecretPassword` result in:
+
+```
+{
+    "dbPassword" : "superSecretPassword"
+}
+```
 
 ## rulesDirectory
 The folder where the manifest for the custom rules is located. It's expected that the custom rules are located in this folder, but not required. For more details on custom rules see TBD.
