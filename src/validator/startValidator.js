@@ -49,6 +49,9 @@ if (!program.config)
 let config;
 try {
     config = require(path.resolve(__dirname, program.config));
+
+    config = Util.recursiveSubStringReplace(config, Util.replaceStringWithEnv);
+
 }
 catch (e) {
     console.log("The configuration file cannot be loaded. " + e);
