@@ -530,7 +530,13 @@ export default Ember.Controller.extend( {
 
 
 			}
+		},
+
+		exportRuleSet () {
+			let ruleset = this.get('model.ruleset');
+			
 		}
+
 	}
 } );
 

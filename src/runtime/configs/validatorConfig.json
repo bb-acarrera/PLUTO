@@ -85,5 +85,20 @@
 	"forceUniqueTargetFile": true,
 	"hideTestButtons": false,
 	"runMaximumDuration": 600,
-	"maxConcurrentTasks": 10
+	"maxConcurrentTasks": 10,
+
+	"exportRulesets" : {
+		"exportToLabel": "Production",
+		"exporter" : {
+			"filename" : "S3Export",
+			"config" : {
+				"endpoint": "localhost:8000",
+				"sslEnabled": false,
+				"forcePathStyle": true,
+				"accessKey": "accessKey1",
+				"accessSecretKey": "verySecretKey1",
+				"bucket": "to-prod"
+			}
+		}
+	}
 }

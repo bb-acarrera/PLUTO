@@ -517,6 +517,13 @@ Process URL: {{processURL}}
 		{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
             Save
 		{{/bs-button}}
+
+		{{#if applicationController.currentUser.features.showRulesetExport}}
+			{{#bs-button onClick=(action "exportRuleSet" model.ruleset) disabled=changed}}
+                Export to {{applicationController.currentUser.features.exportToLabel}}
+			{{/bs-button}}
+		{{/if}}
+
     </span>
 {{/if}}
 
