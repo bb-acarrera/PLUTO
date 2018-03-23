@@ -224,6 +224,9 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 
 	let serverConfig = require(serverConfigPath);
 	let validatorConfig = require(validatorConfigPath);
+
+	validatorConfig = Util.recursiveSubStringReplace(validatorConfig, Util.replaceStringWithEnv);
+
 	validatorConfig.scriptName = scriptName;
 
 	const server = new Server(serverConfig, validatorConfig, validatorConfigPath);

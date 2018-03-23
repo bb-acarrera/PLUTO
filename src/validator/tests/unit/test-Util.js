@@ -88,3 +88,40 @@ QUnit.test( "Util: getCurrentDateTimeString", function(assert){
    assert.equal(result, cDate.getFullYear() + "_" + (cDate.getMonth()+1) + "_" + cDate.getDate() + "_" + cDate.getHours() + "_" + cDate.getMinutes() + "_" + cDate.getSeconds(), "Expected current date and time")
 
 });
+
+QUnit.test( "Util: recursiveSubStringReplace", function(assert){
+
+    let obj = {
+        val: "1",
+        obj: {
+            val: "1"
+        },
+        arr : [
+           "1"
+        ],
+        arrObj : [
+            {
+                val: "1"
+            }
+        ]
+    };
+
+    let outObj = Util.recursiveSubStringReplace(obj, () => {
+        return "2";
+    });
+
+    assert.equal(outObj.val, "2");
+    assert.equal(outObj.obj.val, "2");
+    assert.equal(outObj.arr[0], "2");
+    assert.equal(outObj.arrObj[0].val, "2");
+
+});
+
+QUnit.test( "Util: replaceStringWithEnv", function(assert){
+
+    process.env["MY_CUSTOM_ENV"] = "myCustomEnv";
+
+    let outStr = Util.replaceStringWithEnv("val ${MY_CUSTOM_ENV} val");
+
+    assert.equal(outStr, "val myCustomEnv val");
+});
