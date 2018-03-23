@@ -15,7 +15,7 @@ export default Ember.Controller.extend({
         if (selection == "week") {
             buckets = -moment(new Date()).subtract(1,"weeks").diff(now,"days");
         }else if (selection == "month"){
-            moment(new Date()).subtract(1,"months").diff(now,"days");
+            buckets = -moment(new Date()).subtract(1,"months").diff(now,"days");
         }else if (selection == "quarter") {
             buckets = -moment(new Date()).subtract(1,"quarters").diff(now,"weeks");
             width = "weeks";
