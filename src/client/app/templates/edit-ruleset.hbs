@@ -13,6 +13,10 @@
 			{{model.ruleset.filename}}
 		{{/if}}
 
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
 	</h2>
 
 </div>

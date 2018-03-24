@@ -1,6 +1,13 @@
 {{outlet}}
 <div>
-	<h2>PLUTO Main Page</h2>
+	<h2>
+		PLUTO Main Page
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
 	{{#bs-button type="primary" onClick=(action "transitionTo" "runs" "runGroupFilter" applicationController.currentUser.group)}}
 	File Load Status
 	{{/bs-button}}

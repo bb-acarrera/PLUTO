@@ -142,10 +142,16 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	patch(req, res, next) {
-		const auth = this.getAuth(req);
-		const ruleset = new RuleSet(req.body, this.config.rulesLoader);
 
-		function save() {
+		if(this.config.allowOnlyRulesetImport) {
+			res.statusMessage = 'Only imports allowed';
+			res.status(405).end();
+			return;
+		}
+
+		const auth = this.getAuth(req);
+
+		function saveFn(ruleset) {
 			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
 				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
 			}, (error) => {
@@ -153,10 +159,32 @@ class RulesetRouter extends BaseRouter {
 			}).catch(next);
 		}
 
+		this.save(req, res, next, saveFn)
+	}
+
+	import(req, res, next) {
+
+		const auth = this.getAuth(req);
+
+		function saveFn(ruleset) {
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin, true).then((ruleset) => {
+				res.json(ruleset);
+			}, (error) => {
+				next(error);
+			}).catch(next);
+		}
+
+		this.save(req, res, next, saveFn)
+	}
+
+	save(req, res, next, saveFn) {
+
+		const ruleset = new RuleSet(req.body, this.config.rulesLoader);
+
 		if(this.config.validatorConfig.forceUniqueTargetFile) {
 			this.config.data.rulesetValid(ruleset, false, this.config.validatorConfig.forceUniqueTargetFile).then(() => {
 
-				save.call(this);
+				saveFn.call(this, ruleset);
 
 			}, (error) => {
 
@@ -165,12 +193,8 @@ class RulesetRouter extends BaseRouter {
 
 			}).catch(next);
 		} else {
-			save.call(this);
+			saveFn.call(this, ruleset);
 		}
-
-
-
-
 	}
 
 	delete(req, res, next) {
@@ -184,6 +208,13 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	insert(req, res, next) {
+
+		if(this.config.allowOnlyRulesetImport) {
+			res.statusMessage = 'Only imports allowed';
+			res.status(405).end();
+			return;
+		}
+
 		const auth = this.getAuth(req);
 		let new_rulesetId = req.body.rulesetId;
 

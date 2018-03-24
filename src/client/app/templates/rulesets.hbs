@@ -11,7 +11,14 @@
             <i class="fa fa-angle-double-left"></i>
 		{{/link-to}}
 	{{/if}}
-	<h2>Validation Setups</h2>
+	<h2>
+		Validation Setups
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
 </div>
 <div>
     <table id="rulesetTable" class="ruleset-table">

@@ -2,6 +2,9 @@ import Ember from 'ember';
 import moment from 'moment';
 
 export default Ember.Controller.extend({
+
+	applicationController: Ember.inject.controller('application'),
+
     buttonGroupValue2: 'week',
     chartData: Ember.computed('model.result.buckets','buttonGroupValue2',function(){
         let rawData = this.get('model.result.buckets');

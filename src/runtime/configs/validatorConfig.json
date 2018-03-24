@@ -89,16 +89,10 @@
 
 	"exportRulesets" : {
 		"exportToLabel": "Production",
-		"exporter" : {
-			"filename" : "S3Export",
-			"config" : {
-				"endpoint": "localhost:8000",
-				"sslEnabled": false,
-				"forcePathStyle": true,
-				"accessKey": "accessKey1",
-				"accessSecretKey": "verySecretKey1",
-				"bucket": "to-prod"
-			}
-		}
-	}
+		"hostBaseUrl": "http://localhost:3000"
+	},
+
+	"environmentLabel": "Development",
+	"borderColor": "blue",
+	"allowOnlyRulesetImport": "true"
 }

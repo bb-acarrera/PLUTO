@@ -534,7 +534,27 @@ export default Ember.Controller.extend( {
 
 		exportRuleSet () {
 			let ruleset = this.get('model.ruleset');
-			
+			let targetName = this.get('applicationController.currentUser.features.exportToLabel') || '';
+
+			var xmlHttp = new XMLHttpRequest();
+			xmlHttp.onreadystatechange = () => {
+				if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+					alert( "Successfully exported to " + targetName);
+				}
+				else if (xmlHttp.readyState == 4 && xmlHttp.status != 200) {
+					alert(`Failed to exported to ${targetName}: ${xmlHttp.statusText}`);
+				}
+			};
+
+			let theUrl = apiBase + "/exportconfig";
+			let theJSON = {
+				rulesetId: 	ruleset.get('ruleset_id')
+			};
+
+			xmlHttp.open("POST", theUrl, true); // true for asynchronous
+			xmlHttp.setRequestHeader("Content-Type", "application/json");
+			xmlHttp.send(JSON.stringify(theJSON));
+
 		}
 
 	}

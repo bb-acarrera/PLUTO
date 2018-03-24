@@ -9,7 +9,14 @@
         <div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
     </div>
 
-    <h2>{{title}} {{model.rule.description}}</h2>
+    <h2>
+		{{title}} {{model.rule.description}}
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
 
 
 </div>

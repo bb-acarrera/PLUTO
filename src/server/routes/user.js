@@ -40,15 +40,9 @@ class RulesetRouter extends BaseRouter {
 				this.features.exportToLabel = this.config.validatorConfig.exportRulesets.exportToLabel
 			}
 
-			if(this.config.validatorConfig.importRulesets) {
-				this.features.showRulesetImport = true;
-
-				if(this.config.validatorConfig.importRulesets.allowOnlyImport) {
-					this.features.allowOnlyRulesetImport = true;
-				}
-			}
-
-
+			this.features.allowOnlyRulesetImport = this.config.validatorConfig.allowOnlyRulesetImport;
+			this.features.environmentLabel = this.config.validatorConfig.environmentLabel;
+			this.features.borderColor = this.config.validatorConfig.borderColor;
 
 		}
 	}
@@ -85,8 +79,9 @@ class RulesetRouter extends BaseRouter {
 								hideTestButtons: this.features.hideTestButtons,
 								showRulesetExport: this.features.showRulesetExport,
 								exportToLabel: this.features.exportToLabel,
-								showRulesetImport: this.features.showRulesetImport,
-								allowOnlyRulesetImport: this.features.allowOnlyRulesetImport
+								allowOnlyRulesetImport: this.features.allowOnlyRulesetImport,
+								environmentLabel: this.features.environmentLabel,
+								borderColor: this.features.borderColor
 							}
 						}
 					}
