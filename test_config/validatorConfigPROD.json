@@ -6,9 +6,9 @@
 	"dbUser" : "pluto",
 	"dbPassword" : "password",
 	"dbDatabase" : "pluto",
-	"dbHost" : "192.168.0.1",
-	"dbPort" : "5432",
-	"configHost": "localhost:3000",
+	"dbHost" : "192.168.1.1",
+	"dbPort" : "7654",
+	"configHost": "localhost:4000",
 	"configHostProtocol": "http",
 	"reporters": [
 		{
@@ -50,5 +50,8 @@
 				{"value":"performance", "label":"Performance Metrics"}
 			]
 		}
-	]
+	],
+
+	"environmentLabel": "PRODUCTION",
+	"allowOnlyRulesetImport": true
 }
