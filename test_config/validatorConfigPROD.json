@@ -1,0 +1,54 @@
+{
+	"rootDirectory" : "/opt/PLUTO/config",
+	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
+	"rulesDirectory" : "/opt/PLUTO/config/customRules",
+	"tempDirectory" : "/opt/PLUTO/config/tmp",
+	"dbUser" : "pluto",
+	"dbPassword" : "password",
+	"dbDatabase" : "pluto",
+	"dbHost" : "192.168.0.1",
+	"dbPort" : "5432",
+	"configHost": "localhost:3000",
+	"configHostProtocol": "http",
+	"reporters": [
+		{
+			"filename": "smtpReporter",
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {}
+			}
+		}
+	],
+	"runMaximumDuration": 600,
+	"customValidationFields": [
+		{
+			"name": "summary",
+			"label": "Data Summary",
+			"tooltip": "Brief description of this data",
+			"type": "string"
+		},
+		{
+			"name": "source",
+			"label": "Source",
+			"tooltip": "Where did this data come from?",
+			"type": "string"
+		},
+		{
+			"name": "contact",
+			"label": "Contact details",
+			"tooltip": "Who to contact if there are problems?",
+			"type": "string"
+		},
+		{
+			"name": "type",
+			"label": "Data Type",
+			"tooltip": "Data Type",
+			"type": "choice",
+			"choices": [
+				{"value":"geographic", "label":"Geographic"},
+				{"value":"financial", "label":"Financial"},
+				{"value":"performance", "label":"Performance Metrics"}
+			]
+		}
+	]
+}
