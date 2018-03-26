@@ -1,4 +1,12 @@
-<h1>Admin</h1>
+<h1>
+	Admin
+
+	{{#if applicationController.currentUser.features.environmentLabel}}
+        in {{applicationController.currentUser.features.environmentLabel}}
+	{{/if}}
+
+
+</h1>
 
 
 <span>

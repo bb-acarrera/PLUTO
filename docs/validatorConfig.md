@@ -36,10 +36,36 @@ some other information.  The sample config looks like:
             "type": "string"
         }
     ],
-    "forceUniqueTargetFile": true
+    
+    "forceUniqueTargetFile": true,
+    
+    "exportRulesets" : {
+    		"exportToLabel": "Production",
+    		"hostBaseUrl": "http://localhost:3000"
+    },
+    
+    "allowOnlyRulesetImport": false,
+    
+    "environmentLabel": "Development"
+    
 }
 ```
 
+Environment variables can be inserted into any string via "${MY_ENV_VAR}". E.g.:
+
+```
+{
+    "dbPassword" : "${PLTUO_DB_PASSWORD}"
+}
+```
+
+with the environment variable `PLUTO_DB_PASSWORD` set to `superSecretPassword` result in:
+
+```
+{
+    "dbPassword" : "superSecretPassword"
+}
+```
 
 ## rulesDirectory
 The folder where the manifest for the custom rules is located. It's expected that the custom rules are located in this folder, but not required. For more details on custom rules see TBD.
@@ -181,5 +207,29 @@ If set to true, each validation must have a unique target file name across all u
 
 ## maxConcurrentTasks
 Maximum number of allowed concurrent jobs. Cancels the incoming task and returns http error if exceeded. 
+
+## exportRulesets
+Configuration for exporting rulesets/validations another instance of PLUTO.  When set, a button titled "Export to ${exportToLabel}" will appear on the Edit Validation page and allow users to copy the current ruleset to that instance.
+
+``` json
+    "exportRulesets" : {
+    		"exportToLabel": "Production",
+    		"hostBaseUrl": "http://localhost:3000"
+    	}
+```
+
+### exportToLabel
+The label to use for the other instance, and will appear in the export button.
+
+### hostBaseUrl
+The base url to the app server of the other PLUTO instance
+
+## allowOnlyRulesetImport
+If set to true, users will be unable to add or edit rulesets (but will be able to delete). The only way rulesets can be added or changed is via export from another instance.
+  
+## environmentLabel
+A label to use to identify this PLUTO instance, and is appended to the title of every page.
+
+
 
 [Config Properties]: ruleUiConfig.md  

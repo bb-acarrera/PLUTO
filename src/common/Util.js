@@ -72,6 +72,57 @@ class Util {
 		return path.resolve(tempDir, filename);
 	}
 
+	static recursiveSubStringReplace (source, replaceFn) {
+
+		function recursiveReplace (objSource) {
+			if (typeof objSource === 'string') {
+				return replaceFn(objSource);
+			}
+
+			if (typeof objSource === 'object') {
+				if (objSource === null) {
+					return null;
+				}
+
+				Object.keys(objSource).forEach(function (property) {
+					objSource[property] = recursiveReplace(objSource[property]);
+				});
+
+				return objSource;
+			}
+
+		}
+
+		return recursiveReplace(source);
+	}
+
+	static replaceStringWithEnv(source) {
+		if(!source || source.length == 0) {
+			return source;
+		}
+
+		let result = source;
+		let offset = result.indexOf('${');
+		let endOffset = -1;
+		let val,env;
+		while(offset >= 0) {
+			endOffset = result.indexOf('}', offset);
+
+			if(endOffset <= 0) { //bad string, bail
+				return result;
+			}
+
+			val = result.substring(offset+2, endOffset);
+			env =  process.env[val] || "";
+
+			result = result.replace('${' + val + '}', env);
+
+			offset = result.indexOf('${');
+		}
+
+		return result;
+	}
+
 }
 
 module.exports = Util;

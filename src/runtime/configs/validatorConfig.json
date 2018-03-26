@@ -85,5 +85,13 @@
 	"forceUniqueTargetFile": true,
 	"hideTestButtons": false,
 	"runMaximumDuration": 600,
-	"maxConcurrentTasks": 10
+	"maxConcurrentTasks": 10,
+
+	"exportRulesets" : {
+		"exportToLabel": "Production",
+		"hostBaseUrl": "http://localhost:3000"
+	},
+
+	"environmentLabel": "Development",
+	"allowOnlyRulesetImport": false
 }

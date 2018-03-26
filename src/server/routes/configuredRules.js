@@ -72,23 +72,31 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 		const auth = this.getAuth(req);
 
-		if(req.params.id || req.query.id || req.query.dbid) {
+		if(req.params.id || req.query.id || req.query.dbid || req.query.name) {
 
 			let id = '';
 			let version = null;
 			let dbId = null;
+			let name = null;
+			let type = null;
 
 			if(req.params.id) {
 				id = req.params.id;
 			} else if(req.query.id) {
 				id = req.query.id;
+			} else if(req.query.name) {
+				id = null;
+				name = req.query.name;
+
+				type = req.query.type;
 			}
+
 
 			if(req.query.version) {
 				version = req.query.version;
 			}
 
-			this.config.data.retrieveRule(id, version, dbId, auth.group, auth.admin, this.config.rulesLoader).then((rule) => {
+			this.config.data.retrieveRule(id, version, dbId, auth.group, auth.admin, this.config.rulesLoader, name, type).then((rule) => {
 				if (!rule) {
 					res.statusMessage = `Unable to retrieve rule '${id}'.`;
 					res.status(404).end();
