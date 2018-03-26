@@ -93,6 +93,5 @@
 	},
 
 	"environmentLabel": "Development",
-	"borderColor": "blue",
-	"allowOnlyRulesetImport": "true"
+	"allowOnlyRulesetImport": false
 }
