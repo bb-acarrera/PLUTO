@@ -1,6 +1,6 @@
 # PLUTO Change Log
 
-## 0.9.7
+## 1.0.7
 ### New Features
 
 #### Validation Summary
