@@ -39,13 +39,13 @@
 			}
 		],
 		"source" : {
-			"filename": "sample source",
+			"filename": "pluto_s3_source",
 			"config": {
 				"file": "simplemaps-worldcities-basic.csv"
 			}
 		},
 		"target" : {
-			"filename": "sample target",
+			"filename": "pluto_s3_target",
 			"config" : {
 				"file": "simplemaps-worldcities-basic.csv.out"
 			}

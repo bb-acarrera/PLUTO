@@ -42,7 +42,7 @@ class Validator {
 		this.rootDir = Util.getRootDirectory(this.config);
 
 		if (!fs.existsSync(this.rootDir))
-			throw "Failed to find RootDirectory \"" + this.rootDir + "\".\n";
+			throw "Failed to find RootDirectory \"" + this.rootDir + "\".";
 
 		if (this.config.rulesDirectory)
 			this.config.rulesDirectory = path.resolve(this.rootDir, this.config.rulesDirectory);
@@ -50,7 +50,7 @@ class Validator {
 			this.config.rulesDirectory = path.resolve(this.rootDir, 'rules');	// By default rules live with the rulesets.
 
 		if (!fs.existsSync(this.config.rulesDirectory))
-			console.log("Failed to find custom RulesDirectory \"" + this.config.rulesDirectory + "\".\n");
+			console.log("Failed to find custom RulesDirectory \"" + this.config.rulesDirectory + "\".");
 
 		this.inputDirectory  = path.resolve(this.rootDir, this.config.inputDirectory || "");
 		this.outputDirectory = path.resolve(this.rootDir, this.config.outputDirectory || "");
@@ -95,11 +95,19 @@ class Validator {
 			throw e;
 		}
 
+		this.outputResults = {
+			starttime: new Date(),
+			user: this.config.user,
+			group: this.config.group,
+			ruleset: this.config.ruleset
+		};
+
 		this.data.createRunRecord(this.config.ruleset, this.config.user, this.config.group).then((runId) => {
 
 			this.runId = runId;
-			console.log("runId:" + runId);
-			console.log("tempFolder:" + this.tempDir);
+			this.outputResults.runId = runId;
+
+			console.log(JSON.stringify({state: "start", runId: runId, tempFolder: this.tempDir}));
 
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride,
 				this.ruleLoader, undefined, undefined, undefined, true)
@@ -202,7 +210,7 @@ class Validator {
 				throw "Input file \"" + file + "\" does not exist.";
 
 		} catch(e) {
-			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			this.error("Ruleset \"" + this.rulesetName + "\" failed. " + e);
 			throw e;
 		}
 
@@ -211,7 +219,7 @@ class Validator {
 			try
 			{
 				if(err) {
-					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+					this.error("Ruleset \"" + this.rulesetName + "\" failed md5 check. " + err);
 					throw err;
 				}
 
@@ -224,7 +232,7 @@ class Validator {
 					}
 
 				}, (err) => {
-					this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+					this.error("Ruleset \"" + this.rulesetName + "\" failed to check hash. " + err);
 					throw err;
 				}).catch(() => {
 					this.finishRun();
@@ -288,7 +296,7 @@ class Validator {
 
 			}, (err) => {
 				//some unknown problem getting the list
-				this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + err);
+				this.error("Ruleset \"" + this.rulesetName + "\" failed. " + err);
 				throw err;
 			});
 
@@ -393,7 +401,7 @@ class Validator {
 				else
 					return lastResult;
 			}).catch((e) => {
-				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed.\n\t${e.message ? e.message : e}`;
+				const errorMsg = `${this.rulesetName}: Rule: "${this.ruleName}" failed. ${e.message ? e.message : e}`;
 				this.error(errorMsg);
 			}).then((lastResult) => {
 				if(validator.abort) {
@@ -429,7 +437,7 @@ class Validator {
 			// 	this.finishRun(this.displayInputFileName);	// If there are rules this will have been run asynchronously after the last run was run.
 
 		} catch(e) {
-			this.error("Ruleset \"" + this.rulesetName + "\" failed.\n\t" + e);
+			this.error("Ruleset \"" + this.rulesetName + "\" failed. " + e);
 			throw e;
 		}
 	}
@@ -577,8 +585,10 @@ class Validator {
 
 			const logger = new ErrorLogger();
 
-			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-				`Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`);
+			let msg = `Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`;
+
+			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined, msg);
+			console.log(`Run ${runId} ${msg}`);
 
 			this.data.saveRunRecord(runId, logger.getLog(),
 				null, null, null, logger.getCounts(),
@@ -745,6 +755,14 @@ class Validator {
 					passed = !this.abort;
 				}
 
+				this.outputResults.counts = this.logger.getCounts();
+				this.outputResults.summary = this.summary;
+				this.outputResults.inputFileName = this.displayInputFileName;
+				this.outputResults.outputFileName = this.outputFileName;
+				this.outputResults.passed = passed;
+				this.outputResults.finishtime = new Date();
+
+
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
 					this.currentRuleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
 					passed, this.summary, null, true, this.config.user, this.config.group)
@@ -784,7 +802,123 @@ class Validator {
 			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
 		}
 
-		console.log("Done.");
+		//generate the done message
+		this.logOutputResults();
+
+	}
+
+	logOutputResults() {
+
+		if(!this.outputResults.counts) {
+			this.outputResults.counts = []
+		}
+
+		if(!this.outputResults.summary) {
+			this.outputResults.summary = {}
+		}
+
+		let log = {
+			state: "finish",
+			runId: this.outputResults.runId,
+			startTime: this.outputResults.starttime,
+			finishTime: this.outputResults.finishtime,
+			passed: this.outputResults.passed,
+			user: this.outputResults.user,
+			group: this.outputResults.group,
+			numErrors: this.outputResults.counts[ErrorHandlerAPI.ERROR] || 0,
+			numWarnings: this.outputResults.counts[ErrorHandlerAPI.WARNING] || 0,
+			numDropped: this.outputResults.counts[ErrorHandlerAPI.DROPPED] || 0,
+			processedItems: this.outputResults.summary.processedItems || 0,
+			uploadedItems: this.outputResults.summary.outputitems || 0,
+			exported: this.outputResults.summary.exported || false,
+			wasSameFile: this.outputResults.summary.wasSkipped || false,
+			wasTest: this.outputResults.summary.wasTest || false,
+			rulesetId: this.outputResults.ruleset
+		};
+
+		let protocol = this.config.configHostProtocol || 'http';
+		log.runUrl = `${protocol}://${this.config.configHost}/run/${this.outputResults.runId}`;
+
+		function addConfig(source, target) {
+			if (source) {
+				Object.keys(source).forEach(function (key) {
+					if (!key.startsWith('__')) {
+						target[key] = source[key];
+					}
+				});
+			}
+		}
+
+		function addPropConfig(source, target, classname) {
+
+			if(!source) return;
+
+			let base = this.ruleLoader.classMap[classname];
+			let configProps = base ? base.ConfigProperties : null;
+			if (configProps) {
+				configProps.forEach((prop) => {
+					if (prop.name && !prop.private) {
+						target[prop.name] = source[prop.name];
+					}
+				});
+
+			} else {
+				addConfig.call(source, target);
+			}
+		}
+
+		if(this.currentRuleset) {
+			log.rulesetVersion = this.currentRuleset.version;
+			log.rulesetOwnerGroup = this.currentRuleset.ownergroup;
+			log.rulsetLastChangedTime = this.currentRuleset.updatetime;
+			log.rulesetLastChangedUser = this.currentRuleset.updateuser;
+
+			//custom fields
+			if(this.currentRuleset.custom && this.currentRuleset.custom.config) {
+				log.rulesetCustomFields = {};
+				Object.keys(this.currentRuleset.custom.config).forEach((key) => {
+					if(!key.startsWith('__')) {
+						log.rulesetCustomFields[key] = this.currentRuleset.custom.config[key];
+					}
+				});
+			}
+
+			// source & import
+			if(this.currentRuleset.sourceDetails) {
+				log.rulsetSourceName = this.currentRuleset.sourceDetails.description;
+				log.rulsetSourceId = this.currentRuleset.sourceDetails.rule_id;
+				log.rulsetSourceVersion = this.currentRuleset.sourceDetails.version;
+			}
+
+			if(this.currentRuleset.import) {
+				log.rulesetImportConfig = {};
+				log.rulesetImporter = this.currentRuleset.import.filename;
+
+				if(this.currentRuleset.import.config) {
+					addPropConfig.call(this, this.currentRuleset.import.config, log.rulesetImportConfig, log.rulesetImporter);
+				}
+			}
+
+			// target & export
+			if(this.currentRuleset.targetDetails) {
+				log.rulsetTargetName = this.currentRuleset.targetDetails.description;
+				log.rulsetTargetId = this.currentRuleset.targetDetails.rule_id;
+				log.rulsetTargetVersion = this.currentRuleset.targetDetails.version;
+			}
+
+			if(this.currentRuleset.export) {
+				log.rulesetExportConfig = {};
+				log.rulesetExporter = this.currentRuleset.export.filename;
+
+				if(this.currentRuleset.export.config) {
+					addPropConfig.call(this, this.currentRuleset.export.config, log.rulesetExportConfig, log.rulesetExporter);
+				}
+			}
+		}
+
+
+		console.log(JSON.stringify(log));
+
 
 	}
 
@@ -836,7 +970,7 @@ class Validator {
 				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 		}
 		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to.
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\". " + e);	// Can't create the outputDirectory to write to.
 			throw e;
 		}
 
@@ -874,7 +1008,7 @@ class Validator {
 				fs.mkdirSync(this.outputDirectory);	// Make sure the outputDirectory exists.
 		}
 		catch (e) {
-			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\".\n" + e);	// Can't create the outputDirectory to write to, so can't use this logger.
+			console.error(this.constructor.name + " failed to create \"" + this.outputDirectory + "\". " + e);	// Can't create the outputDirectory to write to, so can't use this logger.
 			throw e;
 		}
 
@@ -1078,7 +1212,7 @@ class Validator {
 			pluginClass = require(filename);
 		}
 		catch (e) {
-			throw("Failed to load plugin " + filename + ".\n\tCause: " + e);
+			throw("Failed to load plugin " + filename + ". Cause: " + e);
 		}
 		return pluginClass;
 	}

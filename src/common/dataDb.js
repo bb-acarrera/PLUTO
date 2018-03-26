@@ -871,7 +871,7 @@ class data {
      * @param ruleset the ruleset to write.
      * @private
      */
-    saveRuleSet ( ruleset, user, group, admin ) {
+    saveRuleSet ( ruleset, user, group, admin, isImport ) {
 
         let isAdmin = admin === true;
 
@@ -895,7 +895,15 @@ class data {
                         rowGroup = result.rows[0].owner_group;
                     }
 
-                    ruleset.version = version;
+                    if(!isImport) {
+                        ruleset.version = version;
+                    } else {
+                        if(version > ruleset.version) {
+                            reject('Must be newer than the current version to import');
+                            return;
+                        }
+                    }
+
 
                     if(this.config.forceUniqueTargetFile) {
                         targetFile = ruleset.target_file;
@@ -1279,12 +1287,12 @@ class data {
      * @param rule_id the name of the rule.
      * @return a promise to an object describing a rule.
      */
-    retrieveRule ( rule_id, version, dbId, group, admin, rulesLoader ) {
+    retrieveRule ( rule_id, version, dbId, group, admin, rulesLoader, name, type ) {
 
         let isAdmin = admin === true;
 
         return new Promise((resolve, reject) => {
-            getRule( this.db, rule_id, version, dbId, this.tables).then((result) => {
+            getRule( this.db, rule_id, version, dbId, this.tables, false, name, type).then((result) => {
                 if ( result.rows.length > 0 ) {
 
                     var rule = getRuleResult(result.rows[0], isAdmin, group, rulesLoader);
@@ -1847,9 +1855,9 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
     return new RuleSet(dbRuleset, ruleLoader);
 }
 
-function getRule(db, rule_id, version, dbId, tables, getDeleted) {
+function getRule(db, rule_id, version, dbId, tables, getDeleted, name, type) {
 
-    if ( !rule_id && !dbId ) {
+    if ( !rule_id && !dbId && !name ) {
         return new Promise( ( resolve, reject ) => {
             reject( "You must specify a rule name or id" );
         } );
@@ -1870,6 +1878,15 @@ function getRule(db, rule_id, version, dbId, tables, getDeleted) {
             query += "where id = $1";
 
             values.push(dbId);
+        } else if(name) {
+            query += "where description = $1";
+            values.push(name);
+
+            if(type) {
+                query += " AND type = $2";
+                values.push(type);
+            }
+
         } else {
             query += "where rule_id = $1";
             values.push(rule_id);

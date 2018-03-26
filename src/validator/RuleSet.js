@@ -105,7 +105,7 @@ class RuleSet {
 				contents = require(rulesetOverrideFile);
 			}
 			catch (e) {
-				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\".\n\t" + e);
+				throw("Failed to load ruleset override file \"" + rulesetOverrideFile + "\". " + e);
 			}
 
 			if (contents.import) {
@@ -143,19 +143,19 @@ class RuleSet {
 			let promises = [];
 
 			if(this.source) {
-				promises.push(this.updateSource(rulesLoader, group, admin));
+				promises.push(() => { return this.updateSource(rulesLoader, group, admin)});
 			}
 
 			if(this.target) {
-				promises.push(this.updateTarget(rulesLoader, group, admin));
+				promises.push(() => { return this.updateTarget(rulesLoader, group, admin)});
 			}
 
-
-			Promise.all(promises).then(() => {
+			serial(promises).then(() => {
 				resolve();
 			}).catch(() => {
 				resolve();
 			});
+
 		});
 
 
@@ -175,7 +175,7 @@ class RuleSet {
 					delete this.sourceDetails.config;
 				}
 
-				if(sourceConfig.config.linkedtargetid && !this.target) {
+				if(sourceConfig.config.linkedtargetid) { //overrides the existing target if there is one
 					//apply the source config to the target config; there is an assumption that the source and
 					// target have the same top-level configuration if they are linked
 					this.target = {
@@ -200,6 +200,12 @@ class RuleSet {
 
 	updateTarget(rulesLoader, group, admin) {
 		return new Promise((resolve) => {
+
+			if(this.targetResolved) {
+				resolve();
+				return;
+			}
+
 			rulesLoader.getDbRule(this.target.filename, group, admin).then((targetConfig) => {
 				if (targetConfig && targetConfig.type === 'target') {
 					this.export = {
@@ -213,6 +219,7 @@ class RuleSet {
 					delete this.targetDetails.config;
 				}
 
+				this.targetResolved = true;
 				resolve();
 			});
 		});
@@ -490,5 +497,19 @@ function updateConfig(dbItem, locItem, targetItem) {
 		}
 	}
 }
+
+/*
+ * serial executes Promises sequentially.
+ * @param {funcs} An array of funcs that return promises.
+ * @example
+ * const urls = ['/url1', '/url2', '/url3']
+ * serial(urls.map(url => () => $.ajax(url)))
+ *     .then(console.log.bind(console))
+ *
+ * from: https://stackoverflow.com/a/41115086/432170
+ */
+const serial = funcs =>
+	funcs.reduce((promise, func) =>
+		promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]));
 
 module.exports = RuleSet;

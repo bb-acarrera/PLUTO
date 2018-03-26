@@ -13,6 +13,10 @@
 			{{model.ruleset.filename}}
 		{{/if}}
 
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
 	</h2>
 
 </div>
@@ -26,8 +30,11 @@ Process URL: {{processURL}}
 
 <div class="ruleset-content" >
 
-	<div class="section-content ruleset-section-content">Name: {{input id="rulesetName" type="text"
-		value=model.ruleset.name class="text-input" disabled=disableEdit}}
+	<div class="section-content ruleset-section-content">
+		<div class="property-list-div">
+			<span class="property-list-title">Name: </span>
+			{{input id="rulesetName" type="text" value=model.ruleset.name class="text-input" disabled=disableEdit}}
+		</div>
 	</div>
 
     <!-- Reporting -->
@@ -324,6 +331,7 @@ Process URL: {{processURL}}
 	{{/edit-ruleset/collapse}}
 {{/if}}
 	<!-- custom fields -->
+{{#if (gt model.custom.length 0)}}
 	{{#edit-ruleset/collapse collapsed=false as |c| }}
 
 		{{#c.title}}
@@ -343,7 +351,7 @@ Process URL: {{processURL}}
 		{{/c.collapsable}}
 
 	{{/edit-ruleset/collapse}}
-
+{{/if}}
 	{{#if (not-eq model.ruleset.dovalidate false)}}
 
 		<!-- periodicity -->
@@ -487,7 +495,7 @@ Process URL: {{processURL}}
 
 	{{#bs-dropdown as |dd|}}
 		{{#bs-button onClick=(action "runRuleset") disabled=changed}}Upload{{/bs-button}}
-		{{#dd.button}}<span class="caret"></span>{{/dd.button}}
+		{{#dd.button  disabled=changed}}<span class="caret"></span>{{/dd.button}}
 		{{#dd.menu as |menudrops|}}
 			{{#menudrops.item}}
 				{{#bs-button onClick=(action "runRuleset" false true) disabled=changed class="md5button"}}Skip MD5 check{{/bs-button}}
@@ -512,6 +520,19 @@ Process URL: {{processURL}}
 
 		{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
             Save
+		{{/bs-button}}
+
+		{{#if applicationController.currentUser.features.showRulesetExport}}
+			{{#bs-button onClick=(action "exportRuleSet" model.ruleset) disabled=changed}}
+                Export to {{applicationController.currentUser.features.exportToLabel}}
+			{{/bs-button}}
+		{{/if}}
+
+    </span>
+{{else if applicationController.currentUser.features.allowOnlyRulesetImport }}
+    <span style="float: right">
+		{{#bs-button onClick=(action "deleteRuleset")}}
+			Delete
 		{{/bs-button}}
     </span>
 {{/if}}

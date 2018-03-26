@@ -35,12 +35,25 @@ function getIconClass() {
 
 	let dateStr = lastsuccess.format('MMMM Do YYYY, h:mm:ss a');
 
+    let hours = now.diff(lastsuccess, "hours");
     let days = now.diff(lastsuccess, "days");
     let months = now.diff(lastsuccess, "months");
 
 	let badMsg = "This validation is out of date. It is expected to update " + frequency.toLowerCase() + " but was last successfully processed on " + dateStr;
 	let badMsgMustChange = "This validation is out of date. It is expected to update and be changed " + frequency.toLowerCase() + " but was last uploaded on " + dateStr;
 	let goodMsg = "This validation was successfully processed within the expected updated frequency (" + frequency.toLowerCase() + ").";
+
+    let setHourTooltip = ()=> {
+        if(classes === bad) {
+            if(mustchange) {
+                this.set( 'ruleset.timestatus', badMsgMustChange + " (" + (hours + 1) + " hours ago)." );
+            } else {
+                this.set( 'ruleset.timestatus', badMsg + " (" + (hours + 1) + " hours ago)." );
+            }
+        } else {
+            this.set('ruleset.timestatus', goodMsg);
+        }
+    };
 
     let setDayTooltip = ()=> {
         if(classes === bad) {
@@ -66,7 +79,10 @@ function getIconClass() {
         }
     };
 
-    if(frequency === 'Daily') {
+    if(frequency === 'Hourly') {
+        classes = hours>0?bad:good;
+        setHourTooltip();
+    }else if(frequency === 'Daily') {
         classes = days>0?bad:good;
         setDayTooltip();
     } else if(frequency === 'Weekly') {
@@ -77,6 +93,9 @@ function getIconClass() {
         setMonthTooltip();
     } else if(frequency === 'Quarterly') {
         classes = months>3?bad:good;
+        setMonthTooltip();
+    } else if(frequency === 'Annually') {
+        classes = months>11?bad:good;
         setMonthTooltip();
     }
 

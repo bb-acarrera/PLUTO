@@ -47,6 +47,46 @@ class Importer {
         });
     }
 
+    getFileList(path) {
+        return new Promise((resolve, reject) => {
+            const s3 = new AWS.S3({
+                accessKeyId: this.config.accessId,
+                secretAccessKey: this.config.accessKey,
+                endpoint: this.config.endpoint,
+                sslEnabled: this.config.sslEnabled || false,
+                s3ForcePathStyle: this.config.forcePathStyle
+            });
+
+            ls(s3, this.config.bucket, path, function(err, data) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                let result = {
+                    files: [],
+                    folders: []
+                };
+
+                data.files.forEach((file) => {
+                    if(file) {
+                        result.files.push(file);
+                    }
+
+                });
+
+                data.folders.forEach((folder) => {
+                    if(folder) {
+                        result.files.push(folder);
+                    }
+
+                });
+
+            });
+
+        });
+    }
+
     static get Type() {
         return "importer";
     }
@@ -106,6 +146,43 @@ class Importer {
         ];
     }
 
+}
+
+function ls(s3, bucket, path, callback) {
+
+    if(!path) {
+        path = '';
+    }
+
+    var prefix = trimStart(trimEnd(path, '/') + '/', '/');
+    var result = {files: [], folders: []};
+
+    function s3ListCallback(error, data) {
+        if (error) return callback(error);
+
+        result.files = result.files.concat(data.Contents.map( x => x.Key !== prefix ? x.Key : null ));
+        result.folders = result.folders.concat(data.CommonPrefixes.map(x => x.Prefix));
+
+        if (data.IsTruncated) {
+            s3.listObjects({
+                Bucket: bucket,
+                MaxKeys: 2147483647, // Maximum allowed by S3 API
+                Delimiter: '/',
+                Prefix: prefix,
+                ContinuationToken: data.NextContinuationToken
+            }, s3ListCallback)
+        } else {
+            callback(null, result);
+        }
+    }
+
+    s3.listObjects({
+        Bucket: bucket,
+        MaxKeys: 2147483647, // Maximum allowed by S3 API
+        Delimiter: '/',
+        Prefix: prefix //,
+        //StartAfter: prefix // removes the folder name from the file listing
+    }, s3ListCallback);
 }
 
 module.exports = Importer;

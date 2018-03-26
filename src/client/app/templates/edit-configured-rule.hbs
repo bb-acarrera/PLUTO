@@ -9,13 +9,20 @@
         <div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
     </div>
 
-    <h2>{{title}} {{model.rule.description}}</h2>
+    <h2>
+		{{title}} {{model.rule.description}}
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
 
 
 </div>
 
 <div>
-    <div>
+    <div class='edit-label-input'>
         Name:
 		{{#unless (v-get model.rule 'description' 'isValid')}}
             <span class="error-color">{{v-get model.rule 'description' 'message'}}</span>

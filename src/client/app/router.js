@@ -25,6 +25,7 @@ Router.map(function() {
 
   //this.route('status');
   this.route('errorlog');
+  this.route('summary', {path: '/summary/:ruleset_id'});
 });
 
 export default Router;

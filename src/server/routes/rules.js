@@ -83,7 +83,7 @@ class RulesRouter extends BaseRouter {
             }
         };
         res.json({
-            data: fields
+            data: this.config.validatorConfig.customValidationFields ? fields : null
         });
     }
 
@@ -100,8 +100,10 @@ class RulesRouter extends BaseRouter {
                             label: 'Expected update frequency: ',
                             type: 'choice',
                             choices: [
+                                'Hourly',
                                 'Daily',
                                 'Weekly',
+                                'Monthly',
                                 'Quarterly',
                                 'Annually'
                             ]

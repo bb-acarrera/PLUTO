@@ -1,0 +1,47 @@
+<div>
+	{{#link-to 'rulesets' tagName='button' class='btn btn-success btn-sm btn-return-title'}}
+		{{#bs-tooltip placement="left"}}Return to main page{{/bs-tooltip}}
+		<i class="fa fa-angle-double-left"></i>
+	{{/link-to}}
+
+
+	<h2>Summary for
+		{{model.ruleset_id}}
+		{{model.ruleset}}
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
+
+</div>
+
+<div style="display:flex">
+	<span style="padding: 10px;">Days: </span>
+	<div style="padding:4px;">
+{{#bs-button-group
+	value=buttonGroupValue2
+	type="radio"
+	onChange=(action (mut buttonGroupValue2)) as |bg|}}
+	{{#bg.button value='week'}} Week {{/bg.button}}
+	{{#bg.button value='month'}} Month {{/bg.button}}
+	{{#bg.button value='quarter'}} Quarter {{/bg.button}}
+	{{#bg.button value='year'}} Year {{/bg.button}}
+{{/bs-button-group}}
+	</div>
+</div>
+{{#if (gt chartData.length 0)}}
+	<div style="background: #E8E8E8" >
+	<div>
+		<span style="padding: 10px;"> Total successes: <span class="good-color">{{model.result.totals.passed}}</span></span>
+		<span style="padding: 10px;"> Total failures: <span class="error-color">{{model.result.totals.failed}}</span></span>
+		<span style="padding: 10px;"> Total errors: <span class="error-color">{{model.result.totals.totalErrors}}</span></span>
+		<span style="padding: 10px;"> Total warnings: <span class="warning-color">{{model.result.totals.totalWarnings}}</span></span>
+	</div>
+	{{bar-chart data=chartData width=550 height=400}}
+	</div>
+{{else}}
+	No history of runs!
+{{/if}}
+{{outlet}}

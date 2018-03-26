@@ -28,6 +28,7 @@ example request
 class ProcessFileRouter extends BaseRouter {
     constructor(config) {
         super(config);
+        this.processCount = 0;
     }
 
     post(req, res, next) {
@@ -188,11 +189,15 @@ class ProcessFileRouter extends BaseRouter {
                 runId: runId
             })
         }, (err) => {
-            res.json({
-                status: 'Failed to start: ' + err,
-                ruleset: ruleset,
-                runId: null
-            });
+            if (err ==="too many tasks") {
+                res.status(429).send("Too many tasks are currently in progress");
+            } else {
+                res.json({
+                    status: 'Failed to start: ' + err,
+                    ruleset: ruleset,
+                    runId: null
+                });
+            }
         }).catch((e) => {
             res.json({
                 status: 'Failed to start: ' + e,
@@ -204,6 +209,11 @@ class ProcessFileRouter extends BaseRouter {
 
     processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
         return new Promise((resolve, reject) => {
+
+            if(this.config.validatorConfig.maxConcurrentTasks && (this.config.runningJobs.length - 1) >= this.config.validatorConfig.maxConcurrentTasks) {
+                reject("too many tasks");
+                return;
+            }
 
             let scriptPath = path.resolve(rootFolder, 'validator');
 
@@ -334,12 +344,8 @@ class ProcessFileRouter extends BaseRouter {
 
             };
 
-
-
-
-
             proc.on('error', (err) => {
-                console.log("spawn error: " + err);
+                console.error("unable to start validator: " + err);
 
                 finished();
 
@@ -347,32 +353,64 @@ class ProcessFileRouter extends BaseRouter {
             });
 
             proc.stdout.on('data', (data) => {
-                let str = data.toString();
-                console.log('stdout: ' + str);
+                splitConsoleOutput(data.toString()).forEach((str) => {
+                    let log = null;
 
-                let strs = str.split('\n');
-                for (var i = 0; i < strs.length; i++) {
-                    let s = strs[i];
-                    if(s.startsWith('runId:')) {
-                        runId = s.substr(6).trim();
-                        resolve(runId);
-                    } else if(s.startsWith('tempFolder:')) {
-                        tempFolder = s.substr('tempFolder:'.length).trim();
+                    try {
+                        log = JSON.parse(str);
+                    } catch (e) {
+
                     }
-                }
+
+                    if (log) {
+                        if (log.state && log.state === "start") {
+                            runId = log.runId;
+                            tempFolder = log.tempFolder;
+                            resolve(runId);
+                        }
+
+                        log.log = "plutorun";
+                        log.runId = runId;
+                        log.state = log.state || "running";
+
+                        console.log(log);
+
+                    } else {
+
+                        console.log({
+                            log: "plutorun",
+                            runId: runId,
+                            state: "running",
+                            messageType: "log",
+                            message: str
+                        });
+
+                    }
+                });
             });
 
             proc.stderr.on('data', (data) => {
-                console.log('stderr: ' + data.toString());
+
+                splitConsoleOutput(data.toString()).forEach((str) => {
+                    console.log({
+                        log: "plutorun",
+                        runId: runId,
+                        state: "running",
+                        messageType: "error",
+                        message: str
+                    });
+                });
+
             });
 
             proc.on('exit', (code) => {
 
-                if(code == null) {
-                    console.log('child process exited with out supplying a code.');
-                } else {
-                    console.log('child process exited with code ' + code.toString());
-                }
+                console.log({
+                    log: "plutorun",
+                    runId: runId,
+                    state: "exit",
+                    exitCode: code
+                });
 
 
                 finished();
@@ -406,13 +444,20 @@ class ProcessFileRouter extends BaseRouter {
                         //this shouldn't exist, but since it does let's clean it up
                         const logger = new ErrorLogger();
 
-                        if(terminationMsg) {
-                            logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                                terminationMsg);
-                        } else {
-                            logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                                `Run stopped without cleaning up. Server has marked this as finished.`);
+                        if(!terminationMsg) {
+                            terminationMsg = `Run stopped without cleaning up. Server has marked this as finished.`;
                         }
+
+                        logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                            terminationMsg);
+
+                        console.log({
+                            log: "plutorun",
+                            runId: runId,
+                            state: "post exit",
+                            messageType: "error",
+                            message: terminationMsg
+                        });
 
                         this.config.data.saveRunRecord(runId, logger.getLog(),
                             null, null, null, logger.getCounts(),
@@ -445,6 +490,37 @@ class ProcessFileRouter extends BaseRouter {
         const filename = Util.createGUID();
         return path.resolve(dirname, filename);
     }
+}
+
+function splitConsoleOutput(str) {
+
+    let arr = str.split(/[\r\n]+/);
+
+    //now, join the strings back up if there are a couple of spaces or a tab in the front, which likely indicates an
+    // exception or other joining
+
+    let outArr = [];
+    let joinedStr = "";
+
+    arr.forEach((str) => {
+
+        if(str.trim().length > 0) {
+            if(str.startsWith('  ') || str.startsWith('\t')) {
+                joinedStr += str + '\n';
+            } else {
+                if(joinedStr.length > 0) {
+                    outArr.push(joinedStr);
+                }
+
+                outArr.push(str);
+
+                joinedStr = "";
+
+            }
+        }
+    });
+
+    return outArr;
 }
 
 module.exports = ProcessFileRouter;

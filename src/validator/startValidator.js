@@ -42,16 +42,19 @@ if (!program.config)
         return "A configuration file must be specified.\n" + text;
     });
  if (!fs.existsSync(program.config)) {
-     console.log("Failed to find configuration file \"" + program.config + "\".\n");
+     console.log("Failed to find configuration file \"" + program.config + "\".");
      process.exit(1);
  }
 
 let config;
 try {
     config = require(path.resolve(__dirname, program.config));
+
+    config = Util.recursiveSubStringReplace(config, Util.replaceStringWithEnv);
+
 }
 catch (e) {
-    console.log("The configuration file cannot be loaded.\n" + e);
+    console.log("The configuration file cannot be loaded. " + e);
     process.exit(1);
 }
 
@@ -138,7 +141,7 @@ try {
     validator.runRuleset(inputFile, outputFile, inputEncoding, inputDisplayName);
 }
 catch (e) {
-    console.log("Failed.\n\t" + e);
+    console.log("Failed: " + e);
     validator.error("Failed: " + e);
     validator.finishRun();	// Write the log.
     process.exit(1);	// Quit.

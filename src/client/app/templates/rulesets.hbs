@@ -11,11 +11,16 @@
             <i class="fa fa-angle-double-left"></i>
 		{{/link-to}}
 	{{/if}}
+	<h2>
+		Validation Setups
 
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
 </div>
 <div>
-	<h2>Validation Setups</h2>
-
     <table id="rulesetTable" class="ruleset-table">
         <tr style="border-bottom: 1px solid grey;">
             <td>{{input placeholder="File" value=fileFilter class="input-cell"}}</td>
@@ -93,10 +98,17 @@
 							{{#bs-tooltip placement="top"}}Run validation and upload file{{/bs-tooltip}}
 						{{/bs-button}}
 
-						{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
-							Clone
-							{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
-						{{/bs-button}}
+						{{#unless applicationController.currentUser.features.allowOnlyRulesetImport}}
+							{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
+								Clone
+								{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
+							{{/bs-button}}
+						{{/unless}}
+
+						{{#link-to 'summary' rulesetInstance.filename tagName='button' class='btn btn-default'}}
+							{{#bs-tooltip placement="left"}}Run history{{/bs-tooltip}}
+							Summary
+						{{/link-to}}
 
 						{{#link-to 'editRuleset' rulesetInstance.filename (query-params run=false collapsed=false) tagName='button' class='btn btn-default'}}
 							{{#bs-tooltip placement="left"}}Edit Validation Setup{{/bs-tooltip}}
@@ -110,9 +122,11 @@
 		{{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
     </table>
 
-	{{#bs-button onClick=(action "setShowAddRuleset")}}
-        Add new file to load
-	{{/bs-button}}
+	{{#unless applicationController.currentUser.features.allowOnlyRulesetImport}}
+		{{#bs-button onClick=(action "setShowAddRuleset")}}
+			Add new file to load
+		{{/bs-button}}
+	{{/unless}}
 
 </div>
 
