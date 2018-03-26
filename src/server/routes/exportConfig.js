@@ -106,7 +106,17 @@ class ExportConfigRouter extends BaseRouter {
 						res.status(200).end();
 					} else {
 
-						res.statusMessage = `Error saving to remote. Got ${response.statusCode} with ${response.statusMessage}`;
+						let msg = `Error saving to remote. `;
+
+						if(response) {
+							msg += `${response.statusCode}: ${response.statusMessage} `
+						}
+
+						if(error) {
+							msg += `Error: ${error}`;
+						}
+
+						res.statusMessage = msg;
 						res.status(500).end();
 					}
 				});
@@ -146,7 +156,18 @@ class ExportConfigRouter extends BaseRouter {
 
 						resolve(info.data.attributes['rule-id']);
 					} else {
-						reject(`Error getting remote rule ${rule.description}. Got ${response.statusCode} with ${error}`);
+
+						let msg = `Error getting remote ${rule.type} ${rule.description}. `;
+
+						if(response) {
+							msg += `${response.statusCode}: ${response.statusMessage} `
+						}
+
+						if(error) {
+							msg += `Error: ${error}`;
+						}
+
+						reject(msg);
 					}
 				});
 
