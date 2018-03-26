@@ -1,5 +1,10 @@
 # PLUTO Change Log
 
+## 1.0.8
+### New Features
+
+### Bug Fixes and Minor Improvements
+
 ## 1.0.7
 ### New Features
 
