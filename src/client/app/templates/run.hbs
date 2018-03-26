@@ -17,6 +17,11 @@
 		{{else if failed}}
             <i class="fa fa-thumbs-down error-color"></i>
 		{{/if}}
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
 	</h3>
 
 </div>

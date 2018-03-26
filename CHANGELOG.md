@@ -6,6 +6,9 @@
 #### Validation Summary
 Added a new page off of the validations list from the "Summary" button, which shows a summary of the validation.
 
+#### Validation Export/Import
+Added the ability for a PLUTO instance to export validations to another PLUTO instance.
+
 ### Bug Fixes and Minor Improvements
  * added a docker reference stack (with logging, performance metrics, ElasticSearch, and Kibana)
  * Cleaned up logging from the web service to allow easier ingestion by Filebeat

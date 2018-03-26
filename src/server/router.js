@@ -10,6 +10,7 @@ const ProcessFileRouter = require('./routes/processFile');
 const UserRouter = require('./routes/user');
 const ConfiguredRulesRouter = require('./routes/configuredRules');
 const StatusRouter = require('./routes/status');
+const ExportConfigRouter = require('./routes/exportConfig');
 
 const base = '/api/v1';
 
@@ -25,6 +26,7 @@ class Router {
 		this.userRouter = new UserRouter(config);
 		this.configuredRulesRouter = new ConfiguredRulesRouter(config);
 		this.statusRouter = new StatusRouter(config);
+		this.exportConfigRouter = new ExportConfigRouter(config);
 
 
 
@@ -49,6 +51,8 @@ class Router {
         this._router.delete(base+'/rulesets/:id', (req, res, next) => this.rulesetRouter.delete(req, res, next) );
 		this._router.post(base+'/rulesets', (req, res, next) => this.rulesetRouter.insert(req, res, next) );
 
+		this._router.post(base+'/importruleset/:id', (req, res, next) => this.rulesetRouter.import(req, res, next) );
+
 		this._router.get(base+'/configuredrules', (req, res, next) => this.configuredRulesRouter.get(req, res, next) );
 		this._router.get(base+'/configuredrules/:id', (req, res, next) => this.configuredRulesRouter.get(req, res, next) );
 		this._router.patch(base+'/configuredrules/:id', (req, res, next) => this.configuredRulesRouter.patch(req, res, next) );
@@ -63,6 +67,8 @@ class Router {
 		this._router.post(base+'/processupload', (req, res, next) => this.processFileRouter.processUpload(req, res, next));
 
         this._router.get(base+'/statuses', (req, res, next) => this.statusRouter.get(req, res, next) );
+
+		this._router.post(base+'/exportconfig', (req, res, next) => this.exportConfigRouter.post(req, res, next))
 	}
 
 	get router() {

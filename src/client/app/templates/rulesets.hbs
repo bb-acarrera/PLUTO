@@ -11,7 +11,14 @@
             <i class="fa fa-angle-double-left"></i>
 		{{/link-to}}
 	{{/if}}
-	<h2>Validation Setups</h2>
+	<h2>
+		Validation Setups
+
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
+	</h2>
 </div>
 <div>
     <table id="rulesetTable" class="ruleset-table">
@@ -91,10 +98,12 @@
 							{{#bs-tooltip placement="top"}}Run validation and upload file{{/bs-tooltip}}
 						{{/bs-button}}
 
-						{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
-							Clone
-							{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
-						{{/bs-button}}
+						{{#unless applicationController.currentUser.features.allowOnlyRulesetImport}}
+							{{#bs-button onClick=(action "setShowAddRuleset" rulesetInstance.ruleset)}}
+								Clone
+								{{#bs-tooltip placement="top"}}Clone Validation Setup{{/bs-tooltip}}
+							{{/bs-button}}
+						{{/unless}}
 
 						{{#link-to 'summary' rulesetInstance.filename tagName='button' class='btn btn-default'}}
 							{{#bs-tooltip placement="left"}}Run history{{/bs-tooltip}}
@@ -113,9 +122,11 @@
 		{{show-paginator pages=model.rulesets.meta.totalPages current=rulePage target='rulePage' inc=(action 'incRulePage') dec=(action 'decRulePage')}}
     </table>
 
-	{{#bs-button onClick=(action "setShowAddRuleset")}}
-        Add new file to load
-	{{/bs-button}}
+	{{#unless applicationController.currentUser.features.allowOnlyRulesetImport}}
+		{{#bs-button onClick=(action "setShowAddRuleset")}}
+			Add new file to load
+		{{/bs-button}}
+	{{/unless}}
 
 </div>
 
