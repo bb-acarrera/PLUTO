@@ -529,6 +529,12 @@ Process URL: {{processURL}}
 		{{/if}}
 
     </span>
+{{else if applicationController.currentUser.features.allowOnlyRulesetImport }}
+    <span style="float: right">
+		{{#bs-button onClick=(action "deleteRuleset")}}
+			Delete
+		{{/bs-button}}
+    </span>
 {{/if}}
 
 {{#if processing}}

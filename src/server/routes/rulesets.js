@@ -143,7 +143,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 
-		if(this.config.allowOnlyRulesetImport) {
+		if(this.config.validatorConfig.allowOnlyRulesetImport) {
 			res.statusMessage = 'Only imports allowed';
 			res.status(405).end();
 			return;
@@ -209,7 +209,7 @@ class RulesetRouter extends BaseRouter {
 
 	insert(req, res, next) {
 
-		if(this.config.allowOnlyRulesetImport) {
+		if(this.config.validatorConfig.allowOnlyRulesetImport) {
 			res.statusMessage = 'Only imports allowed';
 			res.status(405).end();
 			return;

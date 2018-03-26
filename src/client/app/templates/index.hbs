@@ -16,9 +16,12 @@
 	Edit Validation Setups
 	{{/bs-button}}
 
-	{{#bs-button type="info" onClick=(action "setShowAddRuleset")}}
-        Add new file to load
-	{{/bs-button}}
+	{{#unless applicationController.currentUser.features.allowOnlyRulesetImport}}
+
+		{{#bs-button type="info" onClick=(action "setShowAddRuleset")}}
+			Add new file to load
+		{{/bs-button}}
+	{{/unless}}
 </div>
 
 {{add-ruleset showdialog=showAddRuleset parsers=model.parsers

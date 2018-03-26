@@ -87,8 +87,9 @@ export default Ember.Controller.extend( {
 		this.set('propStates', [])
 	}),
 
-	disableEdit: Ember.computed('model.ruleset.canedit', function() {
-		return !this.get('model.ruleset.canedit');
+	disableEdit: Ember.computed('model.ruleset.canedit',
+		'applicationController.currentUser.features.allowOnlyRulesetImport', function() {
+		return !this.get('model.ruleset.canedit') || this.get('applicationController.currentUser.features.allowOnlyRulesetImport');
 	}),
 	ownedBy: Ember.computed('model.ruleset.ownergroup', function() {
 		let group = this.get('model.ruleset.ownergroup');
