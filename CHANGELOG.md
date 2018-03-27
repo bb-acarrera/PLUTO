@@ -6,6 +6,7 @@
 ### Bug Fixes and Minor Improvements
  * Fixed problems reporting the correct row # when there are an inconsistent number of columns
  * Added the api folder to the PYTHONPATH in the containers, so the PLUTOAPI path can be deprecated
+ * Changed the python api to be expected in the PYTHONPATH, as well as adding the api folder to PYTHONPATH in the Docker container
 
 ## 1.0.7
 ### New Features
