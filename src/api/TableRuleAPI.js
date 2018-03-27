@@ -60,9 +60,9 @@ class TableRuleAPI extends ParserRuleAPI {
      * @param isHeaderRow {boolean} indicates that the row is a header row (when requested via processHeaderRows)
      * @returns {array} a record, either the original one if no modifications were carried out or a new one.
      */
-    processRecordWrapper(record, rowId, isHeaderRow) {
+    processRecordWrapper(record, rowId, isHeaderRow, rowNumber) {
 
-        const response = this.processRecord(record, rowId, isHeaderRow);
+        const response = this.processRecord(record, rowId, isHeaderRow, rowNumber);
 
         if(response instanceof Promise) {
             return new Promise((resolve, reject) => {
