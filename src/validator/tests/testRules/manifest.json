@@ -24,6 +24,11 @@
       "filename":"copyCurrentCSV",
       "script" : "copyCurrentCSV.py",
       "executable" : "python"
+    },
+    {
+      "filename":"noOp",
+      "script" : "noOp.py",
+      "executable" : "python"
     }
   ],
   "importers" : [],

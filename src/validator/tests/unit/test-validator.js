@@ -35,7 +35,7 @@ QUnit.module("Validator",
         }
     }, () => {
 
-
+/*
 
 QUnit.test( " No Config Creation Test", function(assert){
 
@@ -994,7 +994,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
         });
 
-
+*/
         QUnit.test( "internal rowId column added and removed on state change", function(assert) {
             const config = getDefaultConfig();
 
@@ -1090,6 +1090,12 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                         }
                     },
                     {
+                        filename : "noOp",
+                        config : {
+                            id : 8
+                        }
+                    },
+                    {
                         filename : "copyCurrentCSV",
                         config : {
                             id : 4,
@@ -1135,6 +1141,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
             const dbProxy = new DataProxy(ruleset,
                 (runId, log, ruleSetID, inputFile, outputFile) => {
                     assert.equal(vldtr.abort, false, "Expected initial run to pass");
+
                 }, checkIntermediateFile);
 
 
