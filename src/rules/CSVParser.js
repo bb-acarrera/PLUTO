@@ -313,6 +313,10 @@ class CSVParser extends TableParserAPI {
         }
     }
 
+    get ParserClassName() {
+        return "CSVParser";
+    }
+
     static get Type() {
         return "table_parser";
     }

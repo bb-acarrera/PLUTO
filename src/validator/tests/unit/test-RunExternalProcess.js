@@ -25,7 +25,7 @@ QUnit.module("RunExternalProcess tests", {
 			process.env['PLUTOAPI'] = apiPath;
 
         if(!process.env.PYTHONPATH || !process.env.PYTHONPATH.includes(apiPath))
-            process.env['PYTHONPATH'] = (process.env['PYTHONPATH'] || '') + ':' + path.resolve(process.cwd(), "api");
+            process.env['PYTHONPATH'] = (process.env['PYTHONPATH'] || '') + ':' + apiPath;
     },
     after: function() {
         process.chdir(originalCWD);

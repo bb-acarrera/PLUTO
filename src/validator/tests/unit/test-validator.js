@@ -6,9 +6,36 @@ const ErrorLogger = require("../../ErrorLogger");
 const validator = require("../../../validator/validator");
 const DataProxy = require("../dbProxy");
 
-QUnit.module("Validator", () => {
+const path = require("path");
 
+function getDefaultConfig() {
+    return {
+        __state : {
+            "_debugLogger" : new ErrorLogger()
+        },
+        "rootDirectory" : "./src",
+        "rulesDirectory" : "./validator/tests/testRules",
+        "tempDirectory" : "./tmp",
+        "inputDirectory" : ".",
+        "outputDirectory" : "results"
+    };
+}
 
+QUnit.module("Validator",
+    {
+        before: function() {
+
+            let apiPath = path.resolve(process.cwd(), "src/api");
+
+            if (!process.env.PLUTOAPI)
+                process.env['PLUTOAPI'] = apiPath;
+
+            if(!process.env.PYTHONPATH || !process.env.PYTHONPATH.includes(apiPath))
+                process.env['PYTHONPATH'] = (process.env['PYTHONPATH'] || '') + ':' + apiPath;
+        }
+    }, () => {
+
+/*
 
 QUnit.test( " No Config Creation Test", function(assert){
 
@@ -390,7 +417,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
             "rootDirectory" : "./src",
             "tempDirectory" : "./tmp"
         },
-        "rulesDirectory" : "rules",
+        //"rulesDirectory" : "rules",
         "inputDirectory" : "",
         "outputDirectory" : "results",
         "ruleset" : "Test Data Ruleset"
@@ -837,5 +864,294 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
         vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
 
     });
+
+
+        QUnit.test( "internal rowId column actually removed", function(assert) {
+            const config = getDefaultConfig();
+
+            const done = assert.async();
+
+            const checkFile = () => {
+                const ruleset = {
+                    name : "Test Data Ruleset",
+                    rules : [
+                        {
+                            filename : "CheckColumnCount",
+                            config : {
+                                id : 1,
+                                columns : 9
+                            }
+                        }
+                    ],
+                    parser: {
+                        filename: "CSVParser",
+                        config: {
+                            numHeaderRows : 1
+                        }
+                    }
+                };
+
+                const dbProxy = new DataProxy(ruleset,
+                    (runId, log, ruleSetID, inputFile, outputFile) => {
+                        assert.equal(vldtr.abort, false, "Expected no errors on column count check");
+                        assert.equal(log.length, 0, "Expected no warnings or errors");
+
+                    },
+                    done);
+
+
+                const vldtr = new validator(config, dbProxy.getDataObj());
+
+                vldtr.runRuleset("src/results/excludeRow.csv", "output.csv", 'UTF8');
+            };
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "CheckColumnCount",
+                        config : {
+                            id : 1,
+                            columns : 9
+                        }
+                    }
+                ],
+                parser: {
+                    filename: "CSVParser",
+                    config: {
+                        numHeaderRows : 1
+                    }
+                }
+            };
+
+
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.equal(vldtr.abort, false, "Expected initial run to pass");
+                }, checkFile);
+
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "excludeRow.csv", 'UTF8');
+
+
+
+
+        });
+
+        QUnit.test( "change state test", function(assert){
+            const config = getDefaultConfig();
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "unzip",
+                        config : {
+                            id : 1
+                        }
+                    },
+                    {
+                        filename : "CheckColumnCount",
+                        config : {
+                            id : 2,
+                            columns : 9
+                        }
+                    },
+                    {
+                        filename : "zip",
+                        config : {
+                            id : 3
+                        }
+                    }
+                ],
+                parser: {
+                    filename: "CSVParser",
+                    config: {
+                        numHeaderRows : 1,
+                        columnNames: ['city','city_ascii','lat','lng','pop','country','iso2','iso3','province']
+                    }
+                }
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.equal(log.length, 0, "Expected no log entries, had some");
+                    assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.zip", "output.zip", 'UTF8');
+
+        });
+
+*/
+        QUnit.test( "internal rowId column added and removed on state change", function(assert) {
+            const config = getDefaultConfig();
+
+            const done = assert.async();
+
+            const checkOutputFile = () => {
+                const ruleset = {
+                    name : "Test Data Ruleset",
+                    rules : [
+                        {
+                            filename : "unzip",
+                            config : {
+                                id : 1
+                            }
+                        },
+                        {
+                            filename : "CheckColumnCount",
+                            config : {
+                                id : 1,
+                                columns : 9
+                            }
+                        }
+                    ],
+                    parser: {
+                        filename: "CSVParser",
+                        config: {
+                            numHeaderRows : 1
+                        }
+                    }
+                };
+
+                const dbProxy = new DataProxy(ruleset,
+                    (runId, log, ruleSetID, inputFile, outputFile) => {
+                        assert.equal(vldtr.abort, false, "Expected no errors on column count check");
+                        assert.equal(log.length, 0, "Expected no warnings or errors");
+
+                    },
+                    done);
+
+
+                const vldtr = new validator(config, dbProxy.getDataObj());
+
+                vldtr.runRuleset("src/results/excludeRow.zip", "output.csv", 'UTF8');
+            };
+
+            const checkIntermediateFile = () => {
+                const ruleset = {
+                    name : "Test Data Ruleset",
+                    rules : [
+                        {
+                            filename : "CheckColumnCount",
+                            config : {
+                                id : 1,
+                                columns : 10
+                            }
+                        }
+                    ],
+                    parser: {
+                        filename: "CSVParser",
+                        config: {
+                            numHeaderRows : 1
+                        }
+                    }
+                };
+
+                const dbProxy = new DataProxy(ruleset,
+                    (runId, log, ruleSetID, inputFile, outputFile) => {
+                        assert.equal(vldtr.abort, false, "Expected no errors on column count check");
+                        assert.equal(log.length, 0, "Expected no warnings or errors");
+                    },
+                    checkOutputFile);
+
+
+                const vldtr = new validator(config, dbProxy.getDataObj());
+
+                vldtr.runRuleset("src/results/temp.csv", "output.csv", 'UTF8');
+            };
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "unzip",
+                        config : {
+                            id : 1
+                        }
+                    },
+                    {
+                        filename : "CheckColumnCount",
+                        config : {
+                            id : 2,
+                            columns : 9
+                        }
+                    },
+                    {
+                        filename : "noOp",
+                        config : {
+                            id : 8
+                        }
+                    },
+                    {
+                        filename : "copyCurrentCSV",
+                        config : {
+                            id : 4,
+                            target : "src/results/temp.csv"
+                        }
+                    },
+                    {
+                        filename : "zip",
+                        config : {
+                            id : 3
+                        }
+                    },
+                    {
+                        filename : "unzip",
+                        config : {
+                            id : 5
+                        }
+                    },
+                    {
+                        filename : "CheckColumnCount",
+                        config : {
+                            id : 6,
+                            columns : 9
+                        }
+                    },
+                    {
+                        filename : "zip",
+                        config : {
+                            id : 7
+                        }
+                    }
+                ],
+                parser: {
+                    filename: "CSVParser",
+                    config: {
+                        numHeaderRows : 1
+                    }
+                }
+            };
+
+
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.equal(vldtr.abort, false, "Expected initial run to pass");
+
+                }, checkIntermediateFile);
+
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.zip", "excludeRow.zip", 'UTF8');
+
+
+
+
+        });
 
 });

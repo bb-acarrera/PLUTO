@@ -1,0 +1,15 @@
+[
+  {
+    "name": "target",
+    "label": "Target file",
+    "type": "string",
+    "tooltip": ""
+  },
+  {
+    "shortdescription": "",
+    "longdescription": "",
+    "title": "copyCurrentCSV",
+    "changeFileFormat": false,
+    "parser": "CSVParser"
+  }
+]

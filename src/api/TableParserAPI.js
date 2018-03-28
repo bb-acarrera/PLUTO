@@ -1,9 +1,9 @@
-const RuleAPI = require("../api/RuleAPI");
+const ParserAPI = require("../api/ParserAPI");
 
 /**
 
  */
-class TableParserAPI extends RuleAPI {
+class TableParserAPI extends ParserAPI {
 
     /**
      * Derived classes must call this from their constructor.

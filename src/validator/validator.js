@@ -325,29 +325,56 @@ class Validator {
 			let cleanupRules = [];
 
 			if(this.parserClass) {
-
 				this.updateConfig(this.parserConfig);
-
-				if(this.parserClass.getParserSetupRule) {
-					const setup = this.parserClass.getParserSetupRule(this.parserConfig);
-					if(setup) {
-						rules.push(setup);
-					}
-
-				}
-
-				if(this.parserClass.getParserCleanupRule) {
-					const cleanup = this.parserClass.getParserCleanupRule(this.parserConfig);
-					if(cleanup) {
-						cleanupRules.push(cleanup);
-					}
-
-				}
 			}
+
+			let currentParserClass = null;
 
 			if (ruleset.dovalidate !== false) {
                 ruleset.rules.forEach( ( ruleConfig ) => {
                     let rule = this.getRule( ruleConfig );
+
+	                // if this rule is changing the sturcture, or the parser is changing
+	                if(rule.structureChange || currentParserClass != rule.ParserClassName) {
+
+		                //add the cleanup rules (if any)
+		                cleanupRules.forEach( ( cleanupRule ) => {
+			                rules.push( cleanupRule );
+		                } );
+		                cleanupRules = [];
+
+		                if(rule.structureChange) {
+			                currentParserClass = null;
+		                } else {
+
+			                currentParserClass = rule.ParserClassName;
+
+			                //for now, since we only support one parser, just make sure it's the same
+							if(this.parserClass && this.parserClass.name == rule.ParserClassName) {
+
+								if(this.parserClass.getParserSetupRule) {
+									const setup = this.parserClass.getParserSetupRule(this.parserConfig);
+									if(setup) {
+										rules.push(setup);
+									}
+
+								}
+
+								if(this.parserClass.getParserCleanupRule) {
+									const cleanup = this.parserClass.getParserCleanupRule(this.parserConfig);
+									if(cleanup) {
+										cleanupRules.push(cleanup);
+									}
+
+								}
+							} else {
+								currentParserClass = null;
+							}
+
+
+		                }
+
+	                }
 
                     if ( rule.getSetupRule ) {
                         const setup = rule.getSetupRule();
@@ -365,12 +392,6 @@ class Validator {
 
                     }
 
-                    if ( rule.structureChange ) {
-                        cleanupRules.forEach( ( cleanupRule ) => {
-                            rules.push( cleanupRule );
-                        } );
-                        cleanupRules = [];
-                    }
 
                     rules.push( rule );
 
