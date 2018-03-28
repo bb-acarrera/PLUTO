@@ -29,7 +29,9 @@ class RunExternalProcess extends OperatorAPI {
 		super(config);
 
 		this.changeFileFormat = this.config.attributes && this.config.attributes.changeFileFormat === true;
-		
+
+		this.requiredParser = this.config.attributes ? this.config.attributes.requiredParser : null;
+
 		// Create a unique socket.
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
 			this.socketName = cleanPipeName(path.resolve(config.__state.tempDirectory, config.attributes.executable + config.id + ".socket"));
@@ -256,6 +258,10 @@ class RunExternalProcess extends OperatorAPI {
 
 	get structureChange() {
 		return this.changeFileFormat;
+	}
+
+	get ParserClassName() {
+		return this.requiredParser;
 	}
 
 	static get ConfigProperties() {
