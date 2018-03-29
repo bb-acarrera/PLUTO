@@ -432,13 +432,13 @@ export default Ember.Controller.extend( {
 			return item.get('shortdescription');
 		},
 
-		getLongDescription(list, itemName) {
+		getLongDescription(list, itemName, required) {
 			var item = findRuleConfig.call(this, list, itemName);
 
 			if(!item)
 				return null;
 
-			return item.get('longdescription');
+			return (required? "This is a required rule. ":"") + item.get('longdescription');
 		},
 
 		getTitle(list, itemName) {

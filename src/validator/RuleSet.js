@@ -229,6 +229,25 @@ class RuleSet {
 		return this.ruleMap[ruleId];
 	}
 
+	injectFields(validatorConfig) {
+        let createGUID = function () {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString( 16 );
+            } )
+        };
+
+        if(validatorConfig.requiredRules) {
+            this.rules = [];
+            validatorConfig.requiredRules.forEach((rule)=>{
+            	if (!rule.config) rule.config = {};
+            	rule.config.id = createGUID();
+                this.rules.push(rule);
+			});
+
+        }
+	}
+
 	addMissingData(validatorConfig) {
 
 		if(validatorConfig) {
@@ -323,6 +342,7 @@ function addRules(rules) {
 		dstRule.filename = srcRule.filename;
 		dstRule.name = srcRule.name || srcRule.filename;
 		dstRule.ui = srcRule.ui;
+		dstRule.injected = srcRule.injected;
 
 		if(!dstRule.config.id) {
 			dstRule.config.id = Util.createGUID();
