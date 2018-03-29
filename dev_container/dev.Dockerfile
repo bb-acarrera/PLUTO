@@ -9,3 +9,4 @@ RUN mv /code/node_modules /node_modules
 VOLUME ["/code"]
 ENV PLUTOAPI /code/src/api
 ENV PLUTOCONFIG /code/src/runtime
+ENV PYTHONPATH="${PYTHONPATH}:/code/src/api"

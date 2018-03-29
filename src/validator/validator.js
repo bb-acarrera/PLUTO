@@ -95,9 +95,17 @@ class Validator {
 			throw e;
 		}
 
+		this.outputResults = {
+			starttime: new Date(),
+			user: this.config.user,
+			group: this.config.group,
+			ruleset: this.config.ruleset
+		};
+
 		this.data.createRunRecord(this.config.ruleset, this.config.user, this.config.group).then((runId) => {
 
 			this.runId = runId;
+			this.outputResults.runId = runId;
 
 			console.log(JSON.stringify({state: "start", runId: runId, tempFolder: this.tempDir}));
 
@@ -317,29 +325,56 @@ class Validator {
 			let cleanupRules = [];
 
 			if(this.parserClass) {
-
 				this.updateConfig(this.parserConfig);
-
-				if(this.parserClass.getParserSetupRule) {
-					const setup = this.parserClass.getParserSetupRule(this.parserConfig);
-					if(setup) {
-						rules.push(setup);
-					}
-
-				}
-
-				if(this.parserClass.getParserCleanupRule) {
-					const cleanup = this.parserClass.getParserCleanupRule(this.parserConfig);
-					if(cleanup) {
-						cleanupRules.push(cleanup);
-					}
-
-				}
 			}
+
+			let currentParserClass = null;
 
 			if (ruleset.dovalidate !== false) {
                 ruleset.rules.forEach( ( ruleConfig ) => {
                     let rule = this.getRule( ruleConfig );
+
+	                // if this rule is changing the sturcture, or the parser is changing
+	                if(rule.structureChange || currentParserClass != rule.ParserClassName) {
+
+		                //add the cleanup rules (if any)
+		                cleanupRules.forEach( ( cleanupRule ) => {
+			                rules.push( cleanupRule );
+		                } );
+		                cleanupRules = [];
+
+		                if(rule.structureChange) {
+			                currentParserClass = null;
+		                } else {
+
+			                currentParserClass = rule.ParserClassName;
+
+			                //for now, since we only support one parser, just make sure it's the same
+							if(this.parserClass && this.parserClass.name == rule.ParserClassName) {
+
+								if(this.parserClass.getParserSetupRule) {
+									const setup = this.parserClass.getParserSetupRule(this.parserConfig);
+									if(setup) {
+										rules.push(setup);
+									}
+
+								}
+
+								if(this.parserClass.getParserCleanupRule) {
+									const cleanup = this.parserClass.getParserCleanupRule(this.parserConfig);
+									if(cleanup) {
+										cleanupRules.push(cleanup);
+									}
+
+								}
+							} else {
+								currentParserClass = null;
+							}
+
+
+		                }
+
+	                }
 
                     if ( rule.getSetupRule ) {
                         const setup = rule.getSetupRule();
@@ -357,12 +392,6 @@ class Validator {
 
                     }
 
-                    if ( rule.structureChange ) {
-                        cleanupRules.forEach( ( cleanupRule ) => {
-                            rules.push( cleanupRule );
-                        } );
-                        cleanupRules = [];
-                    }
 
                     rules.push( rule );
 
@@ -603,8 +632,10 @@ class Validator {
 
 			const logger = new ErrorLogger();
 
-			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-				`Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`);
+			let msg = `Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`;
+
+			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined, msg);
+			console.log(`Run ${runId} ${msg}`);
 
 			this.data.saveRunRecord(runId, logger.getLog(),
 				null, null, null, logger.getCounts(),
@@ -771,6 +802,14 @@ class Validator {
 					passed = !this.abort;
 				}
 
+				this.outputResults.counts = this.logger.getCounts();
+				this.outputResults.summary = this.summary;
+				this.outputResults.inputFileName = this.displayInputFileName;
+				this.outputResults.outputFileName = this.outputFileName;
+				this.outputResults.passed = passed;
+				this.outputResults.finishtime = new Date();
+
+
 				this.data.saveRunRecord(this.runId, this.logger.getLog(),
 					this.currentRuleset, this.displayInputFileName, this.outputFileName, this.logger.getCounts(),
 					passed, this.summary, null, true, this.config.user, this.config.group)
@@ -810,7 +849,123 @@ class Validator {
 			this.error('Unable to delete folder: ' + this.tempDir + '.  Reason: ' + e);
 		}
 
-		console.log("Done.");
+		//generate the done message
+		this.logOutputResults();
+
+	}
+
+	logOutputResults() {
+
+		if(!this.outputResults.counts) {
+			this.outputResults.counts = []
+		}
+
+		if(!this.outputResults.summary) {
+			this.outputResults.summary = {}
+		}
+
+		let log = {
+			state: "finish",
+			runId: this.outputResults.runId,
+			startTime: this.outputResults.starttime,
+			finishTime: this.outputResults.finishtime,
+			passed: this.outputResults.passed,
+			user: this.outputResults.user,
+			group: this.outputResults.group,
+			numErrors: this.outputResults.counts[ErrorHandlerAPI.ERROR] || 0,
+			numWarnings: this.outputResults.counts[ErrorHandlerAPI.WARNING] || 0,
+			numDropped: this.outputResults.counts[ErrorHandlerAPI.DROPPED] || 0,
+			processedItems: this.outputResults.summary.processedItems || 0,
+			uploadedItems: this.outputResults.summary.outputitems || 0,
+			exported: this.outputResults.summary.exported || false,
+			wasSameFile: this.outputResults.summary.wasSkipped || false,
+			wasTest: this.outputResults.summary.wasTest || false,
+			rulesetId: this.outputResults.ruleset
+		};
+
+		let protocol = this.config.configHostProtocol || 'http';
+		log.runUrl = `${protocol}://${this.config.configHost}/run/${this.outputResults.runId}`;
+
+		function addConfig(source, target) {
+			if (source) {
+				Object.keys(source).forEach(function (key) {
+					if (!key.startsWith('__')) {
+						target[key] = source[key];
+					}
+				});
+			}
+		}
+
+		function addPropConfig(source, target, classname) {
+
+			if(!source) return;
+
+			let base = this.ruleLoader.classMap[classname];
+			let configProps = base ? base.ConfigProperties : null;
+			if (configProps) {
+				configProps.forEach((prop) => {
+					if (prop.name && !prop.private) {
+						target[prop.name] = source[prop.name];
+					}
+				});
+
+			} else {
+				addConfig.call(source, target);
+			}
+		}
+
+		if(this.currentRuleset) {
+			log.rulesetVersion = this.currentRuleset.version;
+			log.rulesetOwnerGroup = this.currentRuleset.ownergroup;
+			log.rulsetLastChangedTime = this.currentRuleset.updatetime;
+			log.rulesetLastChangedUser = this.currentRuleset.updateuser;
+
+			//custom fields
+			if(this.currentRuleset.custom && this.currentRuleset.custom.config) {
+				log.rulesetCustomFields = {};
+				Object.keys(this.currentRuleset.custom.config).forEach((key) => {
+					if(!key.startsWith('__')) {
+						log.rulesetCustomFields[key] = this.currentRuleset.custom.config[key];
+					}
+				});
+			}
+
+			// source & import
+			if(this.currentRuleset.sourceDetails) {
+				log.rulsetSourceName = this.currentRuleset.sourceDetails.description;
+				log.rulsetSourceId = this.currentRuleset.sourceDetails.rule_id;
+				log.rulsetSourceVersion = this.currentRuleset.sourceDetails.version;
+			}
+
+			if(this.currentRuleset.import) {
+				log.rulesetImportConfig = {};
+				log.rulesetImporter = this.currentRuleset.import.filename;
+
+				if(this.currentRuleset.import.config) {
+					addPropConfig.call(this, this.currentRuleset.import.config, log.rulesetImportConfig, log.rulesetImporter);
+				}
+			}
+
+			// target & export
+			if(this.currentRuleset.targetDetails) {
+				log.rulsetTargetName = this.currentRuleset.targetDetails.description;
+				log.rulsetTargetId = this.currentRuleset.targetDetails.rule_id;
+				log.rulsetTargetVersion = this.currentRuleset.targetDetails.version;
+			}
+
+			if(this.currentRuleset.export) {
+				log.rulesetExportConfig = {};
+				log.rulesetExporter = this.currentRuleset.export.filename;
+
+				if(this.currentRuleset.export.config) {
+					addPropConfig.call(this, this.currentRuleset.export.config, log.rulesetExportConfig, log.rulesetExporter);
+				}
+			}
+		}
+
+
+		console.log(JSON.stringify(log));
+
 
 	}
 

@@ -9,6 +9,26 @@
     },
     {
       "filename":"RuleCountRows"
+    },
+    {
+      "filename":"unzip",
+      "script" : "unzip.py",
+      "executable" : "python"
+    },
+    {
+      "filename":"zip",
+      "script" : "zip.py",
+      "executable" : "python"
+    },
+    {
+      "filename":"copyCurrentCSV",
+      "script" : "copyCurrentCSV.py",
+      "executable" : "python"
+    },
+    {
+      "filename":"noOp",
+      "script" : "noOp.py",
+      "executable" : "python"
     }
   ],
   "importers" : [],

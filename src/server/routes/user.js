@@ -35,6 +35,15 @@ class RulesetRouter extends BaseRouter {
 
 			this.features.hideTestButtons = this.config.validatorConfig.hideTestButtons;
 
+			if(this.config.validatorConfig.exportRulesets) {
+				this.features.showRulesetExport = true;
+				this.features.exportToLabel = this.config.validatorConfig.exportRulesets.exportToLabel
+			}
+
+			this.features.allowOnlyRulesetImport = this.config.validatorConfig.allowOnlyRulesetImport;
+			this.features.environmentLabel = this.config.validatorConfig.environmentLabel;
+			this.features.borderColor = this.config.validatorConfig.borderColor;
+
 		}
 	}
 
@@ -67,7 +76,12 @@ class RulesetRouter extends BaseRouter {
 							admin: auth.admin,
 							apiurl: this.apiURL,
 							features: {
-								hideTestButtons: this.features.hideTestButtons
+								hideTestButtons: this.features.hideTestButtons,
+								showRulesetExport: this.features.showRulesetExport,
+								exportToLabel: this.features.exportToLabel,
+								allowOnlyRulesetImport: this.features.allowOnlyRulesetImport,
+								environmentLabel: this.features.environmentLabel,
+								borderColor: this.features.borderColor
 							}
 						}
 					}

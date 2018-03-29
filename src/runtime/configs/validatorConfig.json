@@ -87,6 +87,14 @@
 	"runMaximumDuration": 600,
 	"maxConcurrentTasks": 10,
 
+	"exportRulesets" : {
+		"exportToLabel": "Production",
+		"hostBaseUrl": "http://localhost:3000"
+	},
+
+	"environmentLabel": "Development",
+	"allowOnlyRulesetImport": false,
+	
 	"requiredRules": [
 		{
 		"config": {

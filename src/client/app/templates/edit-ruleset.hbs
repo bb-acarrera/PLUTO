@@ -13,6 +13,10 @@
 			{{model.ruleset.filename}}
 		{{/if}}
 
+		{{#if applicationController.currentUser.features.environmentLabel}}
+            in {{applicationController.currentUser.features.environmentLabel}}
+		{{/if}}
+
 	</h2>
 
 </div>
@@ -517,6 +521,19 @@ Process URL: {{processURL}}
 
 		{{#bs-button onClick=(action "saveRuleSet" model.ruleset) disabled=invalid}}
             Save
+		{{/bs-button}}
+
+		{{#if applicationController.currentUser.features.showRulesetExport}}
+			{{#bs-button onClick=(action "exportRuleSet" model.ruleset) disabled=changed}}
+                Export to {{applicationController.currentUser.features.exportToLabel}}
+			{{/bs-button}}
+		{{/if}}
+
+    </span>
+{{else if applicationController.currentUser.features.allowOnlyRulesetImport }}
+    <span style="float: right">
+		{{#bs-button onClick=(action "deleteRuleset")}}
+			Delete
 		{{/bs-button}}
     </span>
 {{/if}}

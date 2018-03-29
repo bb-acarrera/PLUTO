@@ -8,7 +8,7 @@ class Exporter {
 		this.config = config;
 	}
 
-	exportFile(sourceFileName, runId, errorLog) {
+	exportFile(sourceFileName) {
 
 		return new Promise((resolve, reject) => {
 

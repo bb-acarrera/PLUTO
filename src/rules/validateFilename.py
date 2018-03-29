@@ -5,17 +5,7 @@ import imp
 import sys
 from shutil import copyfile
 
-plutoAPI = os.environ.get('PLUTOAPI')
-if not plutoAPI:
-	print("PLUTOAPI enviroment variable must be set and point to the directory containing PythonAPI.py.", file=sys.stderr)
-	sys.exit(1)
-
-try:
-	apiPath = os.path.join(plutoAPI, "PythonAPI.py")
-	api = imp.load_source('PythonAPI', apiPath)
-except IOError:
-	print("Failed to load the PythonAPI from \"" + plutoAPI + "\".", file=sys.stderr)
-	sys.exit(1)
+import PythonAPI as api
 
 class ValidateFilename(api.PythonAPIRule):
 	def __init__(self, config):
