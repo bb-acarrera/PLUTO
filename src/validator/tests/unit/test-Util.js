@@ -103,7 +103,9 @@ QUnit.test( "Util: recursiveSubStringReplace", function(assert){
             {
                 val: "1"
             }
-        ]
+        ],
+        "numVal": 1,
+        "boolVal": true
     };
 
     let outObj = Util.recursiveSubStringReplace(obj, () => {
@@ -114,6 +116,8 @@ QUnit.test( "Util: recursiveSubStringReplace", function(assert){
     assert.equal(outObj.obj.val, "2");
     assert.equal(outObj.arr[0], "2");
     assert.equal(outObj.arrObj[0].val, "2");
+    assert.equal(outObj.numVal, 1);
+    assert.equal(outObj.boolVal, true);
 
 });
 
