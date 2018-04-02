@@ -4,7 +4,13 @@
         <h4 class="modal-title">
 			Add new file to load
 			{{#if ruleset}}
-				from {{ruleset.filename}}
+				from
+				{{#if ruleset.name}}
+					{{ruleset.name}}
+				{{else}}
+					{{ruleset.filename}}
+				{{/if}}
+
 			{{/if}}
 
         </h4>
