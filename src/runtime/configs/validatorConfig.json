@@ -45,10 +45,7 @@
 			"type": "string",
 			"validations": [
 				{
-					"presence": true,
-					"length": {
-						"min": 1
-					}
+					"presence": true
 
 				}
 			]
