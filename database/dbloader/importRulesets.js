@@ -212,6 +212,24 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 
 		config = require(validatorConfigPath);
 
+		let Util = null;
+		try {
+			Util = require('./Util.js');
+		} catch(e) {}
+
+		if(!Util) {
+			try {
+				Util = require('../../src/common/Util.js');
+			} catch(e) {}
+		}
+
+		if(!Util) {
+			console.log("Unable to find the Util.js module.");
+			process.exit(1);
+		}
+
+		config = Util.recursiveSubStringReplace(config, Util.replaceStringWithEnv);
+
 	} else {
 		config = {
 			dbUser: program.username,

@@ -97,6 +97,8 @@ mkdir $DBLOADER_DST/migrations
 cp $DBLOADER_SRC/* $DBLOADER_DST
 cp $DBLOADER_SRC/migrations/* $DBLOADER_DST/migrations
 
+cp $SRC/common/Util.js $DBLOADER_DST
+
 echo "Build the server docker image"
 docker build -t pluto:develop -f $SERVER_DST/Dockerfile $DST/server
 
