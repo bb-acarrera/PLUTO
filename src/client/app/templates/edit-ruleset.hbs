@@ -343,7 +343,7 @@ Process URL: {{processURL}}
 						uiList=(compute (action "getUiProperties") model.custom model.ruleset.custom.filename)
 						config=model.ruleset.custom.config
 						disabled=disableEdit
-						validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.custom.filename)
+						validators=(compute (action "getUiValidators") model.custom model.ruleset.custom.filename)
 						state=propStates
 						validateOnInit=true
 						instanceName="custom"
@@ -366,7 +366,7 @@ Process URL: {{processURL}}
 							uiList=(compute (action "getUiProperties") model.periodicity model.ruleset.periodicity.filename)
 							config=model.ruleset.periodicity.config
 							disabled=disableEdit
-							validators=(compute (action "getUiValidators") model.rulesetconfiguis model.ruleset.periodicity.filename)
+							validators=(compute (action "getUiValidators") model.periodicity model.ruleset.periodicity.filename)
 							state=propStates
 							instanceName="periodicity"
 							columns=columns}}
