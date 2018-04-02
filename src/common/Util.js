@@ -77,9 +77,7 @@ class Util {
 		function recursiveReplace (objSource) {
 			if (typeof objSource === 'string') {
 				return replaceFn(objSource);
-			}
-
-			if (typeof objSource === 'object') {
+			} else if (typeof objSource === 'object') {
 				if (objSource === null) {
 					return null;
 				}
@@ -91,6 +89,7 @@ class Util {
 				return objSource;
 			}
 
+			return objSource;
 		}
 
 		return recursiveReplace(source);
