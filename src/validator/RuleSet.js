@@ -281,19 +281,43 @@ class RuleSet {
 				name: 'droppedPctToAbort',
 				label: 'How many dropped items as a percentage of the total before aborting?',
 				type: 'number',
-				tooltip: 'Stop execution when this percent of items are dropped.'
+				tooltip: 'Stop execution when this percent of items are dropped.',
+				validations: [
+					{
+						number : {
+							gte: 1,
+							allowBlank: true
+						}
+					}
+				]
 			},
 			{
 				name: 'droppedToAbort',
 				label: 'How many total dropped items before aborting?',
 				type: 'integer',
-				tooltip: 'Stop execution when these many dropped items occur.'
+				tooltip: 'Stop execution when these many dropped items occur.',
+				validations: [
+					{
+						number : {
+							gte: 1,
+							allowBlank: true
+						}
+					}
+				]
 			},
 			{
 				name: 'warningsToAbort',
 				label: 'How many total warnings before aborting?',
 				type: 'integer',
-				tooltip: 'Stop execution when this many warnings occur.'
+				tooltip: 'Stop execution when this many warnings occur.',
+				validations: [
+					{
+						number : {
+							gte: 1,
+							allowBlank: true
+						}
+					}
+				]
 			}
 		];
 	}

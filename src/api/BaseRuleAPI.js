@@ -74,13 +74,29 @@ class BaseRuleAPI extends ErrorHandlerAPI {
                 name: 'droppedToAbort',
                 label: 'How many dropped items before aborting on this rule?',
                 type: 'integer',
-                tooltip: 'Stop execution when these many errors occur.'
+                tooltip: 'Stop execution when these many errors occur.',
+                validations: [
+                    {
+                        number : {
+                            gte: 1,
+                            allowBlank: true
+                        }
+                    }
+                ]
             },
             {
                 name: 'warningsToAbort',
                 label: 'How many warnings before aborting on this rule?',
                 type: 'integer',
-                tooltip: 'Stop execution when these many warnings occur.'
+                tooltip: 'Stop execution when these many warnings occur.',
+                validations: [
+                    {
+                        number : {
+                            gte: 1,
+                            allowBlank: true
+                        }
+                    }
+                ]
             }
         ];
 

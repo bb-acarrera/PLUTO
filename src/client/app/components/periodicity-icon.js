@@ -28,7 +28,7 @@ function getIconClass() {
     //     return bad;
     // }
 
-    if(!lastsuccess) {
+    if(!lastsuccess || !lastsuccess.isValid()) {
         this.set('ruleset.timestatus', "This validation has an expected update of " + frequency.toLowerCase() + " but has never been uploaded.");
         return bad;
     }

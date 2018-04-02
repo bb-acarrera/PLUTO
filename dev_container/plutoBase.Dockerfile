@@ -14,4 +14,4 @@ RUN apk add --no-cache --virtual .build-deps g++ && \
     pip install --no-cache-dir pandas==${PANDAS_VERSION} && \
     apk del .build-deps
 
-RUN pip install --upgrade requests
+RUN pip install --upgrade requests==2.18.4

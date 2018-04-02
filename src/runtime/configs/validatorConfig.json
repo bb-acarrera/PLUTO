@@ -42,7 +42,13 @@
 			"name": "source",
 			"label": "Source",
 			"tooltip": "Where did this data come from?",
-			"type": "string"
+			"type": "string",
+			"validations": [
+				{
+					"presence": true
+
+				}
+			]
 		},
 		{
 			"name": "contact",
