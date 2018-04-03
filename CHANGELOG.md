@@ -13,6 +13,7 @@
  * Added client validations to the validation general config and base rule properties
  * Fixed error in the environment variable replacement with non-strings
  * Added environment variable replacement support to the database loader scripts
+ * Disable export button if validation is not valid
 
 ## 1.0.7
 ### New Features
