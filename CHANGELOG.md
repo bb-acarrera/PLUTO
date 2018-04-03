@@ -4,9 +4,15 @@
 ### New Features
 
 ### Bug Fixes and Minor Improvements
- * Fixed problems reporting the correct row # when there are an inconsistent number of columns
+ * Fixed problems reporting the correct row number when there are an inconsistent number of columns
  * Added the api folder to the PYTHONPATH in the containers, so the PLUTOAPI path can be deprecated
  * Changed the python api to be expected in the PYTHONPATH, as well as adding the api folder to PYTHONPATH in the Docker container
+ * Changed rule setup workflow in the validator to support non-parser rules (e.g. unzip a csv)
+ * Fixed clone pop-up show the validation id, now shows name
+ * Set the Python module Request to version 2.18.4 in the containers
+ * Added client validations to the validation general config and base rule properties
+ * Fixed error in the environment variable replacement with non-strings
+ * Added environment variable replacement support to the database loader scripts
 
 ## 1.0.7
 ### New Features
