@@ -35,7 +35,11 @@ class RulesetRouter extends BaseRouter {
 
 			this.features.hideTestButtons = this.config.validatorConfig.hideTestButtons;
 
-			if(this.config.validatorConfig.exportRulesets) {
+			if(this.config.validatorConfig.exportRulesets &&
+				this.config.validatorConfig.exportRulesets.hostBaseUrl &&
+				typeof this.config.validatorConfig.exportRulesets.hostBaseUrl === 'string' &&
+				this.config.validatorConfig.exportRulesets.hostBaseUrl.trim().length > 0) {
+
 				this.features.showRulesetExport = true;
 				this.features.exportToLabel = this.config.validatorConfig.exportRulesets.exportToLabel
 			}

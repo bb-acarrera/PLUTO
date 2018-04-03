@@ -14,6 +14,7 @@
  * Fixed error in the environment variable replacement with non-strings
  * Added environment variable replacement support to the database loader scripts
  * Disable export button if validation is not valid
+ * Only show the export button if the remote host URL is set
 
 ## 1.0.7
 ### New Features
