@@ -606,7 +606,9 @@ class Validator {
 
 			const logger = new ErrorLogger();
 
-			let msg = `Appears to have stopped without cleaning up. Another run (${this.runId}) has marked this as finished.`;
+			let msg = `Appears to have stopped without cleaning up and was not cleaned up by the server that
+			 started it, likely due to a failure/crash of the server on that server. Another run (${this.runId})
+			 waiting to process the same file has marked this as finished.`;
 
 			logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined, msg);
 			console.log(`Run ${runId} ${msg}`);
