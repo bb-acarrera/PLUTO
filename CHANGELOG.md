@@ -3,6 +3,9 @@
 ## 1.0.8
 ### New Features
 
+#### Required Rules
+Globally required rules can now be specified in the validatorConfig.json, including specific properties. Validations that are missing required rules (or the required config) will fail, new validations will have the required rules automatically added.
+
 ### Bug Fixes and Minor Improvements
  * Fixed problems reporting the correct row number when there are an inconsistent number of columns
  * Added the api folder to the PYTHONPATH in the containers, so the PLUTOAPI path can be deprecated
