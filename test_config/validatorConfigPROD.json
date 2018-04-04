@@ -6,8 +6,8 @@
 	"dbUser" : "pluto",
 	"dbPassword" : "password",
 	"dbDatabase" : "pluto",
-	"dbHost" : "192.168.1.1",
-	"dbPort" : "7654",
+	"dbHost" : "pluto_db_prod",
+	"dbPort" : "5432",
 	"configHost": "localhost:4000",
 	"configHostProtocol": "http",
 	"reporters": [

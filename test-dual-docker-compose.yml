@@ -1,0 +1,126 @@
+version: '3'
+services:
+  pluto_db_qa:
+    image: postgres:9.6-alpine
+    volumes:
+      - pgdataQA:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=pluto
+      - POSTGRES_DB=pluto
+    networks:
+      - qa
+
+  pluto_dbloader_qa:
+    image: pluto_dbloader:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+      - ./test_config/validatorConfigQA.json:/opt/PLUTO/config/validatorConfig.json
+    networks:
+      - qa
+
+  pluto_nginx_qa:
+    image: nginx:stable-alpine
+    volumes:
+      - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8001:8001
+      - 8002:8002
+      - 8003:8003
+      - 8004:8004
+    networks:
+      - qa
+
+  pluto_s3server_qa:
+    image: scality/s3server
+    ports:
+      - 8000:8000
+    volumes:
+      - s3-dataQA:/usr/src/app/localData
+      - s3-metaQA:/usr/src/app/localMetadata
+    networks:
+      - qa
+
+  pluto_ws_qa:
+    image: pluto:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+      - ./test_config/validatorConfigQA.json:/opt/PLUTO/config/validatorConfig.json
+    ports:
+      - 3000:3000
+    networks:
+      - qa
+
+
+
+ 
+  pluto_db_prod:
+    image: postgres:9.6-alpine
+    volumes:
+      - pgdataPROD:/var/lib/postgresql/data
+    ports:
+      - 7654:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=pluto
+      - POSTGRES_DB=pluto
+    networks:
+      - prod
+
+  pluto_dbloader_prod:
+    image: pluto_dbloader:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+      - ./test_config/validatorConfigPROD.json:/opt/PLUTO/config/validatorConfig.json
+    networks:
+      - prod
+
+  pluto_nginx_prod:
+    image: nginx:stable-alpine
+    volumes:
+      - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 9001:8001
+      - 9002:8002
+      - 9003:8003
+      - 9004:8004
+    networks:
+      - prod
+
+  pluto_s3server_prod:
+    image: scality/s3server
+    ports:
+      - 9000:8000
+    volumes:
+      - s3-dataPROD:/usr/src/app/localData
+      - s3-metaPROD:/usr/src/app/localMetadata
+    networks:
+      - prod
+
+  pluto_ws_prod:
+    image: pluto:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+      - ./test_config/validatorConfigPROD.json:/opt/PLUTO/config/validatorConfig.json
+    ports:
+      - 4000:3000  
+    networks:
+      - prod
+
+volumes:
+  pgdataQA:
+  s3-dataQA:
+  s3-metaQA:
+  pgdataPROD:
+  s3-dataPROD:
+  s3-metaPROD:
+  
+networks:
+  qa:   
+    
+  prod:
+    
+
+
