@@ -15,6 +15,7 @@
  * Added environment variable replacement support to the database loader scripts
  * Disable export button if validation is not valid
  * Only show the export button if the remote host URL is set
+ * Improved the error messaging on unhandled validator exit
 
 ## 1.0.7
 ### New Features
