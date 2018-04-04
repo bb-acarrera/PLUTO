@@ -97,30 +97,12 @@
 	
 	"requiredRules": [
 		{
-		"config": {
-			"columns": "9",
-			"onError": "abort"
-		},
-		"filename": "CheckColumnCount",
-		"injected": true
-		},
-		{
 			"config": {
-				"onError": "abort",
 				"orderMatch": "ignore",
 				"extraColumns": "Warning",
 				"missingColumns": "Error"
 			},
-			"filename": "CheckColumnNames",
-			"injected": true
-		},
-		{
-			"config": {
-				"onError": "abort",
-				"column": "city",
-				"type": "string"
-			},
-			"filename": "CheckColumnType",
-			"injected": true
-		}]
+			"filename": "CheckColumnNames"
+		}
+	]
 }

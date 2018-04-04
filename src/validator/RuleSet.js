@@ -230,18 +230,19 @@ class RuleSet {
 	}
 
 	injectFields(validatorConfig) {
-        let createGUID = function () {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString( 16 );
-            } )
-        };
 
-        if(validatorConfig.requiredRules) {
-            this.rules = [];
-            validatorConfig.requiredRules.forEach((rule)=>{
-            	if (!rule.config) rule.config = {};
-            	rule.config.id = createGUID();
+		if(validatorConfig.requiredRules) {
+            this.rules = this.rules || [];
+            validatorConfig.requiredRules.forEach((srcRule)=>{
+
+	            let rule = {
+		            filename: srcRule.filename,
+		            injected: true
+	            };
+	            rule.config = srcRule.config || {};
+
+
+            	rule.config.id = Util.createGUID();
                 this.rules.push(rule);
 			});
 
