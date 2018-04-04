@@ -1,156 +1,262 @@
-# Rule User Interface Configuration
+# ValidatorConfig
 
-In order for users to be able to configure rules in a validation/ruleset basic information (e.g. title, description, etc.) as well as per-property information. There are differences in how this is down for JavaScript rules and external rules, but most of the structure is the same.
+`validatorConfig.json` is used by the PLUTO web server as well as the validator for configuration. It should provide
+information on how to connect to its database, where the rules manifest is located, where to put temporary files, and
+some other information.  The sample config looks like:
 
-## JavaScript Rules
-The different aspects of the configuration (descriptions, config properties, and config defaults) are exposed through three static functions on the class. Details on building JavaScript rules can be found [here][javascriptRules].
-
-## External Rules 
-For an external process rule the description of the rule's UI is done within a separate JSON file. Details on how to map an external rule to the configuration file can be found [here][externalProcessRules]. The json should be an array of objects, with one object for each config property, plus a final object containing the descriptions.
-
-For example:
-```json
-[
-	{
-		"name": "regex",
-		"label": "Regular Expression",
-		"type": "string",
-		"tooltip": "The regular expression to use to validate the filename.",
-		"default": "",
-		"validations": [
-			{
-				"length": {
-					"min": 1
-				}
+```
+{
+	"rulesDirectory" : "/opt/PLUTO/config/customRules",
+	"tempDirectory" : "/opt/PLUTO/config/tmp",
+	"dbUser" : "pluto",
+	"dbPassword" : "password",
+	"dbDatabase" : "pluto",
+	"dbHost" : "192.168.0.1",
+	"dbPort" : "5432",
+	"configHost": "localhost:3000",
+	"configHostProtocol": "http",
+	"reporters": [
+		{
+			"filename": "smtpReporter",
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {}
 			}
-		]
-    },
-	{
-		"title": "Check Filename",
-        "shortdescription": "Validate the name of the source file.",
-		"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-		"changeFileFormat": false,
-		"parser": "CSVParser"
-	}
-]
-```
-
-## Config Properties
-Each object in the list describes a single property that is exposed to the user for configuration.  It's expected properties are:
-```json
-{
-	"name": "regex",
-	"label": "Regular Expression",
-	"type": "string",
-	"tooltip": "The regular expression to use to validate the filename.",
-	"default": "",
-	"validations": []
-}
-```
-
-### name
-The internal name of the property. This will match the property name on the config object that is passed to the rule during execution. This field is required and must be a unique (to this rule), non-empty string.
-
-### label
-The string used in the UI placed before the entry field. Not required, but should be short and descriptive. If it's not supplied the name will be used.
-
-### type
-The property type, which will determine the kind of entry field shown to the user. Can be one of:
- * boolean
- * choice
- * column
- * date
- * integer
- * list
- * number
- * string
- * time
-
-If the type isn't set or doesn't match this list, then the string type is used.
-
-#### boolean
-Displays a check-box, if the value doesn't exists will be unchecked.
-
-#### choice
-Displays a dropdown, and an array of choice objects under the property `choices` must be supplied. For example:
-```javascript
-{
-	name: 'type',
-	label: 'Column Type',
-	type: 'choice',
-	choices: [
-		{value:'string', label:'String'},
-		{value:'float', label:'Float'},
-		{value:'integer', label:'Integer'},
-		{value:'iso_8061_datetime', label:'ISO 8601 Datetime'}
+		}
 	],
-	tooltip: 'The expected data type of the given column.'
+	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
+	"rootDirectory" : "/opt/PLUTO/config",
+	"runPollingInterval": 10,
+	"runMaximumDuration": 600,
+	"customValidationFields": [
+        {
+            "name": "custom",
+            "label": "Custom Field",
+            "tooltip": "Custom Field",
+            "type": "string"
+        }
+    ],
+    
+    "forceUniqueTargetFile": true,
+    
+    "exportRulesets" : {
+    		"exportToLabel": "Production",
+    		"hostBaseUrl": "http://localhost:3000"
+    },
+    
+    "allowOnlyRulesetImport": false,
+    
+    "environmentLabel": "Development",
+    
+	"requiredRules": [
+		{
+			"config": {
+				"orderMatch": "ignore",
+				"extraColumns": "Warning",
+				"missingColumns": "Error"
+			},
+			"filename": "CheckColumnNames"
+		}
+	]
+    
 }
 ```
- Where each choice object must have 2 properties:
- **value** is the property value to use for this choice
- **label** is the label to display in the dropdown for this choice
- 
- If the current property value does not match any values under the `choices` array or the value not present and no default is supplied, the current value will display as `Choose`.
- 
-#### column
-Similar to the choice, a dropdown will be displayed, but the options will the the column names as defined in the parser. It is not recommended that a default be specified.
- 
-#### date
-Will display a `date` entry field, and use the browser default date selector.
- 
-#### integer
-Will display a browser defualt number entry field with an increment of 1.
- 
-#### list
-Will display a standard text entry field, but expects a comma-separated list of values. Is used by the csv parser colunm names property.
- 
-#### number
-Will display a browser defualt number entry field with an increment of 0.01.
 
-#### string
-Will display a standard text entry field
+Environment variables can be inserted into any string via "${MY_ENV_VAR}". E.g.:
 
-#### time
-Will display a browser default time entry field.
-
-### tooltip
-A more descriptive string for this property.  Will appear as a tooltip when the user hovers over the label in the UI.
-
-### default
-Only used by external rules (defaults are handled differently for JavaScript rules), and is the default value that appears in the entry field when a new instance of the rule is created in the UI.
-
-### validations
-An array of validation objects to validate the value of the property in the UI. Details on how to configure the validation can be found at https://github.com/poteto/ember-changeset-validations#validator-api. The key difference is that for each validation object, there should be a single property (e.g. length), which will get converty to a `ember-changeset-validations` validator function (e.g. validateLength), and the sub-object are the expected properties for that validator function. 
-
-
-## Descriptions
-The descriptions object is used for describing the rule. It's expected properties are:
-
-```json
+```
 {
-	"title": "Check Filename",
-    "shortdescription": "Validate the name of the source file.",
-	"longdescription": "This rule validates the name of the source file against a regular expression. An error is reported if the filename fails to match the regular expression.",
-	"changeFileFormat": false,
-    "parser": "CSVParser"
+    "dbPassword" : "${PLTUO_DB_PASSWORD}"
 }
 ```
 
-### title
-The string used in the rule selector drop-down as well as the in the title bar section of added rules. If not present, the name from the manifest will be used. Should be a unique, short, non-empty string.
+with the environment variable `PLUTO_DB_PASSWORD` set to `superSecretPassword` result in:
 
-### shortdescription
-A short tooltip for the rule that will appear when hovering over the title text in the Validation Setup page.
+```
+{
+    "dbPassword" : "superSecretPassword"
+}
+```
 
-### longdescription
-A detailed description of the rule that will appear as an info icon.
+## rulesDirectory
+The folder where the manifest for the custom rules is located. It's expected that the custom rules are located in this folder, but not required. For more details on custom rules see TBD.
 
-### changeFileFormat
-Currently only used by external rules, setting this value to true will indicate that this rule will convert the file from one format to another (e.g. geojson to csv).  This is necessary so any parser-specific added data (e.g. original line numbers from the source csv) will be removed before this rule executes.
+## tempDirectory
+The folder where a temporary files created by the validator should be placed.
 
-### parser
-This property is used to restrict the list of rules available in a validation based on the parser the user has chosen (e.g. rules that require a csv file and no parser is set). The value should either be left out (if no parser is needed) or the name of a valid parser from the list of available parsers in the manifests.
+## dbUser
+User to use for connecting to the Postgres database. `initPluto.sh` uses this to create the database if none exists. Default is `pluto`
 
-[externalProcessRules]: externalProcessRules.md
-[javascriptRules]: javascriptRules.md
+## dbPassword
+The password for dbUser. `initPluto.sh` uses this to create the database if none exists. Default is `password`.
+
+## dbDatabase
+The name of the database to connect to. `initPluto.sh` uses this to create the database if none exists. Default is `pluto`.
+
+## dbHost
+The hostname or ip address of the server hosting the database. There is no default.
+
+## dbPort
+The port that Postgres is listening on. `initPluto.sh` uses this as the port to expose to the database. Default is `5432`.
+
+## dbSchema
+The Postgres schema that all PLUTO tables, views, etc. in the database should exist under. Defualt is `pluto`.
+
+## configHost
+The hostname of the sever host the PLUTO web server.  This is used by the emailer when generating links to processed files.
+
+## configHostProtocol
+The protocol to use in generated links to the PLUTO web server. Defaults to "http" if not set.
+
+## reporters
+Reporters are plugins that send a summary of a processed file's results, such as sending an email. By default, PLUTO
+comes with an email reporter that can be configured to connect to an smtp server to send emails.
+
+On the config object, reporters must be an array of object, with each object being a unique reporter type. You can learn
+more about building custom reporters (or other plugins) in the Plugins documentation (TODO). The structure should look like:
+
+```
+{ ...
+    "reporters" : [
+        {
+            "filename": "a reporter", 
+            "title": "Summary Email", 
+            "sendOn": "always", 
+            "id": 0,
+            "config": {} 
+        }
+    ]
+```
+The properties are:
+#### filename
+The name of the reporter plugin to use, as specified in the manifest.  Pluto include "smtpReporter" to send emails to a SMTP server.
+
+#### id
+Required if there is more than one reporter. A unique number to use for the reporters, so Pluto can properly hook up the UI properties to the saved values in a validation. 
+
+#### config
+The custom configuration for the reporter plugin. See smtpReporter below for configurtion of the smtpReporter plugin.
+
+#### title
+The title to display in the UI for this reporter.
+
+#### sendOn
+By default, Pluto will always send a report.  This property specifies when to send reports:
+ * "always": Always send a report (default)
+ * "failed": Only send reports if the processing job failed
+ * "warned": Send reports if the processing job failed, or if there were warnings or dropped rows
+
+### smtpReporter
+The smtpReporter is a reporter plugin included with the default PLUTO that can be used to send email summaries of processed
+files. The configuration in validatorConfig.json should look like:
+
+```
+{ ...
+    "reporters": [
+		{
+			"filename": "smtpReporter",
+			"title": "Summary Email",
+			"sendOn": "always",
+			"id": 0,
+			"config": {
+				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
+				"smtpConfig": {}
+			}
+		}
+	]
+}
+```
+
+It's properties are:
+
+#### smtpConfig
+This configures the connection to the smtp server so that emails can be sent from the validator once processing is complete.
+PLUTO uses Nodemailer's (https://nodemailer.com) smtp transport, and smtpConfig is passed directly to createTransport. 
+Details on configuration can be found at https://nodemailer.com/smtp/
+
+#### emailFrom
+This is what will appear in the From on sent emails
+
+## rulesetDirectory
+Folder where sample validations, upload configurations, and download configurations are stored that are use by the pluto_dbloader.
+
+## rootDirectory
+A base folder that can be used as the root for other folders like rulesDirectory, rulesetDirectory and tempDirectory. If they're specified as relative, they'll be relative to the rootDirectory. For production, it's recommended to use absolute paths for these folders.
+
+## runPollingInterval
+The frequency (in seconds) that a run will check if older runs processing the same file are finished. Default is 10 seconds.
+
+## runMaximumDuration
+The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
+
+## customValidationFields
+Additional fields that appear in the validation setup (under Additional Information) that can be used as meta-data or other information, but is ignored by the validation engine.   
+
+```
+{ ...
+    "customValidationFields": [
+        {
+            "name": "custom",
+            "label": "Custom Field",
+            "tooltip": "Custom Field",
+            "type": "string"
+        },
+        {
+            "name": "custom2",
+            "label": "Custom Field 2",
+            "tooltip": "Custom Field 2",
+            "type": "integer"
+        }
+    ],
+}
+```
+Each field is an object in the customValidationFields array, with the properties describing the field. See the Config Properties section of the [Config Properties] page for details on the fields specification.
+
+
+## forceUniqueTargetFile
+If set to true, each validation must have a unique target file name across all uploads, and users will get an error if they attempt to create a duplicate.
+
+## maxConcurrentTasks
+Maximum number of allowed concurrent jobs. Cancels the incoming task and returns http error if exceeded. 
+
+## exportRulesets
+Configuration for exporting rulesets/validations another instance of PLUTO.  When set, a button titled "Export to ${exportToLabel}" will appear on the Edit Validation page and allow users to copy the current ruleset to that instance.
+
+``` json
+    "exportRulesets" : {
+    		"exportToLabel": "Production",
+    		"hostBaseUrl": "http://localhost:3000"
+    	}
+```
+
+### exportToLabel
+The label to use for the other instance, and will appear in the export button.
+
+### hostBaseUrl
+The base url to the app server of the other PLUTO instance
+
+## allowOnlyRulesetImport
+If set to true, users will be unable to add or edit rulesets (but will be able to delete). The only way rulesets can be added or changed is via export from another instance.
+  
+## environmentLabel
+A label to use to identify this PLUTO instance, and is appended to the title of every page.
+
+## requiredRules
+```json
+	"requiredRules": [
+		{
+			"config": {
+				"orderMatch": "ignore",
+				"extraColumns": "Warning",
+				"missingColumns": "Error"
+			},
+			"filename": "CheckColumnNames"
+		}
+	]
+```
+A list of rules that must be present on every validation, and if not present the validation will fail. Any validation created will have these rules automatically added. Each object in the list represents a single rule with the properties:
+
+ - **filename**: this is the id of the rule, as defined in the rules manifest.  This property must be set to a valid rule id.
+ - **config**: is an optional object that specifies what values the rule config should have. Any missing required rule properties are can be set by the user to any value; if a validation rule is missing any required properties then validation fails. If the config object is missing, then the user can set any rule values.
+
+[Config Properties]: ruleUiConfig.md  
