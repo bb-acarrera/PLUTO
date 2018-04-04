@@ -279,9 +279,17 @@ class ProcessFileRouter extends BaseRouter {
             let proc = child_process.spawn(spawnCmd, spawnArgs, options);
 
             let terminationMessage = null;
+            let runId = null;
 
             function runTimeout() {
-                console.log(`Child process for took too long. Terminating.`);
+                console.log({
+                    log: "plutorun",
+                    runId: runId,
+                    state: "running",
+                    messageType: "log",
+                    message: `Child process for took too long. Terminating.`
+                });
+
                 terminationMessage = `Run took too long and was terminated by the server.`;
                 TreeKill(proc.pid);
             }
@@ -304,8 +312,10 @@ class ProcessFileRouter extends BaseRouter {
             this.config.runningJobs.push({terminate:terminate});
 
             const timeoutId = setTimeout(runTimeout, this.config.runMaximumDuration * 1000);
-            let runId = null;
+
             let tempFolder = null;
+
+            let fullLog = '';
 
             const finished = () => {
 
@@ -333,7 +343,7 @@ class ProcessFileRouter extends BaseRouter {
                     finishedFn();
                 }
 
-                this.cleanupRun(runId, tempFolder, terminationMessage)
+                this.cleanupRun(runId, tempFolder, terminationMessage, fullLog)
                     .then(() => {}, () => {}).catch(() => {}).then(() => {
 
                     if(run && run.finishedFn) {
@@ -345,7 +355,12 @@ class ProcessFileRouter extends BaseRouter {
             };
 
             proc.on('error', (err) => {
-                console.error("unable to start validator: " + err);
+
+                let message = "unable to start validator: " + err;
+
+                fullLog += message + '\n';
+
+                console.error(message);
 
                 finished();
 
@@ -353,6 +368,9 @@ class ProcessFileRouter extends BaseRouter {
             });
 
             proc.stdout.on('data', (data) => {
+
+                fullLog += 'stdout: ' + data + '\n';
+
                 splitConsoleOutput(data.toString()).forEach((str) => {
                     let log = null;
 
@@ -391,6 +409,8 @@ class ProcessFileRouter extends BaseRouter {
 
             proc.stderr.on('data', (data) => {
 
+                fullLog += 'stderr: ' + data + '\n';
+
                 splitConsoleOutput(data.toString()).forEach((str) => {
                     console.log({
                         log: "plutorun",
@@ -423,7 +443,7 @@ class ProcessFileRouter extends BaseRouter {
         })
     }
 
-    cleanupRun(runId, tempFolder, terminationMsg) {
+    cleanupRun(runId, tempFolder, terminationMsg, msgLog) {
 
         if(tempFolder && fs.existsSync(tempFolder)) {
             rimraf.sync(tempFolder, null, (e) => {
@@ -445,7 +465,11 @@ class ProcessFileRouter extends BaseRouter {
                         const logger = new ErrorLogger();
 
                         if(!terminationMsg) {
-                            terminationMsg = `Run stopped without cleaning up. Server has marked this as finished.`;
+                            terminationMsg = `Run terminated unexpectedly without cleaning up. Server has marked this as finished.`;
+                        }
+
+                        if(msgLog) {
+                            terminationMsg += '\nConsole output:\n' + msgLog;
                         }
 
                         logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
