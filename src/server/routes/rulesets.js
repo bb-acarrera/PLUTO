@@ -225,6 +225,7 @@ class RulesetRouter extends BaseRouter {
 			req.body.ruleset.ruleset_id = new_rulesetId;
 			ruleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
 			ruleset.addMissingData(this.config.validatorConfig);
+            ruleset.injectFields(this.config.validatorConfig);
 		} else {
 			ruleset = new RuleSet({
 				filename: new_rulesetId,

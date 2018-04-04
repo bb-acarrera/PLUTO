@@ -99,5 +99,16 @@
 	},
 
 	"environmentLabel": "Development",
-	"allowOnlyRulesetImport": false
+	"allowOnlyRulesetImport": false,
+	
+	"requiredRules": [
+		{
+			"config": {
+				"orderMatch": "ignore",
+				"extraColumns": "Warning",
+				"missingColumns": "Error"
+			},
+			"filename": "CheckColumnNames"
+		}
+	]
 }

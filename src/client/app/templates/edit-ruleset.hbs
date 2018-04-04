@@ -381,14 +381,14 @@ Process URL: {{processURL}}
 
 		{{#edit-ruleset/collapse initialCollapsed=(get this (concat "collapseRule" ruleInstance.config.id) ) as |c| }}
 			{{#c.subTitle}}
-				<span class="rule-header">
+				<span class="rule-header {{if ruleInstance.injected 'injected-rule' ''}}">
 					{{compute (action "getTitle") model.rules ruleInstance.filename}}
 					{{#unless (eq ruleInstance.name ruleInstance.filename)}}
 						- {{ruleInstance.name}}
 					{{/unless}}
 					{{#if (compute (action "getLongDescription") model.rules ruleInstance.filename)}}
 						<i class="fa fa-info-circle fa-fw info-color">
-							{{#bs-popover triggerEvents="hover" onShow=(action "hideTooltip")}}{{compute (action "getLongDescription") model.rules ruleInstance.filename}}{{/bs-popover}}
+							{{#bs-popover triggerEvents="hover" onShow=(action "hideTooltip")}}{{compute (action "getLongDescription") model.rules ruleInstance.filename ruleInstance.injected}}{{/bs-popover}}
 						</i>
 					{{/if}}
 					{{#if (compute (action "getShortDescription") model.rules ruleInstance.filename)}}
@@ -408,10 +408,11 @@ Process URL: {{processURL}}
 						{{#bs-button onClick=(action "moveRuleDown" model.ruleset index bubbles=false) size='sm'}}
                             <i class="fa fa-arrow-down"></i>
 						{{/bs-button}}
-
-						{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
-                            <i class="fa fa-trash"></i>
-						{{/bs-button}}
+						{{#unless ruleInstance.injected}}
+							{{#bs-button onClick=(action "deleteRule" ruleInstance bubbles=false) size='sm'}}
+								<i class="fa fa-trash"></i>
+							{{/bs-button}}
+						{{/unless}}
 					</span>
 
 

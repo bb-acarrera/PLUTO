@@ -229,6 +229,26 @@ class RuleSet {
 		return this.ruleMap[ruleId];
 	}
 
+	injectFields(validatorConfig) {
+
+		if(validatorConfig.requiredRules) {
+            this.rules = this.rules || [];
+            validatorConfig.requiredRules.forEach((srcRule)=>{
+
+	            let rule = {
+		            filename: srcRule.filename,
+		            injected: true
+	            };
+	            rule.config = srcRule.config || {};
+
+
+            	rule.config.id = Util.createGUID();
+                this.rules.push(rule);
+			});
+
+        }
+	}
+
 	addMissingData(validatorConfig) {
 
 		if(validatorConfig) {
@@ -347,6 +367,7 @@ function addRules(rules) {
 		dstRule.filename = srcRule.filename;
 		dstRule.name = srcRule.name || srcRule.filename;
 		dstRule.ui = srcRule.ui;
+		dstRule.injected = srcRule.injected;
 
 		if(!dstRule.config.id) {
 			dstRule.config.id = Util.createGUID();

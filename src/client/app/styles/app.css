@@ -352,3 +352,7 @@ body > div.ember-view  {
     overflow: auto;
     overflow-x: hidden;
 }
+
+.injected-rule {
+    background: bisque;
+}

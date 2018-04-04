@@ -397,6 +397,32 @@ class Validator {
 
                 } );
 
+
+                if(this.config.requiredRules) {
+                    this.config.requiredRules.forEach( ( reqRule ) => {
+						let res = ruleset.rules.find(function(r){
+							let ret = (r.filename === reqRule.filename);
+                            for (let key in reqRule.config) {
+                            	if(key !== "id"){
+									if (reqRule.config.hasOwnProperty(key)) {
+										ret = ret && (reqRule.config[key] == r.config[key]);
+									}
+                                }
+                            }
+                            return ret;
+						});
+                        if (!res) {
+                        	let configResult = "";
+                        	for (let ruleKey in reqRule.config) {
+                        		configResult += " " + ruleKey + " = " + reqRule.config[ruleKey] + ";";
+							}
+                            this.error("Missing or misconfigured required rule " + reqRule.filename + " with the following configuration: " + configResult);
+                        }
+                    } );
+                }
+
+
+
                 cleanupRules.forEach( ( cleanupRule ) => {
                     rules.push( cleanupRule );
                 } );
