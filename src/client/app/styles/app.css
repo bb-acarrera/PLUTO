@@ -337,6 +337,10 @@ div.expand-controls {
     display: flex;
 }
 
+.property-list-block-div {
+    display: block;
+}
+
 html, body {
     height: 100vh;
     margin: 0;

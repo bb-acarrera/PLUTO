@@ -22,6 +22,8 @@ export function customPropertyType([type]) {
 			return type;
 		case 'string':
 			return type;
+        case 'largestring':
+            return type;
 	}
 	return 'string';
 }
