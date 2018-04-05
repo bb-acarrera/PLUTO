@@ -152,23 +152,32 @@ class ExportConfigRouter extends BaseRouter {
 
 				request(options, (error, response, body) => {
 					if (!error && response.statusCode == 200) {
-						var info = JSON.parse(body);
 
-						resolve(info.data.attributes['rule-id']);
-					} else {
+						try{
+							var info = JSON.parse(body);
 
-						let msg = `Error getting remote ${rule.type} ${rule.description}. `;
+							resolve(info.data.attributes['rule-id']);	
 
-						if(response) {
-							msg += `${response.statusCode}: ${response.statusMessage} `
+							return;
+						} catch(e) {
+							error = e;
 						}
+						
+						
+					} 
 
-						if(error) {
-							msg += `Error: ${error}`;
-						}
+					let msg = `Error getting remote ${rule.type} ${rule.description}. `;
 
-						reject(msg);
+					if(response) {
+						msg += `${response.statusCode}: ${response.statusMessage} `
 					}
+
+					if(error) {
+						msg += `Error: ${error}`;
+					}
+
+					reject(msg);
+					
 				});
 
 
