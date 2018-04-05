@@ -4,7 +4,7 @@
 ### New Features
 
 #### Required Rules
-Globally required rules can now be specified in the validatorConfig.json, including specific properties. Validations that are missing required rules (or the required config) will fail, new validations will have the required rules automatically added.
+Globally required rules can now be specified in the validatorConfig.json, including specific properties. Validations that are missing required rules (or the required config) will fail and new validations will have the required rules automatically added.
 
 ### Bug Fixes and Minor Improvements
  * Fixed problems reporting the correct row number when there are an inconsistent number of columns
@@ -19,6 +19,7 @@ Globally required rules can now be specified in the validatorConfig.json, includ
  * Disable export button if validation is not valid
  * Only show the export button if the remote host URL is set
  * Improved the error messaging on unhandled validator exit
+ * added a new UI property type 'largestring' to support multi-line text
 
 ## 1.0.7
 ### New Features
