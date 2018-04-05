@@ -143,7 +143,7 @@ class ExportConfigRouter extends BaseRouter {
 				var options = {
 					url: this.config.validatorConfig.exportRulesets.hostBaseUrl + '/api/v1/configuredrules',
 					qs: {
-						//name: rule.description,
+						name: rule.description,
 						type: rule.type
 					}
 				};
