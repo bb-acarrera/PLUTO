@@ -81,8 +81,7 @@ QUnit.test( "valid shapefile", function( assert ) {
 	        __state : {
 	            "_debugLogger" : logger,
 		        tempDirectory: "./tmp"
-	        },
-		"numHeaderRows" : 1
+	        }
 	};
 
 	const rule = new TestTableRule(config);
@@ -96,6 +95,7 @@ QUnit.test( "valid shapefile", function( assert ) {
 	parser._run( { file: './src/validator/tests/world_borders' } ).then(() => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
 		done();
 	});
 });

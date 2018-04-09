@@ -6,6 +6,8 @@ const stringify = require('csv-stringify');
 const transform = require('stream-transform');
 const fse = require('fs-extra');
 
+const TableRuleAPI = require('../api/TableRuleAPI');
+
 const DeleteColumn = require('./internal/DeleteInternalColumn');
 const AddRowIdColumn = require('./internal/AddRowIdColumn');
 
@@ -42,21 +44,9 @@ class shpParser extends TableParserAPI {
 
     }
 
-    _runShape(inputName, outputName, resolve) {
-
-        if(!fs.existsSync(inputName)) {
-            this.error(`${inputName} does not exist.`);
-        }
-
-        var ds = gdal.open(inputName);
+    _checkShape(ds) {
 
         var driver = ds.driver;
-        var driver_metadata = driver.getMetadata();
-        if (driver_metadata['DCAP_VECTOR'] !== 'YES') {
-            console.error('Source file is not a vector');
-            process.exit(1);
-        }
-
         console.log('Driver = ' + driver.description);
         console.log('');
 
@@ -83,8 +73,146 @@ class shpParser extends TableParserAPI {
 
             console.log('  Feature Count = ' + layer.features.count());
         });
+    }
+
+    _runTableRule(layer) {
+
+
+        if(!this.parserSharedData.columnNames) {
+            this.parserSharedData.columnNames = [];
+
+            layer.fields.forEach((field) => {
+                this.parserSharedData.columnNames.push(field.name);
+                //console.log('    -' + field.name + ' (' + field.type + ')');
+            });
+        }
+
+        if(this.wrappedRule) {
+            this.wrappedRule.start(this);
+        }
+
+        function handleResponse(response, feature, updateData, isHeader) {
+            if(response instanceof Promise) {
+                response.then((result) => {
+                    updateData(result, feature);
+                    if(result && !isHeader) {
+                        this.summary.output += 1;
+                    }
+
+                }, () => {
+                    //rejected for some reason that should have logged
+                    updateData(response, feature);
+                }).catch(() => {
+                    updateData(response, feature);
+                })
+            } else {
+
+                updateData(response, feature);
+                if(response && !isHeader) {
+                    this.summary.output += 1;
+                }
+            }
+        }
+
+        if(this.wrappedRule && this.wrappedRule.processHeaderRows) {
+
+            let headers = [];
+            layer.fields.forEach(function(field) {
+                headers.push(field.name);
+            });
+
+            handleResponse(
+                this.wrappedRule.processRecordWrapper(headers, 'header', true),
+                null,
+                (response) => {
+                    if(!arraysEqual(response, this.parserSharedData.columnNames)) {
+                        this.error(`Cannot modify the header row of a shapefile`);
+                    }
+                },
+                true
+            );
+        }
+
+        layer.features.forEach((feature) => {
+
+            this.summary.processed += 1;
+
+            let response = feature.fields.toArray();
+
+            if(this.wrappedRule) {
+                response = this.wrappedRule.processRecordWrapper(response, feature.fid)
+            }
+
+            handleResponse(
+                response,
+                feature,
+                (response) => {
+                    if(!response) {
+                        layer.features.remove(feature.fid);
+                    } else {
+                        if(response.length !== layer.fields.count()) {
+                            this.error(`Number of values does not match fields of the shapefile for ${feature.fid}`, feature.fid);
+                        } else {
+                            response.forEach((value, index) => {
+                                feature.fields.set(index, value);
+                            })
+                        }
+                    }
+                },
+                true
+            );
+        });
+
+
+        if(this.wrappedRule) {
+            this.wrappedRule.finish();
+        }
+    }
+
+    _runFeatureRule(layer) {
+
+    }
+
+    _runShape(inputName, outputName, resolve) {
+
+        if(!fs.existsSync(inputName)) {
+            this.error(`${inputName} does not exist.`);
+            resolve();
+            return;
+        }
 
         fse.copySync(inputName, outputName, { overwrite: true });
+
+        let ds = null;
+        let layer = null;
+
+        try {
+            ds = gdal.open(outputName);
+
+            if(ds.layers.count() > 1) {
+                this.error(`Only one shapefile is supported`);
+                resolve();
+                return;
+            }
+
+            layer = ds.layers.get(0);
+
+        } catch(e) {
+            this.error(`Could not open shapefile: ${e}`);
+            resolve();
+            return;
+        }
+
+        //this._checkShape(ds);
+
+        if(this.wrappedRule instanceof TableRuleAPI) {
+
+            this._runTableRule(layer);
+        } else {
+            this.error(`Unsuportted rule type`);
+            resolve();
+            return;
+        }
 
         resolve();
     }
@@ -196,6 +324,17 @@ class shpParser extends TableParserAPI {
         return {};
     }
 
+}
+
+function arraysEqual(arr1, arr2) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
 }
 
 module.exports = shpParser;	// Export this so derived classes can extend it.
