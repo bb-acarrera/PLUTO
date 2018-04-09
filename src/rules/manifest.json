@@ -2,6 +2,9 @@
   "parsers": [
     {
       "filename":"CSVParser"
+    },
+    {
+      "filename":"shpParser"
     }
   ],
   "rules": [

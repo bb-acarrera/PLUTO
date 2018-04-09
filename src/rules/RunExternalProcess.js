@@ -36,7 +36,7 @@ class RunExternalProcess extends OperatorAPI {
 		if (config.__state.tempDirectory && config.attributes && config.attributes.executable)
 			this.socketName = cleanPipeName(path.resolve(config.__state.tempDirectory, config.attributes.executable + config.id + ".socket"));
 		
-		this.tempDir = this.config.__state.tempDirectory;
+
 	}
 
 	runProcess(inputName, outputName, resolve) {

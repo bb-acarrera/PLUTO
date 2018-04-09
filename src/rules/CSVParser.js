@@ -119,8 +119,8 @@ class CSVParser extends TableParserAPI {
 
         let processHeaderRows = false;
 
-        if(this.tableRule) {
-            processHeaderRows = this.tableRule.processHeaderRows;
+        if(this.wrappedRule) {
+            processHeaderRows = this.wrappedRule.processHeaderRows;
         }
         let rowNumber = 1;
         let rowHeaderOffset = this.numHeaderRows + 1;
@@ -139,13 +139,13 @@ class CSVParser extends TableParserAPI {
 
             let rowId = rowNumber;
 
-            if(this.tableRule && (!isHeaderRow || processHeaderRows)) {
+            if(this.wrappedRule && (!isHeaderRow || processHeaderRows)) {
 
                 if(this.parserSharedData.rowIdColumnIndex != null && record.length > this.parserSharedData.rowIdColumnIndex) {
                     rowId = record[this.parserSharedData.rowIdColumnIndex];
                 }
 
-                response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow, rowNumber);
+                response = this.wrappedRule.processRecordWrapper(record, rowId, isHeaderRow, rowNumber);
 
             }
 
@@ -204,8 +204,8 @@ class CSVParser extends TableParserAPI {
 
             if(firstRow && this.parserSharedData.columnNames) {
                 firstRow = false;
-                if(this.tableRule) {
-                    this.tableRule.start(this);
+                if(this.wrappedRule) {
+                    this.wrappedRule.start(this);
                 }
 
                 preStartRows.forEach((row) => {
@@ -223,9 +223,9 @@ class CSVParser extends TableParserAPI {
             rowNumber++;
         });
 
-        if(this.tableRule) {
+        if(this.wrappedRule) {
             transformer.once("finish", () => {
-                this.tableRule.finish();	// Finished so let the derived class know.
+                this.wrappedRule.finish();	// Finished so let the derived class know.
             });
         }
 
@@ -318,7 +318,7 @@ class CSVParser extends TableParserAPI {
     }
 
     static get Type() {
-        return "table_parser";
+        return ["table_parser"];
     }
 
     static get ConfigProperties() {

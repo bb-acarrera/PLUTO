@@ -9,31 +9,11 @@ class TableParserAPI extends ParserAPI {
      * Derived classes must call this from their constructor.
      * @constructor
      * @param config {object} the config object passed into the derived class's constructor.
-     * @param tableRule {TableRuleAPI} the rule for the parser to execute
+     * @param wrappedRule {TableRuleAPI} the rule for the parser to execute
+     * @param wrappedRuleConfig {object} the config object for the wrappedRule
      */
-    constructor(config, tableRule, tableRuleConfig) {
-        super(config);
-
-        if(this.config.__state && this.config.__state.sharedData) {
-            if (!this.config.__state.sharedData.Parser) {
-                this.config.__state.sharedData.Parser = {};
-            }
-
-            this.parserSharedData = this.config.__state.sharedData.Parser
-        } else {
-            this.parserSharedData = {};
-        }
-
-        if(!tableRule) {
-            this.warning(`No rule was supplied to parser`);
-        }
-
-        if(tableRule instanceof Function) {
-            this.tableRule = new tableRule(tableRuleConfig, this);
-        } else {
-            this.tableRule = tableRule;
-        }
-
+    constructor(config, wrappedRule, wrappedRuleConfig) {
+        super(config, wrappedRule, wrappedRuleConfig);
 
     }
 

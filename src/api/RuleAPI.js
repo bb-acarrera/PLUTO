@@ -102,6 +102,11 @@ class RuleAPI extends BaseRuleAPI {
 	 */
 	constructor(localConfig) {
 		super(localConfig);
+
+		if(this.config && this.config.__state) {
+			this.tempDir = this.config.__state.tempDirectory;
+		}
+
 	}
 
 	/**
