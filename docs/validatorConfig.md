@@ -230,6 +230,10 @@ If set to true, users will be unable to add or edit rulesets (but will be able t
 ## environmentLabel
 A label to use to identify this PLUTO instance, and is appended to the title of every page.
 
+## showAdmin
+If set to true, admin button will be shown on the main page.
 
+## rejectAdminNavigation
+If set to true, non admins would not be permitted to navigate to the admin page.
 
 [Config Properties]: ruleUiConfig.md  
