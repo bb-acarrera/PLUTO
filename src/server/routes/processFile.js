@@ -210,7 +210,7 @@ class ProcessFileRouter extends BaseRouter {
     processFile(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
         return new Promise((resolve, reject) => {
 
-            if(this.config.validatorConfig.maxConcurrentTasks && (this.config.runningJobs.length - 1) >= this.config.validatorConfig.maxConcurrentTasks) {
+            if(this.config.validatorConfig.maxConcurrentTasks && (this.config.runningJobs.length) >= this.config.validatorConfig.maxConcurrentTasks) {
                 reject("too many tasks");
                 return;
             }
