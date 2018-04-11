@@ -1,23 +1,21 @@
 const TableParserAPI = require("../api/TableParserAPI");
 
 const fs = require("fs");
-const parse = require('csv-parse');
-const stringify = require('csv-stringify');
-const transform = require('stream-transform');
 const fse = require('fs-extra');
+
 
 const TableRuleAPI = require('../api/TableRuleAPI');
 
-const DeleteColumn = require('./internal/DeleteInternalColumn');
-const AddRowIdColumn = require('./internal/AddRowIdColumn');
 
 const gdal = require('gdal');
+
+
+const UnzipSingle = require('./internal/unzipSingle');
+const RezipSingle = require('./internal/rezipSingle');
 
 //using node-gdal:
 // https://www.npmjs.com/package/gdal
 // api: http://naturalatlas.github.io/node-gdal/classes/gdal.html
-
-const trackingColumnName = '____trackingRowId___internal___';
 
 /**
 
@@ -32,10 +30,6 @@ class shpParser extends TableParserAPI {
      */
     constructor(config, tableRuleClass, tableRuleConfig) {
         super(config, tableRuleClass, tableRuleConfig);
-
-        if(!this.parserSharedData._internalColumns) {
-            this.parserSharedData._internalColumns = [];
-        }
 
         this.summary = {
             processed: 0,
@@ -83,7 +77,6 @@ class shpParser extends TableParserAPI {
 
             layer.fields.forEach((field) => {
                 this.parserSharedData.columnNames.push(field.name);
-                //console.log('    -' + field.name + ' (' + field.type + ')');
             });
         }
 
@@ -242,55 +235,15 @@ class shpParser extends TableParserAPI {
 
     static getParserSetupRule(parserConfig) {
 
-        /*
-        const config = Object.assign({}, parserConfig, {
-            newColumn : trackingColumnName
-        });
 
-        return new CSVParser(parserConfig, AddRowIdColumn, config);
-        */
-        return null;
+        return new UnzipSingle({__state: parserConfig.__state});
 
     }
 
     static getParserCleanupRule(parserConfig) {
 
-        /*
-        const config = Object.assign({}, parserConfig, {
-            column : trackingColumnName
-        });
+        return new RezipSingle({__state: parserConfig.__state});
 
-        return new CSVParser(parserConfig, DeleteColumn, config);
-        */
-        return null;
-    }
-
-
-    get internalColumns() {
-        return this.parserSharedData._internalColumns;
-    }
-
-    addInternalColumn(columnName) {
-
-        let newColumnIndex = this.addColumn(columnName);
-
-        if (newColumnIndex != null) {
-            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
-        }
-
-        return newColumnIndex;
-    }
-
-    removeInternalColumn(columnIndex) {
-        this.removeColumn(columnIndex);
-
-        let index = this.parserSharedData._internalColumns.length - 1;
-        while (index >= 0) {
-            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
-                this.parserSharedData._internalColumns.splice(index, 1);
-            }
-            index -= 1;
-        }
     }
 
     get ParserClassName() {

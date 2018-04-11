@@ -4,6 +4,9 @@ ADD . /opt/PLUTO
 
 RUN cd /opt/PLUTO && npm install --production
 
+RUN cd /opt/PLUTO && \
+  npm install gdal@"^0.9.6" --build-from-source --shared_gdal --force
+
 VOLUME ["/opt/PLUTO/config"]
 ENV PLUTOAPI /opt/PLUTO/api
 ENV PLUTOCONFIG /opt/PLUTO/config

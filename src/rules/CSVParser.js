@@ -37,9 +37,7 @@ class CSVParser extends TableParserAPI {
         this.numHeaderRows = this.getValidatedHeaderRows();
 	    this.columnRow = this.getValidatedColumnRow();
 
-        if(!this.parserSharedData._internalColumns) {
-            this.parserSharedData._internalColumns = [];
-        }
+
 
         this.summary = {
             processed: 0,
@@ -286,32 +284,7 @@ class CSVParser extends TableParserAPI {
     }
 
 
-    get internalColumns() {
-        return this.parserSharedData._internalColumns;
-    }
 
-    addInternalColumn(columnName) {
-
-        let newColumnIndex = this.addColumn(columnName);
-
-        if (newColumnIndex != null) {
-            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
-        }
-
-        return newColumnIndex;
-    }
-
-    removeInternalColumn(columnIndex) {
-        this.removeColumn(columnIndex);
-
-        let index = this.parserSharedData._internalColumns.length - 1;
-        while (index >= 0) {
-            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
-                this.parserSharedData._internalColumns.splice(index, 1);
-            }
-            index -= 1;
-        }
-    }
 
     get ParserClassName() {
         return "CSVParser";

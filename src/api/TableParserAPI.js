@@ -15,6 +15,10 @@ class TableParserAPI extends ParserAPI {
     constructor(config, wrappedRule, wrappedRuleConfig) {
         super(config, wrappedRule, wrappedRuleConfig);
 
+        if(!this.parserSharedData._internalColumns) {
+            this.parserSharedData._internalColumns = [];
+        }
+
     }
 
     /**
@@ -105,12 +109,35 @@ class TableParserAPI extends ParserAPI {
 
     }
 
-	/**
-	 * The list of columns added by the parser
+    /**
+     * The list of columns added by the parser
      * @returns {Array}
      */
     get internalColumns() {
-        return [];
+        return this.parserSharedData._internalColumns;
+    }
+
+    addInternalColumn(columnName) {
+
+        let newColumnIndex = this.addColumn(columnName);
+
+        if (newColumnIndex != null) {
+            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
+        }
+
+        return newColumnIndex;
+    }
+
+    removeInternalColumn(columnIndex) {
+        this.removeColumn(columnIndex);
+
+        let index = this.parserSharedData._internalColumns.length - 1;
+        while (index >= 0) {
+            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
+                this.parserSharedData._internalColumns.splice(index, 1);
+            }
+            index -= 1;
+        }
     }
 
     /**
