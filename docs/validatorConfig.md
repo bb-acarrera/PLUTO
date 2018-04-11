@@ -201,6 +201,50 @@ Additional fields that appear in the validation setup (under Additional Informat
 ```
 Each field is an object in the customValidationFields array, with the properties describing the field. See the Config Properties section of the [Config Properties] page for details on the fields specification.
 
+Alternatively the fields can be wrapped in an object with a group name and content, visually separating the properties into the subsections.
+```
+{ ...
+    "customValidationFields": [
+		{
+			"group": "Additional Fields",
+			"contents" :
+			[
+
+				{
+					"name": "summary",
+					"label": "Data Summary",
+					"tooltip": "Brief description of this data",
+					"type": "string"
+				},
+				{
+					"name": "source",
+					"label": "Source",
+					"tooltip": "Where did this data come from?",
+					"type": "string"
+				}
+			]
+		},
+		{
+			"group": "Even More Additional Fields",
+			"contents" :
+			[
+				{
+					"name": "code",
+					"label": "Code",
+					"tooltip": "Code",
+					"type": "integer"
+				},
+				{
+					"name": "public",
+					"label": "Public",
+					"tooltip": "Public",
+					"type": "boolean"
+				}
+			]
+		}
+	]
+}
+```
 
 ## forceUniqueTargetFile
 If set to true, each validation must have a unique target file name across all uploads, and users will get an error if they attempt to create a duplicate.

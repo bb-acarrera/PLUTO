@@ -424,6 +424,30 @@ export default Ember.Controller.extend( {
 			return item.get('validators');
 		},
 
+        getCustomListStatus(list) {
+            let item = false;
+
+            if(list) {
+                list.forEach((i) => {
+                	item = i.get("ui.properties") && i.get("ui.properties")[0] && i.get("ui.properties")[0].group;
+                })
+            }
+
+            return item;
+        },
+
+        getCustomList(list) {
+            let item = {};
+
+            if(list) {
+                list.forEach((i) => {
+                    item = i.get("ui.properties");
+                })
+            }
+
+            return item;
+        },
+
 		getShortDescription(list, itemName) {
 			var item = findRuleConfig.call(this, list, itemName);
 
