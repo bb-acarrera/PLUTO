@@ -22,6 +22,12 @@
 			Add new file to load
 		{{/bs-button}}
 	{{/unless}}
+
+	{{#if (and applicationController.currentUser.features.showAdmin applicationController.currentUser.admin)}}
+		{{#bs-button type="success" onClick=(action "transitionTo" "admin")}}
+			Admin
+		{{/bs-button}}
+	{{/if}}
 </div>
 
 {{add-ruleset showdialog=showAddRuleset parsers=model.parsers
