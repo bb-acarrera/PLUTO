@@ -23,7 +23,7 @@
 		{{/bs-button}}
 	{{/unless}}
 
-	{{#if applicationController.currentUser.features.showAdmin}}
+	{{#if (and applicationController.currentUser.features.showAdmin applicationController.currentUser.admin)}}
 		{{#bs-button type="success" onClick=(action "transitionTo" "admin")}}
 			Admin
 		{{/bs-button}}
