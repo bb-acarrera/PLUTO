@@ -407,23 +407,6 @@ export default Ember.Controller.extend( {
 			return item.get('ui.properties');
 		},
 
-        getUiPropertiesPlain(list, itemName) {
-            let item = null;
-
-            if(list) {
-                list.forEach((i) => {
-                    if(i.filename == itemName) {
-                        item = i;
-                    }
-                })
-            }
-
-            if(!item)
-                return null;
-
-            return item.ui.properties;
-        },
-
 		getUiValidators(list, itemName) {
 			let item = null;
 
