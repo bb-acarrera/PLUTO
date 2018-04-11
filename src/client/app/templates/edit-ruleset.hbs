@@ -332,25 +332,45 @@ Process URL: {{processURL}}
 {{/if}}
 	<!-- custom fields -->
 {{#if (gt model.custom.length 0)}}
-	{{#edit-ruleset/collapse collapsed=false as |c| }}
+	{{#if (compute (action "getCustomListStatus") model.custom)}}
+		{{#each (compute (action "getCustomList") model.custom) as |group|}}
+			{{#edit-ruleset/collapse collapsed=false as |c| }}
+				{{#c.title}}
+					{{group.group}}
+				{{/c.title}}
 
-		{{#c.title}}
-			Additional Information
-		{{/c.title}}
+				{{#c.collapsable}}
+					{{component 'custom-property.property-list'
+								uiList=group.contents
+								config=model.ruleset.custom.config
+								disabled=disableEdit
+								validators=group.contents
+								state=propStates
+								validateOnInit=true
+								instanceName="custom"
+								columns=columns}}
+				{{/c.collapsable}}
+			{{/edit-ruleset/collapse}}
+		{{/each}}
+	{{else}}
+		{{#edit-ruleset/collapse collapsed=false as |c| }}
+			{{#c.title}}
+				Additional Information
+			{{/c.title}}
 
-		{{#c.collapsable}}
-			{{component 'custom-property.property-list'
-						uiList=(compute (action "getUiProperties") model.custom model.ruleset.custom.filename)
-						config=model.ruleset.custom.config
-						disabled=disableEdit
-						validators=(compute (action "getUiValidators") model.custom model.ruleset.custom.filename)
-						state=propStates
-						validateOnInit=true
-						instanceName="custom"
-						columns=columns}}
-		{{/c.collapsable}}
-
-	{{/edit-ruleset/collapse}}
+			{{#c.collapsable}}
+				{{component 'custom-property.property-list'
+							uiList=(compute (action "getUiProperties") model.custom model.ruleset.custom.filename)
+							config=model.ruleset.custom.config
+							disabled=disableEdit
+							validators=(compute (action "getUiValidators") model.custom model.ruleset.custom.filename)
+							state=propStates
+							validateOnInit=true
+							instanceName="custom"
+							columns=columns}}
+			{{/c.collapsable}}
+		{{/edit-ruleset/collapse}}
+	{{/if}}
 {{/if}}
 	{{#if (not-eq model.ruleset.dovalidate false)}}
 
