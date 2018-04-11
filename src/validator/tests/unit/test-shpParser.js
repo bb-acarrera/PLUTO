@@ -147,7 +147,7 @@ QUnit.test( " End to End CheckColumnCount Rule Test", function(assert){
 	const vldtr = new validator(config, dbProxy.getDataObj());
 
 
-	vldtr.runRuleset("src/validator/tests/world_borders.zip", "output.zip", 'UTF8');
+	vldtr.runRuleset("src/validator/tests/world_borders.zip", "output_borders.zip", 'UTF8');
 
 });
 
