@@ -1643,6 +1643,7 @@ class data {
 function safeStringLike ( value ) {
     let resp = value.trim();
     resp = replaceAll( value, "%", "" );
+    resp = replaceAll( value, "_", "\_" );
     return '%' + resp + '%';
 }
 
