@@ -23,6 +23,18 @@ class TestTableRule extends TableRuleAPI {
 	processRecord(record, rowId) {
 		this.rowCount++;
 
+		if(this.config.async) {
+
+			return new Promise((resolve) => {
+
+				setTimeout(() =>{
+					resolve(record);
+				}, 100);
+
+
+			});
+		}
+
 		return record;
 	}
 
@@ -81,6 +93,32 @@ QUnit.test( "valid shapefile", function( assert ) {
 	            "_debugLogger" : logger,
 		        tempDirectory: "./tmp"
 	        }
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders' } ).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+		done();
+	});
+});
+
+QUnit.test( "async rule", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		},
+		async: true
 	};
 
 	const rule = new TestTableRule(config);

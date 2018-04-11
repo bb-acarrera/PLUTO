@@ -71,95 +71,121 @@ class shpParser extends TableParserAPI {
 
     _runTableRule(layer) {
 
+        return new Promise((resovle, reject) => {
+            if(!this.parserSharedData.columnNames) {
+                this.parserSharedData.columnNames = [];
 
-        if(!this.parserSharedData.columnNames) {
-            this.parserSharedData.columnNames = [];
-
-            layer.fields.forEach((field) => {
-                this.parserSharedData.columnNames.push(field.name);
-            });
-        }
-
-        if(this.wrappedRule) {
-            this.wrappedRule.start(this);
-        }
-
-        function handleResponse(response, feature, updateData, isHeader) {
-            if(response instanceof Promise) {
-                response.then((result) => {
-                    updateData(result, feature);
-                    if(result && !isHeader) {
-                        this.summary.output += 1;
-                    }
-
-                }, () => {
-                    //rejected for some reason that should have logged
-                    updateData(response, feature);
-                }).catch(() => {
-                    updateData(response, feature);
-                })
-            } else {
-
-                updateData(response, feature);
-                if(response && !isHeader) {
-                    this.summary.output += 1;
-                }
+                layer.fields.forEach((field) => {
+                    this.parserSharedData.columnNames.push(field.name);
+                });
             }
-        }
-
-        if(this.wrappedRule && this.wrappedRule.processHeaderRows) {
-
-            let headers = [];
-            layer.fields.forEach(function(field) {
-                headers.push(field.name);
-            });
-
-            handleResponse(
-                this.wrappedRule.processRecordWrapper(headers, 'header', true),
-                null,
-                (response) => {
-                    if(!arraysEqual(response, this.parserSharedData.columnNames)) {
-                        this.error(`Cannot modify the header row of a shapefile`);
-                    }
-                },
-                true
-            );
-        }
-
-        layer.features.forEach((feature) => {
-
-            this.summary.processed += 1;
-
-            let response = feature.fields.toArray();
 
             if(this.wrappedRule) {
-                response = this.wrappedRule.processRecordWrapper(response, feature.fid)
+                this.wrappedRule.start(this);
             }
 
-            handleResponse(
-                response,
-                feature,
-                (response) => {
-                    if(!response) {
-                        layer.features.remove(feature.fid);
-                    } else {
-                        if(response.length !== layer.fields.count()) {
-                            this.error(`Number of values does not match fields of the shapefile for ${feature.fid}`, feature.fid);
-                        } else {
-                            response.forEach((value, index) => {
-                                feature.fields.set(index, value);
-                            })
-                        }
+            let itemsToProcessCount = 0;
+            let responseCount = 0;
+
+            let checkFinished = () => {
+
+                if(itemsToProcessCount === responseCount) {
+                    if(this.wrappedRule) {
+                        this.wrappedRule.finish();
                     }
-                },
-                true
-            );
+
+                    resovle();
+                }
+
+            };
+
+            function handleResponse(response, feature, updateData, isHeader) {
+                if(response instanceof Promise) {
+                    response.then((result) => {
+                        updateData(result, feature);
+                        if(result && !isHeader) {
+                            this.summary.output += 1;
+                        }
+                    }, () => {
+                        //rejected for some reason that should have logged
+                        updateData(response, feature);
+                    }).catch(() => {
+                        updateData(response, feature);
+                    }).then(() => {
+                        responseCount++;
+                        checkFinished();
+                    })
+                } else {
+
+                    updateData(response, feature);
+                    if(response && !isHeader) {
+                        this.summary.output += 1;
+                    }
+                    responseCount++;
+                    checkFinished();
+                }
+            }
+
+            itemsToProcessCount = layer.features.count();
+
+            if(this.wrappedRule && this.wrappedRule.processHeaderRows) {
+
+                let headers = [];
+                layer.fields.forEach(function(field) {
+                    headers.push(field.name);
+                });
+
+                itemsToProcessCount += 1;
+
+                handleResponse(
+                    this.wrappedRule.processRecordWrapper(headers, 'header', true),
+                    null,
+                    (response) => {
+                        if(!arraysEqual(response, this.parserSharedData.columnNames)) {
+                            this.error(`Cannot modify the header row of a shapefile`);
+                        }
+                    },
+                    true
+                );
+            }
+
+            layer.features.forEach((feature) => {
+
+                this.summary.processed += 1;
+
+                let response = feature.fields.toArray();
+
+                if(this.wrappedRule) {
+                    response = this.wrappedRule.processRecordWrapper(response, feature.fid)
+                }
+
+                handleResponse(
+                    response,
+                    feature,
+                    (response) => {
+                        if(!response) {
+                            layer.features.remove(feature.fid);
+                        } else {
+                            if(response.length !== layer.fields.count()) {
+                                this.error(`Number of values does not match fields of the shapefile for ${feature.fid}`, feature.fid);
+                            } else {
+                                response.forEach((value, index) => {
+                                    feature.fields.set(index, value);
+                                })
+                            }
+                        }
+                    },
+                    true
+                );
+            });
+
+            if(itemsToProcessCount === 0) {
+                checkFinished();
+            }
+
         });
 
 
-        if(this.wrappedRule) {
-            this.wrappedRule.finish();
-        }
     }
 
     _runFeatureRule(layer) {
@@ -200,14 +226,12 @@ class shpParser extends TableParserAPI {
 
         if(this.wrappedRule instanceof TableRuleAPI) {
 
-            this._runTableRule(layer);
+            this._runTableRule(layer).then(()=>{},()=>{}).catch(()=>{}).then(()=>{resolve();})
         } else {
             this.error(`Unsuportted rule type`);
             resolve();
             return;
         }
-
-        resolve();
     }
 
     run() {
@@ -231,6 +255,20 @@ class shpParser extends TableParserAPI {
                 this._runShape(inputName, outputFile, finished);
 
         });
+    }
+
+    addColumn(columnName) {
+
+        let newColumnIndex = super.addColumn(columnName);
+
+
+
+        return newColumnIndex;
+    }
+
+    removeColumn(columnIndex) {
+       super.removeColumn(columnIndex);
+
     }
 
     static getParserSetupRule(parserConfig) {
