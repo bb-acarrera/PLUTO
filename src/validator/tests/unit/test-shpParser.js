@@ -3,6 +3,7 @@ const gdal = require('gdal');
 const ErrorLogger = require("../../ErrorLogger");
 const ShpParser = require("../../../rules/shpParser");
 const TableRuleAPI = require("../../../api/TableRuleAPI");
+const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
 
 
 const validator = require("../../../validator/validator");
@@ -17,6 +18,11 @@ class TestTableRule extends TableRuleAPI {
 	start(parser) {
 		this.parser = parser;
 		this.rowCount = 0;
+
+		if(this.config.startFn) {
+			this.config.startFn();
+			return;
+		}
 
 		if(this.config.removeColumn != null) {
 			this.parser.removeColumn(this.config.removeColumn);
@@ -37,7 +43,9 @@ class TestTableRule extends TableRuleAPI {
 	processRecord(record, rowId, isHeader) {
 		this.rowCount++;
 
-		
+		if(this.config.processRecordFn) {
+			return this.config.processRecordFn(record, rowId, isHeader);
+		}
 
 		if(!isHeader && this.config.addColumn) {
 			record[this.addedColumnIndex] = this.config.addColumn;
@@ -64,9 +72,19 @@ class TestTableRule extends TableRuleAPI {
 
 	finish() {
 		this.finished = true;
+
+		if(this.config.finishFn) {
+			this.config.finishFn();
+			return;
+		}
 	}
 
 	get processHeaderRows() {
+
+		if(this.config.processHeaderRows != null) {
+			return this.config.processHeaderRows;
+		}
+
 		return true;
 	}
 }
@@ -195,6 +213,45 @@ QUnit.test( "modify column rule", function( assert ) {
 	});
 });
 
+QUnit.test( "drop column rule", function( assert ) {
+	const logger = new ErrorLogger();
+
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		},
+		processRecordFn: (record, rowId, isHeader) => {
+			if(rule.rowCount > 1) {
+				return null;
+			}
+			return record;
+		},
+		processHeaderRows: false
+
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders' } ).then((result) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+
+		let ds = gdal.open(result.file);
+		let layer = ds.layers.get(0);
+
+		assert.equal(layer.features.count(), 1, 'Expect one feature');
+
+		done();
+	});
+});
+
 QUnit.test( "add column rule", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
@@ -262,6 +319,30 @@ QUnit.test( "remove column rule", function( assert ) {
 	});
 });
 
+QUnit.test( "no attributes with TableRule", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		}
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders_min' } ).then(() => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+		done();
+	});
+});
 
 /////////////////////////////////////////////////////////
 // integration test
@@ -360,6 +441,65 @@ QUnit.test( " End to End CheckColumnCount Rule Test Failure", function(assert){
 
 
 	vldtr.runRuleset("src/validator/tests/world_borders.zip", "output.zip", 'UTF8');
+
+});
+
+//"columnNames" : ["Column1"],
+//missingColumns: ErrorHandlerAPI.ERROR,
+//	extraColumns: ErrorHandlerAPI.WARNING,
+//	orderMatch: 'ignore'
+
+// ["FIPS","ISO2","ISO3","UN","NAME","AREA","POP2005","REGION","SUBREGION","LON","LAT"]
+
+QUnit.test( " End to End CheckColumnNames Rule Test No Attributes", function(assert){
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			"rootDirectory" : "./src",
+			"tempDirectory" : "./tmp"
+		},
+		"rulesDirectory" : "rules",
+		"inputDirectory" : "",
+		"outputDirectory" : "results",
+		"ruleset" : "Test Data Ruleset"
+	};
+
+	const done = assert.async();
+
+	const ruleset = {
+		name : "Test Data Ruleset",
+		rules : [
+			{
+				filename : "CheckColumnNames",
+				config : {
+					id : 1,
+					missingColumns: ErrorHandlerAPI.ERROR,
+					extraColumns: ErrorHandlerAPI.WARNING,
+					orderMatch: 'ignore'
+
+				}
+			}
+		],
+		parser: {
+			filename: "shpParser",
+			config: {
+				columnNames: ["FIPS","ISO2","ISO3","UN","NAME","AREA","POP2005","REGION","SUBREGION","LON","LAT"]
+			}
+		}
+	};
+
+	const dbProxy = new DataProxy(ruleset,
+		(runId, log, ruleSetID, inputFile, outputFile) => {
+			assert.ok(log, "Expected log to be created");
+			assert.ok(vldtr.abort, "Expected validator to succeed without aborting");
+		},
+		done);
+
+	const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+	vldtr.runRuleset("src/validator/tests/world_borders_min.zip", "output_min.zip", 'UTF8');
 
 });
 

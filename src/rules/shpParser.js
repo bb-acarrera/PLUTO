@@ -231,6 +231,7 @@ class shpParser extends TableParserAPI {
 
             this._runTableRule(layer).then(()=>{},()=>{}).catch(()=>{}).then(()=>{
                 this.currentLayer = null;
+                layer.flush();
                 ds.flush();
                 ds.close();
                 layer = null;
