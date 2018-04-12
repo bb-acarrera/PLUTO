@@ -1,6 +1,5 @@
-/*
- * Tests errors and successes of the CheckColumnCount rule.
- */
+const gdal = require('gdal');
+
 const ErrorLogger = require("../../ErrorLogger");
 const ShpParser = require("../../../rules/shpParser");
 const TableRuleAPI = require("../../../api/TableRuleAPI");
@@ -18,10 +17,35 @@ class TestTableRule extends TableRuleAPI {
 	start(parser) {
 		this.parser = parser;
 		this.rowCount = 0;
+
+		if(this.config.removeColumn != null) {
+			this.parser.removeColumn(this.config.removeColumn);
+		}
+
+		if(this.config.addColumn) {
+			this.parser.addColumn(this.config.addColumn);
+			this.addedColumnIndex = this.getValidatedColumnProperty(this.config.addColumn);
+		}
+
+		if(this.config.modifyColumn) {
+			this.modifyColumnIndex = this.getValidatedColumnProperty(this.config.modifyColumn);
+		}
+
+
 	}
 
-	processRecord(record, rowId) {
+	processRecord(record, rowId, isHeader) {
 		this.rowCount++;
+
+		
+
+		if(!isHeader && this.config.addColumn) {
+			record[this.addedColumnIndex] = this.config.addColumn;
+		}
+
+		if(!isHeader && this.config.modifyColumn) {
+			record[this.modifyColumnIndex] = this.config.modifyColumnValue;
+		}
 
 		if(this.config.async) {
 
@@ -133,6 +157,107 @@ QUnit.test( "async rule", function( assert ) {
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		assert.ok(rule.finished);
 		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+		done();
+	});
+});
+
+QUnit.test( "modify column rule", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		},
+		modifyColumn: 'NAME',
+		modifyColumnValue: 'new name'
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders' } ).then((result) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+
+		let ds = gdal.open(result.file);
+		let layer = ds.layers.get(0);
+
+		assert.equal(layer.features.get(0).fields.get(4), config.modifyColumnValue, 'Expect column value to match at index');
+		assert.equal(layer.features.get(12).fields.get(4), config.modifyColumnValue, 'Expect column value to match at index');
+
+		done();
+	});
+});
+
+QUnit.test( "add column rule", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		},
+		addColumn: 'newColumn'
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders' } ).then((result) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+
+		let ds = gdal.open(result.file);
+		let layer = ds.layers.get(0);
+		assert.equal(layer.fields.count(), 12, 'Expect 12 columns');
+		assert.equal(layer.fields.get(11).name, config.addColumn, 'Expect column name to match at index');
+
+		assert.equal(layer.features.get(0).fields.get(11), config.addColumn, 'Expect column value to match at index');
+
+		done();
+	});
+});
+
+QUnit.test( "remove column rule", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		},
+		removeColumn: 0
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders' } ).then((result) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+
+		let ds = gdal.open(result.file);
+		let layer = ds.layers.get(0);
+		assert.equal(layer.fields.count(), 10, 'Expect 10 columns');
+		assert.equal(layer.fields.get(0).name, 'ISO2', 'Expect first column name to be ISO2');
+
+
 		done();
 	});
 });

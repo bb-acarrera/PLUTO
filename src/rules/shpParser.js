@@ -93,7 +93,6 @@ class shpParser extends TableParserAPI {
                     if(this.wrappedRule) {
                         this.wrappedRule.finish();
                     }
-
                     resovle();
                 }
 
@@ -171,7 +170,9 @@ class shpParser extends TableParserAPI {
                             } else {
                                 response.forEach((value, index) => {
                                     feature.fields.set(index, value);
-                                })
+                                });
+
+                                layer.features.set(feature.fid, feature);
                             }
                         }
                     },
@@ -206,7 +207,7 @@ class shpParser extends TableParserAPI {
         let layer = null;
 
         try {
-            ds = gdal.open(outputName);
+            ds = gdal.open(outputName, "r+");
 
             if(ds.layers.count() > 1) {
                 this.error(`Only one shapefile is supported`);
@@ -224,13 +225,23 @@ class shpParser extends TableParserAPI {
 
         //this._checkShape(ds);
 
+        this.currentLayer = layer;
+
         if(this.wrappedRule instanceof TableRuleAPI) {
 
-            this._runTableRule(layer).then(()=>{},()=>{}).catch(()=>{}).then(()=>{resolve();})
+            this._runTableRule(layer).then(()=>{},()=>{}).catch(()=>{}).then(()=>{
+                this.currentLayer = null;
+                ds.flush();
+                ds.close();
+                layer = null;
+                ds = null;
+                resolve();
+            })
         } else {
             this.error(`Unsuportted rule type`);
+            this.currentLayer = null;
+            ds.close();
             resolve();
-            return;
         }
     }
 
@@ -261,13 +272,19 @@ class shpParser extends TableParserAPI {
 
         let newColumnIndex = super.addColumn(columnName);
 
-
+        if(this.currentLayer) {
+            let ret = this.currentLayer.fields.add(new gdal.FieldDefn(columnName, gdal.OFTString));
+        }
 
         return newColumnIndex;
     }
 
     removeColumn(columnIndex) {
        super.removeColumn(columnIndex);
+
+        if(this.currentLayer) {
+            this.currentLayer.fields.remove(columnIndex);
+        }
 
     }
 
