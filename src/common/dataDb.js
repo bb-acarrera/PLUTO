@@ -1641,9 +1641,8 @@ class data {
 
 
 function safeStringLike ( value ) {
-    let resp = value.trim();
-    resp = replaceAll( value, "%", "" );
-    resp = replaceAll( value, "_", "\_" );
+    let resp = replaceAll( value.trim(), "_", "\\_" );
+    resp = replaceAll( resp, "%", "\\%" );
     return '%' + resp + '%';
 }
 
