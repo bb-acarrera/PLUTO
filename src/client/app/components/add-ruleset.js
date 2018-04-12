@@ -103,6 +103,10 @@ export default Ember.Component.extend({
 			} else {
 				ruleset = ruleset.toJSON();
 
+				ruleset.rules = ruleset.rules.filter((val)=>{
+					return !val.injected;
+				});
+
 				ruleset.name = 'Copy of ' + ruleset.name;
 			}
 
