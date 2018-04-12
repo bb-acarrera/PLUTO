@@ -5,7 +5,6 @@ const ShpParser = require("../../../rules/shpParser");
 const TableRuleAPI = require("../../../api/TableRuleAPI");
 const ErrorHandlerAPI = require("../../../api/errorHandlerAPI");
 
-
 const validator = require("../../../validator/validator");
 const DataProxy = require("../dbProxy");
 
@@ -246,7 +245,11 @@ QUnit.test( "drop column rule", function( assert ) {
 		let ds = gdal.open(result.file);
 		let layer = ds.layers.get(0);
 
-		assert.equal(layer.features.count(), 1, 'Expect one feature');
+		let count = 0;
+		layer.features.forEach((feature) => {
+			count++;
+		});
+		assert.equal(count, 1, 'Expect one feature');
 
 		done();
 	});
