@@ -895,6 +895,10 @@ class data {
                         rowGroup = result.rows[0].owner_group;
                     }
 
+                    if(isAdmin) {
+                        rowGroup = group;
+                    }
+
                     if(!isImport) {
                         ruleset.version = version;
                     } else {

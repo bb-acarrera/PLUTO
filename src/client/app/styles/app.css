@@ -360,3 +360,7 @@ body > div.ember-view  {
 .injected-rule {
     background: bisque;
 }
+
+#ownerName {
+    width: 78%;
+}
