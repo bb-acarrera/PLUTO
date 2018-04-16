@@ -196,6 +196,12 @@ cd src/client
 ember server
 ```
 
+## Python environment
+Two packages need to be installed:
+ * numpy==1.14.0
+ * pandas==0.22.0
+ 
+
 ## Deploying
 
 After the project is built, in the `Release` folder a `deploy` folder is created that contains some basic info in `readme`, 

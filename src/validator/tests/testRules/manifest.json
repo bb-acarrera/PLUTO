@@ -29,6 +29,11 @@
       "filename":"noOp",
       "script" : "noOp.py",
       "executable" : "python"
+    },
+    {
+      "filename":"noOp_shp",
+      "script" : "noOp_shp.py",
+      "executable" : "python"
     }
   ],
   "importers" : [],

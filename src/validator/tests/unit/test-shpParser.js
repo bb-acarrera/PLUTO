@@ -507,4 +507,67 @@ QUnit.test( " End to End CheckColumnNames Rule Test No Attributes", function(ass
 });
 
 
+QUnit.test( " End to End multiple shp parser test", function(assert){
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			"rootDirectory" : "./src",
+			"tempDirectory" : "./tmp"
+		},
+		"rulesDirectory" : "./validator/tests/testRules",
+		"inputDirectory" : "",
+		"outputDirectory" : "results",
+		"ruleset" : "Test Data Ruleset"
+	};
+
+	const done = assert.async();
+
+	const ruleset = {
+		name : "Test Data Ruleset",
+		rules : [
+			{
+				filename : "CheckColumnCount",
+				config : {
+					id : 1,
+					columns : 11
+				}
+			},
+			{
+				filename : "noOp_shp",
+				config : {
+					id : 2
+				}
+			}
+		],
+		parser: {
+			filename: "shpParser",
+			config: {
+			}
+		}
+	};
+
+	const dbProxy = new DataProxy(ruleset,
+		(runId, log, ruleSetID, inputFile, outputFile) => {
+			assert.ok(log, "Expected log to be created");
+			assert.equal(log.length, 0, "Expected no log entries");
+
+			if(log.length > 0) {
+				log.forEach((entry) => {
+					console.log(entry.description)
+				})
+			}
+
+			assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+		},
+		done);
+
+	const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+	vldtr.runRuleset("src/validator/tests/world_borders.zip", "output_borders.zip", 'UTF8');
+
+});
+
+
 QUnit.module("");

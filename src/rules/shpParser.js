@@ -16,6 +16,7 @@ const RezipSingle = require('./internal/rezipSingle');
 //using node-gdal:
 // https://www.npmjs.com/package/gdal
 // api: http://naturalatlas.github.io/node-gdal/classes/gdal.html
+// base GDAL api: http://www.gdal.org/annotated.html  (will often need to dig into this, node gdal uses GDAL 2.0.1)
 
 /**
 
@@ -307,7 +308,7 @@ class shpParser extends TableParserAPI {
     }
 
     static get Type() {
-        return ["table_parser", "CSVParser"];
+        return ["table_parser", "shpParser"];
     }
 
     static get ConfigProperties() {

@@ -1,0 +1,9 @@
+[
+  {
+    "shortdescription": "",
+    "longdescription": "",
+    "title": "no op shp",
+    "changeFileFormat": false,
+    "parser": "shpParser"
+  }
+]
