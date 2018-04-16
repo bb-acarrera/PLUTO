@@ -233,17 +233,19 @@ class RuleSet {
 
 		if(validatorConfig.requiredRules) {
             this.rules = this.rules || [];
-            validatorConfig.requiredRules.forEach((srcRule)=>{
+            validatorConfig.requiredRules.forEach((srcParser)=>{
+				if ( srcParser.parser != this.parser.filename ) return;
 
-	            let rule = {
-		            filename: srcRule.filename,
-		            injected: true
-	            };
-	            rule.config = srcRule.config || {};
+                srcParser.rules.forEach((srcRule)=>{
+                	let rule = {
+                		filename: srcRule.filename,
+						injected: true
+                	};
+                	rule.config = srcRule.config || {};
 
 
-            	rule.config.id = Util.createGUID();
-                this.rules.push(rule);
+                	rule.config.id = Util.createGUID();
+                	this.rules.push(rule);});
 			});
 
         }

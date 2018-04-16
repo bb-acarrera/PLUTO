@@ -101,16 +101,19 @@
 	"environmentLabel": "Development",
 	"allowOnlyRulesetImport": false,
 	
-	"requiredRules": [
-		{
-			"config": {
-				"orderMatch": "ignore",
-				"extraColumns": "Warning",
-				"missingColumns": "Error"
-			},
-			"filename": "CheckColumnNames"
-		}
-	],
+	"requiredRules": [{
+		"parser" : "CSVParser",
+		"rules" : [
+			{
+				"config": {
+					"orderMatch": "ignore",
+					"extraColumns": "Warning",
+					"missingColumns": "Error"
+				},
+				"filename": "CheckColumnNames"
+			}
+		]
+	}],
 
 	"showAdmin" : true,
 	"rejectAdminNavigation" : true
