@@ -290,7 +290,7 @@ Process URL: {{processURL}}
 
 		{{#c.subTitle}}
 			{{#if model.ruleset.parser}}
-				{{model.ruleset.parser.filename}}
+				{{compute (action "getMathingRule") model.parsers model.ruleset.parser.filename}}
 			{{else}}
                 None
 			{{/if}}
