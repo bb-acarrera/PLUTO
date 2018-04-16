@@ -280,4 +280,25 @@ If set to true, admin button will be shown on the main page.
 ## rejectAdminNavigation
 If set to true, non admins would not be permitted to navigate to the admin page.
 
+## requiredRules
+If present will inject rules into rulesets with the appropriate parser. Validations without these rules will fail.
+
+```
+{ ...
+    "requiredRules": [{
+		"parser" : "CSVParser",
+		"rules" : [
+			{
+				"config": {
+					"orderMatch": "ignore",
+					"extraColumns": "Warning",
+					"missingColumns": "Error"
+				},
+				"filename": "CheckColumnNames"
+			}
+		]
+	}]
+}
+```
+
 [Config Properties]: ruleUiConfig.md  
