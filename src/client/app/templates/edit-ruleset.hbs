@@ -532,7 +532,7 @@ Process URL: {{processURL}}
 
 {{/unless}}
 
-{{#if (or applicationController.currentUser.admin (not disableEdit))}}
+{{#if (not disableEdit)}}
     <span style="float: right">
 
 		{{#bs-button onClick=(action "deleteRuleset")}}
