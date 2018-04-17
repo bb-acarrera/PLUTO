@@ -334,6 +334,12 @@ class shpParser extends TableParserAPI {
         return {};
     }
 
+    static get Descriptions() {
+        return {
+            title: 'Shapefile Parser'
+        }
+    }
+
 }
 
 function arraysEqual(arr1, arr2) {
