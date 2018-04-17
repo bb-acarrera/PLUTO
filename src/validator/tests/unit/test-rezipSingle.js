@@ -36,7 +36,7 @@ QUnit.test( "rezip single file", function( assert ) {
 	const config = {
 		__state : {
 			"_debugLogger" : logger,
-			tempDirectory: "./tmp",
+			tempDirectory: "/tmp",
 			sharedData: {
 				unzipSingle: {
 					wasUnzipped: true
@@ -73,7 +73,7 @@ QUnit.test( "rezip non-zip file", function( assert ) {
 	const config = {
 		__state : {
 			"_debugLogger" : logger,
-			tempDirectory: "./tmp",
+			tempDirectory: "/tmp",
 			sharedData: {
 				unzipSingle: {}
 			}
@@ -111,7 +111,7 @@ QUnit.test( "rezip multiple files", function( assert ) {
 	const config = {
 		__state : {
 			"_debugLogger" : logger,
-			tempDirectory: "./tmp",
+			tempDirectory: "/tmp",
 			sharedData: {
 				unzipSingle: {
 					wasUnzipped: true
