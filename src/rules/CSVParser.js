@@ -37,9 +37,7 @@ class CSVParser extends TableParserAPI {
         this.numHeaderRows = this.getValidatedHeaderRows();
 	    this.columnRow = this.getValidatedColumnRow();
 
-        if(!this.parserSharedData._internalColumns) {
-            this.parserSharedData._internalColumns = [];
-        }
+
 
         this.summary = {
             processed: 0,
@@ -119,8 +117,8 @@ class CSVParser extends TableParserAPI {
 
         let processHeaderRows = false;
 
-        if(this.tableRule) {
-            processHeaderRows = this.tableRule.processHeaderRows;
+        if(this.wrappedRule) {
+            processHeaderRows = this.wrappedRule.processHeaderRows;
         }
         let rowNumber = 1;
         let rowHeaderOffset = this.numHeaderRows + 1;
@@ -139,13 +137,13 @@ class CSVParser extends TableParserAPI {
 
             let rowId = rowNumber;
 
-            if(this.tableRule && (!isHeaderRow || processHeaderRows)) {
+            if(this.wrappedRule && (!isHeaderRow || processHeaderRows)) {
 
                 if(this.parserSharedData.rowIdColumnIndex != null && record.length > this.parserSharedData.rowIdColumnIndex) {
                     rowId = record[this.parserSharedData.rowIdColumnIndex];
                 }
 
-                response = this.tableRule.processRecordWrapper(record, rowId, isHeaderRow, rowNumber);
+                response = this.wrappedRule.processRecordWrapper(record, rowId, isHeaderRow, rowNumber);
 
             }
 
@@ -204,8 +202,8 @@ class CSVParser extends TableParserAPI {
 
             if(firstRow && this.parserSharedData.columnNames) {
                 firstRow = false;
-                if(this.tableRule) {
-                    this.tableRule.start(this);
+                if(this.wrappedRule) {
+                    this.wrappedRule.start(this);
                 }
 
                 preStartRows.forEach((row) => {
@@ -223,9 +221,9 @@ class CSVParser extends TableParserAPI {
             rowNumber++;
         });
 
-        if(this.tableRule) {
+        if(this.wrappedRule) {
             transformer.once("finish", () => {
-                this.tableRule.finish();	// Finished so let the derived class know.
+                this.wrappedRule.finish();	// Finished so let the derived class know.
             });
         }
 
@@ -286,39 +284,14 @@ class CSVParser extends TableParserAPI {
     }
 
 
-    get internalColumns() {
-        return this.parserSharedData._internalColumns;
-    }
 
-    addInternalColumn(columnName) {
-
-        let newColumnIndex = this.addColumn(columnName);
-
-        if (newColumnIndex != null) {
-            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
-        }
-
-        return newColumnIndex;
-    }
-
-    removeInternalColumn(columnIndex) {
-        this.removeColumn(columnIndex);
-
-        let index = this.parserSharedData._internalColumns.length - 1;
-        while (index >= 0) {
-            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
-                this.parserSharedData._internalColumns.splice(index, 1);
-            }
-            index -= 1;
-        }
-    }
 
     get ParserClassName() {
         return "CSVParser";
     }
 
     static get Type() {
-        return "table_parser";
+        return ["table_parser"];
     }
 
     static get ConfigProperties() {

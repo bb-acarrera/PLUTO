@@ -142,7 +142,14 @@ class RuleLoader {
 			}
 
 			if(ruleClass.Type) {
-				types.push(ruleClass.Type);
+
+				if(Array.isArray(ruleClass.Type)) {
+					types = types.concat(ruleClass.Type);
+				} else {
+					types.push(ruleClass.Type);
+				}
+
+
 			}
 
 			// A description in the manifest takes precedence over one in the file (allows for localization/internationalization).

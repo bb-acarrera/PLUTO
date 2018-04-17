@@ -9,31 +9,15 @@ class TableParserAPI extends ParserAPI {
      * Derived classes must call this from their constructor.
      * @constructor
      * @param config {object} the config object passed into the derived class's constructor.
-     * @param tableRule {TableRuleAPI} the rule for the parser to execute
+     * @param wrappedRule {TableRuleAPI} the rule for the parser to execute
+     * @param wrappedRuleConfig {object} the config object for the wrappedRule
      */
-    constructor(config, tableRule, tableRuleConfig) {
-        super(config);
+    constructor(config, wrappedRule, wrappedRuleConfig) {
+        super(config, wrappedRule, wrappedRuleConfig);
 
-        if(this.config.__state && this.config.__state.sharedData) {
-            if (!this.config.__state.sharedData.Parser) {
-                this.config.__state.sharedData.Parser = {};
-            }
-
-            this.parserSharedData = this.config.__state.sharedData.Parser
-        } else {
-            this.parserSharedData = {};
+        if(!this.parserSharedData._internalColumns) {
+            this.parserSharedData._internalColumns = [];
         }
-
-        if(!tableRule) {
-            this.warning(`No rule was supplied to parser`);
-        }
-
-        if(tableRule instanceof Function) {
-            this.tableRule = new tableRule(tableRuleConfig, this);
-        } else {
-            this.tableRule = tableRule;
-        }
-
 
     }
 
@@ -125,12 +109,35 @@ class TableParserAPI extends ParserAPI {
 
     }
 
-	/**
-	 * The list of columns added by the parser
+    /**
+     * The list of columns added by the parser
      * @returns {Array}
      */
     get internalColumns() {
-        return [];
+        return this.parserSharedData._internalColumns;
+    }
+
+    addInternalColumn(columnName) {
+
+        let newColumnIndex = this.addColumn(columnName);
+
+        if (newColumnIndex != null) {
+            this.parserSharedData._internalColumns.push({columnName: columnName, index: newColumnIndex});
+        }
+
+        return newColumnIndex;
+    }
+
+    removeInternalColumn(columnIndex) {
+        this.removeColumn(columnIndex);
+
+        let index = this.parserSharedData._internalColumns.length - 1;
+        while (index >= 0) {
+            if (this.parserSharedData._internalColumns[index].index === columnIndex) {
+                this.parserSharedData._internalColumns.splice(index, 1);
+            }
+            index -= 1;
+        }
     }
 
     /**

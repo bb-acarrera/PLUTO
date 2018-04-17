@@ -71,7 +71,7 @@ QUnit.test( "Valid config", function(assert){
 
     const parser = new CSVParser(parserConfig, TestRestAPI, config);
 
-    assert.equal(parser.tableRule.maxConcurrent, 5, "Expected maxConcurrent to be 5");
+    assert.equal(parser.wrappedRule.maxConcurrent, 5, "Expected maxConcurrent to be 5");
 
 });
 
@@ -93,7 +93,7 @@ QUnit.test( "no maxConcurrent", function(assert){
 
     const parser = new CSVParser(parserConfig, TestRestAPI, config);
 
-    assert.equal(parser.tableRule.maxConcurrent, 100, "Expected maxConcurrent to be 100");
+    assert.equal(parser.wrappedRule.maxConcurrent, 100, "Expected maxConcurrent to be 100");
 
 });
 
@@ -116,7 +116,7 @@ QUnit.test( "bad maxConcurrent", function(assert){
 
     const parser = new CSVParser(parserConfig, TestRestAPI, config);
 
-    assert.equal(parser.tableRule.maxConcurrent, 100, "Expected maxConcurrent to be 100");
+    assert.equal(parser.wrappedRule.maxConcurrent, 100, "Expected maxConcurrent to be 100");
 
 });
 
