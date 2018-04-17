@@ -26,3 +26,4 @@ docs/.*.html
 .pydevproject
 *.pyc
 src/.vscode
+/output_rename.zip

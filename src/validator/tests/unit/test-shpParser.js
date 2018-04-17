@@ -1,4 +1,6 @@
 const gdal = require('gdal');
+const fs = require("fs");
+var AdmZip = require('adm-zip');
 
 const ErrorLogger = require("../../ErrorLogger");
 const ShpParser = require("../../../rules/shpParser");
@@ -89,6 +91,7 @@ class TestTableRule extends TableRuleAPI {
 }
 
 QUnit.module("shpParser");
+
 
 QUnit.test( "Creation Test", function( assert ) {
 	const logger = new ErrorLogger();
@@ -552,11 +555,11 @@ QUnit.test( " End to End multiple shp parser test", function(assert){
 			assert.ok(log, "Expected log to be created");
 			assert.equal(log.length, 0, "Expected no log entries");
 
-			if(log.length > 0) {
-				log.forEach((entry) => {
-					console.log(entry.description)
-				})
-			}
+			//if(log.length > 0) {
+			//	log.forEach((entry) => {
+			//		console.log(entry.description)
+			//	})
+			//}
 
 			assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
 		},
@@ -569,5 +572,82 @@ QUnit.test( " End to End multiple shp parser test", function(assert){
 
 });
 
+
+QUnit.test( " End to End multiple shp rename test", function(assert){
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			"rootDirectory" : "./src",
+			"tempDirectory" : "/tmp"
+		},
+		"rulesDirectory" : "./validator/tests/testRules",
+		"inputDirectory" : "",
+		"outputDirectory" : "/tmp",
+		"ruleset" : "Test Data Ruleset"
+	};
+
+	const done = assert.async();
+
+	let exportFile = "/tmp/output_rename.zip";
+
+	const ruleset = {
+		name : "Test Data Ruleset",
+		rules : [
+			{
+				filename : "CheckColumnCount",
+				config : {
+					id : 1,
+					columns : 11
+				}
+			},
+			{
+				filename : "noOp_shp",
+				config : {
+					id : 2
+				}
+			}
+		],
+		parser: {
+			filename: "shpParser",
+			config: {
+				renameZipContentsToUpload: true
+			}
+		},
+		export: {
+			filename: "LocalCopyExport",
+			config: {
+				file: exportFile
+			}
+		}
+	};
+
+	const dbProxy = new DataProxy(ruleset,
+		(runId, log, ruleSetID, inputFile, outputFile) => {
+			assert.ok(log, "Expected log to be created");
+			assert.equal(log.length, 0, "Expected no log entries");
+
+			assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+
+			assert.ok(fs.existsSync(exportFile), 'Expect the file to exist');
+			assert.ok(fs.lstatSync(exportFile).isFile(), 'Expect the file to be a file');
+
+			let zip = new AdmZip(exportFile);
+			var zipEntries = zip.getEntries();
+
+			zipEntries.forEach((entry) => {
+				assert.equal(entry.name.slice(0,-4), 'output_rename');
+			});
+
+			fs.unlinkSync(exportFile);
+		},
+		done);
+
+	const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+	vldtr.runRuleset("src/validator/tests/world_borders.zip", null, 'UTF8');
+
+});
 
 QUnit.module("");
