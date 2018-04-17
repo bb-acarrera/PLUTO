@@ -895,6 +895,10 @@ class data {
                         rowGroup = result.rows[0].owner_group;
                     }
 
+                    if(isAdmin) {
+                        rowGroup = group;
+                    }
+
                     if(!isImport) {
                         ruleset.version = version;
                     } else {
@@ -1641,9 +1645,8 @@ class data {
 
 
 function safeStringLike ( value ) {
-    let resp = value.trim();
-    resp = replaceAll( value, "%", "" );
-    resp = replaceAll( value, "_", "" );
+    let resp = replaceAll( value.trim(), "_", "\\_" );
+    resp = replaceAll( resp, "%", "\\%" );
     return '%' + resp + '%';
 }
 

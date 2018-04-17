@@ -381,7 +381,11 @@ class CSVParser extends TableParserAPI {
             quote: '"'
         };
     }
-
+    static get Descriptions() {
+        return {
+            title: 'CSV File Parser'
+        }
+    }
 }
 
 module.exports = CSVParser;	// Export this so derived classes can extend it.

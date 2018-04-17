@@ -22,6 +22,12 @@ export default Ember.Component.extend({
 		return invalid;
 	}),
 
+	init() {
+        this._super(...arguments);
+        this.set('sourceConfig', {});
+        this.set('targetConfig', {});
+	},
+
 	actions: {
 		searchTarget(term) {
 			const store = this.get('store');
@@ -96,6 +102,10 @@ export default Ember.Component.extend({
 				};
 			} else {
 				ruleset = ruleset.toJSON();
+
+				ruleset.rules = ruleset.rules.filter((val)=>{
+					return !val.injected;
+				});
 
 				ruleset.name = 'Copy of ' + ruleset.name;
 			}

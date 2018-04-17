@@ -388,7 +388,22 @@ export default Ember.Controller.extend( {
 			event.stopPropagation();
 		},
 
+        getMathingRule(list, itemName) {
+            let item = null;
 
+            if(list) {
+                list.forEach((i) => {
+                    if(i.get('filename') == itemName) {
+                        item = i;
+                    }
+                })
+            }
+
+            if(!item)
+                return null;
+
+            return item.get('title');
+        },
 
 		getUiProperties(list, itemName) {
 			let item = null;
@@ -423,6 +438,30 @@ export default Ember.Controller.extend( {
 
 			return item.get('validators');
 		},
+
+        getCustomListStatus(list) {
+            let item = false;
+
+            if(list) {
+                list.forEach((i) => {
+                	item = i.get("ui.properties") && i.get("ui.properties")[0] && i.get("ui.properties")[0].group;
+                })
+            }
+
+            return item;
+        },
+
+        getCustomList(list) {
+            let item = {};
+
+            if(list) {
+                list.forEach((i) => {
+                    item = i.get("ui.properties");
+                })
+            }
+
+            return item;
+        },
 
 		getShortDescription(list, itemName) {
 			var item = findRuleConfig.call(this, list, itemName);

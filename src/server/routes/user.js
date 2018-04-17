@@ -48,6 +48,8 @@ class RulesetRouter extends BaseRouter {
 			this.features.environmentLabel = this.config.validatorConfig.environmentLabel;
 			this.features.borderColor = this.config.validatorConfig.borderColor;
 
+			this.features.showAdmin = this.config.validatorConfig.showAdmin;
+            this.features.rejectAdminNavigation = this.config.validatorConfig.rejectAdminNavigation;
 		}
 	}
 
@@ -85,7 +87,9 @@ class RulesetRouter extends BaseRouter {
 								exportToLabel: this.features.exportToLabel,
 								allowOnlyRulesetImport: this.features.allowOnlyRulesetImport,
 								environmentLabel: this.features.environmentLabel,
-								borderColor: this.features.borderColor
+								borderColor: this.features.borderColor,
+                                showAdmin: this.features.showAdmin,
+                                rejectAdminNavigation: this.features.rejectAdminNavigation
 							}
 						}
 					}

@@ -110,5 +110,8 @@
 			},
 			"filename": "CheckColumnNames"
 		}
-	]
+	],
+
+	"showAdmin" : true,
+	"rejectAdminNavigation" : true
 }
