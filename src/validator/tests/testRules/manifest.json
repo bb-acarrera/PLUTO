@@ -36,7 +36,17 @@
       "executable" : "python"
     }
   ],
-  "importers" : [],
-  "exporters" : []
+  "importers" : [
+    {
+      "filename":"LocalCopyImport",
+      "path": "../../../runtime/customrules/LocalCopyImport.js"
+    }
+  ],
+  "exporters" : [
+    {
+      "filename":"LocalCopyExport",
+      "path": "../../../runtime/customrules/LocalCopyExport.js"
+    }
+  ]
 }
 

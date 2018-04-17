@@ -2,6 +2,7 @@ const TableParserAPI = require("../api/TableParserAPI");
 
 const fs = require("fs");
 const fse = require('fs-extra');
+const path = require('path');
 
 
 const TableRuleAPI = require('../api/TableRuleAPI');
@@ -12,6 +13,8 @@ const gdal = require('gdal');
 
 const UnzipSingle = require('./internal/unzipSingle');
 const RezipSingle = require('./internal/rezipSingle');
+
+const lodash = require('lodash');
 
 //using node-gdal:
 // https://www.npmjs.com/package/gdal
@@ -299,7 +302,14 @@ class shpParser extends TableParserAPI {
 
     static getParserCleanupRule(parserConfig) {
 
-        return new RezipSingle({__state: parserConfig.__state});
+        let config = {__state: parserConfig.__state};
+        let importConfigFilename = lodash.get(parserConfig, ['__state','validator','currentRuleset','export','config','file']);
+
+        if(parserConfig.renameZipContentsToUpload && importConfigFilename) {
+            config.contentsFilename = path.basename(importConfigFilename, path.extname(importConfigFilename));
+        }
+
+        return new RezipSingle(config);
 
     }
 
@@ -325,6 +335,12 @@ class shpParser extends TableParserAPI {
 						}
 					}
 				]
+            },
+            {
+                name: 'renameZipContentsToUpload',
+                label: 'Rename zip file content filenames to match upload filename',
+                type: 'boolean',
+                tooltip: 'If checked and if the shapefile is in a zip file, the names of the files inside the zip file will be renamed to match the upload filename.'
             }
         ];
     }

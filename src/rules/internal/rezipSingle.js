@@ -70,11 +70,23 @@ class reZipSingleFile extends RuleAPI {
 
 			if(filestat.isFile()) {
 
-				archive.file(inputFile, { name: path.basename(inputFile) });
+				if(this.config.contentsFilename) {
+					archive.file(inputFile, { name: this.config.contentsFilename + path.extname(inputFile) });
+				} else {
+					archive.file(inputFile, { name: path.basename(inputFile) });
+				}
+
 
 			} else if(filestat.isDirectory()) {
 
-				archive.directory(inputFile, false);
+				if(this.config.contentsFilename) {
+
+					fs.readdirSync(inputFile).forEach(file => {
+						archive.file(path.resolve(inputFile, file), { name: this.config.contentsFilename + path.extname(file) });
+					});
+				} else {
+					archive.directory(inputFile, false);
+				}
 			}
 
 			archive.finalize();
@@ -116,6 +128,18 @@ class reZipSingleFile extends RuleAPI {
 
 	get structureChange() {
 		return true;
+	}
+
+
+	static get ConfigProperties() {
+		return this.appendConfigProperties([
+			{
+				name: 'contentsFilename',
+				type: 'string',
+				label: 'Contents Filename',
+				tooltip: 'The filename to use for all contents, extension is preserved, blank/empty leaves the names as-is.'
+			}
+		]);
 	}
 }
 
