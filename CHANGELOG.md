@@ -5,7 +5,7 @@
 
 #### Shapefile parsing
 
-PLUTO can now natively parse shapefiles, and all core cvs rules can operate against the shapefile attributes table. Shapefiles can be supplied as a zip, which PLUTO will unzip, validate, and re-zip before uploading, with an option to make the zip contets filenames match the zip filename. 
+PLUTO can now natively parse shapefiles, and all core cvs rules can operate against the shapefile attributes table. Shapefiles can be supplied as a zip, which PLUTO will unzip, validate, and re-zip before uploading, with an option to make the zip contets filenames match the zip filename. It has options to remove all non-shapefile files, and to rename the contents to match the output file name. 
 
 ### Bug Fixes and Minor Improvements
  * Added ability for administrators to assign validations to different groups
@@ -14,6 +14,7 @@ PLUTO can now natively parse shapefiles, and all core cvs rules can operate agai
  * Changed required rules to be per-parser (specifically so validations with 
  * Added config option to restrict access to the admin page to only administrators 
  * Added config option to show a link to the admin page if the user is an administrator
+ 
 
 ## 1.0.8
 ### New Features

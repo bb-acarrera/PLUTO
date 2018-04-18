@@ -1,6 +1,7 @@
 const gdal = require('gdal');
 const fs = require("fs");
-var AdmZip = require('adm-zip');
+const path = require("path");
+const AdmZip = require('adm-zip');
 
 const ErrorLogger = require("../../ErrorLogger");
 const ShpParser = require("../../../rules/shpParser");
@@ -146,11 +147,18 @@ QUnit.test( "valid shapefile", function( assert ) {
 	assert.ok(rule, "Rule was created.");
 
 	const done = assert.async();
-	parser._run( { file: './src/validator/tests/world_borders' } ).then(() => {
+	parser._run( { file: './src/validator/tests/world_borders' } ).then((result) => {
 		const logResults = logger.getLog();
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		assert.ok(rule.finished);
 		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.dbf')), 'Expect dbf');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.shp')), 'Expect shp');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.prj')), 'Expect prj');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.shx')), 'Expect shx');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'Readme.txt')), 'Expect Readme.txt');
+
 		done();
 	});
 });
@@ -346,6 +354,39 @@ QUnit.test( "no attributes with TableRule", function( assert ) {
 		assert.equal(logResults.length, 0, "Expect no errors.");
 		assert.ok(rule.finished);
 		assert.equal(rule.rowCount, 247, 'Expect 247 entries');
+		done();
+	});
+});
+
+QUnit.test( "remove non shapefile files", function( assert ) {
+	const logger = new ErrorLogger();
+	const config = {
+		__state : {
+			"_debugLogger" : logger,
+			tempDirectory: "./tmp"
+		},
+		removeOtherFiles: true
+	};
+
+	const rule = new TestTableRule(config);
+
+	const parser = new ShpParser(config, rule);
+
+	assert.ok(rule, "Rule was created.");
+
+	const done = assert.async();
+	parser._run( { file: './src/validator/tests/world_borders' } ).then((result) => {
+		const logResults = logger.getLog();
+		assert.equal(logResults.length, 0, "Expect no errors.");
+		assert.ok(rule.finished);
+
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.dbf')), 'Expect dbf');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.shp')), 'Expect shp');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.prj')), 'Expect prj');
+		assert.ok(fs.existsSync(path.resolve(result.file, 'world_borders.shx')), 'Expect shx');
+
+		assert.ok(!fs.existsSync(path.resolve(result.file, 'Readme.txt')), 'Expect Readme.txt to be removed');
+
 		done();
 	});
 });

@@ -16,6 +16,8 @@ const RezipSingle = require('./internal/rezipSingle');
 
 const lodash = require('lodash');
 
+const shapefileExts = ['.shp', '.dbf', '.prj', '.shx'];
+
 //using node-gdal:
 // https://www.npmjs.com/package/gdal
 // api: http://naturalatlas.github.io/node-gdal/classes/gdal.html
@@ -207,6 +209,22 @@ class shpParser extends TableParserAPI {
 
         fse.copySync(inputName, outputName, { overwrite: true });
 
+        if(this.config.removeOtherFiles) {
+
+            let filestat = fs.lstatSync(outputName);
+            if(filestat.isDirectory()) {
+                fs.readdirSync(outputName).forEach(file => {
+
+                    if(!shapefileExts.includes(path.extname(file))) {
+                        fs.unlinkSync(path.resolve(outputName, file));
+                    }
+
+                });
+            }
+
+        }
+
+
         let ds = null;
         let layer = null;
 
@@ -335,6 +353,12 @@ class shpParser extends TableParserAPI {
 						}
 					}
 				]
+            },
+            {
+                name: 'removeOtherFiles',
+                label: 'Remove files that are not part of the shapefile',
+                type: 'boolean',
+                tooltip: 'If checked, the parser will remove all files that are not .shp, .dbf, .prj, or .shx'
             },
             {
                 name: 'renameZipContentsToUpload',
