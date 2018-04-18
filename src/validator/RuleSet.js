@@ -234,7 +234,7 @@ class RuleSet {
 		if(validatorConfig.requiredRules) {
             this.rules = this.rules || [];
             validatorConfig.requiredRules.forEach((srcParser)=>{
-				if ( srcParser.parser != this.parser.filename ) return;
+				if ( srcParser.parser != (this.parser ? this.parser.filename : null) ) return;
 
                 srcParser.rules.forEach((srcRule)=>{
                 	let rule = {
