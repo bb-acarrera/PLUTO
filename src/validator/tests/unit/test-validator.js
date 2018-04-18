@@ -36,7 +36,6 @@ QUnit.module("Validator",
     }, () => {
 
 
-
 QUnit.test( " No Config Creation Test", function(assert){
 
     assert.throws(
@@ -1167,14 +1166,16 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 "inputDirectory" : "",
                 "outputDirectory" : "results",
                 "ruleset" : "Test Data Ruleset",
-                "requiredRules": [
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
                     {
                         "config": {
                             columns : 9
                         },
                         "filename": "CheckColumnCount"
                     }
-                ]
+                ]}]
             };
 
             const done = assert.async();
@@ -1224,14 +1225,16 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 "inputDirectory" : "",
                 "outputDirectory" : "results",
                 "ruleset" : "Test Data Ruleset",
-                "requiredRules": [
-                    {
-                        "config": {
-                            columns : 9
-                        },
-                        "filename": "CheckColumnCount"
-                    }
-                ]
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
+                        {
+                            "config": {
+                                columns : 9
+                            },
+                            "filename": "CheckColumnCount"
+                        }
+                    ]}]
             };
 
             const done = assert.async();
@@ -1280,14 +1283,16 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 "inputDirectory" : "",
                 "outputDirectory" : "results",
                 "ruleset" : "Test Data Ruleset",
-                "requiredRules": [
-                    {
-                        "config": {
-                            columns : 9
-                        },
-                        "filename": "CheckColumnCount"
-                    }
-                ]
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
+                        {
+                            "config": {
+                                columns : 9
+                            },
+                            "filename": "CheckColumnCount"
+                        }
+                    ]}]
             };
 
             const done = assert.async();
@@ -1322,6 +1327,207 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
 
             vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+        });
+
+        QUnit.test( " Required Rule Test different parser", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "rules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset",
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
+                        {
+                            "filename": "CheckRowCount"
+                        }
+                    ]}]
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "CheckColumnCount",
+                        config : {
+                            id : 1,
+                            columns : 9
+                        }
+                    }
+                ],
+                parser: {
+                    filename: "shpParser",
+                    config: {
+                        numHeaderRows : 1
+                    }
+                }
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/world_borders.zip", "output.zip", 'UTF8');
+
+        });
+
+        QUnit.test( " Required Rule Test no parser", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "./validator/tests/testRules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset",
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
+                        {
+                            "filename": "CheckRowCount"
+                        }
+                    ]}]
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "noOp",
+                        config : {
+                            id : 1
+                        }
+                    }
+                ]
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+        });
+
+        QUnit.test( " Required Rule Test no parser with no parser required rule", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "./validator/tests/testRules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset",
+                "requiredRules": [{
+                    "rules" : [
+                        {
+                            "filename": "noOp"
+                        }
+                    ]}]
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "noOp",
+                        config : {
+                            id : 1
+                        }
+                    }
+                ]
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(!vldtr.abort, "Expected validator to succeed without aborting");
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.csv", 'UTF8');
+
+        });
+
+        QUnit.test( " Required Rule Test no parser with no parser required rule no rule", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "./validator/tests/testRules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset",
+                "requiredRules": [{
+                    "rules" : [
+                        {
+                            "filename": "noOp"
+                        }
+                    ]}]
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "zip",
+                        config : {
+                            id : 1
+                        }
+                    }
+                ]
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(vldtr.abort, "Expected validator to abort");
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.zip", 'UTF8');
 
         });
 
