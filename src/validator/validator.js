@@ -401,7 +401,9 @@ class Validator {
                 if(this.config.requiredRules) {
                     this.config.requiredRules.forEach( ( reqParser ) => {
 
-                        if ( reqParser.parser != ruleset.parser.filename ) return;
+	                    let parserFilename = ruleset.parser ? ruleset.parser.filename : null;
+
+                        if ( reqParser.parser != parserFilename ) return;
 
                         reqParser.rules.forEach((reqRule)=>{
                             let res = ruleset.rules.find(function(r){
