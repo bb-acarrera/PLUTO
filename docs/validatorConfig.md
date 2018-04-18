@@ -281,8 +281,6 @@ If set to true, admin button will be shown on the main page.
 If set to true, non admins would not be permitted to navigate to the admin page.
 
 ## requiredRules
-If present will inject rules into rulesets with the appropriate parser. Validations without these rules will fail.
-
 ```
 { ...
     "requiredRules": [{
@@ -300,5 +298,10 @@ If present will inject rules into rulesets with the appropriate parser. Validati
 	}]
 }
 ```
+A list of rules with their matching parser that must be present on every validation, and if not present the validation will fail. Any validation created will have these rules automatically added. Each object in the list represents a single rule with the properties:
+
+ - **filename**: this is the id of the rule, as defined in the rules manifest.  This property must be set to a valid rule id.
+ - **config**: is an optional object that specifies what values the rule config should have. Any missing required rule properties are can be set by the user to any value; if a validation rule is missing any required properties then validation fails. If the config object is missing, then the user can set any rule values.
+
 
 [Config Properties]: ruleUiConfig.md  

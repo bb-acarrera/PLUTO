@@ -1167,14 +1167,16 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 "inputDirectory" : "",
                 "outputDirectory" : "results",
                 "ruleset" : "Test Data Ruleset",
-                "requiredRules": [
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
                     {
                         "config": {
                             columns : 9
                         },
                         "filename": "CheckColumnCount"
                     }
-                ]
+                ]}]
             };
 
             const done = assert.async();
@@ -1224,14 +1226,16 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 "inputDirectory" : "",
                 "outputDirectory" : "results",
                 "ruleset" : "Test Data Ruleset",
-                "requiredRules": [
-                    {
-                        "config": {
-                            columns : 9
-                        },
-                        "filename": "CheckColumnCount"
-                    }
-                ]
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
+                        {
+                            "config": {
+                                columns : 9
+                            },
+                            "filename": "CheckColumnCount"
+                        }
+                    ]}]
             };
 
             const done = assert.async();
@@ -1280,14 +1284,16 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 "inputDirectory" : "",
                 "outputDirectory" : "results",
                 "ruleset" : "Test Data Ruleset",
-                "requiredRules": [
-                    {
-                        "config": {
-                            columns : 9
-                        },
-                        "filename": "CheckColumnCount"
-                    }
-                ]
+                "requiredRules": [{
+                    "parser" : "CSVParser",
+                    "rules" : [
+                        {
+                            "config": {
+                                columns : 9
+                            },
+                            "filename": "CheckColumnCount"
+                        }
+                    ]}]
             };
 
             const done = assert.async();
