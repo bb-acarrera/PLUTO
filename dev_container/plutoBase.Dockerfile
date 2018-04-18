@@ -2,6 +2,8 @@ FROM node:8.9-alpine
 
 ARG PANDAS_VERSION=0.22.0
 
+ENV GLIBC_VERSION 2.27-r0
+
 RUN apk --no-cache add \
   python \
   python-dev \
@@ -15,3 +17,7 @@ RUN apk add --no-cache --virtual .build-deps g++ && \
     apk del .build-deps
 
 RUN pip install --upgrade requests==2.18.4
+
+RUN apk add --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
+     gdal-dev
+

@@ -5,7 +5,17 @@ import re
 import imp
 import sys
 import shutil
+import errno
 import PythonAPI as api
+
+
+def copyanything(src, dst):
+    try:
+        shutil.copytree(src, dst)
+    except OSError as exc: # python >2.5
+        if exc.errno == errno.ENOTDIR:
+            shutil.copy(src, dst)
+        else: raise
 
 class CopyCurrent(api.PythonAPIRule):
 	def __init__(self, config):
@@ -13,7 +23,7 @@ class CopyCurrent(api.PythonAPIRule):
 
 	def run(self, inputFile, outputFile, encoding):
 
-	    shutil.copy(inputFile, outputFile)
+	    copyanything(inputFile, outputFile)
 
 
 		

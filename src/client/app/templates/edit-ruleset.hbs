@@ -22,7 +22,7 @@
 </div>
 
 <div class="authDetails">
-    <div>Owned by {{ownedBy}}</div>
+	<div>Owned by {{#if applicationController.currentUser.admin}}{{input id="ownerName" type="text" value=model.ruleset.ownergroup class="text-input"}}{{else}}{{ownedBy}}{{/if}}</div>
     <div>Lasted edited on {{lastEdited}} by {{lastEditedBy}}</div>
 </div>
 
@@ -290,7 +290,7 @@ Process URL: {{processURL}}
 
 		{{#c.subTitle}}
 			{{#if model.ruleset.parser}}
-				{{model.ruleset.parser.filename}}
+				{{compute (action "getMathingRule") model.parsers model.ruleset.parser.filename}}
 			{{else}}
                 None
 			{{/if}}

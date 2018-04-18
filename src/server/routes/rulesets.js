@@ -152,7 +152,7 @@ class RulesetRouter extends BaseRouter {
 		const auth = this.getAuth(req);
 
 		function saveFn(ruleset) {
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, auth.admin?req.body.ownergroup:auth.group, auth.admin).then((ruleset) => {
 				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
 			}, (error) => {
 				next(error);

@@ -388,7 +388,22 @@ export default Ember.Controller.extend( {
 			event.stopPropagation();
 		},
 
+        getMathingRule(list, itemName) {
+            let item = null;
 
+            if(list) {
+                list.forEach((i) => {
+                    if(i.get('filename') == itemName) {
+                        item = i;
+                    }
+                })
+            }
+
+            if(!item)
+                return null;
+
+            return item.get('title');
+        },
 
 		getUiProperties(list, itemName) {
 			let item = null;

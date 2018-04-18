@@ -521,8 +521,8 @@ class Validator {
 				throw("Rule requires parser, but no parser in ruleset");
 			}
 
-			if(ruleClass.Parser !== this.parserClass.Type) {
-				throw(`Rule/Parser mistmatch. Rule ${ruleDescriptor} needs ${ruleClass.Parser} parser but ${this.parserConfig.name} is ${this.parserClass.Type}`);
+			if(!this.parserClass.isTypeSupported(ruleClass.Parser)) {
+				throw(`Rule/Parser mistmatch. Rule ${ruleDescriptor} needs ${ruleClass.Parser} parser but ${this.parserConfig.name} does not support it.`);
 			}
 
 
