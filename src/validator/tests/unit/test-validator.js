@@ -1483,4 +1483,52 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
         });
 
+        QUnit.test( " Required Rule Test no parser with no parser required rule no rule", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "./validator/tests/testRules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset",
+                "requiredRules": [{
+                    "rules" : [
+                        {
+                            "filename": "noOp"
+                        }
+                    ]}]
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "zip",
+                        config : {
+                            id : 1
+                        }
+                    }
+                ]
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(vldtr.abort, "Expected validator to abort");
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.zip", 'UTF8');
+
+        });
+
 });
