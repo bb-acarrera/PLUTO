@@ -5,26 +5,30 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 6543:5432
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=pluto
       - POSTGRES_DB=pluto
 
-  pluto_dbloader:
-    image: pluto_dbloader:develop
+  pluto_dev_dbloader:
+    build:
+      context: .
+      dockerfile: ./dev_container/dev.Dockerfile
+    image: pluto_dev:latest
     volumes:
-      - ./test_config:/opt/PLUTO/config
-
+      - .:/code
+      - /code/node_modules
+    command: ./database/dbloader/run_importer_in_docker.sh
   pluto_nginx:
     image: nginx:stable-alpine
     volumes:
       - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - 8001:8001
-      - 8002:8002
-      - 8003:8003
-      - 8004:8004
+      - 9001:8001
+      - 9002:8002
+      - 9003:8003
+      - 9004:8004
 
   pluto_s3server:
     image: scality/s3server
@@ -33,14 +37,6 @@ services:
     volumes:
       - s3-data:/usr/src/app/localData
       - s3-meta:/usr/src/app/localMetadata
-
-  pluto_ws:
-    image: pluto:develop
-    volumes:
-      - ./test_config:/opt/PLUTO/config
-    ports:
-      - 3000:3000
-
 
 volumes:
   pgdata:
