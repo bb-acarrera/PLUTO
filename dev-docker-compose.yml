@@ -3,7 +3,7 @@ services:
   pluto_db:
     image: postgres:9.6-alpine
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata-dev:/var/lib/postgresql/data
     ports:
       - 6543:5432
     environment:
@@ -35,11 +35,11 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - s3-data:/usr/src/app/localData
-      - s3-meta:/usr/src/app/localMetadata
+      - s3-data-dev:/usr/src/app/localData
+      - s3-meta-dev:/usr/src/app/localMetadata
 
 volumes:
-  pgdata:
-  s3-data:
-  s3-meta:
+  pgdata-dev:
+  s3-data-dev:
+  s3-meta-dev:
 
