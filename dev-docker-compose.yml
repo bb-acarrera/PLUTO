@@ -1,0 +1,49 @@
+version: '3'
+services:
+  pluto_db:
+    image: postgres:9.6-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=pluto
+      - POSTGRES_DB=pluto
+
+  pluto_dbloader:
+    image: pluto_dbloader:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+
+  pluto_nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./test_nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8001:8001
+      - 8002:8002
+      - 8003:8003
+      - 8004:8004
+
+  pluto_s3server:
+    image: scality/s3server
+    ports:
+      - 8000:8000
+    volumes:
+      - s3-data:/usr/src/app/localData
+      - s3-meta:/usr/src/app/localMetadata
+
+  pluto_ws:
+    image: pluto:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+    ports:
+      - 3000:3000
+
+
+volumes:
+  pgdata:
+  s3-data:
+  s3-meta:
+
