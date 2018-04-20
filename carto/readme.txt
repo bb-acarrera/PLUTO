@@ -26,8 +26,10 @@ For a list of all available custom SQL funcitons for carto:
 https://github.com/CartoDB/cartodb-postgresql/tree/master/scripts-available
 
 Info on table api:
-
 http://{you-local-ip/domain}/user/dev/api/v1/tables/YOUR_TABLE_NAME?api_key=blah
+
+Full list of all API endpoints (documented and undocumented):
+https://github.com/CartoDB/cartodb/blob/master/config/routes.rb
 
 Also, a more complete production set up based on the sverhoeven/docker-cartodb that describes setting up nginx to look exactly like the carto.com site:
 https://github.com/chriswhong/docker-cartodb
