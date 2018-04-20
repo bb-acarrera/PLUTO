@@ -277,7 +277,7 @@ A label to use to identify this PLUTO instance, and is appended to the title of 
 ## environmentStyle
 
 Configuration for styling background and border color of different PLUTO instances. Configuration matching current environmentLabel will be used. Values on properties must match valid CSS attributes.
-Images for "landingImage" must be valid names from the server/assets directory.
+Images for "landingImage" must be valid urls.
 
 ``` json
     "environmentLabel" : {
