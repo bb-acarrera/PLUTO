@@ -8,12 +8,10 @@ And hit http://{you-local-ip/domain} to hit the service
 
 The default login is dev/pass1234
 
-It also creates an 'example' organization with owner login admin4example/pass1234. Organization members can be created on 
-http://{you-local-ip/domain}/user/admin4example/organization
+It also creates an 'example' organization with owner login admin4example/pass1234. Organization members can be created on http://{you-local-ip/domain}/user/admin4example/organization
 
 The sql api endpoint looks like:
-
-localhost:8080/user/dev/api/v2/sql?q=select * from worldcities&api_key={api-key}
+http://localhost:8080/user/dev/api/v2/sql?q=select * from worldcities&api_key={api-key}
 
 Where the api key can be found at:
 http://{you-local-ip/domain}/user/dev/your_apps
