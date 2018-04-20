@@ -274,6 +274,28 @@ If set to true, users will be unable to add or edit rulesets (but will be able t
 ## environmentLabel
 A label to use to identify this PLUTO instance, and is appended to the title of every page.
 
+## environmentStyle
+
+Configuration for styling background and border color of different PLUTO instances. Configuration matching current environmentLabel will be used. Values on properties must match valid CSS attributes.
+Images for "landingImage" must be valid names from the server/assets directory.
+
+``` json
+    "environmentLabel" : {
+		"Production": {
+			"backgroundColor": "#FEE1E1",
+			"borderColor": "red",
+			"borderWidth": "4px",
+			"landingImage": "release.png"
+		},
+		"Development": {
+			"backgroundColor": "white",
+			"borderColor": "",
+			"borderWidth": "0px"
+		}
+
+	}
+```
+
 ## showAdmin
 If set to true, admin button will be shown on the main page.
 
