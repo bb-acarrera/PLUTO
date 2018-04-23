@@ -99,6 +99,21 @@
 	},
 
 	"environmentLabel": "Development",
+	"environmentStyle": {
+		"Production": {
+			"backgroundColor": "#FEE1E1",
+			"borderColor": "red",
+			"borderWidth": "4px",
+			"landingImage": "release.png"
+		},
+		"Development": {
+			"backgroundColor": "white",
+			"borderColor": "",
+			"borderWidth": "0px",
+			"landingImage": "development.png"
+		}
+	},
+
 	"allowOnlyRulesetImport": false,
 	
 	"requiredRules": [{

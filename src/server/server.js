@@ -70,6 +70,7 @@ class Server {
 			this.router.router(req, res, next)
 		});
 		app.use(express.static(this.assetsDirectory));
+        app.use(express.static(path.resolve(this.rootDir, "server/assets")));
 
 		app.use(fallback('index.html', { root: this.assetsDirectory }));
 
