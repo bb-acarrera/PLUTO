@@ -355,6 +355,8 @@ body > div.ember-view  {
     height: calc(100% - 15px);
     overflow: auto;
     overflow-x: hidden;
+    border-style: solid;
+    border-width: 0;
 }
 
 .injected-rule {
