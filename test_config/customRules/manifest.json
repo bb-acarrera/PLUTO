@@ -30,6 +30,9 @@
       "filename":"sampleExport",
       "path": "/opt/PLUTO/config/export.js"
     }
+  ],
+  "posttasks" : [
+
   ]
 }
 

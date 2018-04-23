@@ -35,7 +35,7 @@ QUnit.module("Validator",
         }
     }, () => {
 
-
+/*
 QUnit.test( " No Config Creation Test", function(assert){
 
     assert.throws(
@@ -1521,6 +1521,70 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                 (runId, log, ruleSetID, inputFile, outputFile) => {
                     assert.ok(log, "Expected log to be created");
                     assert.ok(vldtr.abort, "Expected validator to abort");
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.zip", 'UTF8');
+
+        });
+
+*/
+        QUnit.test( " Python post task", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "./validator/tests/testRules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset"
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "noOp",
+                        config : {
+                            id : 1
+                        }
+                    }
+                ],
+                posttasks : [
+                    {
+                        filename : "noOp_posttask",
+                        config : {
+                            id : 1
+                        }
+                    },
+                    {
+                        filename : "noOp_posttask",
+                        config : {
+                            id : 2
+                        }
+                    }
+                ]
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(!vldtr.abort, "Expected validator to not abort");
+
+                    assert.equal(log.length, 4, "Expected 4 log entries");
+
+                    assert.equal(log[0].description, 'start','First message should be start');
+                    assert.equal(log[1].description, 'finished','second message should be finish');
+                    assert.equal(log[2].description, 'start','third message should be start');
+                    assert.equal(log[3].description, 'finished','fourth message should be finish');
                 },
                 done);
 

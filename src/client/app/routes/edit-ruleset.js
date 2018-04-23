@@ -35,6 +35,7 @@ export default Ember.Route.extend(RulesetEmberizer, {
 					importers: this.store.findAll('importer'),
 					exporters: this.store.findAll('exporter'),
 					reporters: this.store.findAll('reporter'),
+					posttasks: this.store.findAll('posttask'),
 					rulesetconfiguis: this.store.findAll('rulesetconfigui'),
                     custom: this.store.findAll('customfield'),
                     periodicity: this.store.findAll('periodicity'),

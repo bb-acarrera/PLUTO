@@ -12,14 +12,16 @@ class RuleLoader {
 		this.importers = [];
 		this.exporters = [];
 		this.reporters = [];
+		this.posttasks = [];
 
 		this.rulesMap = {};
 		this.parsersMap = {};
 		this.importersMap = {};
 		this.exportersMap = {};
-		this.rulePropertiesMap = {};
 		this.reportersMap = {};
+		this.posttasksMap = {};
 
+		this.rulePropertiesMap = {};
 		this.classMap = {};
 
 		this.loadManifests();
@@ -92,6 +94,12 @@ class RuleLoader {
 		if (manifest.reporters) {
 			manifest.reporters.forEach((item) => {
 				loadItem(item, 'reporter', this.reporters, this.reportersMap);
+			});
+		}
+
+		if (manifest.posttasks) {
+			manifest.posttasks.forEach((item) => {
+				loadItem(item, 'posttask', this.posttasks, this.posttasksMap);
 			});
 		}
 

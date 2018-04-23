@@ -26,5 +26,12 @@
     }
   ],
   "reporters" : [
+  ],
+  "posttasks" : [
+    {
+      "filename":"NoOp_posttask",
+      "script": "../../validator/tests/testRules/noOp_posttask.py",
+      "executable" : "python"
+    }
   ]
 }

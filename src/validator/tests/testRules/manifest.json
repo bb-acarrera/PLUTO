@@ -47,6 +47,13 @@
       "filename":"LocalCopyExport",
       "path": "../../../runtime/customrules/LocalCopyExport.js"
     }
+  ],
+  "posttasks" : [
+    {
+      "filename":"noOp_posttask",
+      "script" : "noOp_posttask.py",
+      "executable" : "python"
+    }
   ]
 }
 
