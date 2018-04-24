@@ -35,7 +35,6 @@ QUnit.module("Validator",
         }
     }, () => {
 
-/*
 QUnit.test( " No Config Creation Test", function(assert){
 
     assert.throws(
@@ -1531,7 +1530,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
         });
 
-*/
+
         QUnit.test( " Python post task", function(assert){
             const logger = new ErrorLogger();
             const config = {
@@ -1571,27 +1570,39 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
                             id : 2
                         }
                     }
-                ]
+                ],
+                export: {
+                    filename: "LocalCopyExport",
+                    config: {
+                        file: "/tmp/output.csv",
+                        doLog: true
+                    }
+                }
             };
 
             const dbProxy = new DataProxy(ruleset,
                 (runId, log, ruleSetID, inputFile, outputFile) => {
+                    
                     assert.ok(log, "Expected log to be created");
                     assert.ok(!vldtr.abort, "Expected validator to not abort");
 
-                    assert.equal(log.length, 4, "Expected 4 log entries");
+                    assert.equal(log.length, 5, "Expected 5 log entries");
 
-                    assert.equal(log[0].description, 'start','First message should be start');
-                    assert.equal(log[1].description, 'finished','second message should be finish');
-                    assert.equal(log[2].description, 'start','third message should be start');
-                    assert.equal(log[3].description, 'finished','fourth message should be finish');
+                    if(log.length >= 5) {
+                        assert.equal(log[0].description, 'File copied','First message should be file copied');
+                        assert.equal(log[1].description, 'start','second message should be start');
+                        assert.equal(log[2].description, 'finished','third message should be finish');
+                        assert.equal(log[3].description, 'start','fourth message should be start');
+                        assert.equal(log[4].description, 'finished','fifth message should be finish');
+                    }
+
                 },
                 done);
 
             const vldtr = new validator(config, dbProxy.getDataObj());
 
 
-            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.zip", 'UTF8');
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", null, 'UTF8');
 
         });
 

@@ -15,7 +15,7 @@ class NoOpPosttask(api.PythonAPIRule):
 	def run(self, inputFile, outputFile, encoding):
 	
 		self.warning("start")
-		time.sleep(2)
+		time.sleep(1)
 		self.warning("finished")
 
 

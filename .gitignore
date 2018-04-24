@@ -27,3 +27,5 @@ docs/.*.html
 *.pyc
 src/.vscode
 /output_rename.zip
+/.vscode/
+/output.zip
