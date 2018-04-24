@@ -481,14 +481,14 @@ Process URL: {{processURL}}
 
 	{{#if (not disableEdit)}}
 
-		<span style="float: left">
-			{{#bs-button onClick=(action "showAddRule")}}
-                <i class="fa fa-plus"></i>
-			{{/bs-button}}
-        </span>
-
-
-
+		<div style="height:35px;">
+			<span style="float: left">
+				{{#bs-button onClick=(action "showAddRule")}}
+                    <i class="fa fa-plus"></i>
+					{{#bs-tooltip placement="left"}}Add a new rule{{/bs-tooltip}}
+				{{/bs-button}}
+            </span>
+		</div>
 
 	{{/if}}
 {{else}}
@@ -497,6 +497,109 @@ Process URL: {{processURL}}
 	</h3>
 
 {{/if}}
+
+	{{#if hasPosttasks}}
+        <div class="section-header">Post Upload Tasks</div>
+
+
+		{{#each model.ruleset.posttasks as |taskInstance index|}}
+
+			{{#edit-ruleset/collapse initialCollapsed=(get this (concat "collapseRule" taskInstance.config.id) ) as |c| }}
+				{{#c.subTitle}}
+                    <span class="rule-header {{if taskInstance.injected 'injected-rule' ''}}">
+					{{compute (action "getTitle") model.posttasks taskInstance.filename}}
+						{{#unless (eq taskInstance.name taskInstance.filename)}}
+                            - {{taskInstance.name}}
+						{{/unless}}
+						{{#if (compute (action "getLongDescription") model.posttasks taskInstance.filename)}}
+                            <i class="fa fa-info-circle fa-fw info-color">
+								{{#bs-popover triggerEvents="hover" onShow=(action "hideTooltip")}}{{compute (action "getLongDescription") model.posttasks taskInstance.filename taskInstance.injected}}{{/bs-popover}}
+                            </i>
+						{{/if}}
+						{{#if (compute (action "getShortDescription") model.posttasks taskInstance.filename)}}
+							{{#bs-tooltip autoPlacement="true"}}{{compute (action "getShortDescription") model.posttasks taskInstance.filename}}{{/bs-tooltip}}
+						{{/if}}
+				</span>
+				{{/c.subTitle}}
+
+				{{#c.controls}}
+					{{#unless disableEdit}}
+
+                        <span style="float: right">
+						{{#bs-button onClick=(action "movePosttaskUp" model.ruleset index bubbles=false) size='sm'}}
+                            <i class="fa fa-arrow-up"></i>
+						{{/bs-button}}
+
+							{{#bs-button onClick=(action "movePosttaskDown" model.ruleset index bubbles=false) size='sm'}}
+                                <i class="fa fa-arrow-down"></i>
+							{{/bs-button}}
+							{{#unless taskInstance.injected}}
+								{{#bs-button onClick=(action "deletePosttask" taskInstance bubbles=false) size='sm'}}
+                                    <i class="fa fa-trash"></i>
+								{{/bs-button}}
+							{{/unless}}
+					</span>
+
+
+					{{/unless}}
+				{{/c.controls}}
+
+				{{#c.collapsable}}
+                    <div>
+                        Description {{input type="text" value=(mut taskInstance.name) disabled=disabled}}
+                    </div>
+					{{component 'custom-property.property-list'
+					uiList=(compute (action "getUiProperties") model.posttasks taskInstance.filename)
+					config=(get taskInstance "config")
+					disabled=disableEdit
+					columns=columns
+					validators=(compute (action "getUiValidators") model.posttasks taskInstance.filename)
+					state=propStates
+					validateOnInit=taskInstance.newrule
+					instanceName=(concat "posttask" taskInstance.filename)
+					}}
+				{{/c.collapsable}}
+			{{/edit-ruleset/collapse}}
+
+		{{/each}}
+
+
+		{{#if showAddPosttask}}
+            <div class="section-content ruleset-section-content"
+                 style="float: right; width:100%; display: flex; justify-content: flex-end">
+
+                <div style="display: inline-block;margin-right: 5px;flex: 1" onclick={{action "stopPropagation"}}>
+					{{#power-select
+					options=model.posttasks
+					matcher=ruleMatcher
+					onchange=(action "addPosttask" bubbles=false)
+					renderInPlace=true
+					initiallyOpened=true
+					as |ruleChoice|}}
+						{{if ruleChoice.title ruleChoice.title ruleChoice.name}}
+					{{/power-select}}
+                </div>
+
+                <button {{action "hideAddPosttask"}}>Cancel</button>
+
+            </div>
+		{{/if}}
+
+		{{#if (not disableEdit)}}
+
+        	<div style="height:35px;">
+				<span style="float: left">
+					{{#bs-button onClick=(action "showAddPosttask")}}
+						<i class="fa fa-plus"></i>
+						{{#bs-tooltip placement="left"}}Add a new post upload task{{/bs-tooltip}}
+					{{/bs-button}}
+				</span>
+			</div>
+
+		{{/if}}
+
+	{{/if}}
+
 </div>
 
 {{#unless processing}}

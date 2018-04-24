@@ -193,6 +193,12 @@ export default Ember.Controller.extend( {
 		}
 	}),
 
+	hasPosttasks: Ember.computed('model.posttasks', function() {
+		const tasks = this.get('model.posttasks');
+
+		return tasks && tasks.get('length') > 0;
+	}),
+
 	ruleMatcher(rule, term) {
 		return `${rule.get('name')} ${rule.get('title')}`.toLowerCase().indexOf(term.toLowerCase());
 	},
@@ -256,6 +262,111 @@ export default Ember.Controller.extend( {
 		saveRuleSet ( ruleset ) {
 
 			save( ruleset, this );
+		},
+
+		showAddPosttask () {
+			this.set( 'showAddPosttask', true );
+		},
+
+		hideAddPosttask () {
+			this.set( 'showAddPosttask', false );
+		},
+
+
+
+		addPosttask (task) {
+			const ruleset = this.get('model.ruleset');
+			let newTask = null;
+
+			if ( task ) {
+				newTask = {};
+				newTask.filename = task.get( "filename" );
+				newTask.newrule = true;
+
+				var uiConfig = task.get( 'ui' ).properties;
+				var startingConfig = {};
+				uiConfig.forEach( config => {
+					if ( config.default ) {
+						startingConfig[ config.name ] = config.default;
+					}
+				} );
+
+				newTask.config = Object.assign( {}, task.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
+				newTask.config.id = createGUID();
+
+				ruleset.get( "posttasks" ).push( newTask );
+				ruleset.notifyPropertyChange( "posttasks" );
+				this.set('buttonStateChanged',true);
+			}
+
+
+			this.set( 'showAddPosttask', false );
+			if(newTask) {
+				this.set( 'collapseRule' + newTask.config.id, false);
+			}
+		},
+
+		deletePosttask ( task ) {
+
+			if(!task) {
+				return;
+			}
+
+			let taskToDelete = -1;
+			const posttasks = this.get( 'model.ruleset.posttasks' );
+
+			if(!posttasks) {
+				return;
+			}
+
+			for ( var i = 0; i < posttasks.length; i++ ) {
+				if(posttasks[i] === task) {
+					taskToDelete = i;
+					break;
+				}
+			}
+
+			if ( taskToDelete < 0 ) {
+				alert( "No post upload task selected. Nothing to delete." );
+				return;
+			}
+
+			let label;
+			if(task.name && task.name !== task.filename) {
+				label = `${task.filename} - ${task.name}`
+			} else {
+				label = task.filename;
+			}
+
+			if ( confirm( `Delete post upload task "${label}"?` ) ) {
+				posttasks.splice( taskToDelete, 1 ); // Remove the rule.
+				this.get('model.ruleset').notifyPropertyChange( "posttasks" );
+				this.set('buttonStateChanged',true);
+			}
+		},
+
+		movePosttaskUp ( ruleset, index ) {
+			if ( index < 1 )
+				return;
+
+			const posttasks = ruleset.get( 'posttasks' );
+			const movingRule = posttasks[ index ];
+
+			posttasks.splice( index, 1 ); // Remove the rule.
+			posttasks.splice( index - 1, 0, movingRule ); // Add it back one spot earlier.
+			ruleset.notifyPropertyChange( "posttasks" );
+		},
+
+		movePosttaskDown ( ruleset, index ) {
+			const posttasks = ruleset.get( 'posttasks' );
+			if ( index >= posttasks.length )
+				return;
+
+			const movingRule = posttasks[ index ];
+
+			posttasks.splice( index, 1 ); // Remove the rule.
+			posttasks.splice( index + 1, 0, movingRule ); // Add it back one spot later.
+			ruleset.notifyPropertyChange( "posttasks" );
 		},
 
 		showAddRule () {

@@ -55,6 +55,9 @@
       "filename":"smtpReporter",
       "path": "./smtpReporter.js"
     }
+  ],
+  "posttasks" : [
+
   ]
 }
 

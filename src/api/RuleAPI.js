@@ -211,6 +211,10 @@ run() {
 		else if (this._objectPromise)
 			return this._objectPromise;	// User really shouldn't query this more than once but we also don't want to create multiple Promises.
 
+		if(!this._data) {
+			return null;
+		}
+
 		if (this.hasFilename())
 			this._object = this.config.__state.validator.loadFile(this._data.file, this.config.__state.encoding);
 		else if (this.hasStream()) {
@@ -260,6 +264,10 @@ run() {
 			return this._inputFile;
 		else if (this._inputPromise)
 			return this._inputPromise;	// User really shouldn't be doing this but don't want to create a new Promise.
+
+		if(!this._data) {
+			return null;
+		}
 
 		if (this.hasFilename())
 			this._inputFile = this._data.file;
@@ -326,6 +334,10 @@ run() {
 	get inputStream() {
 		if (this._inputStream)
 			return this._inputStream;
+
+		if(!this._data) {
+			return null;
+		}
 
 		if (this.hasStream())
 			this._inputStream = this._data.stream;

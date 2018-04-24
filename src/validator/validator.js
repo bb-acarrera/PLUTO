@@ -323,6 +323,7 @@ class Validator {
 
 			let rules = [];
 			let cleanupRules = [];
+			this.posttasks = [];
 
 			if(this.parserClass) {
 				this.updateConfig(this.parserConfig);
@@ -436,6 +437,21 @@ class Validator {
                 } );
 
                 this.executedRules = rules;
+
+				if(ruleset.posttasks && ruleset.posttasks.length > 0) {
+					ruleset.posttasks.forEach((taskConfig) => {
+						let task = this.getPosttask(taskConfig);
+
+						if(!task) {
+							this.error("Could not find post task " + taskConfig.filename);
+							return;
+						}
+
+						this.posttasks.push(task);
+					});
+				}
+
+
             }
 
 			if(this.logger.getCount(ErrorHandlerAPI.ERROR) > 0) {
@@ -552,6 +568,28 @@ class Validator {
 		this.parserConfig = config;
 
 		return parserClass;
+	}
+
+	getPosttask(descriptor) {
+		var posttaskClass = this.loadPosttask(descriptor);
+
+
+		// Get the rule's config.
+		let config = descriptor.config || {};
+
+		// Set the validator so that the rule can report errors and such.
+		this.updateConfig(config);
+		config.name = config.name || descriptor.filename;
+		this.ruleName = config.name;
+		config.errors = descriptor.errors;
+
+		let properties = this.ruleLoader.rulePropertiesMap[descriptor.filename];
+		if (properties && properties.attributes)
+			config.attributes = properties.attributes;
+
+		return new posttaskClass(config);
+
+
 	}
 
 	/**
@@ -831,12 +869,35 @@ class Validator {
 					});
 			}
 
-			if(this.reporter && this.reporter.initialized) {
-				this.reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+			this.runPosttasks().then(()=> {
+				if(this.reporter && this.reporter.initialized) {
+					this.reporter.initialized.then(() => {}, () =>{}).catch(() => {}).then(() => {
+						saveRunRecord.call(this);
+					});
+				} else {
 					saveRunRecord.call(this);
+				}
+			});
+
+		});
+	}
+
+	runPosttasks() {
+		return new Promise((resolve) => {
+			if(!this.skipped && !this.abort && this.posttasks && this.posttasks.length > 0) {
+
+				let tasks = [];
+
+				this.posttasks.forEach((task) => {
+					tasks.push(() => task._run());
 				});
+
+				Util.serial(tasks)
+					.then(()=>{}, (err) => { this.error('Error running post tasks: ' + err); })
+					.catch((err) => { this.error('Error running post tasks: ' + err); })
+					.then(() => { resolve(); });
 			} else {
-				saveRunRecord.call(this);
+				resolve();
 			}
 		});
 	}
@@ -1255,6 +1316,17 @@ class Validator {
 
 		let porterFilename = path.resolve(config.scriptPath);
 		return this.loadPlugin(porterFilename);
+	}
+
+	loadPosttask(config) {
+		if(config.filename) {
+			if(this.ruleLoader.posttasksMap[config.filename]) {
+				return this.ruleLoader.posttasksMap[config.filename];
+			}
+		}
+
+		throw("Failed to load posttask " + config.filename + ". Cause: not found");
+
 	}
 
 	/**
