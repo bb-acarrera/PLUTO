@@ -37,8 +37,14 @@ class DataProxy {
 
                         if(!that.fns.saveRunRecord || !that.fns.saveRunRecord(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary, hash, finished)) {
                             if(that.afterSave && finished) {
-                                that.afterSave(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary, hash, finished);
 
+                                try {
+                                    that.afterSave(runId, log, ruleSetID, inputFile, outputFile, logCounts, passed, summary, hash, finished);
+                                   
+                                } catch(e) {
+                                    console.log('Exception in aferSave function: ' + e);
+                                }
+                                
                                 that.done();
                             }
                         }

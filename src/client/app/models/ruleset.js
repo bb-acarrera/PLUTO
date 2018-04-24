@@ -6,6 +6,7 @@ export default DS.Model.extend({
     ruleset_id : DS.attr('string'),
     database_id : DS.attr('string'),
     rules : DS.attr(),
+	posttasks : DS.attr(),
     import : DS.attr(),
     export : DS.attr(),
     config : DS.attr(),

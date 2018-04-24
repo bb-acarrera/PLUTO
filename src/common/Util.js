@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require('fs-extra');
+
 class Util {
 
 	/*
@@ -120,6 +121,21 @@ class Util {
 		}
 
 		return result;
+	}
+
+	/*
+	 * serial executes Promises sequentially.
+	 * @param {funcs} An array of funcs that return promises.
+	 * @example
+	 * const urls = ['/url1', '/url2', '/url3']
+	 * serial(urls.map(url => () => $.ajax(url)))
+	 *     .then(console.log.bind(console))
+	 *
+	 * from: https://stackoverflow.com/a/41115086/432170
+	 */
+	static serial(funcs) {
+		return funcs.reduce((promise, func) =>
+			promise.then(result => func().then(Array.prototype.concat.bind(result))), Promise.resolve([]));
 	}
 
 }

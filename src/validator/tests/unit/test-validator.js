@@ -35,7 +35,6 @@ QUnit.module("Validator",
         }
     }, () => {
 
-
 QUnit.test( " No Config Creation Test", function(assert){
 
     assert.throws(
@@ -1528,6 +1527,82 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
 
 
             vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", "output.zip", 'UTF8');
+
+        });
+
+
+        QUnit.test( " Python post task", function(assert){
+            const logger = new ErrorLogger();
+            const config = {
+                __state : {
+                    "_debugLogger" : logger,
+                    "rootDirectory" : "./src",
+                    "tempDirectory" : "/tmp"
+                },
+                "rulesDirectory" : "./validator/tests/testRules",
+                "inputDirectory" : "",
+                "outputDirectory" : "results",
+                "ruleset" : "Test Data Ruleset"
+            };
+
+            const done = assert.async();
+
+            const ruleset = {
+                name : "Test Data Ruleset",
+                rules : [
+                    {
+                        filename : "noOp",
+                        config : {
+                            id : 1
+                        }
+                    }
+                ],
+                posttasks : [
+                    {
+                        filename : "noOp_posttask",
+                        config : {
+                            id : 1
+                        }
+                    },
+                    {
+                        filename : "noOp_posttask",
+                        config : {
+                            id : 2
+                        }
+                    }
+                ],
+                export: {
+                    filename: "LocalCopyExport",
+                    config: {
+                        file: "/tmp/output.csv",
+                        doLog: true
+                    }
+                }
+            };
+
+            const dbProxy = new DataProxy(ruleset,
+                (runId, log, ruleSetID, inputFile, outputFile) => {
+                    
+                    assert.ok(log, "Expected log to be created");
+                    assert.ok(!vldtr.abort, "Expected validator to not abort");
+
+                    assert.equal(log.length, 5, "Expected 5 log entries");
+
+                    if(log.length >= 5) {
+                        assert.equal(log[0].description, 'File copied','First message should be file copied');
+                        assert.equal(log[1].description, 'start','second message should be start');
+                        assert.equal(log[2].description, 'finished','third message should be finish');
+                        assert.equal(log[3].description, 'start','fourth message should be start');
+                        assert.equal(log[4].description, 'finished','fifth message should be finish');
+                    }
+
+                },
+                done);
+
+            const vldtr = new validator(config, dbProxy.getDataObj());
+
+
+            vldtr.runRuleset("src/validator/tests/testDataCSVFile.csv", null, 'UTF8');
 
         });
 

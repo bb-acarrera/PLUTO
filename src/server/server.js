@@ -143,7 +143,7 @@ class Server {
 		const promises = [];
 
 		jobs.forEach((job) => {
-			promises.push(new Promise((resolve) => {
+			promises.push(new Promise( (resolve) => {
 				job.terminate(resolve);
 			}));
 		});
