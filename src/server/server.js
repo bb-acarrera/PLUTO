@@ -142,13 +142,11 @@ class Server {
 
 		const promises = [];
 
-		// PA 18/04/23 - Don't want to terminate the jobs. Instead want to wait for them to complete and then stop the server.
-		//             - Jobs may still timeout so there's no problem with errant processes.
-		// jobs.forEach((job) => {
-		// 	promises.push(new Promise((resolve) => {
-		// 		job.terminate(resolve);
-		// 	}));
-		// });
+		jobs.forEach((job) => {
+			promises.push(new Promise( (resolve) => {
+				job.terminate(resolve);
+			}));
+		});
 
 		Promise.all(promises).then(() => {}, () =>{}).catch(() => {}).then(() => {
 			console.log('All jobs cleaned up -- shutting down');

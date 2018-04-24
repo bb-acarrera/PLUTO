@@ -304,11 +304,9 @@ class ProcessFileRouter extends BaseRouter {
 
                 if(run) {
                     run.finishedFn = finishedFn;
+                } else {
+                    finishedFn();
                 }
-
-                terminationMessage = `Server is shutting down. Terminating run.`;
-                TreeKill(proc.pid);
-
             };
 
             this.config.runningJobs.push({terminate:terminate});
