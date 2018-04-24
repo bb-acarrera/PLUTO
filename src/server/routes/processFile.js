@@ -281,19 +281,21 @@ class ProcessFileRouter extends BaseRouter {
             let terminationMessage = null;
             let runId = null;
 
+            // Called when the timeout lapses.
             function runTimeout() {
                 console.log({
                     log: "plutorun",
                     runId: runId,
                     state: "running",
                     messageType: "log",
-                    message: `Child process for took too long. Terminating.`
+                    message: `Child process took too long. Terminating.`
                 });
 
                 terminationMessage = `Run took too long and was terminated by the server.`;
                 TreeKill(proc.pid);
             }
 
+            // Called by the server when a SIGTERM is given to the server.
             const terminate = (finishedFn) => {
 
                 let run = this.config.runningJobs.find((element) => {
@@ -317,6 +319,7 @@ class ProcessFileRouter extends BaseRouter {
 
             let fullLog = '';
 
+            // Called when the process is finished either by exitting or because of an error.
             const finished = () => {
 
                 clearTimeout(timeoutId);
