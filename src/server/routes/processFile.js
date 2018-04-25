@@ -344,7 +344,13 @@ class ProcessFileRouter extends BaseRouter {
                     finishedFn();
                 }
 
-                this.cleanupRun(runId, tempFolder, terminationMessage, fullLog)
+                if(tempFolder && fs.existsSync(tempFolder)) {
+                    rimraf.sync(tempFolder, null, (e) => {
+                        console.log('Unable to delete folder: ' + tempFolder + '.  Reason: ' + e);
+                    });
+                }
+        
+                this.config.data.cleanupRun(runId, terminationMessage, fullLog)
                     .then(() => {}, () => {}).catch(() => {}).then(() => {
 
                     if(run && run.finishedFn) {
@@ -442,71 +448,6 @@ class ProcessFileRouter extends BaseRouter {
 
 
         })
-    }
-
-    cleanupRun(runId, tempFolder, terminationMsg, msgLog) {
-
-        if(tempFolder && fs.existsSync(tempFolder)) {
-            rimraf.sync(tempFolder, null, (e) => {
-                console.log('Unable to delete folder: ' + tempFolder + '.  Reason: ' + e);
-            });
-        }
-
-        return new Promise((resolve) => {
-            if(runId) {
-                this.config.data.getRun(runId).then((runInfo) => {
-
-                        if (!runInfo || !runInfo.isrunning)
-                        {
-                            resolve();
-                            return;
-                        }
-
-                        //this shouldn't exist, but since it does let's clean it up
-                        const logger = new ErrorLogger();
-
-                        if(!terminationMsg) {
-                            terminationMsg = `Run terminated unexpectedly without cleaning up. Server has marked this as finished.`;
-                        }
-
-                        if(msgLog) {
-                            terminationMsg += '\nConsole output:\n' + msgLog;
-                        }
-
-                        logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                            terminationMsg);
-
-                        console.log({
-                            log: "plutorun",
-                            runId: runId,
-                            state: "post exit",
-                            messageType: "error",
-                            message: terminationMsg
-                        });
-
-                        this.config.data.saveRunRecord(runId, logger.getLog(),
-                            null, null, null, logger.getCounts(),
-                            false, null, null, true)
-                            .then(() => { //no-op
-                            }, (error) => console.log('error cleaning up bad run: ' + error))
-                            .catch((e) => console.log('Exception cleaning up bad run: ' + e))
-                            .then(()=> {
-                                resolve();
-                            })
-
-                    }, (error) => {
-                        console.log(error);
-                        resolve();
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                        resolve();
-                    });
-            } else {
-                resolve();
-            }
-        });
-
     }
 
     // Create a unique temporary filename in the temp directory.
