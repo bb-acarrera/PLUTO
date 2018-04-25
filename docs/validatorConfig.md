@@ -27,7 +27,7 @@ some other information.  The sample config looks like:
 	"rulesetDirectory" : "/opt/PLUTO/config/rulesets",
 	"rootDirectory" : "/opt/PLUTO/config",
 	"runPollingInterval": 10,
-	"hungRunPollingInterval": 3600,
+	"hungRunPollingInterval": 21600,
 	"runMaximumDuration": 600,
 	"customValidationFields": [
         {
