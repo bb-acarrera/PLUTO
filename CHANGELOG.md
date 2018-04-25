@@ -7,7 +7,7 @@
 Added a new class of tasks that execute after the file has been successfully uploaded. Uses the same plugin infrastructure as rules, and appear as a list of items below the rules in the edit validation UI.
 
 ### Bug Fixes and Minor Improvements
-
+ * Fixed export validation problem related to inconsistent versioning between systems
 
 ## 1.0.9
 ### New Features
