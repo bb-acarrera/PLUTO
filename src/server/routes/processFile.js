@@ -149,6 +149,17 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
+        // Log the request. (This is a test so don't log it?)
+        const auth = this.getAuth(req);
+        console.log({
+            ruleset: ruleset.id,
+			user: auth.user,
+			group: auth.group,
+			type: "validation",
+			action: "upload",
+			version: ruleset.version
+        });
+
         this.config.data.rulesetExists(ruleset).then((exists) => {
 
             if(exists) {
@@ -316,6 +327,7 @@ class ProcessFileRouter extends BaseRouter {
             let tempFolder = null;
 
             let fullLog = '';
+            const auth = this.getAuth(req);
 
             // Called when the process is finished either by exitting or because of an error.
             const finished = () => {
@@ -391,6 +403,8 @@ class ProcessFileRouter extends BaseRouter {
                         log.log = "plutorun";
                         log.runId = runId;
                         log.state = log.state || "running";
+                        log.user = auth.user
+                        log.group = auth.group
 
                         console.log(log);
 
@@ -401,7 +415,9 @@ class ProcessFileRouter extends BaseRouter {
                             runId: runId,
                             state: "running",
                             messageType: "log",
-                            message: str
+                            message: str,
+                            user: auth.user,
+                            group: auth.group
                         });
 
                     }
@@ -418,7 +434,9 @@ class ProcessFileRouter extends BaseRouter {
                         runId: runId,
                         state: "running",
                         messageType: "error",
-                        message: str
+                        message: str,
+                        user: auth.user,
+                        group: auth.group
                     });
                 });
 
@@ -430,8 +448,10 @@ class ProcessFileRouter extends BaseRouter {
                     log: "plutorun",
                     runId: runId,
                     state: "exit",
-                    exitCode: code
-                });
+                    exitCode: code,
+                    user: auth.user,
+                    group: auth.group
+        });
 
 
                 finished();

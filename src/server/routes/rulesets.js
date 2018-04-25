@@ -154,7 +154,15 @@ class RulesetRouter extends BaseRouter {
 		function saveFn(ruleset) {
 			this.config.data.saveRuleSet(ruleset, auth.user, auth.admin?req.body.ownergroup:auth.group, auth.admin).then((ruleset) => {
 				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
-			}, (error) => {
+				console.log({
+					ruleset: ruleset.id,
+					user: auth.user,
+					group: auth.group,
+					type: "validation",
+					action: "update",
+					version: ruleset.version
+				});
+					}, (error) => {
 				next(error);
 			}).catch(next);
 		}
@@ -169,6 +177,14 @@ class RulesetRouter extends BaseRouter {
 		function saveFn(ruleset) {
 			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin, true).then((ruleset) => {
 				res.json(ruleset);
+				console.log({
+					ruleset: ruleset.id,
+					user: auth.user,
+					group: auth.group,
+					type: "validation",
+					action: "import",
+					version: ruleset.version
+				});
 			}, (error) => {
 				next(error);
 			}).catch(next);
@@ -200,8 +216,19 @@ class RulesetRouter extends BaseRouter {
 	delete(req, res, next) {
 		const auth = this.getAuth(req);
         const ruleset = new RuleSet(req.body);
-        this.config.data.deleteRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
+
+		this.config.data.deleteRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+
+			// Log the request.
+			console.log({
+				ruleset: ruleset.id,
+				user: auth.user,
+				group: auth.group,
+				type: "validation",
+				action: "delete",
+				version: ruleset.version
+			});
         }, (error) => {
 			next(error);
 		}).catch(next);
@@ -237,6 +264,14 @@ class RulesetRouter extends BaseRouter {
 
 			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
 				res.status(201).location('/ruleset/' + ruleset.ruleset_id).json(ruleset);
+				console.log({
+					ruleset: ruleset.id,
+					user: auth.user,
+					group: auth.group,
+					type: "validation",
+					action: "insert",
+					version: ruleset.version
+				});
 
 			}, (error) => {
 				next(error);

@@ -178,7 +178,15 @@ class ConfiguredRuleRouter extends BaseRouter {
 		const rule = req.body;
         this.config.data.deleteRule(rule, auth.user, auth.group, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
-        }, (error) => {
+			console.log({
+				rule: rule.id,
+				user: auth.user,
+				group: auth.group,
+				type: "rule",
+				action: "delete",
+				version: rule.version
+			});
+	}, (error) => {
 			next(error);
 		}).catch(next);
 	}
@@ -202,7 +210,14 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((id) => {
 				res.status(201).location('/configuredRule/' + id).json(rule);
-
+				console.log({
+					rule: rule.id,
+					user: auth.user,
+					group: auth.group,
+					type: "rule",
+					action: "insert",
+					version: rule.version
+				});
 			}, (error) => {
 				next(error);
 			}).catch(next);
@@ -217,6 +232,14 @@ class ConfiguredRuleRouter extends BaseRouter {
 				}
 
 				createRule.call(this, new_ruleId);
+				console.log({
+					rule: rule.id,
+					user: auth.user,
+					group: auth.group,
+					type: "rule",
+					action: "create",
+					version: rule.version
+				});
 
 			}, (error) => {
 				next(error);
