@@ -59,7 +59,20 @@ class LocalCopyImport {
                 label: 'Source file base path',
                 type: 'string',
                 tooltip: 'The full path to a base folder where the file to process is located  (optional and pre-pended to the file)'
-            }
+            },
+			{
+				name: 'type',
+				label: 'Column Type',
+				type: 'choice',
+				choices: [
+					{value:'string', label:'String'},
+					{value:'float', label:'Float'},
+					{value:'integer', label:'Integer'},
+					{value:'iso_8061_datetime', label:'ISO 8601 Datetime'}
+				],
+
+				tooltip: 'The expected data type of the given column.'
+			}
         ];
     }
 

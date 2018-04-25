@@ -36,6 +36,8 @@ export default Base.extend({
                     item = element;
                 }
             });
+        } else {
+            item = value;
         }
 
         return item;

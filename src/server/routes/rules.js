@@ -130,6 +130,20 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getUiChoiceList(req, res) {
+
+        let ruleId = req.params.ruleId;
+        let propertyId = req.params.propertyId;
+
+        res.json({
+            data: [
+                {value: 1, label: 'one'},
+                {value: 2, label: 'two'},
+                {value: 3, label: 'three'}
+            ]
+        })
+    }
+
 }
 
 module.exports = RulesRouter;
