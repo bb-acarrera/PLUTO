@@ -887,7 +887,7 @@ class data {
             }
 
             function save(){
-                checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
+                checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin, isImport).then((result) => {
                     let version = result.nextVersion;
                     let rowGroup = group;
                     let targetFile = null;
@@ -907,6 +907,7 @@ class data {
                             reject('Must be newer than the current version to import');
                             return;
                         }
+                        version = ruleset.version;
                     }
 
 
@@ -1853,7 +1854,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, getDeleted) {
     } );
 }
 
-function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
+function checkCanChangeRuleset(db, tables, ruleset, group, admin, isImport) {
 
     return new Promise((resolve, reject) => {
         getRuleset(db, ruleset.filename, null, null, tables, true).then((result) => {
@@ -1861,7 +1862,7 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
             if (result.rows.length > 0) {
 
                 if(!result.rows[0].deleted) {
-                    if (result.rows[0].version != ruleset.version) {
+                    if (!isImport && result.rows[0].version != ruleset.version) {
                         reject(`${ruleset.filename} has been changed by another user. Cannot update old version`);
                         return;
                     }

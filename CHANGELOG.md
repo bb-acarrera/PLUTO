@@ -7,9 +7,10 @@
 Added a new class of tasks that execute after the file has been successfully uploaded. Uses the same plugin infrastructure as rules, and appear as a list of items below the rules in the edit validation UI.
 
 ### Bug Fixes and Minor Improvements
-* Added hungRunPollingInterval property (can be set in validatorConfig.json) which controls the frequency (6 hours by default) that the database is queried for hung jobs (jobs which are still marked as running after the runMaximumDuration has passed). Found hung jobs are immediately terminated. (#479)
-* Added additional console reports on edit operations. (#507)
-* Jobs are allowed to complete (or timeout) when the server receives a SIGTERM signal. (#512)
+ * Fixed export validation problem related to inconsistent versioning between systems
+ * Added hungRunPollingInterval property (can be set in validatorConfig.json) which controls the frequency (6 hours by default) that the database is queried for hung jobs (jobs which are still marked as running after the runMaximumDuration has passed). Found hung jobs are immediately terminated. (#479)
+ * Added additional console reports on edit operations. (#507)
+ * Jobs are allowed to complete (or timeout) when the server receives a SIGTERM signal. (#512)
 
 ## 1.0.9
 ### New Features
