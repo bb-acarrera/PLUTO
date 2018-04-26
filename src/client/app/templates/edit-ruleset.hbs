@@ -600,6 +600,21 @@ Process URL: {{processURL}}
 
 	{{/if}}
 
+
+<!-- Doesn't line up properly.
+	{{#if changed}}
+		<span style="float: left">
+			You must save your changes to test or upload.
+		</span>	
+	{{/if}}
+-->
+
+	{{#if invalid}}
+		<span style="float: right">
+		A property above is invalid.
+		</span>	
+	{{/if}}
+
 </div>
 
 {{#unless processing}}
@@ -628,7 +643,7 @@ Process URL: {{processURL}}
 	{{/bs-dropdown}}
 
 	{{#if changed}}
-		You must save your changes to use
+		You must save your changes to test or upload.
 	{{/if}}
 
 
