@@ -101,11 +101,17 @@ Displays a dropdown, and an array of choice objects under the property `choices`
 	type: 'choice',
 	tooltip: 'The expected data type of the given column.',
 	choicesFile: 'columnTypeList.js',
-	choicesFunction: 'getColumnTypeList'
+	choicesFunction: 'getColumnTypeList',
+	choicesRefreshOnChange: true
 }
 ```
 
-When this control is instantiated, it will make a call out to the server, which will call the `choicesFunction` function in the `choicesFile` javascript file. For example:
+If `choicesRefreshOnChange` is set, the list will be refreshed whenever a property changes in the rule/parser/etc.
+
+When this control is instantiated, it will make a call out to the server, which will call the `choicesFunction` function in the `choicesFile` javascript file. 
+
+
+For example:
 
 ```js
 module.exports = {
@@ -115,8 +121,8 @@ module.exports = {
     The array must be a list of objects, where each object looks like:
         {label:'item label', value:'item value'}
 
-    The label must be a string, and is the string that is displaed in the list.
-	The value can be any JSONisable value, and will the the value set on the property when chosen.
+    The label must be a string, and is the string that is displayed in the list.
+	The value can be any JSON supported type, and will the the value set on the property when chosen.
 	
 	The function is passed the current config for the rule/parser/etc. that this choice is a part of.
     */

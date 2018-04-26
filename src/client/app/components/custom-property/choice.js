@@ -3,6 +3,30 @@ import Ember from 'ember';
 
 const apiBase = document.location.origin + '/api/v1';
 
+function updateConfigListeners() {
+    let apiEndpoint = this.get('uiItem.choicesAPI');
+        let apiRefresh = this.get('uiItem.choicesRefreshOnChange');
+
+        if(this.oldConfigObject) {
+            Ember.keys(this.oldConfigObject).forEach((key) => {
+                this.oldConfigObject.removeObserver(key, this, 'onConfigChange')
+            });
+
+            this.oldConfigObject = null;
+
+        }
+
+        if(apiRefresh && apiEndpoint) {
+            //this.notifyPropertyChange('uiItem.choicesAPI');
+            this.oldConfigObject = this.get('config');
+            if(this.oldConfigObject) {
+                Ember.keys(this.oldConfigObject).forEach((key) => {
+                    this.oldConfigObject.addObserver(key, this, this.onConfigChange)
+                });
+            }
+        }
+}
+
 export default Base.extend({
 
     choices: Ember.computed('uiItem.choices', 'uiItem.choicesAPI', function() {
@@ -13,7 +37,7 @@ export default Base.extend({
         
         if(apiEndpoint) {
 
-            choices = new Promise((resolve) => {
+            choices = new Ember.RSVP.Promise((resolve) => {
                 var xmlHttp = new XMLHttpRequest();
                 xmlHttp.onreadystatechange = () => {
                     if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -41,7 +65,11 @@ export default Base.extend({
                 xmlHttp.open("POST", theUrl, true); // true for asynchronous
                 xmlHttp.setRequestHeader("Content-Type", "application/json");
                 xmlHttp.send(JSON.stringify(theJSON));
-            });           
+            });    
+            
+            if(!this.oldConfigObject) {
+                updateConfigListeners.call(this);
+            }
 
 
         } else if(items) {
@@ -68,10 +96,10 @@ export default Base.extend({
         
         if(choices) {
 
-            return new Promise((resolve) => {
+            return new Ember.RSVP.Promise((resolve) => {
                 
 
-                Promise.resolve(choices).then((list) => {
+                Ember.RSVP.Promise.resolve(choices).then((list) => {
                     let item = null;
                     list.forEach(element => {
                         if(element.value === value) {
@@ -94,6 +122,14 @@ export default Base.extend({
         return value;
 
     }),
+
+    configChanged: Ember.observer('config', function() {
+        updateConfigListeners.call(this);
+    }),
+
+    onConfigChange: function() {
+        this.notifyPropertyChange('uiItem.choicesAPI');
+    },
 
     actions: {
         setValue(entry) {

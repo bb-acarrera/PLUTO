@@ -13,9 +13,9 @@ module.exports = {
 
         return new Promise((resolve) => {
             let list =  [
-                {label: 'No numbers: ^\\D*$', value: '^\\D*$' },
-                {label: 'No whitespace: ^\\S*$', value: '^\\S*$' },
-                {label: 'No special characters: ^[a-zA-Z0-9]*$', value: '^[a-zA-Z0-9]*$' }
+                {label: `No numbers in ${config.column}: ^\\D*$`, value: '^\\D*$' },
+                {label: `No whitespace in ${config.column}: ^\\S*$`, value: '^\\S*$' },
+                {label: `No special characters in ${config.column}: ^[a-zA-Z0-9]*$`, value: '^[a-zA-Z0-9]*$' }
             ];
 
             resolve(list);

@@ -11,7 +11,8 @@
 		"type": "choice",
 		"tooltip": "The regular expression to use to validate the value.",
 		"choicesFunction": "regexList",
-        "choicesFile": "validateColumnRegExCustomList.js"
+		"choicesFile": "validateColumnRegExCustomList.js",
+		"choicesRefreshOnChange" : true
 	},
 	{
 		"name": "onError",
