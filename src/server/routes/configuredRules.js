@@ -168,6 +168,14 @@ class ConfiguredRuleRouter extends BaseRouter {
 		this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then(() => {
             req.body.version = rule.version;
 			res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
+			console.log({
+				rule: rule.id,
+				user: auth.user,
+				group: auth.group,
+				type: "rule",
+				action: "update",
+				version: rule.version
+			});
 		}, (error) => {
 			next(error);
 		}).catch(next);
