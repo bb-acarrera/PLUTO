@@ -149,6 +149,17 @@ class ProcessFileRouter extends BaseRouter {
             return;
         }
 
+        // Log the request. (This is a test so don't log it?)
+        const auth = this.getAuth(req);
+        console.log({
+            ruleset: ruleset.id,
+			user: auth.user,
+			group: auth.group,
+			type: "validation",
+			action: "upload",
+			version: ruleset.version
+        });
+
         this.config.data.rulesetExists(ruleset).then((exists) => {
 
             if(exists) {
@@ -316,6 +327,7 @@ class ProcessFileRouter extends BaseRouter {
             let tempFolder = null;
 
             let fullLog = '';
+            const auth = this.getAuth(req);
 
             // Called when the process is finished either by exitting or because of an error.
             const finished = () => {
@@ -344,7 +356,13 @@ class ProcessFileRouter extends BaseRouter {
                     finishedFn();
                 }
 
-                this.cleanupRun(runId, tempFolder, terminationMessage, fullLog)
+                if(tempFolder && fs.existsSync(tempFolder)) {
+                    rimraf.sync(tempFolder, null, (e) => {
+                        console.log('Unable to delete folder: ' + tempFolder + '.  Reason: ' + e);
+                    });
+                }
+        
+                this.config.data.cleanupRun(runId, terminationMessage, fullLog)
                     .then(() => {}, () => {}).catch(() => {}).then(() => {
 
                     if(run && run.finishedFn) {
@@ -391,6 +409,8 @@ class ProcessFileRouter extends BaseRouter {
                         log.log = "plutorun";
                         log.runId = runId;
                         log.state = log.state || "running";
+                        log.user = auth.user
+                        log.group = auth.group
 
                         console.log(log);
 
@@ -401,7 +421,9 @@ class ProcessFileRouter extends BaseRouter {
                             runId: runId,
                             state: "running",
                             messageType: "log",
-                            message: str
+                            message: str,
+                            user: auth.user,
+                            group: auth.group
                         });
 
                     }
@@ -418,7 +440,9 @@ class ProcessFileRouter extends BaseRouter {
                         runId: runId,
                         state: "running",
                         messageType: "error",
-                        message: str
+                        message: str,
+                        user: auth.user,
+                        group: auth.group
                     });
                 });
 
@@ -430,8 +454,10 @@ class ProcessFileRouter extends BaseRouter {
                     log: "plutorun",
                     runId: runId,
                     state: "exit",
-                    exitCode: code
-                });
+                    exitCode: code,
+                    user: auth.user,
+                    group: auth.group
+        });
 
 
                 finished();
@@ -442,71 +468,6 @@ class ProcessFileRouter extends BaseRouter {
 
 
         })
-    }
-
-    cleanupRun(runId, tempFolder, terminationMsg, msgLog) {
-
-        if(tempFolder && fs.existsSync(tempFolder)) {
-            rimraf.sync(tempFolder, null, (e) => {
-                console.log('Unable to delete folder: ' + tempFolder + '.  Reason: ' + e);
-            });
-        }
-
-        return new Promise((resolve) => {
-            if(runId) {
-                this.config.data.getRun(runId).then((runInfo) => {
-
-                        if (!runInfo || !runInfo.isrunning)
-                        {
-                            resolve();
-                            return;
-                        }
-
-                        //this shouldn't exist, but since it does let's clean it up
-                        const logger = new ErrorLogger();
-
-                        if(!terminationMsg) {
-                            terminationMsg = `Run terminated unexpectedly without cleaning up. Server has marked this as finished.`;
-                        }
-
-                        if(msgLog) {
-                            terminationMsg += '\nConsole output:\n' + msgLog;
-                        }
-
-                        logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
-                            terminationMsg);
-
-                        console.log({
-                            log: "plutorun",
-                            runId: runId,
-                            state: "post exit",
-                            messageType: "error",
-                            message: terminationMsg
-                        });
-
-                        this.config.data.saveRunRecord(runId, logger.getLog(),
-                            null, null, null, logger.getCounts(),
-                            false, null, null, true)
-                            .then(() => { //no-op
-                            }, (error) => console.log('error cleaning up bad run: ' + error))
-                            .catch((e) => console.log('Exception cleaning up bad run: ' + e))
-                            .then(()=> {
-                                resolve();
-                            })
-
-                    }, (error) => {
-                        console.log(error);
-                        resolve();
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                        resolve();
-                    });
-            } else {
-                resolve();
-            }
-        });
-
     }
 
     // Create a unique temporary filename in the temp directory.

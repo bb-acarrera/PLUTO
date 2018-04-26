@@ -44,6 +44,7 @@ class Server {
 
 		this.config.runningJobs = [];
 		this.config.runMaximumDuration = this.config.validatorConfig.runMaximumDuration || 600;
+		this.config.hungRunPollingInterval = this.config.validatorConfig.hungRunPollingInterval || 21600
 
 		this.router = new Router(config);
 
@@ -99,7 +100,18 @@ class Server {
 	            this.saveError("error", text);
 
             } );
-        }
+		}
+		
+		// Check for hung processes immediately on startup.
+		this.checkForHungProcesses()
+
+		const that = this
+		function checker() {
+			that.checkForHungProcesses()
+		}
+
+		// Then check for hung processes on a regular schedule.
+		setInterval(checker, this.config.hungRunPollingInterval * 1000);	// hungRunPollingInterval is in seconds. setInterval() requires milliseconds.
 	}
 
 	saveError(type, text) {
@@ -151,6 +163,44 @@ class Server {
 		Promise.all(promises).then(() => {}, () =>{}).catch(() => {}).then(() => {
 			console.log('All jobs cleaned up -- shutting down');
 			process.exit(0);
+		});
+	}
+
+	checkForHungProcesses() {
+		this.config.data.getRuns(1, 1000, {
+			isRunning: true,
+			showErrors: true,
+			showWarnings: true,
+			showNone: true,
+			showDropped: true,
+			showPassed: true,
+			showFailed: true
+		}).then((results) => {
+			// PA: Need to check what is hung or not...
+			const promises = [];
+
+			results.runs.forEach( (run) => {
+				const currTime = new Date();
+				const taskTime = run.starttime;
+				const diff = Math.abs((taskTime.getTime() - currTime.getTime()));
+
+				// If diff > the run timeout plus extra then mark the run as incomplete.
+				if (diff > this.config.runMaximumDuration * 2) {	// "* 2" is arbitrary. Just give the process time to really complete.
+					// Clean up the run.
+					promises.push(this.config.data.cleanupRun(run.id, 'Job never terminated.'));
+				}
+			});
+	
+			if (promises.length > 0) {
+				// Once all the cleanup tasks are complete, log that the cleanup has been completed.
+				Promise.all(promises).then(() => {}, () =>{}).catch(() => {}).then(() => {
+					console.log('All hung jobs cleaned up.');
+				});
+			}
+		}, (err) => {
+			//some unknown problem getting the list
+			this.error("Ruleset \"" + this.rulesetName + "\" failed. " + err);
+			throw err;
 		});
 	}
 }

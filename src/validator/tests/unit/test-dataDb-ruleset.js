@@ -394,6 +394,254 @@ QUnit.test( "saveRuleSet: Successful same name as deleted", function(assert){
 
 });
 
+QUnit.test( "saveRuleSet: Successful import", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		version: 1
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 0,
+								ruleset_id: ruleset.filename,
+								rules: null,
+								owner_user: null,
+								owner_group: null,
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+				//the update call
+				assert.equal(values[2], 1, "Version should be 1");
+
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 1
+							}
+						]
+					})
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.saveRuleSet(ruleset, null, null, null, true).then((outRuleset) => {
+		assert.equal(outRuleset.filename, ruleset.filename, "Expect filename to be the same");
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+QUnit.test( "saveRuleSet: Successful import much newer version", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		version: 5
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 1,
+								ruleset_id: ruleset.filename,
+								rules: null,
+								owner_user: null,
+								owner_group: null,
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+				//the update call
+				assert.equal(values[2], 5, "Version should be 5");
+
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 1
+							}
+						]
+					})
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.saveRuleSet(ruleset, null, null, null, true).then((outRuleset) => {
+		assert.equal(outRuleset.filename, ruleset.filename, "Expect filename to be the same");
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+QUnit.test( "saveRuleSet: import same version", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 0,
+								ruleset_id: ruleset.filename,
+								rules: null,
+								owner_user: null,
+								owner_group: null,
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+				//the update call
+				assert.ok(false, "Should not save the ruleset");
+
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 1
+							}
+						]
+					})
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.saveRuleSet(ruleset, null, null, null, true).then((outRuleset) => {
+		assert.ok(false, "Expected save to fail");
+		done();
+	}, (e) => {
+		assert.ok(true, 'Expected rejection');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
+QUnit.test( "saveRuleSet: import older version", function(assert){
+
+	const ruleset = {
+		filename: 'test',
+		version: 0
+	};
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 1,
+								ruleset_id: ruleset.filename,
+								rules: null,
+								owner_user: null,
+								owner_group: null,
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+				//the update call
+				assert.equal(values[2], 1, "Version should be 1");
+
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 1
+							}
+						]
+					})
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	data.saveRuleSet(ruleset, null, null, null, true).then((outRuleset) => {
+		assert.ok(false, "Expected save to fail");
+		done();
+	}, (e) => {
+		assert.ok(true, 'Expected rejection');
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception');
+		done();
+	});
+
+});
+
 QUnit.test( "deleteRuleSet: Successful", function(assert){
 
 	const ruleset = {
