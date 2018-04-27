@@ -8,7 +8,7 @@ amqp.connect('amqp://localhost', function(err, conn) {
   }	
 	
   conn.createChannel(function(err, ch) {
-    var q = 'task_queue';
+    var q = 'pluto_runs';
 	var msg = process.argv.slice(2).join(' ') || "Hello World!";
 
 	ch.assertQueue(q, {durable: true});
