@@ -127,6 +127,19 @@
 		}
 	],
 
+	"prepertiesOverride": {
+		"parsers": {
+			"CSVParser" : {
+				"columnRow":{
+					"default": 321
+				},
+				"public": {
+					"default": true,
+					"disabled": true
+				}
+			}
+		}
+	},
 	"showAdmin" : true,
 	"rejectAdminNavigation" : true
 }

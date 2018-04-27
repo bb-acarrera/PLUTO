@@ -35,6 +35,18 @@ class RulesRouter extends BaseRouter {
     getParsers(req, res) {
         // Send generic rules. (i.e. not rule instances.)
 
+        let parsers = this.rulesLoader.parsers;
+		parsers.forEach((val)=>{
+		    if(this.config.validatorConfig.prepertiesOverride.parsers[val.id]) {
+				val.attributes.ui.properties.forEach( ( property ) => {
+				    let config = this.config.validatorConfig.prepertiesOverride.parsers[val.id][property.name];
+					if ( config ){
+					    property.default = config.default;
+					    property.disabled = config.disabled;
+                    }
+				} );
+			}
+        });
         res.json({
             data: this.rulesLoader.parsers
         });
