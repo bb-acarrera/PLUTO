@@ -455,9 +455,8 @@ class ProcessFileRouter extends BaseRouter {
                     state: "exit",
                     exitCode: code,
                     user: user,
-                    group: 
-                    group
-        });
+                    group: group
+            });
 
 
                 finished();
