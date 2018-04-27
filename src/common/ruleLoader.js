@@ -23,6 +23,9 @@ class RuleLoader {
 
 		this.rulePropertiesMap = {};
 		this.classMap = {};
+		this.apiEndpoints = {
+			choices: {}
+		};
 
 		this.loadManifests();
 	}
@@ -185,7 +188,13 @@ class RuleLoader {
 					properties.append(item.ui);
 			}
 
+			let extDir = path.dirname(ruleFile);
+
+
 			if (script) {
+
+				extDir = path.dirname(script);
+
 				// Scripts, not being JavaScript, need an external UI description file.
 				var moreProperties = RuleLoader.getJSONProperties(script);
 				var changeFileFormat;
@@ -256,9 +265,53 @@ class RuleLoader {
 							properties.push(moreProperties);
 					}
 				}
-			}
+			} 
 
 			if (properties) {
+
+				
+				//check for api calls
+				properties.forEach((prop) => {
+
+					if(prop.choicesFunction) {
+						
+						let fileObj = this.apiEndpoints.choices[file];
+						if(!fileObj) {
+							fileObj = {};
+							this.apiEndpoints.choices[file] = fileObj;
+						}
+
+						let fn = null;
+
+						if(typeof prop.choicesFunction == 'function') {
+							fn = prop.choicesFunction
+						} else if(prop.choicesFile) {
+							try {
+								let jsFile = require(path.resolve(extDir, prop.choicesFile));
+
+								fn = jsFile[prop.choicesFunction];
+
+							} catch(e) {
+								console.log(`Unable to load choices api function for ${file} ${prop.name}`);
+							}
+						} else {
+							console.log(`Unable to load choices api function for ${file} ${prop.name}`);
+						}
+
+						if(fn) {
+							fileObj[prop.name] = { fn: fn };
+							prop.choicesAPI = `${file}/${prop.name}`;
+						}
+						
+						delete prop.choicesFunction;
+						if(prop.choicesFile) {
+							delete prop.choicesFile;
+						}
+						
+
+					}
+
+				});
 
 				return {
 					id: file,

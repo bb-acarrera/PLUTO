@@ -1,10 +1,12 @@
-<select onchange={{action (mut value) value="target.value"}} disabled={{disabled}}>
-	{{#each columns as |choice|}}
-		<option value={{choice}} selected={{eq value choice}}>{{choice}}</option>
-	{{/each}}
-	{{#unless value}}
-		<option value="" selected=true>Choose</option>
-	{{/unless}}
-</select>
+<div  style="width:80%;display: inline-block;margin-right: 5px;" >
+	{{#power-select
+	options=columns
+	onchange=(action (mut value))
+	selected=value
+	renderInPlace=true
+	as |column|}}
+		{{column}}
+	{{/power-select}}
+</div>
 
 {{yield}}
