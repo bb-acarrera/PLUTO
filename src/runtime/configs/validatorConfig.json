@@ -103,14 +103,12 @@
 		"Production": {
 			"backgroundColor": "#FEE1E1",
 			"borderColor": "red",
-			"borderWidth": "4px",
-			"landingImage": "release.png"
+			"borderWidth": "4px"
 		},
 		"Development": {
 			"backgroundColor": "white",
 			"borderColor": "",
-			"borderWidth": "0px",
-			"landingImage": "development.png"
+			"borderWidth": "0px"
 		}
 	},
 
@@ -130,6 +128,6 @@
 		]
 	}],
 
-	"showAdmin" : true,
-	"rejectAdminNavigation" : true
+	"showAdmin" : false,
+	"rejectAdminNavigation" : false
 }

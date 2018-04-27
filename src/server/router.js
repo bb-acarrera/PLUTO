@@ -41,7 +41,9 @@ class Router {
 		this._router.get(base+'/reporters', (req, res, next) => this.rulesRouter.getReporters(req, res, next));
 		this._router.get(base+'/posttasks', (req, res, next) => this.rulesRouter.getPosttasks(req, res, next));
         this._router.get(base+'/customfields', (req, res, next) => this.rulesRouter.getCustomFields(req, res, next));
-        this._router.get(base+'/periodicities', (req, res, next) => this.rulesRouter.getPeriodicity(req, res, next));
+		this._router.get(base+'/periodicities', (req, res, next) => this.rulesRouter.getPeriodicity(req, res, next));
+		
+		this._router.post(base+'/uichoicelist/:ruleId/:propertyId', (req, res, next) => this.rulesRouter.getUiChoiceList(req, res, next) );
 
 		this._router.get(base+'/runs/:id', (req, res, next) => this.runsRouter.get(req, res, next));
 		this._router.get(base+'/runs', (req, res, next) => this.runsRouter.get(req, res, next));
@@ -70,6 +72,8 @@ class Router {
         this._router.get(base+'/statuses', (req, res, next) => this.statusRouter.get(req, res, next) );
 
 		this._router.post(base+'/exportconfig', (req, res, next) => this.exportConfigRouter.post(req, res, next))
+
+		
 	}
 
 	get router() {
