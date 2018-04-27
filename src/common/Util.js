@@ -123,6 +123,37 @@ class Util {
 		return result;
 	}
 
+	static splitConsoleOutput(str) {
+
+		let arr = str.split(/[\r\n]+/);
+	
+		//now, join the strings back up if there are a couple of spaces or a tab in the front, which likely indicates an
+		// exception or other joining
+	
+		let outArr = [];
+		let joinedStr = "";
+	
+		arr.forEach((str) => {
+	
+			if(str.trim().length > 0) {
+				if(str.startsWith('  ') || str.startsWith('\t')) {
+					joinedStr += str + '\n';
+				} else {
+					if(joinedStr.length > 0) {
+						outArr.push(joinedStr);
+					}
+	
+					outArr.push(str);
+	
+					joinedStr = "";
+	
+				}
+			}
+		});
+	
+		return outArr;
+	}
+
 	/*
 	 * serial executes Promises sequentially.
 	 * @param {funcs} An array of funcs that return promises.

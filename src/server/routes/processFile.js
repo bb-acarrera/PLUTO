@@ -390,7 +390,7 @@ class ProcessFileRouter extends BaseRouter {
 
                 fullLog += 'stdout: ' + data + '\n';
 
-                splitConsoleOutput(data.toString()).forEach((str) => {
+                Util.splitConsoleOutput(data.toString()).forEach((str) => {
                     let log = null;
 
                     try {
@@ -434,7 +434,7 @@ class ProcessFileRouter extends BaseRouter {
 
                 fullLog += 'stderr: ' + data + '\n';
 
-                splitConsoleOutput(data.toString()).forEach((str) => {
+                Util.splitConsoleOutput(data.toString()).forEach((str) => {
                     console.log({
                         log: "plutorun",
                         runId: runId,
@@ -476,37 +476,6 @@ class ProcessFileRouter extends BaseRouter {
         const filename = Util.createGUID();
         return path.resolve(dirname, filename);
     }
-}
-
-function splitConsoleOutput(str) {
-
-    let arr = str.split(/[\r\n]+/);
-
-    //now, join the strings back up if there are a couple of spaces or a tab in the front, which likely indicates an
-    // exception or other joining
-
-    let outArr = [];
-    let joinedStr = "";
-
-    arr.forEach((str) => {
-
-        if(str.trim().length > 0) {
-            if(str.startsWith('  ') || str.startsWith('\t')) {
-                joinedStr += str + '\n';
-            } else {
-                if(joinedStr.length > 0) {
-                    outArr.push(joinedStr);
-                }
-
-                outArr.push(str);
-
-                joinedStr = "";
-
-            }
-        }
-    });
-
-    return outArr;
 }
 
 module.exports = ProcessFileRouter;

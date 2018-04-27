@@ -3,8 +3,16 @@ const program = require("commander");
 const path = require("path");
 const util = require('util');
 const amqp = require('amqplib');
+const child_process = require('child_process');
+const TreeKill = require('tree-kill');
+const rimraf = require('rimraf');
+
+const ErrorHandlerAPI = require("../api/errorHandlerAPI");
+const ErrorLogger = require("./ErrorLogger");
 
 const Util = require('../common/Util');
+
+const Data = require('../common/dataDb');
 
 var PlutoQueue = 'pluto_runs';
 
@@ -15,13 +23,18 @@ if(fs.existsSync("../../package.json")) {
 	version = require("../../package.json").version;
 }
 
+//get the root PLUTO folder from this file
+const rootFolder = path.resolve(__dirname, '../');
+
 class QueueWorker {
 	constructor(config) {
 		this.config = config;
 		
 		
 		this.rootDir = path.resolve(this.config.rootDirectory || ".");
-		this.config.tempDir = Util.getRootTempDirectory(this.config, this.rootDir);
+        this.config.tempDir = Util.getRootTempDirectory(this.config, this.rootDir);
+        
+        this.config.data = Data(this.config);
 
 		this.config.runMaximumDuration = this.config.runMaximumDuration || 600;
 		
@@ -58,14 +71,22 @@ class QueueWorker {
 
                     if(this.shuttingDown) {
                        ch.nack(msg);
-                       return; 
+                       return;
                     }
 
                     this.currentJob = this.handleJob(msg, ch).then(() => {
                         this.currentJob = null;
                         ch.ack(msg);
-                        console.log("Ack'd job");
-                    });
+                    }, () => {
+                        ch.nack(msg);
+                    }).catch((e)=>{
+                        console.log('Unhandled exception: ' + e);
+                        ch.nack(msg);
+                    }).then(() => {
+                        if(this.shuttingDown) {
+                            return ch.cancel(msg.fields.consumerTag);
+                        }
+                    })
 
                     
                 }, 
@@ -82,35 +103,249 @@ class QueueWorker {
 
     handleJob(msg) {
 
-        return new Promise((resolve) => {
-            var secs = msg.content.toString().split('.').length - 1;
-    
-            console.log(" [x] Received %s", msg.content.toString());
-            
-            setTimeout(
-                function() {
-                    console.log(" [x] Done");
-                    resolve();
-        
-                }, 
-                secs * 1000);
-        });
+        let req;
+
+        try {
+            req = JSON.parse(msg.content.toString());
+        } catch(e) {
+            console.log('Could not parse msg: ' + e);
+            resolve();
+            return Promise.resolve();
+        }
+
+        return this.processFile(req.ruleset, req.importConfig, req.test, req.skipMd5Check, req.user, req.group);
 
         
     }
+
+    processFile(ruleset, importConfig, test, skipMd5Check, user, group) {
+        return new Promise((resolve, reject) => {
+
+            let finishedFn = null;
+            let inputFile = null;
+            let outputFile = null;
+            let inputDisplayName = null;
+
+            if(test) {
+                outputFile = this.getTempName(this.config);
+
+                finishedFn = () => {
+
+                    if (fs.existsSync(outputFile)) {
+                        fs.unlink(outputFile);
+                    }
+                }
+            }
+
+
+
+            let scriptPath = path.resolve(rootFolder, 'validator');
+
+            var execCmd = 'node ' + scriptPath + '/startValidator.js -r ' + ruleset + ' -c "' + this.config.validatorConfigPath + '"';
+            var spawnCmd = 'node';
+            var spawnArgs = [scriptPath + '/startValidator.js', '-r', ruleset, '-c', this.config.validatorConfigPath];
+            let overrideFile = null;
+
+            if (importConfig) {
+                overrideFile = this.getTempName(this.config) + '.json';
+                fs.writeFileSync(overrideFile, JSON.stringify({import: importConfig}), 'utf-8');
+                execCmd += ' -v "' + overrideFile + '"';
+                spawnArgs.push('-v');
+                spawnArgs.push(overrideFile);
+            } else {
+            	if (inputFile) {
+                    execCmd += ' -i "' + inputFile + '"';
+                    spawnArgs.push('-i');
+                    spawnArgs.push(inputFile);
+            	}
+            	if (outputFile) {
+                    execCmd += ' -o "' + outputFile + '"';
+                    spawnArgs.push('-o');
+                    spawnArgs.push(outputFile);
+            	}
+                if(inputDisplayName) {
+                    execCmd += ' -n "' + inputDisplayName + '"';
+
+                    spawnArgs.push('-n');
+                    spawnArgs.push(inputDisplayName);
+                }
+                if (user) {
+                    execCmd += ' -u "' + user + '"';
+
+                    spawnArgs.push('-u');
+                    spawnArgs.push(user);
+                }
+                if (group) {
+                    execCmd += ' -g "' + group + '"';
+
+                    spawnArgs.push('-g');
+                    spawnArgs.push(group);
+                }
+            }
+
+            if (test) {
+                execCmd += ' -t';
+                spawnArgs.push('-t');
+            } else if (!skipMd5Check) {
+                execCmd += ' -h';
+                spawnArgs.push('-h');
+            }
+
+
+
+            const options = {
+                cwd: path.resolve('.')
+            };
+
+            console.log('exec cmd: ' + execCmd);
+
+
+            let proc = child_process.spawn(spawnCmd, spawnArgs, options);
+
+            let terminationMessage = null;
+            let runId = null;
+
+            // Called when the timeout lapses.
+            function runTimeout() {
+                console.log({
+                    log: "plutorun",
+                    runId: runId,
+                    state: "running",
+                    messageType: "log",
+                    message: `Child process took too long. Terminating.`
+                });
+
+                terminationMessage = `Run took too long and was terminated by the server.`;
+                TreeKill(proc.pid);
+            }
+
+            const timeoutId = setTimeout(runTimeout, this.config.runMaximumDuration * 1000);
+
+            let tempFolder = null;
+
+            let fullLog = '';
+
+            // Called when the process is finished either by exitting or because of an error.
+            const finished = () => {
+
+                clearTimeout(timeoutId);
+
+                if(overrideFile) {
+                    fs.unlink(overrideFile);
+                }
+
+                if(tempFolder && fs.existsSync(tempFolder)) {
+                    rimraf.sync(tempFolder, null, (e) => {
+                        console.log('Unable to delete folder: ' + tempFolder + '.  Reason: ' + e);
+                    });
+                }
+        
+                this.config.data.cleanupRun(runId, terminationMessage, fullLog)
+                    .then(() => {}, () => {}).catch(() => {}).then(() => {
+
+                        if(finishedFn) {
+                            finishedFn();
+                        }
+                        resolve();
+                })
+
+
+            };
+
+            proc.on('error', (err) => {
+
+                let message = "unable to start validator: " + err;
+
+                fullLog += message + '\n';
+
+                console.error(message);
+
+                finished();
+
+            });
+
+            proc.stdout.on('data', (data) => {
+
+                fullLog += 'stdout: ' + data + '\n';
+
+                Util.splitConsoleOutput(data.toString()).forEach((str) => {
+                    let log = null;
+
+                    try {
+                        log = JSON.parse(str);
+                    } catch (e) {
+
+                    }
+
+                    if (log) {
+
+                        if (log.state && log.state === "start") {
+                            runId = log.runId;
+                            tempFolder = log.tempFolder;
+                        }
+
+                        log.log = "plutorun";
+                        log.runId = runId;
+                        log.state = log.state || "running";
+                        log.user = user
+                        log.group = group
+
+                        console.log(log);
+
+                    } else {
+
+                        console.log({
+                            log: "plutorun",
+                            runId: runId,
+                            state: "running",
+                            messageType: "log",
+                            message: str,
+                            user: user,
+                            group: group
+                        });
+
+                    }
+                });
+            });
+
+            proc.stderr.on('data', (data) => {
+
+                fullLog += 'stderr: ' + data + '\n';
+
+                Util.splitConsoleOutput(data.toString()).forEach((str) => {
+                    console.log({
+                        log: "plutorun",
+                        runId: runId,
+                        state: "running",
+                        messageType: "error",
+                        message: str,
+                        user: user,
+                        group: group
+                    });
+                });
+
+            });
+
+            proc.on('exit', (code) => {
+
+                console.log({
+                    log: "plutorun",
+                    runId: runId,
+                    state: "exit",
+                    exitCode: code,
+                    user: user,
+                    group: group
+                });
+
+
+                finished();
+            });
+
+
+        });
+    }
     
 	shutdown() {
-
-        function wait(secs) {
-            return new Promise((resolve) => {
-                setTimeout(
-                    function() {
-                        resolve();
-            
-                    }, 
-                    secs * 1000);
-            });
-        }
 
 		console.log('Got shutdown request');
         this.shuttingDown = true;
@@ -120,7 +355,7 @@ class QueueWorker {
         } 
 
         //need to put a wait in since the ack takes sometime but doesn't indicate when done
-        this.currentJob.then(() => { return wait(1); }, ()=>{}).catch(()=>{}).then(()=>{
+        this.currentJob.then(() => {}, ()=>{}).catch(()=>{}).then(()=>{
 
             console.log('All jobs finished, closing connection to RabbitMQ');
 
@@ -136,6 +371,12 @@ class QueueWorker {
 
 	}
 
+    // Create a unique temporary filename in the temp directory.
+    getTempName(config) {
+        const dirname = config.tempDir;
+        const filename = Util.createGUID();
+        return path.resolve(dirname, filename);
+    }
 	
 }
 
@@ -199,9 +440,10 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
 
 	validatorConfig = Util.recursiveSubStringReplace(validatorConfig, Util.replaceStringWithEnv);
 
-	validatorConfig.scriptName = scriptName;
+    validatorConfig.scriptName = scriptName;
+    validatorConfig.validatorConfigPath = validatorConfigPath;
 
-	const server = new QueueWorker(validatorConfig, validatorConfigPath);
+	const server = new QueueWorker(validatorConfig);
 	server.start();
 
 	process.on('SIGTERM', (signal) => {
