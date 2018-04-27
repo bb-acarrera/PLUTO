@@ -56,21 +56,7 @@ class Configure {
 
             fs.writeFileSync('dbconfig.json', JSON.stringify(dbConfig), 'utf-8');
 
-            const options = {
-                cwd: path.resolve('.')
-            };
-
-            child_process.exec('npm bin', (error, stdout, stderr) => {
-
-                if(error) {
-                    console.log('Error getting npm bin: ' + error);
-                    console.log(stderr);
-                    reject(error);
-                    return;
-                }
-
-                let binPath = path.resolve(stdout.trim());
-
+            this.getCommandPath().then((binPath) => {
                 const spawnCmd = path.resolve(binPath + '/pg-migrate');
 
                 const spawnExec = spawnCmd + ' up -f ./dbconfig.json';
@@ -89,8 +75,35 @@ class Configure {
 
                     resolve();
                 });
+            }, (error) => {
+                reject(error);
+            });
+            
+        });
+    }
+
+    getCommandPath() {
+
+        return new Promise((resolve, reject) => {
+
+            if(this.config.nodeBinPath) {
+                resolve(this.config.nodeBinPath);
+                return;
+            }
+
+            child_process.exec('npm bin', (error, stdout, stderr) => {
+
+                if(error) {
+                    console.log('Error getting npm bin: ' + error);
+                    console.log(stderr);
+                    reject(error);
+                    return;
+                }
+
+                resolve(path.resolve(stdout.trim()));
             });
         });
+
     }
 }
 
@@ -108,6 +121,7 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         .option('-d, --dbname <database>', 'database to connect to')
         .option('-W, --password <password>', 'user password')
         .option('-s, --schema <schema>', 'database schema')
+        .option('-n, --nodebinpath <nodebinpath>', 'Path to the node_modules .bin folder')
         .parse(process.argv);
 
 
@@ -160,6 +174,10 @@ if (__filename == scriptName) {	// Are we running this as the server or unit tes
         config.dbSchema = program.schema;
     } else if(!config.dbSchema) {
         config.dbSchema = 'pluto';
+    }
+
+    if(program.nodebinpath) {
+        config.nodeBinPath = program.nodebinpath;
     }
 
     config.scriptName = scriptName;
