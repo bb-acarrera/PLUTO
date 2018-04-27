@@ -15,6 +15,8 @@
 	"reporters": [
 		{
 			"filename": "smtpReporter",
+			"title": "Test Email",
+			"id": 0,
 			"config": {
 				"emailFrom": "\"PLUTO\" <no-reply@localhost>",
 				"smtpConfig": {
@@ -29,6 +31,105 @@
 		}
 	],
 
+	"customValidationFields": [
+		{
+			"name": "summary",
+			"label": "Data Summary",
+			"tooltip": "Brief description of this data",
+			"type": "string"
+		},
+		{
+			"name": "source",
+			"label": "Source",
+			"tooltip": "Where did this data come from?",
+			"type": "string",
+			"validations": [
+				{
+					"presence": true
+
+				}
+			]
+		},
+		{
+			"name": "contact",
+			"label": "Contact details",
+			"tooltip": "Who to contact if there are problems?",
+			"type": "string"
+		},
+		{
+			"name": "type",
+			"label": "Data Type",
+			"tooltip": "Who to contact if there are problems?",
+			"type": "choice",
+			"choices": [
+				{"value":"csv", "label":"CSV"},
+				{"value":"excel", "label":"Excel Spreadsheet"},
+				{"value":"shapefile", "label":"Shapefile"},
+				{"value":"geojson", "label":"GeoJSON"}
+			]
+		},
+		{
+			"name": "code",
+			"label": "Code",
+			"tooltip": "Code",
+			"type": "integer"
+		},
+		{
+			"name": "public",
+			"label": "Public",
+			"tooltip": "Public",
+			"type": "boolean"
+		},
+		{
+			"name": "reviewed",
+			"label": "Last Reviewed",
+			"tooltip": "Last Reviewed",
+			"type": "date"
+		}
+	],
+
 	"forceUniqueTargetFile": true,
-	"hideTestButtons": false
+	"hideTestButtons": false,
+	"runMaximumDuration": 600,
+	"maxConcurrentTasks": 10,
+
+	"exportRulesets" : {
+		"exportToLabel": "Production",
+		"hostBaseUrl": "http://localhost:3000"
+	},
+
+	"environmentLabel": "Development",
+	"environmentStyle": {
+		"Production": {
+			"backgroundColor": "#FEE1E1",
+			"borderColor": "red",
+			"borderWidth": "4px",
+			"landingImage": "release.png"
+		},
+		"Development": {
+			"backgroundColor": "white",
+			"borderColor": "",
+			"borderWidth": "0px",
+			"landingImage": "development.png"
+		}
+	},
+
+	"allowOnlyRulesetImport": false,
+	
+	"requiredRules": [{
+		"parser" : "CSVParser",
+		"rules" : [
+			{
+				"config": {
+					"orderMatch": "ignore",
+					"extraColumns": "Warning",
+					"missingColumns": "Error"
+				},
+				"filename": "CheckColumnNames"
+			}
+		]
+	}],
+
+	"showAdmin" : false,
+	"rejectAdminNavigation" : false
 }

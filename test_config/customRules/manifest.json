@@ -3,19 +3,24 @@
     
   ],
   "rules": [
-	{
+    {
       "filename":"validateColumnRegExPython",
       "script" : "/opt/PLUTO/config/customRules/validateColumnRegEx.py",
       "executable" : "python"
     },
     {
-		"filename":"ValidateZipFilenames",
-		"script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",
-		"executable" : "python"
-	},
-	{
+      "filename":"ValidateZipFilenames",
+      "script" : "/opt/PLUTO/config/customRules/ValidateZipFilenames.py",
+      "executable" : "python"
+    },
+    {
       "filename":"validateColumnRegExPythonDF",
       "script" : "/opt/PLUTO/config/customRules/validateColumnRegExDF.py",
+      "executable" : "python"
+    },
+    {
+      "filename":"validateColumnRegExPythonCustomList",
+      "script" : "/opt/PLUTO/config/customRules/validateColumnRegExPythonCustomList.py",
       "executable" : "python"
     }
   ],

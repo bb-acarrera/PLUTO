@@ -555,11 +555,10 @@ export default Ember.Controller.extend( {
 
             if(list) {
                 list.forEach((i) => {
-                	item = i.get("ui.properties") && i.get("ui.properties")[0] && i.get("ui.properties")[0].group;
-                })
-            }
-
-            return item;
+					item = i.get("ui.properties") && i.get("ui.properties")[0] && i.get("ui.properties")[0].group;
+				})
+			}
+			return item;
         },
 
         getCustomList(list) {
