@@ -83,6 +83,14 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getPosttasks(req, res) {
+        // Send reporters.
+
+        res.json({
+            data: this.rulesLoader.posttasks
+        });
+    }
+
     getCustomFields(req, res) {
         // Send reporters.
         var fields = {

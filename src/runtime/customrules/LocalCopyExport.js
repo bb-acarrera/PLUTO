@@ -1,9 +1,11 @@
 const fs = require('fs-extra');
 const path = require("path");
 
-class LocalCopyExport {
+const ErrorHandlerAPI = require('../../api/errorHandlerAPI');
+
+class LocalCopyExport extends ErrorHandlerAPI {
 	constructor(config) {
-		this.config = config;
+		super(config);
 	}
 
 	exportFile(sourceFileName, runId, errorLog) {
@@ -25,6 +27,11 @@ class LocalCopyExport {
 	            }
 
                 fs.copySync(sourceFileName, targetFileName);
+
+	            if(this.config.doLog) {
+		            this.warning('File copied');
+	            }
+
 				resolve(path.basename(targetFileName));
 			} else {
 	            resolve(null);

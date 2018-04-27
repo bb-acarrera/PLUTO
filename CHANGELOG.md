@@ -1,11 +1,23 @@
 # PLUTO Change Log
 
+## 1.0.10
+### New Features
+
+#### Post Upload Tasks
+Added a new class of tasks that execute after the file has been successfully uploaded. Uses the same plugin infrastructure as rules, and appear as a list of items below the rules in the edit validation UI.
+
+### Bug Fixes and Minor Improvements
+ * Fixed export validation problem related to inconsistent versioning between systems
+ * Added hungRunPollingInterval property (can be set in validatorConfig.json) which controls the frequency (6 hours by default) that the database is queried for hung jobs (jobs which are still marked as running after the runMaximumDuration has passed). Found hung jobs are immediately terminated. (#479)
+ * Added additional console reports on edit operations. (#507)
+ * Jobs are allowed to complete (or timeout) when the server receives a SIGTERM signal. (#512)
+
 ## 1.0.9
 ### New Features
 
 #### Shapefile parsing
 
-PLUTO can now natively parse shapefiles, and all core cvs rules can operate against the shapefile attributes table. Shapefiles can be supplied as a zip, which PLUTO will unzip, validate, and re-zip before uploading, with an option to make the zip contets filenames match the zip filename. 
+PLUTO can now natively parse shapefiles, and all core cvs rules can operate against the shapefile attributes table. Shapefiles can be supplied as a zip, which PLUTO will unzip, validate, and re-zip before uploading, with an option to make the zip contets filenames match the zip filename. It has options to remove all non-shapefile files, and to rename the contents to match the output file name. 
 
 ### Bug Fixes and Minor Improvements
  * Added ability for administrators to assign validations to different groups
@@ -14,6 +26,7 @@ PLUTO can now natively parse shapefiles, and all core cvs rules can operate agai
  * Changed required rules to be per-parser (specifically so validations with 
  * Added config option to restrict access to the admin page to only administrators 
  * Added config option to show a link to the admin page if the user is an administrator
+ 
 
 ## 1.0.8
 ### New Features

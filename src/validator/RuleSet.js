@@ -57,6 +57,8 @@ class RuleSet {
 
 		addRules.call(this, ruleset.rules);
 
+		addPostTasks.call(this, ruleset.posttasks);
+
 		addReporters.call(this, ruleset.reporters);
 		
 		this.addParserDefaults(rulesLoader);
@@ -233,17 +235,19 @@ class RuleSet {
 
 		if(validatorConfig.requiredRules) {
             this.rules = this.rules || [];
-            validatorConfig.requiredRules.forEach((srcRule)=>{
+            validatorConfig.requiredRules.forEach((srcParser)=>{
+				if ( srcParser.parser != (this.parser ? this.parser.filename : null) ) return;
 
-	            let rule = {
-		            filename: srcRule.filename,
-		            injected: true
-	            };
-	            rule.config = srcRule.config || {};
+                srcParser.rules.forEach((srcRule)=>{
+                	let rule = {
+                		filename: srcRule.filename,
+						injected: true
+                	};
+                	rule.config = srcRule.config || {};
 
 
-            	rule.config.id = Util.createGUID();
-                this.rules.push(rule);
+                	rule.config.id = Util.createGUID();
+                	this.rules.push(rule);});
 			});
 
         }
@@ -403,6 +407,30 @@ function addRules(rules) {
 	}
 }
 
+function addPostTasks(postTasks) {
+	this.posttasks = [];
+	this.posttasksMap = {};
+	if (!postTasks)
+		return;
+
+	for (var i = 0; i < postTasks.length; i++) {
+		const srcPosttask = postTasks[i];
+		const dstPosttask = {};
+		dstPosttask.config = srcPosttask.config;
+		dstPosttask.filename = srcPosttask.filename;
+		dstPosttask.name = srcPosttask.name || srcPosttask.filename;
+		dstPosttask.ui = srcPosttask.ui;
+		dstPosttask.injected = srcPosttask.injected;
+
+		if(!dstPosttask.config.id) {
+			dstPosttask.config.id = Util.createGUID();
+		}
+
+		this.posttasks.push(dstPosttask);
+		this.posttasksMap[dstPosttask.config.id] = dstPosttask;
+	}
+}
+
 function addReporters(reporters) {
 	this.reporters = [];
 
@@ -501,6 +529,10 @@ function privatize(rulesLoader) {
 	});
 
 	this.rules.forEach((item) => {
+		privatizeItem.call(this, item, rulesLoader, 'filename');
+	});
+
+	this.posttasks.forEach((item) => {
 		privatizeItem.call(this, item, rulesLoader, 'filename');
 	});
 }

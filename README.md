@@ -121,19 +121,33 @@ Mac: https://update.cyberduck.io/Cyberduck-4.8.4.19355.zip
 Once installed double click on `S3 (HTTP).cyberduckprofile` in the root PLUTO folder to setup a connection, and use the keys
 above to access it. The Simulated S3 source uses the bucket `test`, and the Simulated S3 target uses `testoutput`.
 
-## Starting dev database and running locally
-To run the validator and server locally for dev and debugging purposes, a separate debug database can be started via:
+## Starting dev database and running the server locally
+To run the validator and server locally for dev and debugging purposes, a separate dev environment can be set up. 
+
+The very first time, the containers will need to be built:
+```shell
+npm run build
+docker-compose -f dev-docker-compose.yml build 
+```
+
+To start the dev support containers the run:
 
 ```shell
-npm run start_devdb
+docker-compose -f dev-docker-compose.yml up 
 ```
-This will start the dev database on port 6543 and import/update the rulesets from the src/runtime/rulesets folder.
+This will start the dev database on port 6543 and import/update the rulesets from the src/runtime/rulesets folder as well as start a S3 simulator (Scality S3) and nginx to emulate different authentication examples. 
 
 There are debug configurations also set up in the src folder. To start the web service locally:
 
 ```shell
+npm start
+```
+
+Or
+
+```shell
 cd src
-node server/server.js -s $PWD/server/debugServerConfig.json -v $PWD/runtime/configs/validatorConfig.json
+node server/server.js -s server/debugServerConfig.json -v runtime/configs/validatorConfig.json
 ```
 
 To run the validator manually:

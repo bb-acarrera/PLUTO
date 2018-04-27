@@ -6,6 +6,7 @@ const RuleSet = require( "../validator/RuleSet" );
 const DB = require( "./db" );
 const ErrorHandlerAPI = require( '../api/errorHandlerAPI' );
 const moment = require('moment');
+const ErrorLogger = require("../validator/ErrorLogger");
 
 
 
@@ -886,7 +887,7 @@ class data {
             }
 
             function save(){
-                checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin).then((result) => {
+                checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin, isImport).then((result) => {
                     let version = result.nextVersion;
                     let rowGroup = group;
                     let targetFile = null;
@@ -906,6 +907,7 @@ class data {
                             reject('Must be newer than the current version to import');
                             return;
                         }
+                        version = ruleset.version;
                     }
 
 
@@ -1641,6 +1643,65 @@ class data {
 
 
     }
+
+    cleanupRun(runId, terminationMsg, msgLog) {
+
+        return new Promise((resolve) => {
+            if(runId) {
+                this.getRun(runId).then((runInfo) => {
+
+                        if (!runInfo || !runInfo.isrunning)
+                        {
+                            resolve();
+                            return;
+                        }
+
+                        //this shouldn't exist, but since it does let's clean it up
+                        const logger = new ErrorLogger();
+
+                        if(!terminationMsg) {
+                            terminationMsg = `Run terminated unexpectedly without cleaning up. Server has marked this as finished.`;
+                        }
+
+                        if(msgLog) {
+                            terminationMsg += '\nConsole output:\n' + msgLog;
+                        }
+
+                        logger.log(ErrorHandlerAPI.ERROR, this.constructor.name, undefined,
+                            terminationMsg);
+
+                        console.log({
+                            log: "plutorun",
+                            runId: runId,
+                            state: "post exit",
+                            messageType: "error",
+                            message: terminationMsg
+                        });
+
+                        this.saveRunRecord(runId, logger.getLog(),
+                            null, null, null, logger.getCounts(),
+                            false, null, null, true)
+                            .then(() => { //no-op
+                            }, (error) => console.log('error cleaning up bad run: ' + error))
+                            .catch((e) => console.log('Exception cleaning up bad run: ' + e))
+                            .then(()=> {
+                                resolve();
+                            })
+
+                    }, (error) => {
+                        console.log(error);
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        resolve();
+                    });
+            } else {
+                resolve();
+            }
+        });
+
+    }
 }
 
 
@@ -1793,7 +1854,7 @@ function getRuleset(db, ruleset_id, version, dbId, tables, getDeleted) {
     } );
 }
 
-function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
+function checkCanChangeRuleset(db, tables, ruleset, group, admin, isImport) {
 
     return new Promise((resolve, reject) => {
         getRuleset(db, ruleset.filename, null, null, tables, true).then((result) => {
@@ -1801,7 +1862,7 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin) {
             if (result.rows.length > 0) {
 
                 if(!result.rows[0].deleted) {
-                    if (result.rows[0].version != ruleset.version) {
+                    if (!isImport && result.rows[0].version != ruleset.version) {
                         reject(`${ruleset.filename} has been changed by another user. Cannot update old version`);
                         return;
                     }

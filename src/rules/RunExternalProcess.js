@@ -234,13 +234,17 @@ class RunExternalProcess extends OperatorAPI {
 	run() {
 		return new Promise((resolve, reject) => {
 
-			let outputFile = this.outputFile;
+			let outputFile = null;
+			let inputName = this.inputFile;
+
+			if(inputName) {
+				outputFile = this.outputFile;
+			}
 
 			let finished = () => {
 				resolve(this.asFile(outputFile));
 			};
 
-			let inputName = this.inputFile;
 			if (inputName instanceof Promise) {
 				inputName.then((filename) => {
 					this.runProcess(filename, outputFile, finished);
