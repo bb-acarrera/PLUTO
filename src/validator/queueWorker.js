@@ -226,7 +226,7 @@ class QueueWorker {
             let fullLog = '';
 
             // Called when the process is finished either by exitting or because of an error.
-            const finished = () => {
+            const finished = (reject) => {
 
                 clearTimeout(timeoutId);
 
@@ -246,7 +246,14 @@ class QueueWorker {
                         if(finishedFn) {
                             finishedFn();
                         }
-                        resolve();
+
+                        if(reject) {
+                            reject();
+                        } else {
+                            resolve();
+                        }
+
+                        
                 })
 
 
@@ -260,7 +267,7 @@ class QueueWorker {
 
                 console.error(message);
 
-                finished();
+                finished(reject);
 
             });
 

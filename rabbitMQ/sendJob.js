@@ -12,7 +12,8 @@ amqp.connect('amqp://localhost', function(err, conn) {
     //var msg = process.argv.slice(2).join(' ') || "Hello World!";
     
     var msg = JSON.stringify({
-        ruleset: process.argv.slice(2).join(' ') || "219"
+        ruleset: process.argv.slice(2).join(' ') || "219",
+        skipMd5Check: true
     });
 
 	ch.assertQueue(q, {durable: true});
