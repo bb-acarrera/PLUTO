@@ -342,7 +342,6 @@ class ProcessFileRouter extends BaseRouter {
             let tempFolder = null;
 
             let fullLog = '';
-            const auth = this.getAuth(req);
 
             // Called when the process is finished either by exitting or because of an error.
             const finished = () => {
@@ -424,8 +423,8 @@ class ProcessFileRouter extends BaseRouter {
                         log.log = "plutorun";
                         log.runId = runId;
                         log.state = log.state || "running";
-                        log.user = auth.user
-                        log.group = auth.group
+                        log.user = user
+                        log.group = group
 
                         console.log(log);
 
@@ -437,8 +436,8 @@ class ProcessFileRouter extends BaseRouter {
                             state: "running",
                             messageType: "log",
                             message: str,
-                            user: auth.user,
-                            group: auth.group
+                            user: user,
+                            group: group
                         });
 
                     }
@@ -456,8 +455,8 @@ class ProcessFileRouter extends BaseRouter {
                         state: "running",
                         messageType: "error",
                         message: str,
-                        user: auth.user,
-                        group: auth.group
+                        user: user,
+                        group: group
                     });
                 });
 
@@ -470,9 +469,9 @@ class ProcessFileRouter extends BaseRouter {
                     runId: runId,
                     state: "exit",
                     exitCode: code,
-                    user: auth.user,
-                    group: auth.group
-        });
+                    user: user,
+                    group: group
+            });
 
 
                 finished();
