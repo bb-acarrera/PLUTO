@@ -8,11 +8,16 @@ const path = require("path");
 const TreeKill = require('tree-kill');
 const rimraf = require('rimraf');
 
+const amqp = require('amqplib');
+
 const ErrorHandlerAPI = require("../../api/errorHandlerAPI");
 const ErrorLogger = require("../../validator/ErrorLogger");
 
 //get the root PLUTO folder from this file
 const rootFolder = path.resolve(__dirname, '../../');
+
+const useQueue = true;
+var PlutoQueue = 'pluto_runs';
 
 /*
 example request
@@ -29,6 +34,7 @@ class ProcessFileRouter extends BaseRouter {
     constructor(config) {
         super(config);
         this.processCount = 0;
+        this.queue = PlutoQueue;
     }
 
     post(req, res, next) {
@@ -74,20 +80,29 @@ class ProcessFileRouter extends BaseRouter {
                 return;
             }
 
-            if(test) {
-                outputFile = this.getTempName(this.config);
+            let jobPromise = null;
 
-                finishHandler = () => {
-
-                    if (fs.existsSync(outputFile)) {
-                        fs.unlink(outputFile);
+            if(useQueue) {
+                if(test) {
+                    outputFile = this.getTempName(this.config);
+    
+                    finishHandler = () => {
+    
+                        if (fs.existsSync(outputFile)) {
+                            fs.unlink(outputFile);
+                        }
                     }
                 }
+    
+                jobPromise = this.processFile(ruleset, importConfig, inputFile, outputFile, null,
+                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check);
+            } else {
+                jobPromise = this.addToQueue(ruleset, importConfig, inputFile, outputFile, null,
+                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check);
             }
+            
 
-            this.generateResponse(res, ruleset,
-                this.processFile(ruleset, importConfig, inputFile, outputFile, null,
-                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check));
+            this.generateResponse(res, ruleset, jobPromise);
         };
 
         if(sourceFile && !ruleset) {
@@ -469,6 +484,58 @@ class ProcessFileRouter extends BaseRouter {
 
         })
     }
+
+    addToQueue(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
+    
+        let conn, ch, runId;
+
+        let channelPromise = amqp.connect(this.config.rabbitMQ).then((connIn) => {
+            conn = connIn;
+            
+            return conn.createChannel();
+
+        }, (err) => {
+            let msg = "Error connecting to RabbitMQ: " + err;
+            console.log(msg);
+            next(msg);
+        }).then((ch) => {
+
+            ch.assertQueue(this.queue, {durable: true});
+            ch.prefetch(1);
+
+            return ch;            
+
+        }, (err) => {
+            let msg = "Error creating channel: " + err
+            console.log(msg);
+            next(msg);
+        })
+        
+        let runPromise = this.data.createRunRecord(ruleset, user, group);   
+        
+        Promise.all([channelPromise, runPromise]).then((results) => {
+            let ch = results[0];
+            let runId = results[1];
+
+            var msg = JSON.stringify({
+                ruleset: ruleset,
+                importConfig: importConfig,
+                test: test,
+                skipMd5Check: skipMd5Check,
+                user: user,
+                group: group,
+                runId: runId
+            });
+
+            ch.sendToQueue(q, new Buffer(msg), {persistent: true});
+        })
+        .catch((e) => {
+            let msg = "Got exception adding to queue: " + e;
+            console.log(msg);
+            next(msg);
+        });
+    }
+    
 
     // Create a unique temporary filename in the temp directory.
     getTempName(config) {

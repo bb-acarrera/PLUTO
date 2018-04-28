@@ -102,7 +102,16 @@ class Validator {
 			ruleset: this.config.ruleset
 		};
 
-		this.data.createRunRecord(this.config.ruleset, this.config.user, this.config.group).then((runId) => {
+		let getRunId = null;
+
+		if(this.config.runId) {
+			getRunId = Promise.resolve(this.config.runId);
+		} else {
+			getRunId = this.data.createRunRecord(this.config.ruleset, this.config.user, this.config.group);
+		}
+		
+
+		getRunId.then((runId) => {
 
 			this.runId = runId;
 			this.outputResults.runId = runId;

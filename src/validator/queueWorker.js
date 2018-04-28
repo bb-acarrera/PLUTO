@@ -113,12 +113,12 @@ class QueueWorker {
             return Promise.resolve();
         }
 
-        return this.processFile(req.ruleset, req.importConfig, req.test, req.skipMd5Check, req.user, req.group);
+        return this.processFile(req.ruleset, req.importConfig, req.test, req.skipMd5Check, req.user, req.group, req.runId);
 
         
     }
 
-    processFile(ruleset, importConfig, test, skipMd5Check, user, group) {
+    processFile(ruleset, importConfig, test, skipMd5Check, user, group, runId) {
         return new Promise((resolve, reject) => {
 
             let finishedFn = null;
@@ -168,19 +168,26 @@ class QueueWorker {
 
                     spawnArgs.push('-n');
                     spawnArgs.push(inputDisplayName);
-                }
-                if (user) {
-                    execCmd += ' -u "' + user + '"';
+                }                
+            }
 
-                    spawnArgs.push('-u');
-                    spawnArgs.push(user);
-                }
-                if (group) {
-                    execCmd += ' -g "' + group + '"';
+            if (user) {
+                execCmd += ' -u "' + user + '"';
 
-                    spawnArgs.push('-g');
-                    spawnArgs.push(group);
-                }
+                spawnArgs.push('-u');
+                spawnArgs.push(user);
+            }
+            if (group) {
+                execCmd += ' -g "' + group + '"';
+
+                spawnArgs.push('-g');
+                spawnArgs.push(group);
+            }
+            if(runId) {
+                execCmd += ' -d "' + runId + '"';
+
+                spawnArgs.push('-d');
+                spawnArgs.push(runId);
             }
 
             if (test) {
