@@ -118,7 +118,7 @@ class QueueWorker {
         
     }
 
-    processFile(ruleset, importConfig, test, skipMd5Check, user, group, runId) {
+    processFile(ruleset, importConfig, test, skipMd5Check, user, group, runIdIn) {
         return new Promise((resolve, reject) => {
 
             let finishedFn = null;
@@ -183,11 +183,11 @@ class QueueWorker {
                 spawnArgs.push('-g');
                 spawnArgs.push(group);
             }
-            if(runId) {
-                execCmd += ' -d "' + runId + '"';
+            if(runIdIn) {
+                execCmd += ' -d "' + runIdIn + '"';
 
                 spawnArgs.push('-d');
-                spawnArgs.push(runId);
+                spawnArgs.push(runIdIn);
             }
 
             if (test) {
@@ -210,7 +210,7 @@ class QueueWorker {
             let proc = child_process.spawn(spawnCmd, spawnArgs, options);
 
             let terminationMessage = null;
-            let runId = null;
+            let runId = runIdIn;
 
             // Called when the timeout lapses.
             function runTimeout() {

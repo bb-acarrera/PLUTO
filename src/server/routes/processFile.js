@@ -83,6 +83,10 @@ class ProcessFileRouter extends BaseRouter {
             let jobPromise = null;
 
             if(useQueue) {
+                jobPromise = this.addToQueue(ruleset, importConfig, inputFile, outputFile, null,
+                    next, res, test, null, auth.user, auth.group, skipMd5Check);
+            } else {
+            
                 if(test) {
                     outputFile = this.getTempName(this.config);
     
@@ -96,10 +100,7 @@ class ProcessFileRouter extends BaseRouter {
     
                 jobPromise = this.processFile(ruleset, importConfig, inputFile, outputFile, null,
                     next, res, test, finishHandler, auth.user, auth.group, skipMd5Check);
-            } else {
-                jobPromise = this.addToQueue(ruleset, importConfig, inputFile, outputFile, null,
-                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check);
-            }
+        }
             
 
             this.generateResponse(res, ruleset, jobPromise);
@@ -500,7 +501,6 @@ class ProcessFileRouter extends BaseRouter {
         }).then((ch) => {
 
             ch.assertQueue(this.queue, {durable: true});
-            ch.prefetch(1);
 
             return ch;            
 
@@ -510,9 +510,9 @@ class ProcessFileRouter extends BaseRouter {
             next(msg);
         })
         
-        let runPromise = this.data.createRunRecord(ruleset, user, group);   
+        let runPromise = this.config.data.createRunRecord(ruleset, user, group);   
         
-        Promise.all([channelPromise, runPromise]).then((results) => {
+        return Promise.all([channelPromise, runPromise]).then((results) => {
             let ch = results[0];
             let runId = results[1];
 
@@ -526,7 +526,9 @@ class ProcessFileRouter extends BaseRouter {
                 runId: runId
             });
 
-            ch.sendToQueue(q, new Buffer(msg), {persistent: true});
+            ch.sendToQueue(this.queue, new Buffer(msg), {persistent: true});
+
+            return runId;
         })
         .catch((e) => {
             let msg = "Got exception adding to queue: " + e;
