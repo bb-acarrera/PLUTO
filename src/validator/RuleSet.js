@@ -276,9 +276,19 @@ class RuleSet {
 			if (validatorConfig.prepertiesOverride) {
 				const parse = this.parser.filename;
 				let target = this.parser;
-				Object.keys(validatorConfig.prepertiesOverride.parsers[parse]).forEach(function(key, index){
-					target.config[key] = validatorConfig.prepertiesOverride.parsers[parse][key].default;
-				});
+				Object.keys( validatorConfig.prepertiesOverride.parsers[ parse ] ).forEach( function ( key, index ) {
+					target.config[ key ] = validatorConfig.prepertiesOverride.parsers[ parse ][ key ].default;
+				} );
+
+				target = this.general;
+				Object.keys( validatorConfig.prepertiesOverride.globalconfig).forEach( function ( key, index ) {
+					target.config[ key ] = validatorConfig.prepertiesOverride.globalconfig[ key ].default;
+				} );
+
+				target = this.posttasks;
+				Object.keys( validatorConfig.prepertiesOverride.globalconfig).forEach( function ( key, index ) {
+					target.config[ key ] = validatorConfig.prepertiesOverride.globalconfig[ key ].default;
+				} );
 			}
 		}
 

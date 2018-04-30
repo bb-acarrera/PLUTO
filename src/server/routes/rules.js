@@ -27,6 +27,19 @@ class RulesRouter extends BaseRouter {
     getRules(req, res) {
         // Send generic rules. (i.e. not rule instances.)
 
+		let parsers = this.rulesLoader.rules;
+		parsers.forEach((val)=>{
+			if(this.config.validatorConfig.prepertiesOverride.rules[val.id]) {
+				val.attributes.ui.properties.forEach( ( property ) => {
+					let config = this.config.validatorConfig.prepertiesOverride.rules[val.id][property.name];
+					if ( config ){
+						property.default = config.default;
+						property.disabled = config.disabled;
+					}
+				} );
+			}
+		});
+
         res.json({
             data: this.rulesLoader.rules
         });
@@ -70,6 +83,17 @@ class RulesRouter extends BaseRouter {
 
     getRulesetConfigUI(req, res) {
 
+		let properties = this.rulesetConfig[0].attributes.ui.properties;
+		properties.forEach((val)=>{
+			if(this.config.validatorConfig.prepertiesOverride.globalconfig[val.name]) {
+                let config = this.config.validatorConfig.prepertiesOverride.globalconfig[val.name];
+                if ( config ){
+                    val.default = config.default;
+					val.disabled = config.disabled;
+                }
+			}
+		});
+
         res.json({
             data: this.rulesetConfig
         });
@@ -85,6 +109,18 @@ class RulesRouter extends BaseRouter {
 
     getPosttasks(req, res) {
         // Send reporters.
+
+		let properties = this.rulesLoader.posttasks[0].attributes.ui.properties;
+		properties.forEach((val)=>{
+			if(this.config.validatorConfig.prepertiesOverride.postgres[val.name]) {
+				let config = this.config.validatorConfig.prepertiesOverride.postgres[val.name];
+				if ( config ){
+					val.default = config.default;
+					val.disabled = config.disabled;
+				}
+			}
+		});
+
 
         res.json({
             data: this.rulesLoader.posttasks

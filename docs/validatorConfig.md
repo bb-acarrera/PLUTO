@@ -330,4 +330,37 @@ A list of rules with their matching parser that must be present on every validat
  - **config**: is an optional object that specifies what values the rule config should have. Any missing required rule properties are can be set by the user to any value; if a validation rule is missing any required properties then validation fails. If the config object is missing, then the user can set any rule values.
 
 
+
+## prepertiesOverride
+```
+{...
+	"prepertiesOverride": {
+		"parsers": {
+			"CSVParser" : {
+				"columnRow":{
+					"default": 1
+				},
+				"public": {
+					"default": true,
+					"disabled": true
+				}
+			}
+		},
+		"globalconfig": {
+			"droppedToAbort": {
+				"default": 1,
+				"disabled": true
+			}
+		},
+		"postgres": {
+			"droppedToAbort": {
+				"default": 1,
+				"disabled": true
+		}
+	}
+}
+```
+
+Allows to set default values and disable controls in parsers, global configuration and post gres sections of the edit ruleset page.
+
 [Config Properties]: ruleUiConfig.md  

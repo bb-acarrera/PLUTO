@@ -141,6 +141,26 @@
 					"disabled": true
 				}
 			}
+		},
+		"rules": {
+			"CheckColumnCount" : {
+				"columns": {
+					"default": 15,
+					"disabled": true
+				}
+			}
+		},
+		"globalconfig": {
+			"droppedToAbort": {
+				"default": 3,
+				"disabled": true
+			}
+		},
+		"postgres": {
+			"droppedToAbort": {
+				"default": 3,
+				"disabled": true
+			}
 		}
 	},
 	"showAdmin" : true,
