@@ -331,10 +331,10 @@ A list of rules with their matching parser that must be present on every validat
 
 
 
-## prepertiesOverride
+## propertiesOverride
 ```
 {...
-	"prepertiesOverride": {
+	"propertiesOverride": {
 		"parsers": {
 			"Parser Name" : {
 				"Property Name": {

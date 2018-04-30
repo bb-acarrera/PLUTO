@@ -29,9 +29,9 @@ class RulesRouter extends BaseRouter {
 
 		let parsers = this.rulesLoader.rules;
 		parsers.forEach((val)=>{
-			if(this.config.validatorConfig.prepertiesOverride && this.config.validatorConfig.prepertiesOverride.rules[val.id]) {
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.rules[val.id]) {
 				val.attributes.ui.properties.forEach( ( property ) => {
-					let config = this.config.validatorConfig.prepertiesOverride.rules[val.id][property.name];
+					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
 					if ( config ){
 						property.default = config.default;
 						property.disabled = config.disabled;
@@ -50,9 +50,9 @@ class RulesRouter extends BaseRouter {
 
         let parsers = this.rulesLoader.parsers;
 		parsers.forEach((val)=>{
-		    if(this.config.validatorConfig.prepertiesOverride && this.config.validatorConfig.prepertiesOverride.parsers[val.id]) {
+		    if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.parsers[val.id]) {
 				val.attributes.ui.properties.forEach( ( property ) => {
-				    let config = this.config.validatorConfig.prepertiesOverride.parsers[val.id][property.name];
+				    let config = this.config.validatorConfig.propertiesOverride.parsers[val.id][property.name];
 					if ( config ){
 					    property.default = config.default;
 					    property.disabled = config.disabled;
@@ -85,8 +85,8 @@ class RulesRouter extends BaseRouter {
 
 		let properties = this.rulesetConfig[0].attributes.ui.properties;
 		properties.forEach((val)=>{
-			if(this.config.validatorConfig.prepertiesOverride && this.config.validatorConfig.prepertiesOverride.globalconfig[val.name]) {
-                let config = this.config.validatorConfig.prepertiesOverride.globalconfig[val.name];
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.globalconfig[val.name]) {
+                let config = this.config.validatorConfig.propertiesOverride.globalconfig[val.name];
                 if ( config ){
                     val.default = config.default;
 					val.disabled = config.disabled;
@@ -112,8 +112,8 @@ class RulesRouter extends BaseRouter {
 
 		let properties = this.rulesLoader.posttasks[0].attributes.ui.properties;
 		properties.forEach((val)=>{
-			if(this.config.validatorConfig.prepertiesOverride && this.config.validatorConfig.prepertiesOverride.posttasks[val.name]) {
-				let config = this.config.validatorConfig.prepertiesOverride.posttasks[val.name];
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.posttasks[val.name]) {
+				let config = this.config.validatorConfig.propertiesOverride.posttasks[val.name];
 				if ( config ){
 					val.default = config.default;
 					val.disabled = config.disabled;
