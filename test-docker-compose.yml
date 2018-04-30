@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   pluto_db:
     image: postgres:9.6-alpine
     volumes:
@@ -10,6 +11,14 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=pluto
       - POSTGRES_DB=pluto
+
+  pluto_rabbitmq:
+    image: rabbitmq:3.7.4-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitData:/var/lib/rabbitmq
 
   pluto_dbloader:
     image: pluto_dbloader:develop
@@ -41,9 +50,15 @@ services:
     ports:
       - 3000:3000
 
+  pluto_worker:
+    image: pluto_worker:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+  
 
 volumes:
   pgdata:
   s3-data:
   s3-meta:
+  rabbitData:
 

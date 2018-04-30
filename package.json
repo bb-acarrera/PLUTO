@@ -19,8 +19,8 @@
     "tag_images": "sh build/bin/tagImages.sh",
     "start_dev_container": "docker build -t pluto_dev -f dev_container/dev.Dockerfile . && docker run -v $PWD/.:/code -p 3000:3000 -p9229:9229 --net=plutonet --rm -a stdout -a stderr pluto_dev node --inspect src/server/server.js -s src/server/debugServerConfigContainer.json -v src/runtime/configs/validatorConfigContainer.json",
     "start_worker": "cd src && node validator/queueWorker.js -v runtime/configs/validatorConfig.json",
-    "start_worker_debug": "cd src && node --inspect=9229 validator/queueWorker.js -v runtime/configs/validatorConfig.json"
-    
+    "start_worker_debug": "cd src && node --inspect=9229 validator/queueWorker.js -v runtime/configs/validatorConfig.json",
+    "start_dev_services": "docker-compose -f dev-docker-compose.yml up"
   },
   "repository": {
     "type": "git",

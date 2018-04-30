@@ -16,7 +16,6 @@ const ErrorLogger = require("../../validator/ErrorLogger");
 //get the root PLUTO folder from this file
 const rootFolder = path.resolve(__dirname, '../../');
 
-const useQueue = true;
 var PlutoQueue = 'pluto_runs';
 
 /*
@@ -82,7 +81,7 @@ class ProcessFileRouter extends BaseRouter {
 
             let jobPromise = null;
 
-            if(useQueue) {
+            if(this.config.validatorConfig.useRabbitMQ) {
                 jobPromise = this.addToQueue(ruleset, importConfig, inputFile, outputFile, null,
                     next, res, test, null, auth.user, auth.group, skipMd5Check);
             } else {
@@ -489,7 +488,7 @@ class ProcessFileRouter extends BaseRouter {
     
         let conn, ch, runId;
 
-        let channelPromise = amqp.connect(this.config.rabbitMQ).then((connIn) => {
+        let channelPromise = amqp.connect(this.config.validatorConfig.rabbitMQ).then((connIn) => {
             conn = connIn;
             
             return conn.createChannel();

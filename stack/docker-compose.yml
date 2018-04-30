@@ -13,6 +13,14 @@ services:
     networks:
       - pluto
 
+  pluto_rabbitmq:
+    image: rabbitmq:3.7.4-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitData:/var/lib/rabbitmq
+
   pluto_dbloader:
     image: pluto_dbloader:develop
     volumes:
@@ -51,7 +59,16 @@ services:
     networks:
       - pluto
     deploy:
-          mode: global  # Deploy one of these containers to each node in the swarm
+      mode: global  # Deploy one of these containers to each node in the swarm
+
+  pluto_worker:
+    image: pluto_worker:develop
+    volumes:
+      - ./../test_config:/opt/PLUTO/config
+    networks:
+      - pluto
+    deploy:
+      mode: global  # Deploy one of these containers to each node in the swarm
 
   # Ships all logs on a given node to elasticsearch
   filebeat:
@@ -185,6 +202,7 @@ volumes:
   es-data:
   s3-data:
   s3-meta:
+  rabbitData:
 
 networks:
   stack:
