@@ -177,7 +177,7 @@ A base folder that can be used as the root for other folders like rulesDirectory
 The frequency (in seconds) that a run will check if older runs processing the same file are finished. Default is 10 seconds.
 
 ## hungRunPollingInterval
-The frequency (in seconds) that the server will check for runs that have failed to mark themselves complete. Default is 21600 seconds (6 hours).
+The frequency (in seconds) that the server will check for runs that have failed to mark themselves complete. Default is 21600 seconds (6 hours). If this is 0 then the check is not done.
 
 ## runMaximumDuration
 The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
