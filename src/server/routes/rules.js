@@ -112,8 +112,8 @@ class RulesRouter extends BaseRouter {
 
 		let properties = this.rulesLoader.posttasks[0].attributes.ui.properties;
 		properties.forEach((val)=>{
-			if(this.config.validatorConfig.prepertiesOverride.postgres[val.name]) {
-				let config = this.config.validatorConfig.prepertiesOverride.postgres[val.name];
+			if(this.config.validatorConfig.prepertiesOverride.posttasks[val.name]) {
+				let config = this.config.validatorConfig.prepertiesOverride.posttasks[val.name];
 				if ( config ){
 					val.default = config.default;
 					val.disabled = config.disabled;

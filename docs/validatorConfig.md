@@ -336,31 +336,36 @@ A list of rules with their matching parser that must be present on every validat
 {...
 	"prepertiesOverride": {
 		"parsers": {
-			"CSVParser" : {
-				"columnRow":{
-					"default": 1
-				},
-				"public": {
+			"Parser Name" : {
+				"Property Name": {
 					"default": true,
 					"disabled": true
 				}
 			}
 		},
 		"globalconfig": {
-			"droppedToAbort": {
+			"Property Name": {
 				"default": 1,
 				"disabled": true
 			}
 		},
-		"postgres": {
-			"droppedToAbort": {
+		"posttasks": {
+			"Property Name": {
 				"default": 1,
 				"disabled": true
-		}
+		},
+		"rules": {
+			"Rule Name" : {
+				"Property Name": {
+					"default": 15,
+					"disabled": true
+				}
+			}
+        }
 	}
 }
 ```
 
-Allows to set default values and disable controls in parsers, global configuration and post gres sections of the edit ruleset page.
+Allows to set default values and disable controls in parsers, global configuration and post gres sections of the edit ruleset page. Overrides for rules will be applied to all instances of that rule.
 
 [Config Properties]: ruleUiConfig.md  
