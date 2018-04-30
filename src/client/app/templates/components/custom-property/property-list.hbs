@@ -8,7 +8,7 @@
 				{{component (concat "custom-property/" (custom-property-type item.type) )
 									value=(get config item.name)
 									config=config instanceName=instanceName
-									uiItem=item disabled=disabled columns=columns
+									uiItem=item disabled=(or item.disabled disabled) columns=columns
 									errorObject=errorObject
 									validators=validators state=state validateOnInit=validateOnInit}}
 				{{#if errorObject.error}}
