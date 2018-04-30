@@ -45,13 +45,48 @@ class QueueWorker {
         this.currentJob = null;
 
 		
-	}
+    }
+    
+    testConnection() {
+
+        this.failureCount = 0;
+
+        console.log("Attempting to connect to rabbitMQ");
+
+        let doTest = (resolve) => {
+            
+
+            amqp.connect(this.config.rabbitMQ)
+                .then((conn) => {
+                    resolve(conn);
+                }).catch(e => {
+                    this.failureCount += 1;
+
+                    if(this.failureCount > 15) {
+                        console.error('Too many connection attempts; aborting');
+                        process.exit(1);
+                    }
+                    
+                    console.error('Attempt failed: ', e.message);
+                    setTimeout(() => {
+                        doTest(resolve);
+                    }, 2000);
+                });
+        };
+
+
+        return new Promise((resolve) => {
+            doTest(resolve);
+        });
+
+
+    }
 
 	/*
 	 * Start the server.
 	 */
 	start() {
-		amqp.connect(this.config.rabbitMQ).then((conn) => {
+		this.testConnection().then((conn) => {
 
             this.amqpConn = conn;
 
