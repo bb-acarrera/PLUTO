@@ -102,16 +102,18 @@ class Server {
             } );
 		}
 		
-		// Check for hung processes immediately on startup.
-		this.checkForHungProcesses()
+		if (this.config.hungRunPollingInterval) {
+			// Check for hung processes immediately on startup.
+			this.checkForHungProcesses()
 
-		const that = this
-		function checker() {
-			that.checkForHungProcesses()
+			const that = this
+			function checker() {
+				that.checkForHungProcesses()
+			}
+
+			// Then check for hung processes on a regular schedule.
+			setInterval(checker, this.config.hungRunPollingInterval * 1000);	// hungRunPollingInterval is in seconds. setInterval() requires milliseconds.
 		}
-
-		// Then check for hung processes on a regular schedule.
-		setInterval(checker, this.config.hungRunPollingInterval * 1000);	// hungRunPollingInterval is in seconds. setInterval() requires milliseconds.
 	}
 
 	saveError(type, text) {

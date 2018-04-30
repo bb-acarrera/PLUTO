@@ -181,12 +181,23 @@ class RunExternalProcess extends OperatorAPI {
 			}
 		});
 
-		child.stderr.on('data', (data) => {
-			if (typeof data === 'string')
-				this.error(data);
-			else if (data && typeof data.toString === 'function') {
-				let str = data.toString().trim();
-				let strs = str.split("\n");
+		var danglingStderr = '';
+		child.stderr.on('data', (chunk) => {
+			if (typeof chunk === 'string')
+				this.error(chunk);
+			else if (chunk && typeof chunk.toString === 'function') {
+				// A chunk may not represent an entire line through to a newline so save whatever winds up dangling after the last newline.
+				let str = danglingStderr + chunk.toString();
+				let saveLast = !str.endsWith('\n');
+				let strs = str.trim().split("\n");
+				if (saveLast) {
+					danglingStderr = strs[strs.length-1];
+					strs.splice(strs.length-1);
+				}
+				else {
+					danglingStderr = '';
+				}
+
 				for (var i = 0; i < strs.length; i++)
 					if (strs[i].length > 0) {
 					    try {
@@ -197,9 +208,24 @@ class RunExternalProcess extends OperatorAPI {
 					    }
 					    catch (e) {
 							console.log(strs[i]);
-					        this.error(strs[i]);//`${attributes.executable} wrote to stderr: ${strs[i]}.`);
+					        this.error(strs[i]);
 					    }
 					}
+			}
+		});
+
+		child.stderr.on('end', () => {
+			if (danglingStderr.length > 0) {
+				try {
+					const error = JSON.parse(danglingStderr);
+					if (error)
+						this.log(error.type, error.problemFile, error.ruleID, error.description,
+							error.dataItemId && error.dataItemId.length > 0 ? error.dataItemId : null);
+				}
+				catch (e) {
+					console.log(danglingStderr);
+					this.error(danglingStderr);
+				}
 			}
 		});
 

@@ -186,7 +186,7 @@ A base folder that can be used as the root for other folders like rulesDirectory
 The frequency (in seconds) that a run will check if older runs processing the same file are finished. Default is 10 seconds.
 
 ## hungRunPollingInterval
-The frequency (in seconds) that the server will check for runs that have failed to mark themselves complete. Default is 21600 seconds (6 hours).
+The frequency (in seconds) that the server will check for runs that have failed to mark themselves complete. Default is 21600 seconds (6 hours). If this is 0 then the check is not done.
 
 ## runMaximumDuration
 The maximum amount of time (in seconds) a run can take to process a file. When exceeded, the server will terminate the run. Default is 600 seconds.
@@ -361,5 +361,43 @@ An object which is the connection properties for the RabbitMQ service. See [amqp
 
 ## useRabbitMQ
 If set to true, the PLUTO web server(s) will use RabbitMQ to queue jobs, otherwise, it will run the jobs on the current web server. Default is false.
+
+
+## propertiesOverride
+```
+{...
+	"propertiesOverride": {
+		"parsers": {
+			"Parser Name" : {
+				"Property Name": {
+					"default": true,
+					"disabled": true
+				}
+			}
+		},
+		"globalconfig": {
+			"Property Name": {
+				"default": 1,
+				"disabled": true
+			}
+		},
+		"posttasks": {
+			"Property Name": {
+				"default": 1,
+				"disabled": true
+		},
+		"rules": {
+			"Rule Name" : {
+				"Property Name": {
+					"default": 15,
+					"disabled": true
+				}
+			}
+        }
+	}
+}
+```
+
+Allows to set default values and disable controls in parsers, global configuration and post gres sections of the edit ruleset page. Overrides for rules will be applied to all instances of that rule.
 
 [Config Properties]: ruleUiConfig.md  

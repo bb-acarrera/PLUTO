@@ -264,6 +264,32 @@ class RuleSet {
 
 		if (!this.custom.config) {
 			this.custom.config = {};
+			if (validatorConfig && validatorConfig.customValidationFields) {
+                validatorConfig.customValidationFields.forEach((val)=>{
+                	if(val.value) {
+                        this.custom.config[val.name] = val.value;
+					}
+				});
+			}
+
+
+			if (validatorConfig.propertiesOverride) {
+				const parse = this.parser.filename;
+				let target = this.parser;
+				Object.keys( validatorConfig.propertiesOverride.parsers[ parse ] ).forEach( function ( key, index ) {
+					target.config[ key ] = validatorConfig.propertiesOverride.parsers[ parse ][ key ].default;
+				} );
+
+				target = this.general;
+				Object.keys( validatorConfig.propertiesOverride.globalconfig).forEach( function ( key, index ) {
+					target.config[ key ] = validatorConfig.propertiesOverride.globalconfig[ key ].default;
+				} );
+
+				target = this.posttasks;
+				Object.keys( validatorConfig.propertiesOverride.globalconfig).forEach( function ( key, index ) {
+					target.config[ key ] = validatorConfig.propertiesOverride.globalconfig[ key ].default;
+				} );
+			}
 		}
 
         if (!this.periodicity) {

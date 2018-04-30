@@ -135,7 +135,6 @@
 			}
 		]
 	}],
-
 	"showAdmin" : false,
 	"rejectAdminNavigation" : false
 }

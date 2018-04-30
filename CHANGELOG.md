@@ -13,6 +13,8 @@ Added a new class of tasks that execute after the file has been successfully upl
  * Jobs are allowed to complete (or timeout) when the server receives a SIGTERM signal. (#512)
  * Added ability to populate UI dropdowns from a JavaScript function on the server
  * Added option to queue validation jobs in RabbitMQ to be run by a separate working instead of directly on the web server
+ * A note was added above the Edit Validation "Save" button when any of the input fields fails validation. (#519)
+ * Modified how responses from external processes are received. Should avoid incorrect parsing of JSON responses. (#529)
 
 ## 1.0.9
 ### New Features
