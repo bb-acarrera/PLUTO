@@ -1,17 +1,12 @@
-<select onchange={{action (mut value) value="target.value"}} disabled={{disabled}}>
-	{{#each uiItem.choices as |choice|}}
-		{{#if (is-array choice)}}
-			<option value={{choice.[0]}} selected={{eq value choice.[0]}}>{{choice.[1]}}</option>
-		{{else if choice.label}}
-			<option value={{choice.value}} selected={{eq value choice.value}}>{{choice.label}}</option>
-		{{else}}
-			<option value={{choice}} selected={{eq value choice}}>{{choice}}</option>
-		{{/if}}
-	{{/each}}
-	{{#unless value}}
-		<option value="" selected=true>Choose</option>
-	{{/unless}}
-
-</select>
+<div  style="width:80%;display: inline-block;margin-right: 5px;" >
+	{{#power-select
+	options=choices
+	onchange=(action "setValue")
+	selected=selectedValue
+	renderInPlace=true
+	as |choice|}}
+		{{choice.label}}
+	{{/power-select}}
+</div>
 
 {{yield}}

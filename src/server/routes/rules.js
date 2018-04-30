@@ -178,6 +178,39 @@ class RulesRouter extends BaseRouter {
         });
     }
 
+    getUiChoiceList(req, res, next) {
+
+        let ruleId = req.params.ruleId;
+        let propertyId = req.params.propertyId;
+
+        let config = req.body.config;
+
+        let rule = this.rulesLoader.apiEndpoints.choices[ruleId];
+
+        if(!rule) {
+            res.statusMessage = `Unable to retrieve ${ruleId} ${propertyId} `;
+			res.status(404).end();
+			return;
+        }
+
+        let prop = rule[propertyId];
+
+        if(!prop) {
+            res.statusMessage = `Unable to retrieve ${ruleId} ${propertyId} `;
+			res.status(404).end();
+			return;
+        }
+
+        Promise.resolve(prop.fn(config)).then((result) => {
+
+            res.json({
+                data: result
+            })
+
+        }, next).catch(next);
+        
+    }
+
 }
 
 module.exports = RulesRouter;

@@ -6,7 +6,14 @@ export default Ember.Controller.extend({
 	updateCurrentUser: function() {
 		this.get('store').findRecord('user', 'me').then((user) => {
 			this.set("currentUser", user);
-            this.set("environmentStyles", user.get('features.environmentStyle')[user.get('features.environmentLabel')]);
+
+			let styles = user.get('features.environmentStyle');
+
+			if(styles) {
+				this.set("environmentStyles", styles[user.get('features.environmentLabel')]);
+			}
+
+            
 		});
 	}.on('init')
 });
