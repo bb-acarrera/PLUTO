@@ -490,6 +490,10 @@ class ProcessFileRouter extends BaseRouter {
 
         let channelPromise = amqp.connect(this.config.validatorConfig.rabbitMQ).then((connIn) => {
             conn = connIn;
+
+            conn.on('error', (err) => {
+                console.log('Error on RabbitMQ: ' + err);
+            });
             
             return conn.createChannel();
 
