@@ -90,6 +90,17 @@ class QueueWorker {
 
             this.amqpConn = conn;
 
+            conn.on('close', (err) => {
+                if(err) {
+                    console.log(err);
+                }
+
+                if(!this.shuttingDown) {
+                    this.shutdown();
+                }
+                
+            } );
+
             return conn.createChannel();
 
         }, (err) => {
@@ -116,11 +127,22 @@ class QueueWorker {
                         ch.nack(msg);
                     }).catch((e)=>{
                         console.log('Unhandled exception: ' + e);
-                        ch.nack(msg);
-                    }).then(() => {
-                        if(this.shuttingDown) {
-                            return ch.cancel(msg.fields.consumerTag);
+
+                        try {
+                            ch.nack(msg);
+                        } catch(e) {
+                            console.log('Unhandled exception: ' + e);
                         }
+                        
+                    }).then(() => {
+                        try {
+                            if(this.shuttingDown) {
+                                return ch.cancel(msg.fields.consumerTag);
+                            }
+                        } catch(e) {
+                            console.log('Unhandled exception: ' + e);
+                        }
+                        
                     })
 
                     
@@ -395,6 +417,10 @@ class QueueWorker {
     }
     
 	shutdown() {
+
+        if(this.shuttingDown) {
+            return;
+        }
 
 		console.log('Got shutdown request');
         this.shuttingDown = true;
