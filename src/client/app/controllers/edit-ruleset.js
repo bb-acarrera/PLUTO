@@ -294,7 +294,13 @@ export default Ember.Controller.extend( {
 				newTask.config = Object.assign( {}, task.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
 				newTask.config.id = createGUID();
 
-				ruleset.get( "posttasks" ).push( newTask );
+				const er = Ember.Object.create(newTask);
+
+				if(newTask.config) {
+					er.set('config', Ember.Object.create(newTask.config));
+				}
+
+				ruleset.get( "posttasks" ).push( er );
 				ruleset.notifyPropertyChange( "posttasks" );
 				this.set('buttonStateChanged',true);
 			}
@@ -398,7 +404,13 @@ export default Ember.Controller.extend( {
 				newRule.config = Object.assign( {}, rule.get( "config" ) || startingConfig );  // Clone the config. Don't want to reference the original.
 				newRule.config.id = createGUID();
 
-				ruleset.get( "rules" ).push( newRule );
+				const er = Ember.Object.create(newRule);
+
+				if(newRule.config) {
+					er.set('config', Ember.Object.create(newRule.config));
+				}
+
+				ruleset.get( "rules" ).push( er );
 				ruleset.notifyPropertyChange( "rules" );
                 this.set('buttonStateChanged',true);
 			}
