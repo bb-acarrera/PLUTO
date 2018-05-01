@@ -13,6 +13,16 @@ services:
     networks:
       - qa
 
+  pluto_rabbitmq_qa:
+    image: rabbitmq:3.7.4-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitDataQA:/var/lib/rabbitmq
+    networks:
+      - qa
+
   pluto_dbloader_qa:
     image: pluto_dbloader:develop
     volumes:
@@ -52,8 +62,16 @@ services:
       - 3000:3000
     networks:
       - qa
+  
+  pluto_worker_qa:
+    image: pluto_worker:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+      - ./test_config/validatorConfigQA.json:/opt/PLUTO/config/validatorConfig.json
+    networks:
+      - qa
 
-
+  
 
  
   pluto_db_prod:
@@ -66,6 +84,16 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=pluto
       - POSTGRES_DB=pluto
+    networks:
+      - prod
+
+  pluto_rabbitmq_prod:
+    image: rabbitmq:3.7.4-management-alpine
+    ports:
+      - 5673:5672
+      - 15673:15672
+    volumes:
+      - rabbitDataPROD:/var/lib/rabbitmq
     networks:
       - prod
 
@@ -109,13 +137,25 @@ services:
     networks:
       - prod
 
+  pluto_worker_prod:
+    image: pluto_worker:develop
+    volumes:
+      - ./test_config:/opt/PLUTO/config
+      - ./test_config/validatorConfigPROD.json:/opt/PLUTO/config/validatorConfig.json
+    networks:
+      - prod
+
+  
+
 volumes:
   pgdataQA:
   s3-dataQA:
   s3-metaQA:
+  rabbitDataQA:
   pgdataPROD:
   s3-dataPROD:
   s3-metaPROD:
+  rabbitDataPROD:
   
 networks:
   qa:   

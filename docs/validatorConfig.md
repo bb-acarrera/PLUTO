@@ -47,7 +47,16 @@ some other information.  The sample config looks like:
     
     "allowOnlyRulesetImport": false,
     
-    "environmentLabel": "Development"
+    "environmentLabel": "Development",
+
+	"rabbitMQ" : {
+		"protocol": "amqp",
+		"hostname": "localhost",
+		"port": "5672",
+		"username": "guest",
+		"password": "guest"
+	},
+	"useRabbitMQ": true,
     
 }
 ```
@@ -329,6 +338,29 @@ A list of rules with their matching parser that must be present on every validat
  - **filename**: this is the id of the rule, as defined in the rules manifest.  This property must be set to a valid rule id.
  - **config**: is an optional object that specifies what values the rule config should have. Any missing required rule properties are can be set by the user to any value; if a validation rule is missing any required properties then validation fails. If the config object is missing, then the user can set any rule values.
 
+## rabbitMQ
+````json
+{ ...
+"rabbitMQ" : {
+		"protocol": "amqp",
+		"hostname": "localhost",
+		"port": "5672",
+		"username": "guest",
+		"password": "guest"
+	},
+	"useRabbitMQ": true,
+}
+````
+
+An object which is the connection properties for the RabbitMQ service. See [amqplib's connect](http://www.squaremobius.net/amqp.node/channel_api.html#connect) for more details.
+ * __protocol__ : `amqp` or `amqps`. Default is `amqp`
+ * __hostname__ : hostname of the RabbitMQ service. Default is `localhost`
+ * __port__ : RabbitMQ port. Default is `5672`
+ * __username__ : RabbitMQ username. Default is `guest`
+ * __password__ : Password for username. Default is `guest`
+
+## useRabbitMQ
+If set to true, the PLUTO web server(s) will use RabbitMQ to queue jobs, otherwise, it will run the jobs on the current web server. Default is false.
 
 
 ## propertiesOverride

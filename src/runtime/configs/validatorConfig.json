@@ -9,6 +9,14 @@
 	"dbHost" : "localhost",
 	"dbPort" : "6543",
 	"dbSchema": "pluto",
+
+	"rabbitMQ" : {
+		"protocol": "amqp",
+		"hostname": "localhost",
+		"port": "5672"
+	},
+	"useRabbitMQ": true,
+
 	"configHost": "localhost:3000",
 	"configHostProtocol": "http",
 

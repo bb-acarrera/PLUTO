@@ -35,6 +35,7 @@ program
     .option('-h, --checkhash', 'Perform an md5 hash check of the last run of this ruleset. Default false')
     .option('-u, --user <string>', 'User ID generating the request')
     .option('-g, --group <string>', 'Group generating the request')
+    .option('-d, --runid <string>', 'runId to use for the validation')
     .parse(process.argv);
 
 if (!program.config)
@@ -79,6 +80,10 @@ if(!config.testOnly && program.checkhash) {
 
     config.doMd5HashCheck = true;
 
+}
+
+if(program.runid) {
+    config.runId = program.runid;
 }
 
 let dataAccess = Data;

@@ -38,8 +38,18 @@ services:
       - s3-data-dev:/usr/src/app/localData
       - s3-meta-dev:/usr/src/app/localMetadata
 
+  pluto_rabbitMQ:
+    image: rabbitmq:3.7.4-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitData-dev:/var/lib/rabbitmq
+
 volumes:
   pgdata-dev:
   s3-data-dev:
   s3-meta-dev:
+  rabbitData-dev:
+  
 

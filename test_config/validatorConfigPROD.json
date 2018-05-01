@@ -10,6 +10,14 @@
 	"dbPort" : "5432",
 	"configHost": "localhost:4000",
 	"configHostProtocol": "http",
+
+	"rabbitMQ" : {
+		"protocol": "amqp",
+		"hostname": "pluto_rabbitmq_prod",
+		"port": "5672"
+	},
+	"useRabbitMQ": true,
+
 	"reporters": [
 		{
 			"filename": "smtpReporter",

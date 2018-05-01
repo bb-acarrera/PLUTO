@@ -8,11 +8,15 @@ const path = require("path");
 const TreeKill = require('tree-kill');
 const rimraf = require('rimraf');
 
+const amqp = require('amqplib');
+
 const ErrorHandlerAPI = require("../../api/errorHandlerAPI");
 const ErrorLogger = require("../../validator/ErrorLogger");
 
 //get the root PLUTO folder from this file
 const rootFolder = path.resolve(__dirname, '../../');
+
+var PlutoQueue = 'pluto_runs';
 
 /*
 example request
@@ -29,6 +33,7 @@ class ProcessFileRouter extends BaseRouter {
     constructor(config) {
         super(config);
         this.processCount = 0;
+        this.queue = PlutoQueue;
     }
 
     post(req, res, next) {
@@ -74,20 +79,30 @@ class ProcessFileRouter extends BaseRouter {
                 return;
             }
 
-            if(test) {
-                outputFile = this.getTempName(this.config);
+            let jobPromise = null;
 
-                finishHandler = () => {
-
-                    if (fs.existsSync(outputFile)) {
-                        fs.unlink(outputFile);
+            if(this.config.validatorConfig.useRabbitMQ) {
+                jobPromise = this.addToQueue(ruleset, importConfig, inputFile, outputFile, null,
+                    next, res, test, null, auth.user, auth.group, skipMd5Check);
+            } else {
+            
+                if(test) {
+                    outputFile = this.getTempName(this.config);
+    
+                    finishHandler = () => {
+    
+                        if (fs.existsSync(outputFile)) {
+                            fs.unlink(outputFile);
+                        }
                     }
                 }
-            }
+    
+                jobPromise = this.processFile(ruleset, importConfig, inputFile, outputFile, null,
+                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check);
+        }
+            
 
-            this.generateResponse(res, ruleset,
-                this.processFile(ruleset, importConfig, inputFile, outputFile, null,
-                    next, res, test, finishHandler, auth.user, auth.group, skipMd5Check));
+            this.generateResponse(res, ruleset, jobPromise);
         };
 
         if(sourceFile && !ruleset) {
@@ -389,7 +404,7 @@ class ProcessFileRouter extends BaseRouter {
 
                 fullLog += 'stdout: ' + data + '\n';
 
-                splitConsoleOutput(data.toString()).forEach((str) => {
+                Util.splitConsoleOutput(data.toString()).forEach((str) => {
                     let log = null;
 
                     try {
@@ -433,7 +448,7 @@ class ProcessFileRouter extends BaseRouter {
 
                 fullLog += 'stderr: ' + data + '\n';
 
-                splitConsoleOutput(data.toString()).forEach((str) => {
+                Util.splitConsoleOutput(data.toString()).forEach((str) => {
                     console.log({
                         log: "plutorun",
                         runId: runId,
@@ -469,43 +484,65 @@ class ProcessFileRouter extends BaseRouter {
         })
     }
 
+    addToQueue(ruleset, importConfig, inputFile, outputFile, inputDisplayName, next, res, test, finishedFn, user, group, skipMd5Check) {
+    
+        let conn, ch, runId;
+
+        let channelPromise = amqp.connect(this.config.validatorConfig.rabbitMQ).then((connIn) => {
+            conn = connIn;
+            
+            return conn.createChannel();
+
+        }, (err) => {
+            let msg = "Error connecting to RabbitMQ: " + err;
+            console.log(msg);
+            next(msg);
+        }).then((ch) => {
+
+            ch.assertQueue(this.queue, {durable: true});
+
+            return ch;            
+
+        }, (err) => {
+            let msg = "Error creating channel: " + err
+            console.log(msg);
+            next(msg);
+        })
+        
+        let runPromise = this.config.data.createRunRecord(ruleset, user, group);   
+        
+        return Promise.all([channelPromise, runPromise]).then((results) => {
+            let ch = results[0];
+            let runId = results[1];
+
+            var msg = JSON.stringify({
+                ruleset: ruleset,
+                importConfig: importConfig,
+                test: test,
+                skipMd5Check: skipMd5Check,
+                user: user,
+                group: group,
+                runId: runId
+            });
+
+            ch.sendToQueue(this.queue, new Buffer(msg), {persistent: true});
+
+            return runId;
+        })
+        .catch((e) => {
+            let msg = "Got exception adding to queue: " + e;
+            console.log(msg);
+            next(msg);
+        });
+    }
+    
+
     // Create a unique temporary filename in the temp directory.
     getTempName(config) {
         const dirname = config.tempDir;
         const filename = Util.createGUID();
         return path.resolve(dirname, filename);
     }
-}
-
-function splitConsoleOutput(str) {
-
-    let arr = str.split(/[\r\n]+/);
-
-    //now, join the strings back up if there are a couple of spaces or a tab in the front, which likely indicates an
-    // exception or other joining
-
-    let outArr = [];
-    let joinedStr = "";
-
-    arr.forEach((str) => {
-
-        if(str.trim().length > 0) {
-            if(str.startsWith('  ') || str.startsWith('\t')) {
-                joinedStr += str + '\n';
-            } else {
-                if(joinedStr.length > 0) {
-                    outArr.push(joinedStr);
-                }
-
-                outArr.push(str);
-
-                joinedStr = "";
-
-            }
-        }
-    });
-
-    return outArr;
 }
 
 module.exports = ProcessFileRouter;

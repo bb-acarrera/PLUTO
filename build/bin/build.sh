@@ -48,6 +48,7 @@ done
 cp $SRC/../package.json $SERVER_DST
 cp $SRC/runtime/configs/serverConfig.json $SERVER_DST/serverConfig.json
 cp $SRC/../Dockerfile $SERVER_DST
+cp $SRC/../worker.Dockerfile $SERVER_DST
 
 # Build the client. NOTE: This is doing a development build not a production build.
 echo "Building client."
@@ -101,6 +102,9 @@ cp $SRC/common/Util.js $DBLOADER_DST
 
 echo "Build the server docker image"
 docker build -t pluto:develop -f $SERVER_DST/Dockerfile $DST/server
+
+echo "Build the worker docker image"
+docker build -t pluto_worker:develop -f $SERVER_DST/worker.Dockerfile $DST/server
 
 echo "Build the data load docker image"
 docker build -t pluto_dbloader:develop -f $DBLOADER_DST/Dockerfile $DBLOADER_DST
