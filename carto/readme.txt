@@ -38,3 +38,4 @@ https://github.com/chriswhong/docker-cartodb
 
 
 PA: Note: In some cases the URLs use v1 in others v2. In my edits above I use whichever worked for me.
+PA: Note: Under some circumstances if you use "localhost" it will append the IP address to the hostname confusing things.
