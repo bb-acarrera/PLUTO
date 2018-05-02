@@ -6,6 +6,10 @@
 #### Post Upload Tasks
 Added a new class of tasks that execute after the file has been successfully uploaded. Uses the same plugin infrastructure as rules, and appear as a list of items below the rules in the edit validation UI.
 
+#### RabbitMQ Queuing of Jobs
+Added a job queue (using RabbitMQ) and a validation worker service/container that can be configured to handle the job queue instead of running jobs on the web server.
+
+
 ### Bug Fixes and Minor Improvements
  * Fixed export validation problem related to inconsistent versioning between systems
  * Added hungRunPollingInterval property (can be set in validatorConfig.json) which controls the frequency (6 hours by default) that the database is queried for hung jobs (jobs which are still marked as running after the runMaximumDuration has passed). Found hung jobs are immediately terminated. (#479)
@@ -15,6 +19,8 @@ Added a new class of tasks that execute after the file has been successfully upl
  * Added option to queue validation jobs in RabbitMQ to be run by a separate worker instead of directly on the web server
  * A note was added above the Edit Validation "Save" button when any of the input fields fails validation. (#519)
  * Modified how responses from external processes are received. Should avoid incorrect parsing of JSON responses. (#529)
+ * Warn users about unsaved changes when navigating with the browser buttons.
+ * Added property value overrides for UI items from the validator config.
 
 ## 1.0.9
 ### New Features
