@@ -27,8 +27,8 @@ class RulesRouter extends BaseRouter {
     getRules(req, res) {
         // Send generic rules. (i.e. not rule instances.)
 
-		let parsers = this.rulesLoader.rules;
-		parsers.forEach((val)=>{
+		let rules = this.rulesLoader.rules;
+		rules.forEach((val)=>{
 			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.rules[val.id]) {
 				val.attributes.ui.properties.forEach( ( property ) => {
 					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
@@ -92,8 +92,8 @@ class RulesRouter extends BaseRouter {
 					val.disabled = config.disabled;
                 }
 			}
-		});
-
+        });
+        
         res.json({
             data: this.rulesetConfig
         });
@@ -108,19 +108,20 @@ class RulesRouter extends BaseRouter {
     }
 
     getPosttasks(req, res) {
-        // Send reporters.
-
-		let properties = this.rulesLoader.posttasks[0].attributes.ui.properties;
-		properties.forEach((val)=>{
+        // Send post tasks.
+  
+        let posttasks = this.rulesLoader.posttasks;
+		posttasks.forEach((val)=>{
 			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.posttasks[val.name]) {
-				let config = this.config.validatorConfig.propertiesOverride.posttasks[val.name];
-				if ( config ){
-					val.default = config.default;
-					val.disabled = config.disabled;
-				}
+				val.attributes.ui.properties.forEach( ( property ) => {
+					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
+					if ( config ){
+						property.default = config.default;
+						property.disabled = config.disabled;
+					}
+				} );
 			}
 		});
-
 
         res.json({
             data: this.rulesLoader.posttasks
