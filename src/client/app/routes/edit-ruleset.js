@@ -69,6 +69,7 @@ export default Ember.Route.extend(RulesetEmberizer, {
             if (this.controller.get('changed') && !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
                 transition.abort();
             } else {
+				this.store.unloadRecord(this.context.ruleset);
                 // Bubble the `willTransition` action so that
                 // parent routes can decide whether or not to abort.
                 return true;
