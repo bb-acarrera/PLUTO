@@ -20,7 +20,7 @@ function updateConfigListeners() {
             //this.notifyPropertyChange('uiItem.choicesAPI');
             this.oldConfigObject = this.get('config');
             if(this.oldConfigObject) {
-                Ember.keys(this.oldConfigObject).forEach((key) => {
+                apiRefresh.forEach((key) => {
                     this.oldConfigObject.addObserver(key, this, this.onConfigChange)
                 });
             }
