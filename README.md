@@ -45,6 +45,21 @@ You can use this by hitting these ports:
   * 8003: user="GroupB_user", group="GroupB"
   * 8004: user="GroupAdmin_user", group="GroupAdmin", admin=true
 
+It will also start a simulated S3 server to act as a file storage system for PLUTO to download and upload files. See `Using the simulated S3` below.
+
+It will also start a RabbitMQ server which is the job queue that PLUTO workers can be configured to pull jobs from.
+
+It will start a PLUTO web server listening on port 3000.
+
+It will start a PLUTO validation worker that connects to RabbitMQ.
+
+See `test-docker-compose.yml` for the full configuration.
+
+## Stop the services
+```shell
+npm run stop_docker
+```
+
 ## Calling the Service
 
 To process a file, POST to `http://localhost:3000/processfile` with a json package. At a minimum, it must specify a ruleset to execute:
@@ -130,17 +145,24 @@ npm run build
 docker-compose -f dev-docker-compose.yml build 
 ```
 
-To start the dev support containers the run:
+To start the dev support containers run:
 
 ```shell
-docker-compose -f dev-docker-compose.yml up 
+npm run start_dev_services
 ```
-This will start the dev database on port 6543 and import/update the rulesets from the src/runtime/rulesets folder as well as start a S3 simulator (Scality S3) and nginx to emulate different authentication examples. 
+This will start the dev database on port 6543 and import/update the rulesets from the src/runtime/rulesets folder, a S3 simulator (Scality S3), nginx to emulate different authentication examples, and a RabbitMQ server. See `dev-docker-compose.yml` for more details. 
 
 There are debug configurations also set up in the src folder. To start the web service locally:
 
+### Start the web server
 ```shell
 npm start
+```
+
+Or
+
+```shell
+npm start_debug #runs with inspect
 ```
 
 Or
@@ -150,7 +172,25 @@ cd src
 node server/server.js -s server/debugServerConfig.json -v runtime/configs/validatorConfig.json
 ```
 
-To run the validator manually:
+### Start the validator worker
+```shell
+npm start_worker
+```
+
+Or
+
+```shell
+npm start_worker_debug #runs with inspect
+```
+
+Or
+
+```shell
+cd src
+node validator/queueWorker.js -v runtime/configs/validatorConfig.json
+```
+
+### Run the validator manually
 
 ```shell
 cd src
