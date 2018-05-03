@@ -162,7 +162,7 @@ npm start
 Or
 
 ```shell
-npm start_debug #runs with inspect
+npm run start_debug #runs with inspect
 ```
 
 Or
@@ -174,13 +174,13 @@ node server/server.js -s server/debugServerConfig.json -v runtime/configs/valida
 
 ### Start the validator worker
 ```shell
-npm start_worker
+npm run start_worker
 ```
 
 Or
 
 ```shell
-npm start_worker_debug #runs with inspect
+npm run start_worker_debug #runs with inspect
 ```
 
 Or
@@ -254,6 +254,7 @@ ember server
 Current Python helper classes and tests are all written in Python 2.7, which needs to be installed. Two packages are required by the PLUTO Python APIs and need to be installed:
  * numpy==1.14.0
  * pandas==0.22.0
+ * request==2.18.4
 
 Also add {PLUTO}/src/api to the PYTHONPATH 
 
