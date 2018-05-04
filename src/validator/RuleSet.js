@@ -276,19 +276,48 @@ class RuleSet {
 			if (validatorConfig.propertiesOverride) {
 				const parse = this.parser.filename;
 				let target = this.parser;
-				Object.keys( validatorConfig.propertiesOverride.parsers[ parse ] ).forEach( function ( key, index ) {
-					target.config[ key ] = validatorConfig.propertiesOverride.parsers[ parse ][ key ].default;
-				} );
+				if (validatorConfig.propertiesOverride.parsers) {
+					Object.keys( validatorConfig.propertiesOverride.parsers[ parse ] ).forEach( function ( key, index ) {
+						target.config[ key ] = validatorConfig.propertiesOverride.parsers[ parse ][ key ].default;
+					} );
+				}
 
 				target = this.general;
-				Object.keys( validatorConfig.propertiesOverride.globalconfig).forEach( function ( key, index ) {
-					target.config[ key ] = validatorConfig.propertiesOverride.globalconfig[ key ].default;
-				} );
+				if (validatorConfig.propertiesOverride.globalconfig) {
+					Object.keys( validatorConfig.propertiesOverride.globalconfig ).forEach( function ( key, index ) {
+						target.config[ key ] = validatorConfig.propertiesOverride.globalconfig[ key ].default;
+					} );
+				}
 
 				target = this.posttasks;
-				Object.keys( validatorConfig.propertiesOverride.globalconfig).forEach( function ( key, index ) {
-					target.config[ key ] = validatorConfig.propertiesOverride.globalconfig[ key ].default;
-				} );
+				if (validatorConfig.propertiesOverride.posttasks) {
+					Object.keys( validatorConfig.propertiesOverride.posttasks ).forEach( function ( key, index ) {
+						target.config[ key ] = validatorConfig.propertiesOverride.posttasks[ key ].default;
+					} );
+				}
+
+
+				if (!this.import) {
+					this.import = {config: {}};
+				}
+				target = this.import;
+				let source = this.source.source;
+				if (validatorConfig.propertiesOverride.download) {
+					Object.keys( validatorConfig.propertiesOverride.download[source] ).forEach( function ( key, index ) {
+						target.config[ key ] = validatorConfig.propertiesOverride.download[source][ key ].default;
+					} );
+				}
+
+				if (!this.export) {
+					this.export = {config: {}};
+				}
+				target = this.export;
+				source = this.target.source;
+				if (validatorConfig.propertiesOverride.upload) {
+					Object.keys( validatorConfig.propertiesOverride.upload[source] ).forEach( function ( key, index ) {
+						target.config[ key ] = validatorConfig.propertiesOverride.upload[source][ key ].default;
+					} );
+				}
 			}
 		}
 

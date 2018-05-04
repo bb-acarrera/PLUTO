@@ -146,6 +146,14 @@ Process URL: {{processURL}}
 
 			{{/if}}
 
+			{{component 'custom-property.property-list'
+						uiList=(compute (action "getUiProperties") model.importers model.ruleset.source.source "name" "file")
+						config=model.ruleset.import.config
+						disabled=disableEdit
+						validators=(compute (action "getUiValidators") model.importers model.ruleset.source.source)
+						state=propStates
+						instanceName="import"
+						columns=columns}}
 		{{/c.collapsable}}
 	{{/edit-ruleset/collapse}}
 
@@ -219,66 +227,6 @@ Process URL: {{processURL}}
 
 
 	{{/unless}}
-
-    <!-- import -->
-	{{#if model.ruleset.import}}
-        {{#edit-ruleset/collapse as |c|}}
-
-			{{#c.title}}
-            	Importer:
-			{{/c.title}}
-
-			{{#c.subTitle}}
-				{{#if model.ruleset.import}}
-					{{model.ruleset.import.filename}}
-				{{else}}
-					None
-				{{/if}}
-			{{/c.subTitle}}
-
-			{{#c.collapsable}}
-				{{component 'custom-property.property-list'
-				uiList=(compute (action "getUiProperties") model.importers model.ruleset.import.filename)
-				config=model.ruleset.import.config
-				disabled=disableEdit
-				validators=(compute (action "getUiValidators") model.importers model.ruleset.import.filename)
-				state=propStates
-				instanceName="import"
-				columns=columns}}
-			{{/c.collapsable}}
-		{{/edit-ruleset/collapse}}
-
-	{{/if}}
-
-    <!-- export -->
-	{{#if model.ruleset.export}}
-        {{#edit-ruleset/collapse as |c|}}
-
-			{{#c.title}}
-            	Exporter:
-			{{/c.title}}
-
-			{{#c.subTitle}}
-				{{#if model.ruleset.export}}
-					{{model.ruleset.export.filename}}
-				{{else}}
-					None
-				{{/if}}
-			{{/c.subTitle}}
-
-			{{#c.collapsable}}
-				{{component 'custom-property.property-list'
-				uiList=(compute (action "getUiProperties") model.exporters model.ruleset.export.filename)
-				config=model.ruleset.export.config
-				disabled=disableEdit
-				validators=(compute (action "getUiValidators") model.exporters model.ruleset.export.filename)
-				state=propStates
-				instanceName="export"
-				columns=columns}}
-			{{/c.collapsable}}
-		{{/edit-ruleset/collapse}}
-
-	{{/if}}
 
 {{#if (not-eq model.ruleset.dovalidate false)}}
     <!-- parser -->

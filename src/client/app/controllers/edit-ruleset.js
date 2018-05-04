@@ -528,12 +528,12 @@ export default Ember.Controller.extend( {
             return item.get('title');
         },
 
-		getUiProperties(list, itemName) {
+		getUiProperties(list, itemName, prop = 'filename', skip = "") {
 			let item = null;
 
 			if(list) {
 				list.forEach((i) => {
-					if(i.get('filename') == itemName) {
+					if(i.get(prop) == itemName) {
 						item = i;
 					}
 				})
@@ -542,7 +542,9 @@ export default Ember.Controller.extend( {
 			if(!item)
 				return null;
 
-			return item.get('ui.properties');
+			return item.get('ui.properties').filter( item => {
+				return skip !== item.name;
+			});
 		},
 
 		getUiValidators(list, itemName) {
