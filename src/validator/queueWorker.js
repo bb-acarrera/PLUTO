@@ -90,6 +90,10 @@ class QueueWorker {
 
             this.amqpConn = conn;
 
+            conn.on('error', (err) => {
+                console.log('Error on RabbitMQ: ' + err);
+            });
+
             conn.on('close', (err) => {
                 if(err) {
                     console.log(err);
@@ -100,6 +104,8 @@ class QueueWorker {
                 }
                 
             } );
+
+
 
             return conn.createChannel();
 

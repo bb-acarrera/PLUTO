@@ -27,10 +27,9 @@ class RulesRouter extends BaseRouter {
     getRules(req, res) {
         // Send generic rules. (i.e. not rule instances.)
 
-		let parsers = this.rulesLoader.rules;
-		parsers.forEach((val)=>{
-			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.rules &&
-				this.config.validatorConfig.propertiesOverride.rules[val.id]) {
+		let rules = this.rulesLoader.rules;
+		rules.forEach((val)=>{
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.rules[val.id]) {
 				val.attributes.ui.properties.forEach( ( property ) => {
 					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
 					if ( config ){
@@ -127,7 +126,7 @@ class RulesRouter extends BaseRouter {
 					val.hidden = config.hidden;
                 }
 			}
-		});
+        });
 
         res.json({
             data: this.rulesetConfig
@@ -143,21 +142,20 @@ class RulesRouter extends BaseRouter {
     }
 
     getPosttasks(req, res) {
-        // Send reporters.
+        // Send post tasks.
 
-		let properties = this.rulesLoader.posttasks[0].attributes.ui.properties;
-		properties.forEach((val)=>{
-			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.posttasks &&
-				this.config.validatorConfig.propertiesOverride.posttasks[val.name]) {
-				let config = this.config.validatorConfig.propertiesOverride.posttasks[val.name];
-				if ( config ){
-					val.default = config.default;
-					val.disabled = config.disabled;
-					val.hidden = config.hidden;
-				}
+        let posttasks = this.rulesLoader.posttasks;
+		posttasks.forEach((val)=>{
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.posttasks[val.name]) {
+				val.attributes.ui.properties.forEach( ( property ) => {
+					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
+					if ( config ){
+						property.default = config.default;
+						property.disabled = config.disabled;
+					}
+				} );
 			}
 		});
-
 
         res.json({
             data: this.rulesLoader.posttasks

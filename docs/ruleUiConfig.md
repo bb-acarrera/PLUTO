@@ -102,11 +102,11 @@ Displays a dropdown, and an array of choice objects under the property `choices`
 	tooltip: 'The expected data type of the given column.',
 	choicesFile: 'columnTypeList.js',
 	choicesFunction: 'getColumnTypeList',
-	choicesRefreshOnChange: true
+	choicesRefreshOnChange: ["some_other_property"]
 }
 ```
 
-If `choicesRefreshOnChange` is set, the list will be refreshed whenever a property changes in the rule/parser/etc.
+If `choicesRefreshOnChange` is set, the list will be refreshed whenever the properties specified in the array change in the rule/parser/etc.
 
 When this control is instantiated, it will make a call out to the server, which will call the `choicesFunction` function in the `choicesFile` javascript file. 
 
