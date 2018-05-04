@@ -114,14 +114,16 @@ export default Ember.Component.extend({
 
 			ruleset.source = {
 				filename: source.get('rule_id'),
-				config: sourceConfig
+				config: sourceConfig,
+				source: source.get('base')
 			};
 
 
 			if(target) {
 				ruleset.target = {
 					filename: target.get('rule_id'),
-					config: this.get('targetConfig')
+					config: this.get('targetConfig'),
+					source: target.get('base')
 				};
 			} else {
 				ruleset.target = null;

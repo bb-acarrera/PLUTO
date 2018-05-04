@@ -1,24 +1,26 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
 		{{#with (create-object) as |errorObject|}}
-			<div class="property-list-div">
-				<span class="property-list-title">
-					{{item.label}}
-				</span>
-				{{component (concat "custom-property/" (custom-property-type item.type) )
-									value=(get config item.name)
-									config=config instanceName=instanceName
-									uiItem=item disabled=(or item.disabled disabled) columns=columns
-									errorObject=errorObject
-									validators=validators state=state validateOnInit=validateOnInit}}
-				{{#if errorObject.error}}
-					<!-- Show an error message if there is one. -->
-					<span class="error-message error-color">{{errorObject.error}}</span>
-				{{/if}}
-				{{#if item.tooltip}}
-					{{bs-tooltip title=item.tooltip}}
-				{{/if}}
-			</div>
+			{{#unless item.hidden}}
+				<div class="property-list-div">
+					<span class="property-list-title">
+						{{item.label}}
+					</span>
+					{{component (concat "custom-property/" (custom-property-type item.type) )
+										value=(get config item.name)
+										config=config instanceName=instanceName
+										uiItem=item disabled=(or item.disabled disabled) columns=columns
+										errorObject=errorObject
+										validators=validators state=state validateOnInit=validateOnInit}}
+					{{#if errorObject.error}}
+						<!-- Show an error message if there is one. -->
+						<span class="error-message error-color">{{errorObject.error}}</span>
+					{{/if}}
+					{{#if item.tooltip}}
+						{{bs-tooltip title=item.tooltip}}
+					{{/if}}
+				</div>
+			{{/unless}}
 		{{/with}}
 	{{/each}}
 </div>
