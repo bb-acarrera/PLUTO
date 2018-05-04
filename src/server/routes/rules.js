@@ -29,7 +29,8 @@ class RulesRouter extends BaseRouter {
 
 		let rules = this.rulesLoader.rules;
 		rules.forEach((val)=>{
-			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.rules[val.id]) {
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.rules &&
+				this.config.validatorConfig.propertiesOverride.rules[val.id]) {
 				val.attributes.ui.properties.forEach( ( property ) => {
 					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
 					if ( config ){
@@ -146,7 +147,8 @@ class RulesRouter extends BaseRouter {
 
         let posttasks = this.rulesLoader.posttasks;
 		posttasks.forEach((val)=>{
-			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.posttasks[val.name]) {
+			if(this.config.validatorConfig.propertiesOverride && this.config.validatorConfig.propertiesOverride.posttasks &&
+				this.config.validatorConfig.propertiesOverride.posttasks[val.name]) {
 				val.attributes.ui.properties.forEach( ( property ) => {
 					let config = this.config.validatorConfig.propertiesOverride.rules[val.id][property.name];
 					if ( config ){

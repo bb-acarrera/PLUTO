@@ -135,42 +135,6 @@
 			}
 		]
 	}],
-	"propertiesOverride": {
-		"parsers": {
-			"CSVParser" : {
-				"columnRow":{
-					"default": 321
-				},
-				"public": {
-					"default": true,
-					"disabled": true
-				}
-			}
-		},
-		"rules": {
-			"CheckColumnCount" : {
-				"columns": {
-					"default": 15,
-					"disabled": true
-				}
-			}
-		},
-		"globalconfig": {
-			"droppedToAbort": {
-				"default": 3,
-				"disabled": true
-			}
-		},
-		"download" : {
-			"S3Import" : {
-				"bucket": {
-					"hidden" : false,
-					"disabled": true,
-					"default": "some bucket"
-				}
-			}
-		}
-	},
 	"showAdmin" : false,
 	"rejectAdminNavigation" : false
 }
