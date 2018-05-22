@@ -66,10 +66,15 @@ export default Ember.Route.extend(RulesetEmberizer, {
 				let pollId = this.controller.get('pollId');
 				this.controller.get('poll').stopPoll(pollId);
 			}
-            if (this.controller.get('changed') && !confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
-                transition.abort();
+			
+            if (this.controller.get('changed')) {
+				if (!confirm('You have unsaved changes. Are you sure you want to leave this page?')) {
+					transition.abort();
+				}
+				else {
+					this.store.unloadRecord(this.context.ruleset);
+				}
             } else {
-				this.store.unloadRecord(this.context.ruleset);
                 // Bubble the `willTransition` action so that
                 // parent routes can decide whether or not to abort.
                 return true;
