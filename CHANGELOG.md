@@ -3,7 +3,20 @@
 ## 1.0.11
 ### New Features
 
+#### Hide Properties
+Added ability to hide properties. (See the bottom of validatorConfig.md.)
+
+#### Show File Details in UI (#442)
+The Upload and Download sections of the UI now show the name of the file and where it is.
+
+
 ### Bug Fixes and Minor Improvements
+* Fixed "Validation setup not reading default name" (#549)
+* "Validation setup not reading default name" (#550) is a duplicate of #549 so was also fixed.
+* I can't reproduce "Validation configuration changes do not save after an upload" (#551) and believe
+it was an artifact of #549 and therefore fixed.
+* I can't reproduce "Processing icon appears on newly added file" (#553) and believe
+it was an artifact of #549 and therefore fixed.
 
 
 ## 1.0.10
