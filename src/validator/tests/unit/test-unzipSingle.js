@@ -28,7 +28,8 @@ QUnit.test( "Creation Test", function( assert ) {
 });
 
 
-
+// Oddly this test fails on Circle CI but succeeds locally.
+// More oddly it fails but Unzip multiple files succeeds. 
 QUnit.skip( "Unzip single file", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
