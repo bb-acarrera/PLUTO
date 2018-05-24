@@ -1531,7 +1531,7 @@ QUnit.test( " End to End add column, delete column, and test length", function(a
         });
 
 
-        QUnit.test( " Python post task", function(assert){
+        QUnit.skip( " Python post task", function(assert){
             const logger = new ErrorLogger();
             const config = {
                 __state : {
