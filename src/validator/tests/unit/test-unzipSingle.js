@@ -29,7 +29,7 @@ QUnit.test( "Creation Test", function( assert ) {
 
 
 
-QUnit.test( "Unzip single file", function( assert ) {
+QUnit.skip( "Unzip single file", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		__state : {
