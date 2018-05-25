@@ -116,7 +116,7 @@ class Validator {
 			this.runId = runId;
 			this.outputResults.runId = runId;
 
-			console.log(JSON.stringify({state: "start", runId: runId, tempFolder: this.tempDir}));
+			console.log(JSON.stringify({state: "start", runId: runId, tempFolder: this.tempDir, user : this.config.user, group : this.config.group}));
 
 			this.data.retrieveRuleset(this.config.ruleset, this.config.rulesetOverride,
 				this.ruleLoader, undefined, undefined, undefined, true)
