@@ -56,7 +56,8 @@ class unZipSingleFile extends RuleAPI {
 			zip.extractAllTo(outputFile, true);
 			this.unzipSingleSharedData.wasUnzipped = true;
 		} else if(zipEntries.length === 1) {
-			zip.extractEntryTo(zipEntries[0].entryName, outputFile, true, true);
+			// zip.extractEntryTo(zipEntries[0].entryName, outputFile, true, true); Doesn't work!!!
+			zip.extractAllTo(outputFile, true);
 			this.unzipSingleSharedData.wasUnzipped = true;
 			outputFile = path.resolve(outputFile, zipEntries[0].entryName);
 		} else {

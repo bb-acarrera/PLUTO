@@ -30,7 +30,7 @@ QUnit.test( "Creation Test", function( assert ) {
 
 // Oddly this test fails on Circle CI but succeeds locally.
 // More oddly it fails but Unzip multiple files succeeds. 
-QUnit.skip( "Unzip single file", function( assert ) {
+QUnit.test( "Unzip single file", function( assert ) {
 	const logger = new ErrorLogger();
 	const config = {
 		__state : {
@@ -47,13 +47,18 @@ QUnit.skip( "Unzip single file", function( assert ) {
 	// Same as previous test but now with 2 rows.
 	const done = assert.async();
 	rule._run( { file: './src/validator/tests/testDataCSVFile.zip' }).then((result) => {
-		const logResults = logger.getLog();
-		assert.equal(logResults.length, 0, "Expect no results.");
+		try {
+			const logResults = logger.getLog();
+			assert.equal(logResults.length, 0, "Expect no results.");
 
-		assert.ok(fs.existsSync(result.file), 'Expect the file to exist');
-		assert.ok(fs.lstatSync(result.file).isFile(), 'Expect the file to be a file');
-		assert.ok(config.__state.sharedData.unzipSingle.wasUnzipped, 'Expect wasUnzipped to be set to true');
-
+			assert.ok(fs.existsSync(path.dirname(result.file)), `Expect ${path.dirname(result.file)} to exist`);
+			assert.ok(fs.existsSync(result.file), `Expect ${result.file} to exist`);
+			assert.ok(fs.lstatSync(result.file).isFile(), 'Expect the file to be a file');
+			assert.ok(config.__state.sharedData.unzipSingle.wasUnzipped, 'Expect wasUnzipped to be set to true');
+		}
+		catch (e) {
+			return done(e)
+		}
 		done();
 	});
 });
