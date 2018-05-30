@@ -7,7 +7,7 @@ export default Ember.Route.extend(RulesetEmberizer, {
 	model ( params ) {
 
 		return RSVP.hash( {
-			rule: this.store.queryRecord( 'configuredrule', {id:params.rule_id}).then((result) => {
+			rule: this.store.queryRecord( 'configuredrule', {id:params.rule_id,admin:true}).then((result) => {
 				this.emberizeConfiguredRule(result);
 				return result;
 			},(err) => { throw err; } ),

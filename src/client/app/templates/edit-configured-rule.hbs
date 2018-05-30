@@ -29,7 +29,7 @@
 		{{/unless}}
 		{{input id="ruleName" type="text" value=model.rule.description class="text-input" disabled=disableEdit}}
     </div>
-
+	<br/>
 	<div>
 		Base:
 		{{#unless (v-get model.rule 'base' 'isValid')}}
@@ -45,12 +45,14 @@
 				{{baseChoice.id}}
 		{{/power-select}}
 	</div>
+	<br/>
 	<div>
-		Properties
-		{{component 'custom-property.property-list' uiList=base.ui.properties config=model.rule.config disabled=disableEdit}}
+		Properties:
+		{{component 'custom-property.property-list' uiList=model.rule.ui.properties config=model.rule.config disabled=disableEdit showHidden=true}}
 	</div>
 
 	{{#if (eq model.rule.type "source") }}
+		<br/>
 		<div>
 			Linked Upload Location:
 			{{#power-select

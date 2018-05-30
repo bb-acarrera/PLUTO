@@ -1,7 +1,7 @@
 <div class="custom-property-list">
 	{{#each uiList as |item|}}
 		{{#with (create-object) as |errorObject|}}
-			{{#unless item.hidden}}
+			{{#if (or showHidden (not item.hidden))}}
 				<div class="property-list-div">
 					<span class="property-list-title">
 						{{item.label}}
@@ -20,7 +20,7 @@
 						{{bs-tooltip title=item.tooltip}}
 					{{/if}}
 				</div>
-			{{/unless}}
+			{{/if}}
 		{{/with}}
 	{{/each}}
 </div>

@@ -1,7 +1,7 @@
 const BaseRouter = require('./baseRouter');
 const Util = require('../../common/Util');
 
-function massageRule(rule, rulesLoader) {
+function massageRule(rule, rulesLoader, adminMode) {
 	rule["rule-id"] = rule.rule_id;
 	delete rule.rule_id;
 
@@ -26,7 +26,7 @@ function massageRule(rule, rulesLoader) {
 	rule.ui = {
 		properties: []
 	};
-
+	
 	if(rulesLoader) {
 		let baseRule = null;
 		if(rule.base) {
@@ -49,7 +49,7 @@ function massageRule(rule, rulesLoader) {
 					}
 				}
 
-				if( !propHasValue && prop.private !== true && prop.hidden !== true) {
+				if( adminMode || (!propHasValue && prop.private !== true && prop.hidden !== true)) {
 					rule.ui.properties.push(prop);
 				}
 			});
@@ -103,7 +103,11 @@ class ConfiguredRuleRouter extends BaseRouter {
 					return;
 				}
 
-				rule = massageRule(rule, this.config.rulesLoader);
+				// To be able to see hidden properties the user must have admin rights and
+				// belong to the rule's group, if there is a group.
+				let adminMode = (req.query.admin && (auth.admin || !rule.owner_group || rule.owner_group === auth.group))
+
+				rule = massageRule(rule, this.config.rulesLoader, adminMode);
 
 				res.json({
 					data: {
@@ -140,7 +144,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 				result.rules.forEach(rule => {
 
-					rule = massageRule(rule, this.config.rulesLoader);
+					rule = massageRule(rule, this.config.rulesLoader, false);
 
 					rules.push({
 						type: "configuredrule",
