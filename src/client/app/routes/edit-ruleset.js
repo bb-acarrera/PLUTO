@@ -57,6 +57,11 @@ export default Ember.Route.extend(RulesetEmberizer, {
 	},
 	actions: {
 		error (reason) {
+			if (this.controller) {
+				let pollId = this.controller.get('pollId');
+				this.controller.get('poll').stopPoll(pollId);
+			}
+
 			alert(reason);
 		},
 		willTransition (transition) {
