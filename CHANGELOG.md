@@ -1,5 +1,10 @@
 # PLUTO Change Log
 
+## 1.0.13
+### New Features
+
+### Bug Fixes and Minor Improvements
+
 ## 1.0.12
 ### Bug Fixes and Minor Improvements
 * Implemented a possible solution for the absent parserState object in Python rules. (#554)
