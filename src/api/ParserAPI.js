@@ -15,15 +15,15 @@ class ParserAPI extends RuleAPI {
 	constructor(config, wrappedRule, wrappedRuleConfig) {
 		super(config);
 
-		if(this.config.__state && this.config.__state.sharedData) {
-			if (!this.config.__state.sharedData.Parser) {
-				this.config.__state.sharedData.Parser = {};
-			}
-
-			this.parserSharedData = this.config.__state.sharedData.Parser
-		} else {
-			this.parserSharedData = {};
+		if (!this.config.__state)
+			this.config.__state = {}
+		if (!this.config.__state.sharedData)
+			this.config.__state.sharedData = {}
+		if (!this.config.__state.sharedData.Parser) {
+			this.config.__state.sharedData.Parser = {};
 		}
+
+		this.parserSharedData = this.config.__state.sharedData.Parser
 
 		if(!wrappedRule) {
 			this.warning(`No rule was supplied to parser`);
