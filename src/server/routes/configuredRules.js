@@ -105,7 +105,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 				// To be able to see hidden properties the user must have admin rights and
 				// belong to the rule's group, if there is a group.
-				let adminMode = (req.query.admin && (auth.admin || !rule.owner_group || rule.owner_group === auth.group))
+				let adminMode = auth.admin || !rule.owner_group || rule.owner_group === auth.group
 
 				rule = massageRule(rule, this.config.rulesLoader, adminMode);
 
@@ -144,7 +144,11 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 				result.rules.forEach(rule => {
 
-					rule = massageRule(rule, this.config.rulesLoader, false);
+					// To be able to see hidden properties the user must have admin rights and
+					// belong to the rule's group, if there is a group.
+					let adminMode = auth.admin || !rule.owner_group || rule.owner_group === auth.group
+
+					rule = massageRule(rule, this.config.rulesLoader, adminMode);
 
 					rules.push({
 						type: "configuredrule",
