@@ -447,7 +447,7 @@ class Validator {
 
                 this.executedRules = rules;
 
-				if(ruleset.posttasks && ruleset.posttasks.length > 0) {
+				if(!this.config.testOnly && ruleset.posttasks && ruleset.posttasks.length > 0) {
 					ruleset.posttasks.forEach((taskConfig) => {
 						let task = this.getPosttask(taskConfig);
 
