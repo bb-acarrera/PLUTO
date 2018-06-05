@@ -255,8 +255,10 @@ export default Ember.Controller.extend( {
 		toggleUpload (id) {
 			startPolling.call(this, id);
 		},
-		showProcessing(){
-			this.set("processing", true);
+		showProcessing(show){
+			if (show == undefined)
+				show = true;
+			this.set("processing", show);
 		},
 
 		saveRuleSet ( ruleset ) {

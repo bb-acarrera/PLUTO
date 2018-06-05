@@ -16,7 +16,13 @@ export default Ember.Component.extend({
                 uploader.upload( files[ 0 ], { ruleset: this.get( 'ruleset' ) } ).then( data => {
                     this.get( 'completion' )( data.runId );
                 }, error => {
-                    alert(error);
+                    if (error && error.status && error.statusText) {
+                        alert(`Error ${error.status}: ${error.statusText}`)
+                    }
+                    else {
+                        alert(error);
+                    }
+                    this.get( 'status' )(false);
                 } );
             }
 
