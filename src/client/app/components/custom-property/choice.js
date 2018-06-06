@@ -53,7 +53,7 @@ export default Base.extend({
                         resolve(list);
                     }
                     else if (xmlHttp.readyState == 4) {
-                        resolve([]);
+                        resolve([`Error ${xmlHttp.status}: ${xmlHttp.statusText}`]);
                     }
                 };
     
