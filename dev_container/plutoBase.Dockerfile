@@ -19,5 +19,6 @@ RUN apk add --no-cache --virtual .build-deps g++ && \
 RUN pip install --upgrade requests==2.18.4
 
 RUN apk add --update-cache --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
+    --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
      gdal-dev
 
