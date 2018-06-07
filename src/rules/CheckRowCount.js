@@ -16,20 +16,20 @@ class CheckRowCount extends TableRuleAPI {
 		this.minErrorThreshold = this.retrieveProperty("minErrorThreshold");
 		this.maxErrorThreshold = this.retrieveProperty("maxErrorThreshold");
 
-		if (this.minWarningThreshold && this.maxWarningThreshold && this.minWarningThreshold >= this.maxWarningThreshold) {
-			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than maxWarningThreshold (${this.maxWarningThreshold}).`);
+		if (this.minWarningThreshold && this.maxWarningThreshold && this.minWarningThreshold > this.maxWarningThreshold) {
+			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be less than or equal to maxWarningThreshold (${this.maxWarningThreshold}).`);
 		}
 
-		if (this.minErrorThreshold && this.maxErrorThreshold && this.minErrorThreshold >= this.maxErrorThreshold) {
-			this.error(`minErrorThreshold (${this.minErrorThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
+		if (this.minErrorThreshold && this.maxErrorThreshold && this.minErrorThreshold > this.maxErrorThreshold) {
+			this.error(`minErrorThreshold (${this.minErrorThreshold}) must be less than or equal to maxErrorThreshold (${this.maxErrorThreshold}).`);
 		}
 
-		if (this.minWarningThreshold && this.minErrorThreshold && this.minWarningThreshold <= this.minErrorThreshold) {
-			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be greater than minErrorThreshold (${this.minErrorThreshold}).`);
+		if (this.minWarningThreshold && this.minErrorThreshold && this.minWarningThreshold < this.minErrorThreshold) {
+			this.error(`minWarningThreshold (${this.minWarningThreshold}) must be greater than or equal to minErrorThreshold (${this.minErrorThreshold}).`);
 		}
 
-		if (this.maxWarningThreshold && this.maxErrorThreshold && this.maxWarningThreshold >= this.maxErrorThreshold) {
-			this.error(`maxWarningThreshold (${this.maxWarningThreshold}) must be less than maxErrorThreshold (${this.maxErrorThreshold}).`);
+		if (this.maxWarningThreshold && this.maxErrorThreshold && this.maxWarningThreshold > this.maxErrorThreshold) {
+			this.error(`maxWarningThreshold (${this.maxWarningThreshold}) must be less than or equal to maxErrorThreshold (${this.maxErrorThreshold}).`);
 		}
 
 		if (!this.minErrorThreshold && !this.minWarningThreshold && !this.maxErrorThreshold && !this.maxWarningThreshold) {
