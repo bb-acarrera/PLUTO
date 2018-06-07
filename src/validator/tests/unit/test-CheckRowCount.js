@@ -1,4 +1,4 @@
-/*
+ /*
  * Tests errors and successes of the CheckRowCount rule.
  */
 const ErrorLogger = require("../../ErrorLogger");
@@ -119,9 +119,9 @@ QUnit.test( "CheckRowCount: Check Invalid Properties Test", function( assert ) {
         __state : {
             "_debugLogger" : logger
         },
-		"minWarningThreshold" : 1,
+		"minWarningThreshold" : 2,
 		"maxWarningThreshold" : 1,
-		"minErrorThreshold" : 1,
+		"minErrorThreshold" : 2,
 		"maxErrorThreshold" : 1,
 		"numHeaderRows" : 1
 	};
@@ -131,14 +131,14 @@ QUnit.test( "CheckRowCount: Check Invalid Properties Test", function( assert ) {
 	assert.ok(rule, "Rule was created.");
 
 	const logResults = logger.getLog();
-	assert.equal(logResults.length, 4, "Expected 4 errors.");
-	for (var i = 0; i < 4; i++)
+	assert.equal(logResults.length, 2, "Expected 2 errors.");
+	for (var i = 0; i < 2; i++)
 		assert.equal(logResults[i].type, "Error", "Expected an 'Error'.");
 
-	assert.equal(logResults[0].description, "minWarningThreshold (1) must be less than maxWarningThreshold (1).");
-	assert.equal(logResults[1].description, "minErrorThreshold (1) must be less than maxErrorThreshold (1).");
-	assert.equal(logResults[2].description, "minWarningThreshold (1) must be greater than minErrorThreshold (1).");
-	assert.equal(logResults[3].description, "maxWarningThreshold (1) must be less than maxErrorThreshold (1).");
+	assert.equal(logResults[0].description, "minWarningThreshold (2) must be less than or equal to maxWarningThreshold (1).");
+	assert.equal(logResults[1].description, "minErrorThreshold (2) must be less than or equal to maxErrorThreshold (1).");
+// 	assert.equal(logResults[2].description, "minWarningThreshold (1) must be greater than or equal to minErrorThreshold (1).");
+// 	assert.equal(logResults[3].description, "maxWarningThreshold (1) must be less than or equal to maxErrorThreshold (1).");
 });
 
 QUnit.test( "CheckRowCount: Check Valid Count Test", function( assert ) {
