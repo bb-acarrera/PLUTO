@@ -137,7 +137,7 @@ class data {
                                 logResp = filteredLog;
                             }
                         } else {
-                            logResp = filteredLog.splice( offset, size );
+                            logResp = filteredLog.slice( offset, offset + size );
                         }
 
                         resolve( {
