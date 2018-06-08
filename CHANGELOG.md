@@ -1,9 +1,14 @@
 # PLUTO Change Log
 
 ## 1.0.13
-### New Features
-
 ### Bug Fixes and Minor Improvements
+* The CheckRowCount rule is now able to check for exact row counts. (#559)
+* Choice components that are dynamically populated now support matches when the user types. (#564)
+* Post tasks are no longer run when doing a test run. (#563)
+* Nginx errors on test are now properly displayed and the Processing icon is removed. (#552)
+* Download/upload configuration properties now appear, when permitted. (#556)
+* #554 (Parser state is not passed to custom rule) turned out to be a configuration error.
+* #562 (Propagate errors to the UI). Errors are now propagated but the component is not yet disabled.
 
 ## 1.0.12
 ### Bug Fixes and Minor Improvements
