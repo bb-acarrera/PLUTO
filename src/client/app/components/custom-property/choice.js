@@ -27,6 +27,59 @@ function updateConfigListeners() {
         }
 }
 
+function findState(stateList, itemName, instanceName) {
+	if (stateList && itemName && instanceName) {
+		let id = instanceName + '::' + itemName;
+		let foundIndex  = -1;
+		let item = stateList.find((item, index) => {
+			if(item.get('id') === id) {
+				foundIndex = index;
+				return true;
+			}
+
+			return false;
+		});
+
+		if(item) {
+			return {index: foundIndex, item: item};
+		}
+
+		return null;
+	}
+}
+
+function findOrCreateState(stateList, itemName, instanceName) {
+	if (stateList && itemName && instanceName) {
+
+		let result = findState(stateList, itemName, instanceName);
+
+		let state;
+
+		if (result == null) {
+
+			state = Ember.Object.create({
+				id: instanceName + '::' + itemName
+			});
+
+			stateList.pushObject(state)
+		} else {
+			state = result.item;
+		}
+
+		return state;
+	}
+}
+
+function setError(stateList, itemName, instanceName) {
+
+	let state = findOrCreateState(stateList, itemName, instanceName);
+
+	if(state) {
+		state.set('invalid', true);
+	}
+
+}
+
 export default Base.extend({
 
     choices: Ember.computed('uiItem.choices', 'uiItem.choicesAPI', function() {
@@ -40,6 +93,11 @@ export default Base.extend({
             choices = new Ember.RSVP.Promise((resolve) => {
                 var xmlHttp = new XMLHttpRequest();
                 xmlHttp.onreadystatechange = () => {
+                    const stateList = this.get('state');
+                    const itemName = this.get('uiItem.name');
+                    const instanceName = this.get('instanceName');
+                    const errorObject = this.get('errorObject');
+                       
                     if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
     
                         let list = [];
@@ -50,17 +108,25 @@ export default Base.extend({
                             console.log(e);
                         }
 
+                        // Clear the error state. This conflicts with the validators but validators don't
+                        // seem to work with choice components.
+                        let result = findState(stateList, itemName, instanceName);
+                        if(result) {
+                            result.item.set('invalid', false);
+                        }
+                        if (errorObject)
+                            errorObject.set('error', undefined);
+                
                         resolve(list);
                     }
                     else if (xmlHttp.readyState == 4) {
-                        // For this to be of any use there must be a validator on the UI item that detects
-                        // this error value and invalidates the component. ex.
-                        // 		"validations": {
-                        //			"exclusion": {
-                        //				"in": ["###error###"]
-                        //          }
-                		//      }
-                        resolve([{label:`Error ${xmlHttp.status}: ${xmlHttp.statusText}`, value: "###error###"}]);
+                        // Set the error state.
+                        const msg = `Error ${xmlHttp.status}: ${xmlHttp.statusText}`;
+                        setError(stateList, itemName, instanceName);
+                        if (errorObject)
+                            errorObject.set('error', msg);
+    
+                        resolve([]);
                     }
                 };
     
