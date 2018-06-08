@@ -53,7 +53,14 @@ export default Base.extend({
                         resolve(list);
                     }
                     else if (xmlHttp.readyState == 4) {
-                        resolve([`Error ${xmlHttp.status}: ${xmlHttp.statusText}`]);
+                        // For this to be of any use there must be a validator on the UI item that detects
+                        // this error value and invalidates the component. ex.
+                        // 		"validations": {
+                        //			"exclusion": {
+                        //				"in": ["###error###"]
+                        //          }
+                		//      }
+                        resolve([{label:`Error ${xmlHttp.status}: ${xmlHttp.statusText}`, value: "###error###"}]);
                     }
                 };
     
