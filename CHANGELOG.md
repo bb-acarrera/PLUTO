@@ -1,5 +1,9 @@
 # PLUTO Change Log
 
+## 1.0.15
+### New Features
+### Bug Fixes and Minor Improvements
+
 ## 1.0.14
 ### Bug Fixes and Minor Improvements
 * Fixes issue resulting in not all error logs appearing in the UI (#565)
