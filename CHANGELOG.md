@@ -1,9 +1,9 @@
 # PLUTO Change Log
 
 ## 1.0.14
-### New Features
-
 ### Bug Fixes and Minor Improvements
+* Fixes issue resulting in not all error logs appearing in the UI (#565)
+* Display errors in UI for post process tasks (#562)
 
 ## 1.0.13
 ### Bug Fixes and Minor Improvements
