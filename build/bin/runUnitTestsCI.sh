@@ -9,4 +9,4 @@ docker build --rm=false -t pluto_dev -f $ROOT/dev_container/dev.Dockerfile $ROOT
 
 docker build --rm=false -t pluto_test -f $ROOT/build/test.Dockerfile $ROOT
 
-docker run -v $ROOT:/code -v /code/node_modules --rm -a stdout -a stderr pluto_test
+sudo docker run  --rm -a stdout -a stderr pluto_test
