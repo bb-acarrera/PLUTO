@@ -1019,6 +1019,165 @@ QUnit.test( "retrieveRuleSet: can edit with same group", function(assert){
 
 });
 
+QUnit.test( "retrieveRuleSet: can edit with same group with user belonging to multiple groups (first group)", function(assert){
+
+	const ruleset_filename = 'test';
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 0,
+								ruleset_id: ruleset_filename,
+								rules: {},
+								owner_user: null,
+								owner_group: 'test',
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
+	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'test;hi;ho', undefined).then((ruleset) => {
+		assert.ok(ruleset, "Expect to have a ruleset");
+		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "retrieveRuleSet: can edit with same group with user belonging to multiple groups (middle group)", function(assert){
+
+	const ruleset_filename = 'test';
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 0,
+								ruleset_id: ruleset_filename,
+								rules: {},
+								owner_user: null,
+								owner_group: 'test',
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
+	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'hi;test;ho', undefined).then((ruleset) => {
+		assert.ok(ruleset, "Expect to have a ruleset");
+		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "retrieveRuleSet: can edit with same group with user belonging to multiple groups (last group)", function(assert){
+
+	const ruleset_filename = 'test';
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 0,
+								ruleset_id: ruleset_filename,
+								rules: {},
+								owner_user: null,
+								owner_group: 'test',
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
+	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'hi;ho;test', undefined).then((ruleset) => {
+		assert.ok(ruleset, "Expect to have a ruleset");
+		assert.equal(ruleset.canedit, true, "Expect to be able to edit");
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
 QUnit.test( "retrieveRuleSet: can edit as admin", function(assert){
 
 	const ruleset_filename = 'test';
@@ -1165,6 +1324,59 @@ QUnit.test( "retrieveRuleSet: can't edit with no group", function(assert){
 
 	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
 	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, undefined, undefined).then((ruleset) => {
+		assert.ok(ruleset, "Expect to have a ruleset");
+		assert.equal(ruleset.canedit, false, "Expect not to be able to edit");
+		done();
+	}, (e) => {
+		assert.ok(false, 'Got reject: ' + e);
+		done();
+	}).catch((e) => {
+		assert.ok(false, 'Got exception: ' + e);
+		done();
+	});
+
+});
+
+QUnit.test( "retrieveRuleSet: can't edit with no group with user belonging to multiple groups", function(assert){
+
+	const ruleset_filename = 'test';
+
+	const config = {
+		query: (text, values) => {
+			if(text.startsWith('SELECT')) {
+				//the get current row test
+				return new Promise((resolve) => {
+					resolve({
+						rows: [
+							{
+								id: 0,
+								version: 0,
+								ruleset_id: ruleset_filename,
+								rules: {},
+								owner_user: null,
+								owner_group: 'test',
+								update_time: null,
+								name: null,
+								deleted: false
+							}
+						]
+					})
+				});
+
+			} else {
+
+				return new Promise((resolve, reject) => {
+					reject('not expected');
+				});
+			}
+		}
+	};
+
+	const done = assert.async();
+	const data = DataDb(config, true);
+
+	//ruleset_id, rulesetOverrideFile, ruleLoader, version, dbId, group, admin
+	data.retrieveRuleset(ruleset_filename, undefined, undefined, undefined, undefined, 'hi;ho;hum', undefined).then((ruleset) => {
 		assert.ok(ruleset, "Expect to have a ruleset");
 		assert.equal(ruleset.canedit, false, "Expect not to be able to edit");
 		done();

@@ -447,15 +447,16 @@ class data {
             }
 
             if(filters.groupFilter && filters.groupFilter.length) {
-                let groupWhere = safeStringLike( filters.groupFilter );
+                // If we belong to multiple groups grab them all
+                let groupWhere = similarToGroupValue( filters.groupFilter );
 
                 extendWhere();
 
                 values.push( groupWhere );
-                where += "{{rulesets}}.owner_group ILIKE $" + values.length;
+                where += "{{rulesets}}.owner_group SIMILAR TO $" + values.length;
 
                 countValues.push( groupWhere );
-                countWhere += "{{rulesets}}.owner_group ILIKE $" + countValues.length;
+                countWhere += "{{rulesets}}.owner_group SIMILAR TO $" + countValues.length;
             }
 
             if(filters.sourceFileFilter && filters.sourceFileFilter.length) {
@@ -1073,15 +1074,16 @@ class data {
             }
 
             if(filters.groupFilter && filters.groupFilter.length) {
-                let groupWhere = safeStringLike( filters.groupFilter );
+                // If we belong to multiple groups grab them all
+                let groupWhere = similarToGroupValue( filters.groupFilter );
 
                 extendWhere();
 
                 values.push( groupWhere );
-                where += "{{currentRuleset}}.owner_group ILIKE $" + values.length;
+                where += "{{currentRuleset}}.owner_group SIMILAR TO $" + values.length;
 
                 countValues.push( groupWhere );
-                countWhere += "{{currentRuleset}}.owner_group ILIKE $" + countValues.length;
+                countWhere += "{{currentRuleset}}.owner_group SIMILAR TO $" + countValues.length;
             }
 
             if(filters.nameFilter && filters.nameFilter.length) {
@@ -1711,6 +1713,12 @@ function safeStringLike ( value ) {
     return '%' + resp + '%';
 }
 
+function similarToGroupValue( groupsStr ) {
+    let groups = groupsStr.split(";");
+    groups.map( x => safeStringLike( x ) );
+    return groups.join("|");
+}
+
 function replaceAll ( target, search, replacement ) {
     return target.split( search ).join( replacement );
 }
@@ -1904,7 +1912,8 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
 
     dbRuleset.dovalidate = row.rules.dovalidate;
 
-    if (dbRuleset.owner_group && !isAdmin && dbRuleset.owner_group !== group) {
+    let groups = group ? group.split(";") : [];
+    if (dbRuleset.owner_group && !isAdmin && !groups.includes(dbRuleset.owner_group)) {
         dbRuleset.canedit = false;
     } else {
         dbRuleset.canedit = true;
