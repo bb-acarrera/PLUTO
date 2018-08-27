@@ -76,6 +76,21 @@
 
 		{{/unless}}
 
+
+		<div>
+			Group Owner
+			{{#power-select
+			options=defaultAuthGroups
+			selected=authGroup
+			onchange=(action (mut authGroup))
+			allowClear=true
+			renderInPlace=true
+			as |authGroup|
+			}}
+				{{authGroup.group}}
+			{{/power-select}}
+		</div>
+
 		{{yield}}
 
 	{{/modal.body}}

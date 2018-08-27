@@ -7,6 +7,45 @@ class RulesetRouter extends BaseRouter {
 		super(config);
 	}
 
+	validateInputOwnerGroup(auth, inputgroup) {
+		// Always allow an admin to overwrite the group
+		if(auth.admin) {
+			return {
+				valid: true,
+				ownergroup: inputgroup
+			};
+		}
+
+		if(auth.group) {
+			let groups = auth.group.split(";");
+			if(groups.includes(inputgroup)) {
+				return {
+					valid: true,
+					ownergroup: inputgroup
+				};
+			}
+			else {
+				return {
+					valid: false,
+					ownergroup: auth.group
+				};
+			}
+		}
+		else if(!inputgroup) {
+			return {
+				valid: true,
+				ownergroup: auth.group
+			};
+		}
+		else {
+			// If there are no auth groups to select from we shouldn't be passing one in
+			return {
+				valid: false,
+				ownergroup: auth.group
+			};
+		}
+	}
+
 	get(req, res, next) {
 		// Note that in general the server and validator can have different root directories.
 		// The server's root directory points to the client code while the validator's root
@@ -143,6 +182,7 @@ class RulesetRouter extends BaseRouter {
 
 	patch(req, res, next) {
 
+
 		if(this.config.validatorConfig.allowOnlyRulesetImport) {
 			res.statusMessage = 'Only imports allowed';
 			res.status(405).end();
@@ -151,13 +191,23 @@ class RulesetRouter extends BaseRouter {
 
 		const auth = this.getAuth(req);
 
+		// Allow a user to select a specific auth group from the allowed list
+		// If a user is an admin they should have the ability to override the owner to any value though
+		const inputRuleset = new RuleSet(req.body, this.config.rulesLoader);
+		const rv = this.validateInputOwnerGroup(auth, req.body.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
 		function saveFn(ruleset) {
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.admin?req.body.ownergroup:auth.group, auth.admin).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin).then((ruleset) => {
 				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
 				console.log({
 					ruleset: ruleset.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "validation",
 					action: "update",
 					version: ruleset.version
@@ -173,14 +223,21 @@ class RulesetRouter extends BaseRouter {
 	import(req, res, next) {
 
 		const auth = this.getAuth(req);
+		const rv = this.validateInputOwnerGroup(auth, ruleset.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
 
 		function saveFn(ruleset) {
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin, true).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin, true).then((ruleset) => {
 				res.json(ruleset);
 				console.log({
 					ruleset: ruleset.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "validation",
 					action: "import",
 					version: ruleset.version
@@ -243,6 +300,14 @@ class RulesetRouter extends BaseRouter {
 		}
 
 		const auth = this.getAuth(req);
+		const inputRuleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
+		const rv = this.validateInputOwnerGroup(auth, inputRuleset.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
 		let new_rulesetId = req.body.rulesetId;
 
 		let ruleset = null;
@@ -262,12 +327,12 @@ class RulesetRouter extends BaseRouter {
 
 		this.config.data.rulesetValid(ruleset, true, this.config.validatorConfig.forceUniqueTargetFile).then(() => {
 
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin).then((ruleset) => {
 				res.status(201).location('/ruleset/' + ruleset.ruleset_id).json(ruleset);
 				console.log({
 					ruleset: ruleset.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "validation",
 					action: "insert",
 					version: ruleset.version

@@ -7,6 +7,7 @@ export default Ember.Component.extend({
 	sourceConfig: {},
 	targetConfig: {},
 
+	authGroup: null,
 
 	errorStates: [],
 	invalid: Ember.computed('errorStates.@each.invalid', function() {
@@ -53,6 +54,9 @@ export default Ember.Component.extend({
 			this.set('target', target);
 			this.set('targetConfig', {});
 		},
+		setPrefAuthGroup(prefAuthGroup) {
+			this.set('authGroup', prefAuthGroup.group);
+		},
 		onHidden() {
 
 			this.set('showdialog', false);
@@ -85,6 +89,14 @@ export default Ember.Component.extend({
 					return;
 				}
 
+			}
+
+			let group = this.get('authGroup');
+			let defaultAuthGroups = this.get('defaultAuthGroups.length');
+			// Enforce a group if there are groups to select from
+			if(defaultAuthGroups && defaultAuthGroups > 0 && !group) {
+				alert('An owner group must be specified');
+				return;
 			}
 
 			let parser = this.get('parser');
@@ -146,6 +158,10 @@ export default Ember.Component.extend({
 			}
 
 			ruleset.dovalidate = doValidate;
+
+			if(group) {
+				ruleset.owner_group = group.get('group');
+			}
 
 
 			var xmlHttp = new XMLHttpRequest();

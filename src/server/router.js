@@ -11,6 +11,7 @@ const UserRouter = require('./routes/user');
 const ConfiguredRulesRouter = require('./routes/configuredRules');
 const StatusRouter = require('./routes/status');
 const ExportConfigRouter = require('./routes/exportConfig');
+const AuthRouter = require('./routes/authgroups');
 
 const base = '/api/v1';
 
@@ -27,6 +28,7 @@ class Router {
 		this.configuredRulesRouter = new ConfiguredRulesRouter(config);
 		this.statusRouter = new StatusRouter(config);
 		this.exportConfigRouter = new ExportConfigRouter(config);
+		this.authRouter = new AuthRouter(config);
 
 
 
@@ -73,6 +75,7 @@ class Router {
 
 		this._router.post(base+'/exportconfig', (req, res, next) => this.exportConfigRouter.post(req, res, next))
 
+		this._router.get(base+'/authgroups', (req, res, next) => this.authRouter.get(req, res, next))
 		
 	}
 
