@@ -7,6 +7,41 @@ class RulesetRouter extends BaseRouter {
 		super(config);
 	}
 
+	validateInputOwnerGroupEdit(auth, inputgroup) {
+		// Always allow an admin to overwrite the group
+		if(auth.admin) {
+			return {
+				valid: true,
+				ownergroup: inputgroup
+			}
+		}
+
+		// If no input group then let it through with auth.group
+		if(!inputgroup) {
+			return {
+				valid: true,
+				ownergroup: auth.group
+			}
+		}
+
+		// In an update we only need to validate the
+		// input group is in the user's groups since
+		//  the actual update will use the previous group
+		if(auth.group) {
+			let groups = auth.group.split(";");
+			if(groups.includes(inputgroup)) {
+				return {
+					valid: true,
+					ownergroup: inputgroup
+				};
+			}
+		}
+		return {
+			valid: false,
+			ownergroup: auth.group
+		}
+	}
+
 	validateInputOwnerGroup(auth, inputgroup) {
 		// Always allow an admin to overwrite the group
 		if(auth.admin) {
@@ -193,8 +228,9 @@ class RulesetRouter extends BaseRouter {
 
 		// Allow a user to select a specific auth group from the allowed list
 		// If a user is an admin they should have the ability to override the owner to any value though
-		const inputRuleset = new RuleSet(req.body, this.config.rulesLoader);
-		const rv = this.validateInputOwnerGroup(auth, req.body.ownergroup);
+		// This is different than an insert/import validation since we need to take
+		//  into account the previous record owner
+		const rv = this.validateInputOwnerGroupEdit(auth, req.body.ownergroup);
 		if(!rv.valid) {
 			res.statusMessage = 'Invalid owner group provided';
 			res.status(422).end();
@@ -223,7 +259,7 @@ class RulesetRouter extends BaseRouter {
 	import(req, res, next) {
 
 		const auth = this.getAuth(req);
-		const rv = this.validateInputOwnerGroup(auth, ruleset.ownergroup);
+		const rv = this.validateInputOwnerGroup(auth, req.body.ownergroup);
 		if(!rv.valid) {
 			res.statusMessage = 'Invalid owner group provided';
 			res.status(422).end();
@@ -274,14 +310,21 @@ class RulesetRouter extends BaseRouter {
 		const auth = this.getAuth(req);
         const ruleset = new RuleSet(req.body);
 
-		this.config.data.deleteRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
+		const rv = this.validateInputOwnerGroupEdit(auth, req.body.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
+		this.config.data.deleteRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 
 			// Log the request.
 			console.log({
 				ruleset: ruleset.id,
 				user: auth.user,
-				group: auth.group,
+				group: rv.ownergroup,
 				type: "validation",
 				action: "delete",
 				version: ruleset.version
