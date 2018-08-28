@@ -33,8 +33,8 @@ curl -d '{"ruleset": "worldCities"}' -H "Content-Type: application/json" -X POST
 Pluto requires authorization to be done externally (e.g. with NGINX), but it can use auth information for limiting
 write access to things users create. To use this feature, the upstream authentication can add additional request headers:
   * AUTH-USER - the user id of the current user, used to track who made changes to items
-  * AUTH-GROUP - when the user creates an item, the owner is set to the value of AUTH-GROUP, and only users with that
-  group (or admin users) will be allow to make changes to this item
+  * AUTH-GROUP - A ";" delimited list of groups the user is authorized for.  When the user creates an item they will be asked which group in AUTH-GROUP they would like to assign as the owner.  Only users with that  
+  group (or admin users) will be allow to make changes to this item.
   * AUTH-ADMIN - if set to "t" or "true" this user is designated as an admin, and can make changes to any item
 
 
