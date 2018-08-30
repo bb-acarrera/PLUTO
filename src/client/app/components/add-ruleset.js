@@ -7,7 +7,14 @@ export default Ember.Component.extend({
 	sourceConfig: {},
 	targetConfig: {},
 
-	authGroup: null,
+	authGroup: Ember.computed('defaultAuthGroups.length', function() {
+		if(this.get('defaultAuthGroups.length') === 1) {
+			return this.get('defaultAuthGroups.firstObject');
+		}
+		else {
+			return null;
+		}
+	}),
 
 	errorStates: [],
 	invalid: Ember.computed('errorStates.@each.invalid', function() {
