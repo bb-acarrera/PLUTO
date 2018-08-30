@@ -76,7 +76,7 @@
 
 		{{/unless}}
 
-
+		{{#if defaultAuthGroups.length}}
 		<div>
 			Group Owner
 			{{#power-select
@@ -90,6 +90,7 @@
 				{{authGroup.group}}
 			{{/power-select}}
 		</div>
+		{{/if}}
 
 		{{yield}}
 
