@@ -27,18 +27,18 @@ class RulesetRouter extends BaseRouter {
 		// In an update we only need to validate the
 		// input group is in the user's groups since
 		//  the actual update will use the previous group
-		if(auth.group) {
-			let groups = auth.group.split(";");
-			if(groups.includes(inputgroup)) {
-				return {
-					valid: true,
-					ownergroup: inputgroup
-				};
-			}
+		const groups = (auth.group || '').split(';');
+		if(groups.includes(inputgroup)) {
+			return {
+				valid: true,
+				ownergroup: inputgroup
+			};
 		}
-		return {
-			valid: false,
-			ownergroup: auth.group
+		else {
+			return {
+				valid: false,
+				ownergroup: auth.group
+			}
 		}
 	}
 
@@ -216,7 +216,6 @@ class RulesetRouter extends BaseRouter {
 	}
 
 	patch(req, res, next) {
-
 
 		if(this.config.validatorConfig.allowOnlyRulesetImport) {
 			res.statusMessage = 'Only imports allowed';

@@ -9,14 +9,8 @@ class AuthRouter extends BaseRouter {
     get(req, res) {
       // Echo the auth group header back
       // Split it by delimiter though
-      const authgroups = [];
-      const auth = this.getAuth(req);
-      if(auth['group']) {
-        const groups = auth['group'].split(';');
-        for( let ii = 0; ii < groups.length; ii++ ) {
-          authgroups.push( { type: "authgroup", id: ii, attributes: { group: groups[ii] } } );
-        }
-      }
+      const groupString = this.getAuth(req)['group'] || '';
+      const authgroups = groupString.split(';').map((group, id) => { return { type: 'authgroup', id, attributes: { group } } }); 
       let jsonResp = {
         data: authgroups
       };

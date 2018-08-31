@@ -11,9 +11,6 @@ export default Ember.Component.extend({
 		if(this.get('defaultAuthGroups.length') === 1) {
 			return this.get('defaultAuthGroups.firstObject');
 		}
-		else {
-			return null;
-		}
 	}),
 
 	errorStates: [],
@@ -98,10 +95,9 @@ export default Ember.Component.extend({
 
 			}
 
-			let group = this.get('authGroup');
-			let defaultAuthGroups = this.get('defaultAuthGroups.length');
+			const group = this.get('authGroup');
 			// Enforce a group if there are groups to select from
-			if(defaultAuthGroups && defaultAuthGroups > 0 && !group) {
+			if(!group && (this.get('defaultAuthGroups.length') || 0) > 0) {
 				alert('An owner group must be specified');
 				return;
 			}
