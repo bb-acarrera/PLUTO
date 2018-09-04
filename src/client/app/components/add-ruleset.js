@@ -59,7 +59,7 @@ export default Ember.Component.extend({
 			this.set('targetConfig', {});
 		},
 		setPrefAuthGroup(prefAuthGroup) {
-			this.set('authGroup', prefAuthGroup.group);
+			this.set('authGroup', prefAuthGroup.name);
 		},
 		onHidden() {
 
@@ -163,7 +163,7 @@ export default Ember.Component.extend({
 			ruleset.dovalidate = doValidate;
 
 			if(group) {
-				ruleset.owner_group = group.get('group');
+				ruleset.owner_group = group.get('name');
 			}
 
 
