@@ -7,80 +7,6 @@ class RulesetRouter extends BaseRouter {
 		super(config);
 	}
 
-	validateInputOwnerGroupEdit(auth, inputgroup) {
-		// Always allow an admin to overwrite the group
-		if(auth.admin) {
-			return {
-				valid: true,
-				ownergroup: inputgroup
-			}
-		}
-
-		// If no input group then let it through with auth.group
-		if(!inputgroup) {
-			return {
-				valid: true,
-				ownergroup: auth.group
-			}
-		}
-
-		// In an update we only need to validate the
-		// input group is in the user's groups since
-		//  the actual update will use the previous group
-		const groups = (auth.group || '').split(';');
-		if(groups.includes(inputgroup)) {
-			return {
-				valid: true,
-				ownergroup: inputgroup
-			};
-		}
-		else {
-			return {
-				valid: false,
-				ownergroup: auth.group
-			}
-		}
-	}
-
-	validateInputOwnerGroup(auth, inputgroup) {
-		// Always allow an admin to overwrite the group
-		if(auth.admin) {
-			return {
-				valid: true,
-				ownergroup: inputgroup
-			};
-		}
-
-		if(auth.group) {
-			let groups = auth.group.split(";");
-			if(groups.includes(inputgroup)) {
-				return {
-					valid: true,
-					ownergroup: inputgroup
-				};
-			}
-			else {
-				return {
-					valid: false,
-					ownergroup: auth.group
-				};
-			}
-		}
-		else if(!inputgroup) {
-			return {
-				valid: true,
-				ownergroup: auth.group
-			};
-		}
-		else {
-			// If there are no auth groups to select from we shouldn't be passing one in
-			return {
-				valid: false,
-				ownergroup: auth.group
-			};
-		}
-	}
-
 	get(req, res, next) {
 		// Note that in general the server and validator can have different root directories.
 		// The server's root directory points to the client code while the validator's root
@@ -108,7 +34,7 @@ class RulesetRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			this.config.data.retrieveRuleset(id, null, this.config.rulesLoader, version, dbId, auth.group, auth.admin).then((ruleset) => {
+			this.config.data.retrieveRuleset(id, null, this.config.rulesLoader, version, dbId, auth.groups, auth.admin).then((ruleset) => {
 				if (!ruleset) {
 					res.statusMessage = 'Unable to retrieve ' + (id || dbId);
 					res.status(404).end();
@@ -169,7 +95,7 @@ class RulesetRouter extends BaseRouter {
 				fileFilter: req.query.fileFilter,
 				nameFilter: req.query.nameFilter
 
-			}, this.config.rulesLoader, auth.group, auth.admin).then((result) => {
+			}, this.config.rulesLoader, auth.groups, auth.admin).then((result) => {
 				const rulesets = [];
 
 				let rawRulesets = result.rulesets;
@@ -229,7 +155,7 @@ class RulesetRouter extends BaseRouter {
 		// If a user is an admin they should have the ability to override the owner to any value though
 		// This is different than an insert/import validation since we need to take
 		//  into account the previous record owner
-		const rv = this.validateInputOwnerGroupEdit(auth, req.body.ownergroup);
+		const rv = auth.validateInputOwnerGroupEdit(req.body.ownergroup);
 		if(!rv.valid) {
 			res.statusMessage = 'Invalid owner group provided';
 			res.status(422).end();
@@ -258,7 +184,7 @@ class RulesetRouter extends BaseRouter {
 	import(req, res, next) {
 
 		const auth = this.getAuth(req);
-		const rv = this.validateInputOwnerGroup(auth, req.body.ownergroup);
+		const rv = auth.validateInputOwnerGroup(req.body.ownergroup);
 		if(!rv.valid) {
 			res.statusMessage = 'Invalid owner group provided';
 			res.status(422).end();
@@ -309,7 +235,7 @@ class RulesetRouter extends BaseRouter {
 		const auth = this.getAuth(req);
         const ruleset = new RuleSet(req.body);
 
-		const rv = this.validateInputOwnerGroupEdit(auth, req.body.ownergroup);
+		const rv = auth.validateInputOwnerGroupEdit(req.body.ownergroup);
 		if(!rv.valid) {
 			res.statusMessage = 'Invalid owner group provided';
 			res.status(422).end();
@@ -343,7 +269,7 @@ class RulesetRouter extends BaseRouter {
 
 		const auth = this.getAuth(req);
 		const inputRuleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
-		const rv = this.validateInputOwnerGroup(auth, inputRuleset.ownergroup);
+		const rv = auth.validateInputOwnerGroup(inputRuleset.ownergroup);
 		if(!rv.valid) {
 			res.statusMessage = 'Invalid owner group provided';
 			res.status(422).end();

@@ -1024,7 +1024,7 @@ class data {
      * This gets the list of rulesets.
      * @return a promise to an array of ruleset ids.
      */
-    getRulesets ( page, size, filters, ruleLoader, group, admin ) {
+    getRulesets ( page, size, filters, ruleLoader, groups, admin ) {
 
         let isAdmin = admin === true;
 
@@ -1225,7 +1225,7 @@ class data {
                 var rulesets = [];
 
                 result.rows.forEach( ( row ) => {
-                    rulesets.push( getRulesetFromRow(row, row.ruleset_id, isAdmin, group, ruleLoader) );
+                    rulesets.push( getRulesetFromRow(row, row.ruleset_id, isAdmin, groups, ruleLoader) );
                 } );
 
                 resolve( {
@@ -1894,7 +1894,7 @@ function checkCanChangeRuleset(db, tables, ruleset, group, admin, isImport) {
 
 }
 
-function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
+function getRulesetFromRow(row, ruleset_id, isAdmin, groups, ruleLoader) {
     let dbRuleset = row.rules;
 
     dbRuleset.id = row.id;
@@ -1912,8 +1912,7 @@ function getRulesetFromRow(row, ruleset_id, isAdmin, group, ruleLoader) {
 
     dbRuleset.dovalidate = row.rules.dovalidate;
 
-    let groups = group ? group.split(";") : [];
-    if (dbRuleset.owner_group && !isAdmin && !groups.includes(dbRuleset.owner_group)) {
+    if (dbRuleset.owner_group && !isAdmin && ((!groups && dbRuleset.owner_group !== groups) || !groups.includes(dbRuleset.owner_group))) {
         dbRuleset.canedit = false;
     } else {
         dbRuleset.canedit = true;
