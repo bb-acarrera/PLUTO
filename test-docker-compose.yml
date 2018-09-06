@@ -34,6 +34,7 @@ services:
       - 8002:8002
       - 8003:8003
       - 8004:8004
+      - 8005:8005
 
   pluto_s3server:
     image: scality/s3server

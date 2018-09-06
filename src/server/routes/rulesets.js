@@ -34,7 +34,7 @@ class RulesetRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			this.config.data.retrieveRuleset(id, null, this.config.rulesLoader, version, dbId, auth.group, auth.admin).then((ruleset) => {
+			this.config.data.retrieveRuleset(id, null, this.config.rulesLoader, version, dbId, auth.groups, auth.admin).then((ruleset) => {
 				if (!ruleset) {
 					res.statusMessage = 'Unable to retrieve ' + (id || dbId);
 					res.status(404).end();
@@ -95,7 +95,7 @@ class RulesetRouter extends BaseRouter {
 				fileFilter: req.query.fileFilter,
 				nameFilter: req.query.nameFilter
 
-			}, this.config.rulesLoader, auth.group, auth.admin).then((result) => {
+			}, this.config.rulesLoader, auth.groups, auth.admin).then((result) => {
 				const rulesets = [];
 
 				let rawRulesets = result.rulesets;
@@ -151,13 +151,24 @@ class RulesetRouter extends BaseRouter {
 
 		const auth = this.getAuth(req);
 
+		// Allow a user to select a specific auth group from the allowed list
+		// If a user is an admin they should have the ability to override the owner to any value though
+		// This is different than an insert/import validation since we need to take
+		//  into account the previous record owner
+		const rv = auth.validateInputOwnerGroupEdit(req.body.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
 		function saveFn(ruleset) {
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.admin?req.body.ownergroup:auth.group, auth.admin).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin).then((ruleset) => {
 				res.json(ruleset);	// Need to reply with what we received to indicate a successful PATCH.
 				console.log({
 					ruleset: ruleset.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "validation",
 					action: "update",
 					version: ruleset.version
@@ -173,14 +184,21 @@ class RulesetRouter extends BaseRouter {
 	import(req, res, next) {
 
 		const auth = this.getAuth(req);
+		const rv = auth.validateInputOwnerGroup(req.body.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
 
 		function saveFn(ruleset) {
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin, true).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin, true).then((ruleset) => {
 				res.json(ruleset);
 				console.log({
 					ruleset: ruleset.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "validation",
 					action: "import",
 					version: ruleset.version
@@ -217,14 +235,21 @@ class RulesetRouter extends BaseRouter {
 		const auth = this.getAuth(req);
         const ruleset = new RuleSet(req.body);
 
-		this.config.data.deleteRuleSet(ruleset, auth.user, auth.group, auth.admin).then(() => {
+		const rv = auth.validateInputOwnerGroupEdit(req.body.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
+		this.config.data.deleteRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 
 			// Log the request.
 			console.log({
 				ruleset: ruleset.id,
 				user: auth.user,
-				group: auth.group,
+				group: rv.ownergroup,
 				type: "validation",
 				action: "delete",
 				version: ruleset.version
@@ -243,6 +268,14 @@ class RulesetRouter extends BaseRouter {
 		}
 
 		const auth = this.getAuth(req);
+		const inputRuleset = new RuleSet(req.body.ruleset, this.config.rulesLoader);
+		const rv = auth.validateInputOwnerGroup(inputRuleset.ownergroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
+
 		let new_rulesetId = req.body.rulesetId;
 
 		let ruleset = null;
@@ -262,12 +295,12 @@ class RulesetRouter extends BaseRouter {
 
 		this.config.data.rulesetValid(ruleset, true, this.config.validatorConfig.forceUniqueTargetFile).then(() => {
 
-			this.config.data.saveRuleSet(ruleset, auth.user, auth.group, auth.admin).then((ruleset) => {
+			this.config.data.saveRuleSet(ruleset, auth.user, rv.ownergroup, auth.admin).then((ruleset) => {
 				res.status(201).location('/ruleset/' + ruleset.ruleset_id).json(ruleset);
 				console.log({
 					ruleset: ruleset.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "validation",
 					action: "insert",
 					version: ruleset.version

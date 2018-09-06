@@ -90,7 +90,8 @@ export default Ember.Route.extend(RouteMixin, RulesetEmberizer, {
 			defaultTargets: this.store.query('configuredrule', {
 				perPage: 25,
 				typeFilter: 'target'
-			})
+			}),
+			authGroups: this.store.findAll('authgroup')
 		})
 	},
 	actions: {

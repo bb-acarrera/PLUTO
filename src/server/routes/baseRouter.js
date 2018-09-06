@@ -1,3 +1,5 @@
+const AuthUser = require('../../common/authUser');
+
 /*
  * This is a base class for the routers. All routers must implement the methods defined here.
  */
@@ -8,15 +10,11 @@ class BaseRouter {
 	}
 
 	getAuth(req) {
-
-		const adminStr = req.header('AUTH-ADMIN');
-		const admin = (adminStr && adminStr.length > 0 && adminStr.toLowerCase().startsWith('t')) == true;
-
-		return {
-			user: req.header('AUTH-USER'),
-			group: req.header('AUTH-GROUP'),
-			admin: admin
-		}
+		return new AuthUser(
+			req.header('AUTH-USER'),
+			req.header('AUTH-GROUP'),
+			req.header('AUTH-ADMIN')
+		);
 	}
 
 	/*
