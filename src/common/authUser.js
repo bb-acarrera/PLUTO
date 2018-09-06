@@ -65,7 +65,7 @@ class AuthUser {
       };
     }
 
-    if(!inputgroup || inputgroup === "") {
+    if((!inputgroup) || (inputgroup === "")) {
       if(this.groups.length > 0) {
           return {
             valid: false,
