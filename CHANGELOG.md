@@ -1,5 +1,9 @@
 # PLUTO Change Log
 
+## 1.0.16
+### New Features
+### Bug Fixes and Minor Improvements
+
 ## 1.0.15
 ### New Features
 * AUTH-GROUP can take a list of groups in a ';' delimited list.  The UI will provide users the ability to select which group to assign as owner. (#581)
