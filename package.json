@@ -1,6 +1,6 @@
 {
   "name": "pluto",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "A data validation framework.",
   "main": "server.js",
   "scripts": {
