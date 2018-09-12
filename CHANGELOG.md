@@ -3,6 +3,7 @@
 ## 1.0.16
 ### New Features
 ### Bug Fixes and Minor Improvements
+* Fixes AUTH-GROUP not set on export (#586)
 
 ## 1.0.15
 ### New Features
