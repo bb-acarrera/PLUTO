@@ -13,8 +13,8 @@ function addAuth(auth, options) {
 			options.headers['AUTH-USER'] = auth.user;
 		}
 
-		if (auth.group) {
-			options.headers['AUTH-GROUP'] = auth.group;
+		if (auth.groupsAsString) {
+			options.headers['AUTH-GROUP'] = auth.groupsAsString;
 		}
 
 		options.headers['AUTH-ADMIN'] = auth.admin ? 'true' : 'false';
