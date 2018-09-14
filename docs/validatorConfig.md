@@ -266,12 +266,14 @@ If set to true, each validation must have a unique target file name across all u
 Maximum number of allowed concurrent jobs. Cancels the incoming task and returns http error if exceeded. 
 
 ## exportRulesets
-Configuration for exporting rulesets/validations another instance of PLUTO.  When set, a button titled "Export to ${exportToLabel}" will appear on the Edit Validation page and allow users to copy the current ruleset to that instance.
+Configuration for exporting rulesets/validations another instance of PLUTO.  When set, a button titled "Export to ${exportToLabel}" will appear on the Edit Validation page and allow users to copy the current ruleset to that instance.  The endpoints used to obtain configured rules and to import the rules can be configured as well via the "configuredRulesPath" and "importRulesetPath" respectively.  These two options are optional and have default values if not specified.  "configuredRulesPath" will default to "api/v1/configuredrules" if not specified.  "importRulesetPath" will default to "api/v1/importruleset" if not specified.
 
 ``` json
     "exportRulesets" : {
     		"exportToLabel": "Production",
-    		"hostBaseUrl": "http://localhost:3000"
+    		"hostBaseUrl": "http://localhost:3000",
+    		"configuredRulesPath": "api/v1/configuredrules",
+    		"importRulesetPath": "api/v1/importruleset"
     	}
 ```
 

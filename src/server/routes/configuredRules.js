@@ -96,7 +96,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 				version = req.query.version;
 			}
 
-			this.config.data.retrieveRule(id, version, dbId, auth.group, auth.admin, this.config.rulesLoader, name, type).then((rule) => {
+			this.config.data.retrieveRule(id, version, dbId, auth.groups, auth.admin, this.config.rulesLoader, name, type).then((rule) => {
 				if (!rule) {
 					res.statusMessage = `Unable to retrieve rule '${id}'.`;
 					res.status(404).end();
@@ -105,7 +105,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 				// To be able to see hidden properties the user must have admin rights and
 				// belong to the rule's group, if there is a group.
-				let adminMode = auth.admin || !rule.owner_group || rule.owner_group === auth.group
+				let adminMode = auth.admin || !rule.owner_group || auth.groups.includes(rule.owner_group)
 
 				rule = massageRule(rule, this.config.rulesLoader, adminMode);
 
@@ -139,14 +139,14 @@ class ConfiguredRuleRouter extends BaseRouter {
 				typeFilter: req.query.typeFilter,
 				ownerFilter: req.query.ownerFilter,
 				descriptionFilter: req.query.descriptionFilter
-			}, auth.group, auth.admin, this.config.rulesLoader).then((result) => {
+			}, auth.groups, auth.admin, this.config.rulesLoader).then((result) => {
 				const rules = [];
 
 				result.rules.forEach(rule => {
 
 					// To be able to see hidden properties the user must have admin rights and
 					// belong to the rule's group, if there is a group.
-					let adminMode = auth.admin || !rule.owner_group || rule.owner_group === auth.group
+					let adminMode = auth.admin || !rule.owner_group || auth.groups.includes(rule.owner_group)
 
 					rule = massageRule(rule, this.config.rulesLoader, adminMode);
 
@@ -172,14 +172,24 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 	patch(req, res, next) {
 		const auth = this.getAuth(req);
+		// Allow a user to select a specific auth group from the allowed list
+		// If a user is an admin they should have the ability to override the owner to any value though
+		// This is different than an insert/import validation since we need to take
+		//  into account the previous record owner
+		const rv = auth.validateInputOwnerGroupEdit(req.body.ownerGroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
 		const rule = req.body;
-		this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then(() => {
+		this.config.data.saveRule(rule, auth.user, rv.ownergroup, auth.admin).then(() => {
             req.body.version = rule.version;
 			res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 			console.log({
 				rule: rule.id,
 				user: auth.user,
-				group: auth.group,
+				group: rv.ownergroup,
 				type: "rule",
 				action: "update",
 				version: rule.version
@@ -191,13 +201,19 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 	delete(req, res, next) {
 		const auth = this.getAuth(req);
+		const rv = auth.validateInputOwnerGroupEdit(req.body.ownerGroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
 		const rule = req.body;
-        this.config.data.deleteRule(rule, auth.user, auth.group, auth.admin).then(() => {
+        this.config.data.deleteRule(rule, auth.user, rv.ownergroup, auth.admin).then(() => {
             res.json(req.body);	// Need to reply with what we received to indicate a successful PATCH.
 			console.log({
 				rule: rule.id,
 				user: auth.user,
-				group: auth.group,
+				group: rv.ownergroup,
 				type: "rule",
 				action: "delete",
 				version: rule.version
@@ -209,6 +225,13 @@ class ConfiguredRuleRouter extends BaseRouter {
 
 	insert(req, res, next) {
 		const auth = this.getAuth(req);
+		const inputOwnerGroup = (req.body.rule) ? req.body.rule.owner_group : undefined;
+		const rv = auth.validateInputOwnerGroup(inputOwnerGroup);
+		if(!rv.valid) {
+			res.statusMessage = 'Invalid owner group provided';
+			res.status(422).end();
+			return;
+		}
 		let new_ruleId = req.body.ruleId;
 
 
@@ -224,12 +247,12 @@ class ConfiguredRuleRouter extends BaseRouter {
 				};
 			}
 
-			this.config.data.saveRule(rule, auth.user, auth.group, auth.admin).then((id) => {
+			this.config.data.saveRule(rule, auth.user, rv.ownergroup, auth.admin).then((id) => {
 				res.status(201).location('/configuredRule/' + id).json(rule);
 				console.log({
 					rule: rule.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "rule",
 					action: "insert",
 					version: rule.version
@@ -251,7 +274,7 @@ class ConfiguredRuleRouter extends BaseRouter {
 				console.log({
 					rule: rule.id,
 					user: auth.user,
-					group: auth.group,
+					group: rv.ownergroup,
 					type: "rule",
 					action: "create",
 					version: rule.version

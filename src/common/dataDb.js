@@ -889,6 +889,10 @@ class data {
 
             function save(){
                 checkCanChangeRuleset(this.db, this.tables, ruleset, group, isAdmin, isImport).then((result) => {
+                    console.log("Result: ");
+                    console.log(result);
+                    console.log("Ruleset: ");
+                    console.log(ruleset);
                     let version = result.nextVersion;
                     let rowGroup = group;
                     let targetFile = null;
@@ -2018,7 +2022,7 @@ function checkCanChangeRule(db, tables, rule, group, admin) {
 
 }
 
-function getRuleResult(row, isAdmin, group, rulesLoader) {
+function getRuleResult(row, isAdmin, groups, rulesLoader) {
     let rule = {
         id: row.id,
         version: row.version,
@@ -2034,7 +2038,7 @@ function getRuleResult(row, isAdmin, group, rulesLoader) {
         group: row.group
     };
 
-    if (rule.owner_group && !isAdmin && rule.owner_group !== group) {
+    if (rule.owner_group && !isAdmin && ((!groups && rule.owner_group !== groups) || !groups.includes(rule.owner_group))) {
         rule.canedit = false;
     } else {
         rule.canedit = true;

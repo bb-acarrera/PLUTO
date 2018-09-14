@@ -40,7 +40,7 @@ class ExportConfigRouter extends BaseRouter {
 		if(req.body && req.body.rulesetId) {
 			let rulesetId = req.body.rulesetId;
 
-			this.config.data.retrieveRuleset(rulesetId, null, this.config.rulesLoader, null, null, auth.group, auth.admin).then((ruleset) => {
+			this.config.data.retrieveRuleset(rulesetId, null, this.config.rulesLoader, null, null, auth.groups, auth.admin).then((ruleset) => {
 				if (!ruleset) {
 					res.statusMessage = 'Unable to retrieve ' + rulesetId;
 					res.status(404).end();
@@ -91,8 +91,10 @@ class ExportConfigRouter extends BaseRouter {
 					ruleset.target.filename = target;
 				}
 
+				const importRulesetPath = (this.config.validatorConfig.exportRulesets.importRulesetPath || 'api/v1/importruleset');
+
 				var options = {
-					url: this.config.validatorConfig.exportRulesets.hostBaseUrl + '/api/v1/importruleset/' + ruleset.ruleset_id,
+					url: this.config.validatorConfig.exportRulesets.hostBaseUrl + '/' + importRulesetPath + '/' + ruleset.ruleset_id,
 					method: 'POST',
 					json: ruleset
 
@@ -134,14 +136,16 @@ class ExportConfigRouter extends BaseRouter {
 
 	getRemoteRule(ruleId, auth) {
 		return new Promise((resolve, reject) => {
-			this.config.data.retrieveRule(ruleId, null, null, auth.group, auth.admin, this.config.rulesLoader).then((rule) => {
+			this.config.data.retrieveRule(ruleId, null, null, auth.groups, auth.admin, this.config.rulesLoader).then((rule) => {
 				if (!rule) {
 					reject(`Unable to retrieve rule '${id}'.`);
 					return;
 				}
 
+				const configuredRulesPath = (this.config.validatorConfig.exportRulesets.configuredRulesPath || 'api/v1/configuredrules');
+
 				var options = {
-					url: this.config.validatorConfig.exportRulesets.hostBaseUrl + '/api/v1/configuredrules',
+					url: this.config.validatorConfig.exportRulesets.hostBaseUrl + '/' + configuredRulesPath,
 					qs: {
 						name: rule.description,
 						type: rule.type
