@@ -4,6 +4,12 @@ const apiBase = document.location.origin + '/api/v1';
 
 export default Ember.Component.extend({
 	router: Ember.inject.service(),
+	authGroup: Ember.computed('defaultAuthGroups.length', function() {
+		if(this.get('defaultAuthGroups.length') === 1) {
+			return this.get('defaultAuthGroups.firstObject');
+		}
+	}),
+
 
 	actions: {
 		onHidden() {
@@ -16,6 +22,9 @@ export default Ember.Component.extend({
 		},
 		setBase(base) {
 			this.set('base', base);
+		},
+		setPrefAuthGroup(prefAuthGroup) {
+			this.set('authGroup', prefAuthGroup.name);
 		},
 		addRule() {
 
@@ -32,6 +41,13 @@ export default Ember.Component.extend({
 				return;
 			}
 
+			const group = this.get('authGroup');
+			// Enforce a group if there are groups to select from
+			if(!group && (this.get('defaultAuthGroups.length') || 0) > 0) {
+				alert('An owner group must be specified');
+				return;
+			}
+
 
 			let rule = {
 				type: this.get('type'),
@@ -39,6 +55,9 @@ export default Ember.Component.extend({
 				base: base.get('id'),
 				config: {}
 			};
+			if(group) {
+				rule.owner_group = group.get('name');
+			}
 
 			var xmlHttp = new XMLHttpRequest();
 			xmlHttp.onreadystatechange = () => {
